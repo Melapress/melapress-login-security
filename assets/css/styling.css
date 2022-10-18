@@ -1,0 +1,20 @@
+#pass-strength-result{
+  font-weight:bold;
+}
+
+#pass-strength-result ul{
+  font-weight: normal;
+  text-align: left;
+  list-style: disc outside;
+  font-size: smaller;
+  padding-left: 16px;
+}
+
+#pass-strength-result code {
+  font-size: smaller;
+  font-style: italic;
+}
+
+.pass-strength-result code {
+  letter-spacing: -3px; 
+ }

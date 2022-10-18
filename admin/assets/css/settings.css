@@ -1,0 +1,232 @@
+.ppm-wrap{
+	position: relative
+}
+.ppm-wrap .page-head{
+	position: relative;
+	padding-right: 250px;
+}
+.ppm-wrap .page-head .action{
+	position: absolute;
+	right: 0;
+	top: 0;
+	width: 236px;
+}
+.ppm-wrap .page-head h2{
+	font-size: 23px;
+  font-weight: 400;
+}
+.ppm-wrap .short-message{
+	font-style: italic;
+}
+
+td.col-indented {
+	padding: 0 50px 15px;;
+	box-sizing: border-box;
+}
+
+td .small-input {
+	max-width: 155px;
+}
+
+ul#ppm-exempted-list {
+	width: 250px;
+}
+
+li.ppm-exempted-list-item {
+	float: left;
+	display: inline-block;
+	margin: 2px 3px;
+	padding: 3px 5px 3px 5px;
+	background: #fff;
+	border-radius: 16px;
+	position: relative;
+}
+
+li.ppm-exempted-list-item.ppm-exempted-roles {
+    background: #e0e0e0;
+}
+
+li.ppm-exempted-list-item a.remove {
+	float: right;
+	text-align: center;
+	text-decoration: none;
+	margin-left: 3px;
+}
+
+li.ppm-exempted-list-item a.remove::before {
+	content: "\f335";
+	color: #fff;
+	font: 400 14px/15px dashicons;
+	display: inline-block;
+}
+
+li.ppm-exempted-list-item a.remove:hover::before{
+	color: #fff;
+}
+
+.user-btn {
+    margin-right: 10px !important;
+		margin-bottom: 10px !important;
+}
+
+.user-btn .remove-item {
+    background: red;
+    height: 14px;
+    width: 14px;
+    position: absolute;
+    color: #fff;
+    border-radius: 7px;
+    line-height: 11px;
+    text-align: center;
+    font-size: 10px;
+    display: block;
+    right: -7px;
+    top: -5px;
+}
+
+div#reset-container {
+    display: inline-block;
+    top: 20px;
+    vertical-align: top;
+}
+
+div#reset-container input#_ppm_reset {
+    background: #cc6600;
+    border-color: #c00000;
+    color: #fff;
+    font-size: larger;
+    height: 36px;
+    padding: 0 22px;
+}
+
+.ppm-settings{
+    display: inline-block;
+}
+
+.ppm-settings p.description{
+    clear:both;
+    max-width:570px;
+}
+
+.ppm-settings.disabled,
+.disabled th,
+.disabled p.description,
+.disabled label, .ppm-settings.disabled *,
+.ppm-settings .disabled {
+	color: #bbbbbb;
+}
+
+.disabled a {
+	opacity: 0.5;
+}
+
+.ppm-settings .disabled {
+	opacity: 0.5;
+    pointer-events: none;
+}
+
+#roles_sortable.disabled {
+	height: 0;
+    overflow: hidden;
+    margin: 0;
+}
+
+/* HIDE/DISPLAY SETTINGS */
+.ppm-settings.disabled {
+    height: 0;
+    overflow: hidden;
+}
+
+.nav-tab-wrapper.disabled .nav-tab {
+	display: none;    
+}
+
+/**
+ * Disable arrow for password history input
+ */
+#ppm-history::-webkit-inner-spin-button, #ppm-history::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+#ppm-history {
+	-moz-appearance: textfield;
+}
+
+/**
+ * InactiveUsersTable styles
+ */
+.tablenav.top #ppmwp_inactive_check_now:not(:first-child) {
+	margin-left: -10px;
+}
+
+#ppm-expiry-unit {
+	position: relative;
+	top: -2px;
+}
+
+/* Fix icon positioning */
+.ppm-wrap .nav-tab .dashicons, .ppm-wrap .nav-tab.dashicons-before:before {
+    font-size: 18px;
+    line-height: 25px;
+    position: relative;
+    left: -3px;
+}
+
+#roles_sortable li {
+    display: block;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 2.15384615;
+    min-height: 30px;
+    margin: 0;
+    padding: 0 10px 0 0;
+    cursor: pointer;
+    border-width: 1px;
+    border-style: solid;
+    -webkit-appearance: none;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-sizing: border-box;
+    color: #2271b1;
+    border-color: #2271b1;
+    background: #f6f7f7;
+}
+
+#roles_sortable li .dashicons {
+    transform: rotate( 90deg );
+    font-size: 17px;
+    opacity: 0.5;
+    position: relative;
+    top: 4px;
+}
+
+
+#ppmwp-role_tab_link_wrapper {
+    float: left;
+    height: 35px;
+    overflow: hidden;
+    position: relative;
+    width: 222px;
+}
+
+#ppmwp-role_tab_link_wrapper:hover, #ppmwp-role_tab_link_wrapper:hover #ppmwp_links-inner-wrapper {
+    overflow: visible;
+}
+#ppmwp-role_tab_link_wrapper a {display: block;clear: both;width: 160px;}
+
+#ppmwp_links-inner-wrapper {
+    position: absolute;
+    overflow: hidden;
+    width: auto;
+    max-width: 222px;
+    z-index: 100;
+    background: #eee;;
+}
+
+#ppmwp-role_tab_link_wrapper > span.dashicons {
+    position: absolute;
+    right: 40px;
+    z-index: 500;
+    top: 8px;
+}
