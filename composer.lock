@@ -51,7 +51,7 @@
         },
         {
             "name": "freemius/wordpress-sdk",
-            "version": "2.4.4",
+            "version": "2.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Freemius/wordpress-sdk.git",
