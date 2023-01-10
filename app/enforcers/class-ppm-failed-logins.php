@@ -283,7 +283,6 @@ if ( ! class_exists( 'PPM_Failed_Logins' ) ) {
 			// Redefining user_login ensures we return the right case in the email.
 			$user_login	 = $user_data->user_login;
 			$user_email	 = $user_data->user_email;
-			$blogname    = ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
 			// Only reset the password if the role has this option enabled.
 			if ( $reset_password ) {
@@ -297,24 +296,23 @@ if ( ! class_exists( 'PPM_Failed_Logins' ) ) {
 			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', parse_url( network_site_url(), PHP_URL_HOST ) );
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
-			$title      = sprintf( __( '[%s] Account logins unblocked', 'ppm-wp' ), $blogname );
 
-			$message = __( 'Hello', 'ppm-wp' ) . "\n";
-			$message .= __(' Your user account has been unblocked from further login attempts by the website administrator. Below are the details:', 'ppm-wp' ) . "\n";
-			$message .= __( 'Website:', 'ppm-wp' ) . ' ' . network_home_url( '/' ) . "\n";
-			$message .= __( 'Username:', 'ppm-wp' ) . ' ' . $user_data->user_login . "\n";
+			$title      = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_unblocked_email_title ) ? $ppm->options->ppm_setting->user_unblocked_email_title : \PPM_Email_Settings::get_default_string( 'user_unblocked_email_title' ), $user_id );
+
 			if ( $reset_password ) {
 				$login_page = OptionsHelper::get_password_reset_page();
-				$message .= __( 'Please visit the following URL to reset your password:', 'ppm-wp' ) . ' ' . esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) . "\n";
+				$msg   = isset( $ppm->options->ppm_setting->user_unblocked_email_reset_message ) ? $ppm->options->ppm_setting->user_unblocked_email_reset_message : \PPM_Email_Settings::get_default_string( 'user_unblocked_email_reset_message' );
+				$args['reset_or_continue'] = $msg . ' ' . esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) . "\n";
 			} else {
-				$message .= __( 'You may continue to login as normal', 'ppm-wp' ) . "\n";
+				$msg   = isset( $ppm->options->ppm_setting->user_unblocked_email_continue_message ) ? $ppm->options->ppm_setting->user_unblocked_email_continue_message : \PPM_Email_Settings::get_default_string( 'user_unblocked_email_continue_message' );
+				$args['reset_or_continue'] = $msg . "\n";
 			}
-			$email_address = ( is_multisite() ) ? get_site_option( 'admin_email' ) : get_option( 'admin_email' );
-			$message .= __( 'If you have any questions or require assistance contact your website administrator on', 'ppm-wp' ) . ' ' . $email_address . "\n";
-			$message .= __( 'Thank you.', 'ppm-wp' ) . ' ' . $user_data->user_login . "\n";
+
+			$content   = isset( $ppm->options->ppm_setting->user_unblocked_email_body ) ? $ppm->options->ppm_setting->user_unblocked_email_body : \PPM_Email_Settings::default_message_contents( 'user_unblocked' );
+			$email_content = \PPM_Email_Settings::replace_email_strings( $content, $user_id, $args );
 
 			// Fire off the mail.
-			wp_mail( $user_email, wp_specialchars_decode( $title ), $message, $headers );
+			wp_mail( $user_email, wp_specialchars_decode( $title ), $email_content, $headers );
 		}
 	}
 }

@@ -141,6 +141,10 @@ div#reset-container input#_ppm_reset {
 	display: none;    
 }
 
+.nav-tab:focus, .nav-tab:hover {
+    box-shadow: none;
+}
+
 /**
  * Disable arrow for password history input
  */

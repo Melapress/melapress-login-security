@@ -5,6 +5,10 @@
  * @subpackage wpassword
  *
  */
+
+use \PPMWP\Helpers\OptionsHelper;
+use \PPMWP\Helpers\PPM_Email_Settings;
+
 if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 
 	/**
@@ -25,7 +29,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			// Customize password reset key expiry time.
 			add_filter( 'password_reset_expiration', array( $this, 'customize_reset_key_expiry_time' ) );
 
-			add_filter( 'allow_password_reset', array( $this, 'ppm_is_user_allowed_to_reset' ), 10, 2 ); 
+			add_filter( 'allow_password_reset', array( $this, 'ppm_is_user_allowed_to_reset' ), 10, 2 );
 		}
 
 		/**
@@ -76,11 +80,13 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		 */
 		public function send_reset_email( $user_id, $by, $return_on_fail = false, $is_delayed = false ) {
 
+			$ppm       = ppm_wp();
+
 			// Check if message has already been sent.
 			$email_sent = get_user_meta( $user_id, PPM_WP_META_EXPIRED_EMAIL_SENT, true );
-			if ( $email_sent ) {
-				return;
-			}
+			// if ( $email_sent ) {
+			// 	return;
+			// }
 			
 			$user_data = get_userdata( $user_id );
 
@@ -93,53 +99,26 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 				if( $by == 'admin' ) {
 					$by_str = __('Your user password was reset by the website administrator. Below are the details:', 'ppm-wp');
 					if ( $is_delayed ) {
-						/* translators: %1$s: is Reset by text, %2$s is Site URL, %3$s is User login name, %4$s is admin email address */
-						$message = sprintf(	__(
-							'Hello, %1$s Website: %2$s username: %3$s Please be aware your password has been reset by the sites administrator and you will be required to provide a new one upon next login. If you have any questions or require assistance contact your website administrator on %4$s. Thank you.', 'ppm-wp'),
-						$by_str,
-						network_home_url( '/' ),
-						$user_data->user_login,
-						is_multisite() ? get_site_option( 'admin_email' ) : get_option('admin_email') );
+						$content   = isset( $ppm->options->ppm_setting->user_delayed_reset_email_body ) ? $ppm->options->ppm_setting->user_delayed_reset_email_body : \PPM_Email_Settings::default_message_contents( 'global_delayed_reset' );
+						$message = \PPM_Email_Settings::replace_email_strings( $ppm->options->ppm_setting->user_delayed_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 					} else {
-						/* translators: %1$s: is Reset by text, %2$s is Site URL, %3$s is User login name, %4$s: Reset PW URL, %5$s is admin email address */
-						$message = sprintf(	__(
-							'Hello, %1$s Website: %2$s username: %3$s Please visit the following URL to reset your password: %4$s If you have any questions or require assistance contact your website administrator on %5$s. Thank you.', 'ppm-wp'),
-						$by_str,
-						network_home_url( '/' ),
-						$user_data->user_login,
-						esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ),
-						is_multisite() ? get_site_option( 'admin_email' ) : get_option('admin_email') );
+						$content   = isset( $ppm->options->ppm_setting->user_reset_email_body ) ? $ppm->options->ppm_setting->user_reset_email_body : \PPM_Email_Settings::default_message_contents( 'password_reset' );
+						$message = \PPM_Email_Settings::replace_email_strings( $ppm->options->ppm_setting->user_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=". rawurlencode( $user_login ), 'login' ) ) ) );
 					}
 
 				}
 				else {
-					$by_str	= __( 'Your password', 'ppm-wp' );
-					/* translators: %1$s: is Reset by text, %2$s is user login name, %3$s is Site URL, %4$s: Reset PW URL, %5s$ is admin email address */
-					$message = sprintf( __('Hello, %1$s for the user %2$s on the website %3$s has expired. Please visit the following URL to reset your password: %4$s If you have any questions or require assistance contact your website administrator on %5$s. Thank you.', 'ppm-wp'),
-					$by_str,
-					$user_data->user_login,
-					network_home_url( '/' ),
-					esc_url_raw( network_site_url( "wp-login.php?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ),
-					is_multisite() ? get_site_option( 'admin_email' ) : get_option( 'admin_email' ) );
+					$content   = isset( $ppm->options->ppm_setting->user_password_expired_email_body ) ? $ppm->options->ppm_setting->user_password_expired_email_body : \PPM_Email_Settings::default_message_contents( 'password_expired' );
+					$message = \PPM_Email_Settings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 				}
-			}
-
-			if ( is_multisite() ) {
-				$blogname = get_network()->site_name;
-			} else {
-				/*
-				 * The blogname option is escaped with esc_html on the way into the database
-				 * in sanitize_option we want to reverse this for the plain text arena of emails.
-				 */
-				$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 			}
 
 			if( $by == 'admin' ) {
 				/* translators: Password reset email subject. 1: Site name */
-				$title = sprintf( __( '[%s] Password Reset', 'ppm-wp' ), $blogname );
+				$title = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_delayed_reset_title ) ? $ppm->options->ppm_setting->user_delayed_reset_title : \PPM_Email_Settings::get_default_string( 'user_delayed_reset_title' ), $user_id );
 			} else {
 				/* translators: Password reset email subject. 1: Site name */
-				$title = sprintf( __( '[%s] Password Expired', 'ppm-wp' ), $blogname );
+				$title = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_password_expired_title ) ? $ppm->options->ppm_setting->user_password_expired_title : \PPM_Email_Settings::get_default_string( 'user_password_expired_title' ), $user_id );
 			}
 
 			// Update usermeta so we know we have sent a message.
@@ -362,7 +341,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			}
 
 			// Allow if request is from an admin.
-			if ( isset( $_REQUEST['action'] ) && 'resetpassword' == $_REQUEST['action'] || isset( $_REQUEST['action'] ) && 'ppmwp_unlock_inactive_user' == $_REQUEST['action'] ) {
+			if ( isset( $_REQUEST['action'] ) && 'resetpassword' == $_REQUEST['action'] || isset( $_REQUEST['action'] ) && 'ppmwp_unlock_inactive_user' == $_REQUEST['action'] || isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' == $_REQUEST['action'] && 'profile' == $_REQUEST['from'] ) {
 				$user = wp_get_current_user();
 				$allowed_roles = [ 'administrator' ];
 				if ( array_intersect( $allowed_roles, $user->roles ) ) {

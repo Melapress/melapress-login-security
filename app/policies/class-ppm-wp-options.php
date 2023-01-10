@@ -5,6 +5,8 @@
  * @package WPassword
  */
 
+use \PPMWP\Helpers\PPM_Email_Settings;
+
 if ( ! class_exists( 'PPM_WP_Options' ) ) {
 
 	/**
@@ -186,6 +188,13 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'value' => 24,
 				'unit'  => 'hours',
 			),
+			'enable_wc_pw_reset'                  => 'no',
+			'enable_bp_register'                  => 'no',
+			'enable_bp_pw_update'                 => 'no',
+			'enable_ld_register'                  => 'no',
+			'enable_um_register'                  => 'no',
+			'enable_um_pw_update'                 => 'no',
+			'enable_bbpress_pw_update'			  => 'no',
 		);
 
 		/**
@@ -409,7 +418,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				$userdata = get_userdata( $user_id );
 				// Get user role.
 				$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
-				$user_role = reset( $roles );
+				$user_role = ( is_array( $roles ) ) ? reset( $roles ) : array();
 			}
 
 

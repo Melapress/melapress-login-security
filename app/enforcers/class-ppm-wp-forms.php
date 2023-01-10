@@ -60,10 +60,11 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		public function hook(){
 
 			// Check if the filter is being hit.
-			$scripts_required = apply_filters( 'ppm_enable_custom_form', [] );
+			$scripts_required     = apply_filters( 'ppm_enable_custom_form', [] );
+			$arr_scripts_required = apply_filters( 'ppm_enable_custom_forms_array', [] );
 
 			// If so, fire up function.
-			if ( ! empty( $scripts_required  ) ) {
+			if ( ! empty( $scripts_required ) || ! empty( $arr_scripts_required ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enable_custom_form' ) );
 			}
 
@@ -124,8 +125,10 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				$custom_form['elements_to_hide'] = $shortcode_attributes['elements_to_hide'];
 			}
 
-			if ( ! empty( $custom_form['element'] ) ) {
-				wp_deregister_script( 'user-profile' );
+			$custom_form_arr = apply_filters( 'ppm_enable_custom_forms_array', [] );
+
+			if ( ! empty( $custom_form['element'] ) || ! empty( $custom_form_arr ) ) {
+				// wp_deregister_script( 'user-profile' );
 				wp_deregister_script( 'password-strength-meter' );
 
 				wp_register_script( 'password-strength-meter', PPM_WP_URL . "assets/js/password-strength-meter.js", array( 'jquery', 'zxcvbn-async' ), false, 1 );
@@ -133,27 +136,28 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				wp_localize_script( 'password-strength-meter', 'pwsL10n', $this->msgs->pwsL10n );
 				wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ) );
 
-				wp_enqueue_script( 'user-profile', PPM_WP_URL . "assets/js/custom-form.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), false, 1 );
+				wp_enqueue_script( 'ppm-user-profile', PPM_WP_URL . "assets/js/custom-form.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), false, 1 );
 
-				wp_localize_script( 'user-profile', 'userProfileL10n', $this->msgs->userProfileL10n );
+				wp_localize_script( 'ppm-user-profile', 'userProfileL10n', $this->msgs->userProfileL10n );
 
 				// Variables to check shortly.
 				$element_to_apply_form_js_to      = $custom_form['element'];
 				$button_class_to_apply_form_js_to = isset( $custom_form['button_class'] ) ? $custom_form['button_class'] : '';
 				$elements_to_hide                 = isset( $custom_form['elements_to_hide'] ) ? $custom_form['elements_to_hide'] : '';
 
-				wp_localize_script( 'user-profile', 'PPM_Custom_Form',
+				wp_localize_script( 'ppm-user-profile', 'PPM_Custom_Form',
 					array(
 						'policy'	       => $this->password_hint(),
 						'element'	       => $element_to_apply_form_js_to,
 						'button_class'     => $button_class_to_apply_form_js_to,
 						'elements_to_hide' => $elements_to_hide,
+						'custom_forms_arr' => $custom_form_arr,
 					)
 				);
 
-				wp_localize_script( 'user-profile', 'ppmErrors', $this->msgs->error_strings );
-				wp_localize_script( 'user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
-				wp_localize_script( 'user-profile', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ));
+				wp_localize_script( 'ppm-user-profile', 'ppmErrors', $this->msgs->error_strings );
+				wp_localize_script( 'ppm-user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
+				wp_localize_script( 'ppm-user-profile', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ));
 
 				add_filter( 'password_hint', array( $this, 'password_hint' ) );
 
@@ -306,8 +310,9 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			if ( isset( $_REQUEST['action'] ) && 'resetpass' === sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) || isset( $_REQUEST['wc_reset_password'] ) && $_REQUEST['wc_reset_password'] ) {
 				return;
 			}
+			$deps = ( is_admin() ) ? array( 'login' ) : array();
 			// phpcs:enable
-			wp_enqueue_style( 'ppmwp-form-css', PPM_WP_URL . 'assets/css/styling.css', [ 'login' ] );
+			wp_enqueue_style( 'ppmwp-form-css', PPM_WP_URL . 'assets/css/styling.css', $deps );
 		}
 
 		/**
@@ -329,36 +334,36 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			ob_start();
 			?>
 			<div class="pass-strength-result">
-			<strong><?php esc_html_e('Hints for a strong password', 'ppm-wp'); ?>:</strong></p>
-			<ul>
-				<?php
-				unset( $this->msgs->error_strings['history'] );
-
-				$is_needed                   = isset( $this->role_options->rules['exclude_special_chars'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['exclude_special_chars'] );
-				$do_we_have_chars_to_exclude = isset( $this->role_options->excluded_special_chars ) && ! empty( $this->role_options->excluded_special_chars );
-
-				/**
-				 * Edge case when all special characters are excluded in the excluded characters
-				 * can return false positive when new password is set
-				 */
-				if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules[ 'special_chars' ] ) && isset( $this->msgs->error_strings[ 'special_chars' ] ) ) {
-					unset( $this->msgs->error_strings[ 'special_chars' ] );
-				}
-
-				if ( ! $is_needed || ! $do_we_have_chars_to_exclude ) {
-					// doesn't have any characters excluded.
-					unset( $this->msgs->error_strings[ 'exclude_special_chars' ] );
-				}
-
-				foreach ( array_filter( $this->msgs->error_strings ) as $key => $error ) {
-					?>
-					<li class="<?php echo esc_attr( $key ); ?>"><?php echo $error; ?></li>
+			<strong><?php esc_html_e('Hints for a strong password', 'ppm-wp'); ?>:</strong>
+				<ul>
 					<?php
-				}
-				?>
-			</ul>
+					unset( $this->msgs->error_strings['history'] );
+
+					$is_needed                   = isset( $this->role_options->rules['exclude_special_chars'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['exclude_special_chars'] );
+					$do_we_have_chars_to_exclude = isset( $this->role_options->excluded_special_chars ) && ! empty( $this->role_options->excluded_special_chars );
+
+					/**
+					 * Edge case when all special characters are excluded in the excluded characters
+					 * can return false positive when new password is set
+					 */
+					if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules[ 'special_chars' ] ) && isset( $this->msgs->error_strings[ 'special_chars' ] ) ) {
+						unset( $this->msgs->error_strings[ 'special_chars' ] );
+					}
+
+					if ( ! $is_needed || ! $do_we_have_chars_to_exclude ) {
+						// doesn't have any characters excluded.
+						unset( $this->msgs->error_strings[ 'exclude_special_chars' ] );
+					}
+
+					foreach ( array_filter( $this->msgs->error_strings ) as $key => $error ) {
+						?>
+						<li class="<?php echo esc_attr( $key ); ?>"><?php echo $error; ?></li>
+						<?php
+					}
+					?>
+				</ul>
 			</div>
-			<p><?php
+			<?php
 				return ob_get_clean();
 			}
 

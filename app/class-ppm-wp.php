@@ -139,6 +139,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			add_action( 'wp_login_failed', array( $this, 'update_user_last_activity' ) );			
 
 			add_action( 'wp_loaded', array( $this, 'register_summary_email_cron' ) );
+			
 		}
 
 		/**
@@ -151,6 +152,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			require_once PPM_WP_PATH . 'app/crons/CronInterface.php';
 			require_once PPM_WP_PATH . 'app/ajax/AjaxInterface.php';
 			require_once PPM_WP_PATH . 'app/helpers/OptionsHelper.php';
+			require_once PPM_WP_PATH . 'app/helpers/class-ppm-email-settings.php';
 			// inactive users bootstrapper class.
 			require_once PPM_WP_PATH . 'app/InactiveUsers.php';
 			$this->hooks();
@@ -359,6 +361,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			$shortcodes = new PPM_Shortcodes();
 			$shortcodes->init();
+
+			$ppm_tp = new PPM_ThirdParties();
+			$ppm_tp->init();
 
 			// call ppm history all hook.
 			$history->hook();
@@ -816,6 +821,21 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			// If check reset key exists OR not.
 			if ( $verify_reset_key ) {
+				$this->handle_user_redirection( $verify_reset_key );
+			}
+		}
+
+		/**
+		 * Simple handler to perform redirection where needed.
+		 *
+		 * @param Object $verify_reset_key - Users reset key.
+		 * @param boolean $send_json_after - Send json when done?
+		 * @param boolean $exit_on_over - Exit or die?
+		 * @return void
+		 */
+		public function handle_user_redirection( $verify_reset_key, $send_json_after = false, $exit_on_over = false ) {
+
+			if ( $verify_reset_key ) {
 				$redirect_to = add_query_arg(
 					array(
 						'action' => 'rp',
@@ -824,9 +844,21 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 					),
 					network_site_url( 'wp-login.php' )
 				);
-				wp_safe_redirect( $redirect_to );
-				die;
+				if ( $send_json_after ) {
+					wp_send_json_success( array(
+						'success'  => true,
+						'redirect' => $redirect_to
+					) );
+				} else {
+					wp_safe_redirect( $redirect_to );
+					if ( $exit_on_over ) {
+						exit;
+					} else {
+						die;
+					}					
+				}
 			}
+
 		}
 
 		/**

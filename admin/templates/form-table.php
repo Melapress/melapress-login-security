@@ -40,7 +40,7 @@
 				<label for="ppm-mix-case">
 					<input name="_ppm_options[ui_rules][mix_case]" type="checkbox" id="ppm-mix-case"
 					       value="1" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->setting_tab->ui_rules[ 'mix_case' ] ) ); ?>/>
-					       <?php _e( 'Password must contain a mix of uppercase and lowercase characters.', 'ppm-wp' ); ?>
+					       <?php _e( 'Password must contain at least one uppercase and one lowercase character.', 'ppm-wp' ); ?>
 				</label>
 			</fieldset>
 		</td>
@@ -58,7 +58,7 @@
 				<label for="ppm-numeric">
 					<input name="_ppm_options[ui_rules][numeric]" type="checkbox" id="ppm-numeric"
 					       value="1" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->setting_tab->ui_rules[ 'numeric' ] ) ); ?>/>
-					       <?php _e( 'Password must contain numeric digits (<code>0-9</code>).', 'ppm-wp' ); ?>
+					       <?php _e( 'Password must contain at least one numeric digit (<code>0-9</code>).', 'ppm-wp' ); ?>
 				</label>
 			</fieldset>
 		</td>
@@ -80,7 +80,7 @@
 						<?php
 						printf(
 							/* translators: 1 - a list of special characters wrapped in a code block */
-							esc_html__( 'Password must contain special characters (eg: %1$s).', 'ppm-wp' ),
+							esc_html__( 'Password must contain at least one special character (eg: %1$s).', 'ppm-wp' ),
 							'<code>' . esc_html( ppm_wp()->get_special_chars() ) . '</code>'
 						);
 						?>

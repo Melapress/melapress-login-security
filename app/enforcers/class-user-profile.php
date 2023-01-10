@@ -7,6 +7,9 @@
  * @author WP White Security
  */
 
+use \PPMWP\Helpers\OptionsHelper;
+use \PPMWP\Helpers\PPM_Email_Settings;
+
 // If check class exists OR not.
 if ( ! class_exists( 'PPM_User_Profile' ) ) {
 	/**
@@ -95,22 +98,38 @@ if ( ! class_exists( 'PPM_User_Profile' ) ) {
 		}
 
 		public function ppm_reset_pw_on_login( $user_login, $user ) {
+			$this->ppm_handle_login_based_resets( $user_login, $user, 'reset-on-login' );
+		}
+
+		public function ppm_handle_login_based_resets( $user_login, $user, $reset_type = 'reset-on-login' ) {
 			// Get user reset key.
 			$reset = new PPM_WP_Reset();
-			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'reset-on-login' );
+			$ppm   = ppm_wp();
+
+			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, $reset_type );
 
 			// If check reset key exists OR not.
 			if ( $verify_reset_key && ! $verify_reset_key->errors ) {
-				$redirect_to = add_query_arg(
-					array(
-						'action' => 'rp',
-						'key'    => $verify_reset_key->reset_key,
-						'login'  => rawurlencode( $verify_reset_key->user_login ),
-					),
-					network_site_url( 'wp-login.php' )
-				);
-				wp_safe_redirect( $redirect_to );
-				die;
+				// Handle users directly registered using Restrict Content.
+				if ( isset( $_REQUEST['action'] ) && 'rc_process_registration_form' === $_REQUEST['action'] ) {
+					$ppm->handle_user_redirection( $verify_reset_key, true );
+				} else {
+					$ppm->handle_user_redirection( $verify_reset_key );
+				}
+			} elseif ( isset( $verify_reset_key->errors['expired_key'] ) && ! empty( $verify_reset_key->errors['expired_key'] ) && 'new-user' === $reset_type ) {
+
+				// If a user has reached this point, they have a valid key in the correct place,
+				// but they have taken too long to reset, so we reset the key and send them back to login.
+
+				// Create new reset key for this user.
+				$key    = get_password_reset_key( $user );
+
+				if ( ! is_wp_error( $key ) ) {
+					// Update user with new key information.
+					$update = update_user_meta( $user->ID, PPM_WP_META_NEW_USER, $key );
+				}
+
+				$ppm->handle_user_redirection( $verify_reset_key );
 			}
 		}
 
@@ -130,42 +149,14 @@ if ( ! class_exists( 'PPM_User_Profile' ) ) {
 			$user_email	 = $user_data->user_email;
 			$key		 = get_user_meta( $user_id, PPM_WP_META_USER_RESET_PW_ON_LOGIN, true );
 			$login_page  = OptionsHelper::get_password_reset_page();
+			$email_content = false;
+
 			if( $by == 'admin' ) {
-				$by_str = __('Your user password was reset by the website administrator. Below are the details:', 'ppm-wp');
-				/* translators: %1$s: is Reset by text, %2$s is user login name, %3$s is Site URL, %4$s: Reset PW URL, %5s$ is admin email address */
-				$message = sprintf( __('Hello,
-
-%1$s
-
-Website: %2$s
-
-username: %3$s
-
-You will be asked to reset your password when you next login. Otherwise, you can visit the following URL to reset your password:
-
-%4$s
-
-If you have any questions or require assistance contact your website administrator on %5$s.
-
-Thank you.', 'ppm-wp'),
-				$by_str,
-				network_home_url( '/' ),
-				$user_data->user_login,
-				esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ),
-				is_multisite() ? get_site_option( 'admin_email' ) : get_option('admin_email') );
+				$content   = isset( $ppm->options->ppm_setting->user_reset_next_login_email_body ) ? $ppm->options->ppm_setting->user_reset_next_login_email_body : \PPM_Email_Settings::default_message_contents( 'reset_next_login' );
+				$email_content = \PPM_Email_Settings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 			}
 
-			if ( is_multisite() ) {
-				$blogname = get_network()->site_name;
-			} else {
-				/*
-				 * The blogname option is escaped with esc_html on the way into the database
-				 * in sanitize_option we want to reverse this for the plain text arena of emails.
-				 */
-				$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-			}
-			/* translators: Password reset email subject. 1: Site name */
-			$title = sprintf( __( '[%s] Password Reset', 'ppm-wp' ), $blogname );
+			$title      = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_reset_next_login_title ) ? $ppm->options->ppm_setting->user_reset_next_login_title : \PPM_Email_Settings::get_default_string( 'user_reset_next_login_title' ), $user_id );
 
 			$ppm = ppm_wp();
 
@@ -173,7 +164,7 @@ Thank you.', 'ppm-wp'),
 			$from_email = sanitize_email( $from_email );
 			$headers[] = 'From: ' . $from_email;
 
-			if ( $message && ! wp_mail( $user_email, wp_specialchars_decode( $title ), $message, $headers ) ) {
+			if ( $email_content && ! wp_mail( $user_email, wp_specialchars_decode( $title ), $email_content, $headers ) ) {
 				$fail_message = __( 'The email could not be sent.', 'ppm-wp' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'ppm-wp' );
 				if ( $return_on_fail ) {
 					return $fail_message;

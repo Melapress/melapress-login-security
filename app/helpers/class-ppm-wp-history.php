@@ -60,13 +60,22 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 				return true;
 			}
 
+			// Ensure we dont store repeat requests.
+			foreach ( $password_history as $event ) {
+				$diff = abs( $password_event[ 'timestamp' ] - $event['timestamp'] );
+				if ( $diff < 10 ) {
+					return true;
+				}
+			}
+
 			// push new event to the end of it
 			array_push( $password_history, $password_event );
 
 
 			// trim to the right size by
 			// we're technically saving the latest password + the required history
-			$new_password_history = array_slice( $password_history, -$ppm->options->password_history, $ppm->options->password_history );
+			$length = $ppm->options->password_history + 2;
+			$new_password_history = array_slice( $password_history, -$ppm->options->password_history, $length );
 
 			// save it
 			return update_user_meta( $user_id, PPM_WP_META_KEY, $new_password_history );
@@ -122,13 +131,17 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 			$userdata = get_userdata( $user_id );
 			$password = $userdata->user_pass;
 
+			$push_event = ( isset( $_REQUEST[ 'action' ] ) && 'lostpassword' === $_REQUEST[ 'action' ] ) ? false : true;
+
 			$password_event = array(
 				'password' => $password,
 				'timestamp' => current_time( 'timestamp' ),
 				'by' => 'user',
 				'pest' => 'sss',
 			);
-			self::_push( $user_id, $password_event );
+			if ( $push_event ) {
+				self::_push( $user_id, $password_event );
+			}
 
 			// Apply last active time.
 			update_user_meta( $user_id, 'ppmwp_last_activity', current_time( 'timestamp' ) );
@@ -203,7 +216,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 */
 		public function ppm_get_first_login_policy( $user_id = 0, $roles = array() ) {
 			$ppm = ppm_wp();
-			$default_options = PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : array();
+			$default_options = isset( $ppm->options->inherit['master_switch'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : array();
 			if ( ! is_multisite() || ! doing_action( 'invite_user' ) ) {
 				// Get user by ID.
 				$get_userdata = get_user_by( 'ID', $user_id );

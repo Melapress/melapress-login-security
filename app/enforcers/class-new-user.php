@@ -32,66 +32,8 @@ if ( ! class_exists( 'PPM_New_User_Register' ) ) {
 		 * @param object $user User object.
 		 */
 		public function ppm_first_time_login( $user_login, $user ) {
-
-			// Get user reset key.
-			$reset = new PPM_WP_Reset();
-			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
-
-			// If check reset key exists OR not.
-			if ( $verify_reset_key && ! $verify_reset_key->errors ) {
-				// Handle users directly registered using Restrict Content.
-				if ( isset( $_REQUEST['action'] ) && 'rc_process_registration_form' === $_REQUEST['action'] ) {
-					$redirect_to = add_query_arg(
-						array(
-							'action' => 'rp',
-							'key'    => $verify_reset_key->reset_key,
-							'login'  => rawurlencode( $verify_reset_key->user_login ),
-						),
-						network_site_url( 'wp-login.php' )
-					);
-					wp_send_json_success( array(
-						'success'  => true,
-						'redirect' => $redirect_to
-					) );
-				} else {
-					$redirect_to = add_query_arg(
-						array(
-							'action' => 'rp',
-							'key'    => $verify_reset_key->reset_key,
-							'login'  => rawurlencode( $verify_reset_key->user_login )
-						),
-						network_site_url( 'wp-login.php' )
-					);
-
-					wp_safe_redirect( $redirect_to );
-					die;
-				}
-			} elseif ( isset( $verify_reset_key->errors['expired_key'] ) && ! empty( $verify_reset_key->errors['expired_key'] ) ) {
-
-				// If a user has reached this point, they have a valid key in the correct place,
-				// but they have taken too long to reset, so we reset the key and send them back to login.
-
-				// Create new reset key for this user.
-				$key    = get_password_reset_key( $user );
-
-				if ( ! is_wp_error( $key ) ) {
-					// Update user with new key information.
-					$update = update_user_meta( $user->ID, PPM_WP_META_NEW_USER, $key );
-				}
-
-				// Send user back to login.
-				$redirect_to = add_query_arg(
-					array(
-						'action' => 'rp',
-						'key'    => $verify_reset_key->reset_key,
-						'login'  => rawurlencode( $verify_reset_key->user_login )
-					),
-					network_site_url( 'wp-login.php' )
-				);
-
-				wp_safe_redirect( $redirect_to );
-				die;
-			}
+			$user_profile = new PPM_User_Profile();
+			$user_profile->ppm_handle_login_based_resets( $user_login, $user, 'new-user' );
 		}
 
 		// Override login_redirect to ensure we are not taken to a custom page.
@@ -100,19 +42,10 @@ if ( ! class_exists( 'PPM_New_User_Register' ) ) {
 
 				$reset = new PPM_WP_Reset();
 				$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
+				$ppm = PPM_WP::_instance();
 
 				if ( $verify_reset_key && ! $verify_reset_key->errors ) {
-					$redirect_to = add_query_arg(
-						array(
-							'action' => 'rp',
-							'key'    => $verify_reset_key->reset_key,
-							'login'  => rawurlencode( $verify_reset_key->user_login ),
-							'redirect_to' => $redirect_to,
-						),
-						network_site_url( 'wp-login.php' )
-					);
-					wp_redirect( $redirect_to );
-					exit;
+					$ppm->handle_user_redirection( $verify_reset_key, false, true );
 				}
 			}
 

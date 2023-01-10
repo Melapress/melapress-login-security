@@ -217,7 +217,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			require_once 'templates/views/settings.php';
 		}
 
-				/**
+		/**
 		 * Display settings page.
 		 */
 		public function ppm_display_locked_users_page() {
@@ -323,9 +323,56 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				$settings[ 'exempted' ][ 'users' ] = $this->decode_js_var( $settings[ 'exempted' ][ 'users' ] );
 				$settings[ 'terminate_session_password' ] = isset( $settings[ 'terminate_session_password' ] );
 				$settings[ 'send_summary_email' ] = isset( $settings[ 'send_summary_email' ] );
+				$settings[ 'enable_wc_pw_reset' ] = isset( $settings[ 'enable_wc_pw_reset' ] );
+				$settings[ 'enable_bp_register' ] = isset( $settings[ 'enable_bp_register' ] );
+				$settings[ 'enable_bp_pw_update' ] = isset( $settings[ 'enable_bp_pw_update' ] );
+				$settings[ 'enable_ld_register' ] = isset( $settings[ 'enable_ld_register' ] );
+				$settings[ 'enable_um_register' ] = isset( $settings[ 'enable_um_register' ] );
+				$settings[ 'enable_um_pw_update' ] = isset( $settings[ 'enable_um_pw_update' ] );
 
 				$settings[ 'users_have_multiple_roles' ] = isset( $settings[ 'users_have_multiple_roles' ] );
 				$settings[ 'multiple_role_order' ] = explode( ',', $settings[ 'multiple_role_order' ] );
+
+				$emaii_content_settings = array( 
+					'user_unlocked_email_body' => '{reset_or_continue}',
+					'user_unblocked_email_body' => '{reset_or_continue}',
+					'user_reset_next_login_email_body' => '{reset_url}',
+					'user_password_expired_email_body' => '{reset_url}'
+				);
+
+				foreach ( array_keys( $emaii_content_settings ) as $content_setting ) {
+					if ( isset( $settings[$content_setting] ) && strpos( $settings[$content_setting], $emaii_content_settings[$content_setting] ) === false ) {
+						$settings[$content_setting] =  $ppm->options->ppm_setting->$content_setting;
+						$this->extra_notice_details[] = array(
+							'title'   => __( 'Email body missing tag', 'ppm-wp' ),
+							'message' => __( 'Please the required tag is added before updating: ', 'ppm-wp' ) . $emaii_content_settings[$content_setting],
+							'buttons' => array(
+								array(
+									'text'    => __( 'OK', 'ppm-wp' ),
+									'class'   => 'button-primary',
+									'onClick' => 'tb_remove()',
+								),
+							),
+						);
+					}
+				}
+
+				foreach ( array_keys( $emaii_content_settings ) as $content_setting ) {
+					if ( ! isset( $settings[$content_setting] ) || empty( $settings[$content_setting] ) ) {
+						$settings[$content_setting] =  $ppm->options->ppm_setting->$content_setting;
+						$this->extra_notice_details[] = array(
+							'title'   => __( 'Email body missing content', 'ppm-wp' ),
+							'message' => __( 'Please ensure all content is provided', 'ppm-wp' ),
+							'buttons' => array(
+								array(
+									'text'    => __( 'OK', 'ppm-wp' ),
+									'class'   => 'button-primary',
+									'onClick' => 'tb_remove()',
+								),
+							),
+						);
+					}
+				}
 
 				// make sure usernames passed are valid users and csvs.
 				if ( isset( $settings['inactive_exempted']['users'] ) ) {
@@ -419,6 +466,10 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			}
 
 			if ( ! isset( $_POST['_ppm_options']['disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['disable_self_reset_message'] ) ) {
+				$_POST['_ppm_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'ppm-wp' );
+			}
+
+			if ( ! isset( $_POST['_ppm_options']['user_unlocked_email_title'] ) || empty( $_POST['_ppm_options']['user_unlocked_email_title'] ) ) {
 				$_POST['_ppm_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'ppm-wp' );
 			}
 
@@ -634,7 +685,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				'test_email_nonce'           => wp_create_nonce( 'send_test_email' ),
 				'settings_nonce'             => wp_create_nonce( 'ppm_wp_settings' ),
 				'terminate_session_password' => PPMWP\Helpers\OptionsHelper::string_to_bool( $session_setting ),
-				'special_chars_regex'        => ppm_wp()->get_special_chars(),
+				'special_chars_regex'        => str_replace( '>]', '>\\[\\]]', ppm_wp()->get_special_chars() ),
 			) );
 			do_action( 'ppmwp_enqueue_admin_scripts' );
 			wp_localize_script(

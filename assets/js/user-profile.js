@@ -303,7 +303,7 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 			return;
 		}
 
-		strength = wp.passwordStrength.policyCheck( pass1, wp.passwordStrength.userInputBlacklist(), pass1 );
+		strength = wp.passwordStrength.policyCheck( pass1, wp.passwordStrength.userInputDisallowedList(), pass1 );
 
 		var errors = '';
 		var err_pfx = '';

@@ -142,7 +142,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 				$user_password['password'] = $user->user_pass;
 			}
 			// the password is not okay.
-			if ( is_a( $user, '\WP_User' ) && ! wp_check_password( $password, $user_password['password'], $user->ID ) ) {
+			if ( $password && is_a( $user, '\WP_User' ) && ! wp_check_password( $password, $user_password['password'], $user->ID ) ) {
 				return new WP_Error(
 					'incorrect_password',
 					sprintf(
