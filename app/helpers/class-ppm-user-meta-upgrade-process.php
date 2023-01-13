@@ -1,5 +1,10 @@
 <?php
-
+if ( ! class_exists( 'WP_Async_Request' ) && file_exists( PPM_WP_PATH . 'third-party/wp-async-request.php' ) ) {
+  require_once PPM_WP_PATH . 'third-party/wp-async-request.php';
+}
+if ( ! class_exists( 'WP_Background_Process' ) && file_exists( PPM_WP_PATH . 'third-party/wp-background-process.php' ) ) {
+  require_once PPM_WP_PATH . 'third-party/wp-background-process.php';
+}
 class PPM_User_Meta_Upgrade_Process extends WP_Background_Process {
 
 	/**

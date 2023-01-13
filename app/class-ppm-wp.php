@@ -121,12 +121,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			require_once PPM_WP_PATH . 'app/helpers/OptionsHelper.php';
 			$this->hooks();
 
-			if ( ! class_exists( 'WP_Background_Process' ) && file_exists( PPM_WP_PATH . 'third-party/wp-background-process.php' ) ) {
-				require_once PPM_WP_PATH . 'third-party/wp-background-process.php';
-			}
-			if ( ! class_exists( 'WP_Async_Request' ) && file_exists( PPM_WP_PATH . 'third-party/wp-async-request.php' ) ) {
-				require_once PPM_WP_PATH . 'third-party/third-party/wp-async-request.php';
-			}
 		}
 
 		/**
