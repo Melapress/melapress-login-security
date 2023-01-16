@@ -228,6 +228,12 @@ if ( ! function_exists( $mpls ) ) {
 	 */
 	require_once PPM_WP_PATH . 'app/enforcers/class-shortcodes.php';
 
+	// Include classes usually loaded via composer.
+	if ( ! file_exists( plugin_dir_path( __FILE__ ) . '/sdk/ppm-freemius.php' ) ) {
+		require_once PPM_WP_PATH . 'app/Utilities/ValidatorFactory.php';
+		require_once PPM_WP_PATH . 'app/Validators/Validator.php';
+	}
+
 	/**
 	 * Checks if a user is exempted from the policies
 	 *

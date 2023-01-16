@@ -40,115 +40,91 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:326
-msgid "Email body missing tag"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:327
-msgid "Please the required tag is added before updating: "
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:330, admin/class-ppm-wp-admin.php:347, admin/class-ppm-wp-admin.php:381, admin/class-ppm-wp-admin.php:708
-msgid "OK"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:343
-msgid "Email body missing content"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:344
-msgid "Please ensure all content is provided"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:377
-msgid "Inactive Exempt List Not Cleared"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:378
-msgid "Please exempt at least one user from the inactive user policy checks. It is required to have at least one exempted user in case all other accounts are locked."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:448, admin/class-ppm-wp-admin.php:452
+#: admin/class-ppm-wp-admin.php:375, admin/class-ppm-wp-admin.php:379
 msgid "You are not allowed to reset your password. Please contact the website administrator."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:473
+#: admin/class-ppm-wp-admin.php:400
 msgid "User Added to Inactive Exempt List"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:474
+#: admin/class-ppm-wp-admin.php:401
 msgid "Your user has been exempted from the Inactive Users policy since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:484
+#: admin/class-ppm-wp-admin.php:411
 msgid "View settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:675
+#: admin/class-ppm-wp-admin.php:602
 msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:676
+#: admin/class-ppm-wp-admin.php:603
 msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:677
+#: admin/class-ppm-wp-admin.php:604
 msgid "Should the plugin reset your password as well?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:706
+#: admin/class-ppm-wp-admin.php:633
 msgid "Please check your email for instructions on how to reset your password."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:707
+#: admin/class-ppm-wp-admin.php:634
 msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:709
+#: admin/class-ppm-wp-admin.php:635
+msgid "OK"
+msgstr ""
+
+#: admin/class-ppm-wp-admin.php:636
 msgid "No"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:729
+#: admin/class-ppm-wp-admin.php:656
 msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:731
+#: admin/class-ppm-wp-admin.php:658
 msgid "Reset password"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:856
+#: admin/class-ppm-wp-admin.php:783
 msgid "Policies updated successfully."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:869
+#: admin/class-ppm-wp-admin.php:796
 msgid "Policies update failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:882
+#: admin/class-ppm-wp-admin.php:809
 msgid "This setting is mandatory. Please specify a value."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:895
+#: admin/class-ppm-wp-admin.php:822
 msgid "All passwords were reset."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:908
+#: admin/class-ppm-wp-admin.php:835
 msgid "Resetting passswords failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:925
+#: admin/class-ppm-wp-admin.php:852
 msgid "No user logged in."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:928
+#: admin/class-ppm-wp-admin.php:855
 msgid "Current user has no email address defined"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:933
+#: admin/class-ppm-wp-admin.php:860
 msgid "WPassword plugin email test"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:934
+#: admin/class-ppm-wp-admin.php:861
 msgid ""
 "Hooray!\n"
 "\n"
@@ -159,15 +135,15 @@ msgid ""
 ""
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:957
+#: admin/class-ppm-wp-admin.php:884
 msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:955
+#: admin/class-ppm-wp-admin.php:882
 msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:972
+#: admin/class-ppm-wp-admin.php:899
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
@@ -336,31 +312,15 @@ msgstr ""
 msgid "Here is your weekly summary."
 msgstr ""
 
-#: app/crons/SummaryEmail.php:148
-msgid "Users marked as inactive:"
-msgstr ""
-
-#: app/crons/SummaryEmail.php:151
-msgid "Inactive since"
-msgstr ""
-
-#: app/crons/SummaryEmail.php:159
-msgid "Uers who exceeded failed login attempts:"
-msgstr ""
-
-#: app/crons/SummaryEmail.php:162
-msgid "Blocked since"
-msgstr ""
-
-#: app/crons/SummaryEmail.php:170
+#: app/crons/SummaryEmail.php:149
 msgid "Recent users with password resets:"
 msgstr ""
 
-#: app/crons/SummaryEmail.php:173
+#: app/crons/SummaryEmail.php:152
 msgid "Last reset"
 msgstr ""
 
-#: app/crons/SummaryEmail.php:180
+#: app/crons/SummaryEmail.php:159
 msgid "This email is generated by the %1$s WPassword plugin %2$s"
 msgstr ""
 
