@@ -23,7 +23,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 			'numeric'               => '[0-9]',
 			'upper_case'            => '[A-Z]',
 			'lower_case'            => '[a-z]',
-			'special_chars'         => '[!@#$%^&*()_?£"-+=~;:€<>]',
+			'special_chars'         => '[!@#$%^&*()_?£"\-+=~;:€<>]',
 			'exclude_special_chars' => '^((?![{excluded_chars}]).)*$',
 		);
 

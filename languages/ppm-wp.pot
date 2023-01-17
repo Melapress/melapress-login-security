@@ -28,8 +28,8 @@ msgstr ""
 msgid "Password Policies"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:166, admin/class-ppm-wp-ms-admin.php:60, admin/templates/admin-default.php:3
-msgid "WPassword"
+#: admin/class-ppm-wp-admin.php:166
+msgid "Login Security"
 msgstr ""
 
 #: admin/class-ppm-wp-admin.php:173, admin/class-ppm-wp-admin.php:173
@@ -151,6 +151,10 @@ msgstr ""
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
+#: admin/class-ppm-wp-ms-admin.php:60, admin/templates/admin-default.php:3
+msgid "WPassword"
+msgstr ""
+
 #: admin/class-ppm-wp-ms-admin.php:68, admin/class-ppm-wp-ms-admin.php:68, admin/templates/help/index.php:3, admin/templates/help/index.php:10
 msgid "Help"
 msgstr ""
@@ -237,33 +241,32 @@ msgstr ""
 msgid "To enter multiple special characters simply type them in one next to the other."
 msgstr ""
 
-#: admin/templates/form-table.php:121, app/modules/inactive-users/class-inactive-users.php:352
+#: admin/templates/form-table.php:121
 msgid "Password Expiration Policy"
 msgstr ""
 
-#: admin/templates/form-table.php:130, admin/templates/views/settings.php:159, app/modules/inactive-users/class-inactive-users.php:361
+#: admin/templates/form-table.php:130, admin/templates/views/settings.php:159, app/modules/inactive-users/class-inactive-users.php:350
 msgid "days"
 msgstr ""
 
-#: admin/templates/form-table.php:131, admin/templates/views/settings.php:160, app/modules/inactive-users/class-inactive-users.php:362
+#: admin/templates/form-table.php:131, admin/templates/views/settings.php:160, app/modules/inactive-users/class-inactive-users.php:351
 msgid "hours"
 msgstr ""
 
-#: admin/templates/form-table.php:132, app/modules/inactive-users/class-inactive-users.php:363
+#: admin/templates/form-table.php:132, app/modules/inactive-users/class-inactive-users.php:352
 msgid "months"
 msgstr ""
 
-#: admin/templates/form-table.php:135, app/modules/inactive-users/class-inactive-users.php:366
+#: admin/templates/form-table.php:135, app/modules/inactive-users/class-inactive-users.php:355
 msgid "seconds"
 msgstr ""
 
 #. translators: %s: Configured password expiry period.
-#. translators: %s: Configured password expiry period.
-#: admin/templates/form-table.php:151, app/modules/inactive-users/class-inactive-users.php:382
+#: admin/templates/form-table.php:151
 msgid "Passwords should automatically expire in %s"
 msgstr ""
 
-#: admin/templates/form-table.php:154, app/modules/inactive-users/class-inactive-users.php:385
+#: admin/templates/form-table.php:154
 msgid "Set to 0 to disable automatic expiration."
 msgstr ""
 
@@ -721,7 +724,7 @@ msgid "Enable this setting to delete the plugin's data from the database upon un
 msgstr ""
 
 #: app/modules/email-settings/class-ppm-email-settings.php:36
-msgid ">Email settings"
+msgid "Email settings"
 msgstr ""
 
 #: app/modules/email-settings/class-ppm-email-settings.php:138, app/modules/email-settings/class-ppm-email-settings.php:131, app/modules/email-settings/class-ppm-email-settings.php:123, app/modules/email-settings/class-ppm-email-settings.php:114, app/modules/email-settings/class-ppm-email-settings.php:105, app/modules/email-settings/class-ppm-email-settings.php:96
@@ -918,7 +921,7 @@ msgstr ""
 msgid "hour(s)"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:377, app/modules/inactive-users/class-inactive-users.php:451
+#: app/modules/failed-logins/class-ppm-failed-logins.php:377, app/modules/inactive-users/class-inactive-users.php:419
 msgid "Enable Inactive User Password Reset Feature"
 msgstr ""
 
@@ -930,7 +933,7 @@ msgstr ""
 msgid "By default, when a previously blocked user has been unblocked by an administrator, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:90, app/modules/inactive-users/class-inactive-users.php:90, app/modules/inactive-users/class-inactive-users.php:432
+#: app/modules/inactive-users/class-inactive-users.php:90, app/modules/inactive-users/class-inactive-users.php:90, app/modules/inactive-users/class-inactive-users.php:400
 msgid "Locked Users"
 msgstr ""
 
@@ -954,31 +957,31 @@ msgstr ""
 msgid "Your WordPress user has been deactivated. Please contact the website administrator to activate back your user."
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:394, app/modules/inactive-users/InactiveUsersTable.php:29
+#: app/modules/inactive-users/class-inactive-users.php:362, app/modules/inactive-users/InactiveUsersTable.php:29
 msgid "Inactive Users"
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:400
+#: app/modules/inactive-users/class-inactive-users.php:368
 msgid "Enable Inactive Users Features"
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:404
+#: app/modules/inactive-users/class-inactive-users.php:372
 msgid "Disable inactive user accounts if they are inactive for more than"
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:428
+#: app/modules/inactive-users/class-inactive-users.php:396
 msgid "Inactive users accounts will be will be locked. You can unlock users from the %1$s page in this plugin. To learn more about this policy, read the %2$s feature document"
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:436, app/modules/inactive-users/inactive-users.php:46, app/modules/inactive-users/inactive-users.php:30
+#: app/modules/inactive-users/class-inactive-users.php:404, app/modules/inactive-users/inactive-users.php:46, app/modules/inactive-users/inactive-users.php:30
 msgid "Inactive users policy"
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:455
+#: app/modules/inactive-users/class-inactive-users.php:423
 msgid "Require inactive users to reset password on unlock."
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:458
+#: app/modules/inactive-users/class-inactive-users.php:426
 msgid "By default, when a inactive user has been unlocked, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
 msgstr ""
 
