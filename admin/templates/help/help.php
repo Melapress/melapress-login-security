@@ -17,6 +17,21 @@
 	<br>
 	<p><iframe title="<?php _e( 'Getting Started', 'ppm-wp' ); ?>" class="wsal-youtube-embed" width="100%" height="315" src="https://www.youtube.com/embed/gXaMw4D_yo8" frameborder="0" allowfullscreen></iframe></p>
 
+	<?php
+	?>
+	<div class="title">
+		<h2 style="padding-left: 0;"><?php esc_html_e( 'Plugin Support', 'ppm-wp' ); ?></h2>
+	</div>
+	<p><?php esc_html_e( 'You can post your question on our support forum or send us an email for 1 to 1 support. Email support is provided to both free and premium plugin users.', 'ppm-wp' ); ?></p>
+	<div class="btn">
+		<a href="<?php echo esc_url( 'https://wordpress.org/support/plugin/melapress-login-security/' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Free support forum', 'ppm-wp' ); ?></a>
+		<a href="<?php echo esc_url( 'https://www.wpwhitesecurity.com/support/submit-ticket/' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Free email support', 'ppm-wp' ); ?></a>
+	</div>
+	<br>
+	<!-- End -->
+	<?php
+	?>
+
 	<!-- Plugin documentation -->
 	<div class="title">
 		<h2><?php _e( 'Plugin Documentation', 'ppm-wp' ); ?></h2>
@@ -25,6 +40,7 @@
 	<div class="btn">
 		<a href="<?php echo esc_url( 'https://www.wpwhitesecurity.com/support/kb/?utm_source=plugin&utm_medium=referral&utm_campaign=PPMWP&utm_content=help+page' ); ?>" class="button" target="_blank"><?php _e( 'Knowledge Base', 'ppm-wp' ); ?></a>
 	</div>
+	<br>
 	<!-- End -->
 
 	<!-- Plugin support -->

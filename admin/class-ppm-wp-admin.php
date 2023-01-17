@@ -190,6 +190,9 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			
 			add_action( "load-$settings_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$settings_hook_submenu", array( $this, 'process' ) );
+			
+			$hook_upgrade_submenu = add_submenu_page( $this->menu_name, esc_html__( 'Premium Features ➤', 'ppm-wp' ), esc_html__( 'Premium Features ➤', 'ppm-wp' ), 'manage_options', 'ppm-upgrade', array( $this, 'ppm_display_upgrade_page' ), 2 );
+			add_action( "load-$hook_upgrade_submenu", array( $this, 'help_page_enqueue_scripts' ) );
 		}
 
 		/**
@@ -204,6 +207,13 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 */
 		public function ppm_display_settings_page() {
 			require_once 'templates/views/settings.php';
+		}
+
+		/**
+		 * Display help page.
+		 */
+		public function ppm_display_upgrade_page() {
+			require_once PPM_WP_PATH . 'admin/templates/help/upgrade.php';
 		}
 
 		/**
