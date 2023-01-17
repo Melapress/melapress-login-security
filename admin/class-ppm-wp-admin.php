@@ -163,7 +163,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 */
 		public function admin_menu() {
 			// Add admin menu page.
-			$hook_name = add_menu_page( __( 'Password Policies', 'ppm-wp' ), __( 'WPassword', 'ppm-wp' ), 'manage_options', $this->menu_name, array( $this, 'screen' ), 'data:image/svg+xml;base64,' . ppm_wp()->icon, 99 );
+			$hook_name = add_menu_page( __( 'Password Policies', 'ppm-wp' ), __( 'Login Security', 'ppm-wp' ), 'manage_options', $this->menu_name, array( $this, 'screen' ), 'data:image/svg+xml;base64,' . ppm_wp()->icon, 99 );
 			add_action( "load-$hook_name", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$hook_name", array( $this, 'process' ) );
 
