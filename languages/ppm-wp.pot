@@ -40,91 +40,95 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:375, admin/class-ppm-wp-admin.php:379
+#: admin/class-ppm-wp-admin.php:194, admin/class-ppm-wp-admin.php:194
+msgid "Premium Features ➤"
+msgstr ""
+
+#: admin/class-ppm-wp-admin.php:385, admin/class-ppm-wp-admin.php:389
 msgid "You are not allowed to reset your password. Please contact the website administrator."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:400
+#: admin/class-ppm-wp-admin.php:410
 msgid "User Added to Inactive Exempt List"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:401
+#: admin/class-ppm-wp-admin.php:411
 msgid "Your user has been exempted from the Inactive Users policy since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:411
+#: admin/class-ppm-wp-admin.php:421
 msgid "View settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:602
+#: admin/class-ppm-wp-admin.php:612
 msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:603
+#: admin/class-ppm-wp-admin.php:613
 msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:604
+#: admin/class-ppm-wp-admin.php:614
 msgid "Should the plugin reset your password as well?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:633
+#: admin/class-ppm-wp-admin.php:643
 msgid "Please check your email for instructions on how to reset your password."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:634
+#: admin/class-ppm-wp-admin.php:644
 msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:635
+#: admin/class-ppm-wp-admin.php:645
 msgid "OK"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:636
+#: admin/class-ppm-wp-admin.php:646
 msgid "No"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:656
+#: admin/class-ppm-wp-admin.php:666
 msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:658
+#: admin/class-ppm-wp-admin.php:668
 msgid "Reset password"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:783
+#: admin/class-ppm-wp-admin.php:793
 msgid "Policies updated successfully."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:796
+#: admin/class-ppm-wp-admin.php:806
 msgid "Policies update failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:809
+#: admin/class-ppm-wp-admin.php:819
 msgid "This setting is mandatory. Please specify a value."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:822
+#: admin/class-ppm-wp-admin.php:832
 msgid "All passwords were reset."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:835
+#: admin/class-ppm-wp-admin.php:845
 msgid "Resetting passswords failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:852
+#: admin/class-ppm-wp-admin.php:862
 msgid "No user logged in."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:855
+#: admin/class-ppm-wp-admin.php:865
 msgid "Current user has no email address defined"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:860
+#: admin/class-ppm-wp-admin.php:870
 msgid "WPassword plugin email test"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:861
+#: admin/class-ppm-wp-admin.php:871
 msgid ""
 "Hooray!\n"
 "\n"
@@ -135,15 +139,15 @@ msgid ""
 ""
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:884
+#: admin/class-ppm-wp-admin.php:894
 msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:882
+#: admin/class-ppm-wp-admin.php:892
 msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:899
+#: admin/class-ppm-wp-admin.php:909
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
@@ -521,7 +525,7 @@ msgstr ""
 msgid "callback must be a function"
 msgstr ""
 
-#: admin/templates/help/contact-us.php:8, admin/templates/help/help.php:37, admin/templates/help/index.php:11
+#: admin/templates/help/contact-us.php:8, admin/templates/help/help.php:53, admin/templates/help/index.php:13
 msgid "Contact Us"
 msgstr ""
 
@@ -541,31 +545,43 @@ msgstr ""
 msgid "How to exclude users or roles from the password policies"
 msgstr ""
 
-#: admin/templates/help/help.php:22
-msgid "Plugin Documentation"
-msgstr ""
-
-#: admin/templates/help/help.php:24
-msgid "For more technical information about the WPassword plugin please visit the plugin’s knowledge base."
-msgstr ""
-
-#: admin/templates/help/help.php:26
-msgid "Knowledge Base"
-msgstr ""
-
-#: admin/templates/help/help.php:32
+#: admin/templates/help/help.php:23, admin/templates/help/help.php:48
 msgid "Plugin Support"
 msgstr ""
 
-#: admin/templates/help/help.php:34
+#: admin/templates/help/help.php:25
+msgid "You can post your question on our support forum or send us an email for 1 to 1 support. Email support is provided to both free and premium plugin users."
+msgstr ""
+
+#: admin/templates/help/help.php:27
+msgid "Free support forum"
+msgstr ""
+
+#: admin/templates/help/help.php:28
+msgid "Free email support"
+msgstr ""
+
+#: admin/templates/help/help.php:37
+msgid "Plugin Documentation"
+msgstr ""
+
+#: admin/templates/help/help.php:39
+msgid "For more technical information about the WPassword plugin please visit the plugin’s knowledge base."
+msgstr ""
+
+#: admin/templates/help/help.php:41
+msgid "Knowledge Base"
+msgstr ""
+
+#: admin/templates/help/help.php:50
 msgid "Have you encountered or noticed any issues while using the WPassword plugin? Or do you want to report something to us?"
 msgstr ""
 
-#: admin/templates/help/help.php:36
+#: admin/templates/help/help.php:52
 msgid "Open support ticket"
 msgstr ""
 
-#: admin/templates/help/index.php:12
+#: admin/templates/help/index.php:16
 msgid "System Info"
 msgstr ""
 
