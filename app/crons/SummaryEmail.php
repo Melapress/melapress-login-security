@@ -127,12 +127,10 @@ class SummaryEmail implements CronInterface {
 		$title     =  __( 'WPassword update - Week ', 'ppm-wp' ) . $weeknumber . ' - ' . get_site_url();
 		$email     = $from_email;
 
-		$inactive_users = OptionsHelper::get_inactive_users();
-		$inactive_users = $this->remove_unwanted_users( $inactive_users, 'inactive' );
+		// Setup empty array for free edition.
+		$inactive_users = array();
+		$blocked_users  = array();
 
-		$failed_logins = new \PPM_Failed_Logins();
-		$blocked_users = $failed_logins->get_all_currently_login_locked_users();
-		$blocked_users = $this->remove_unwanted_users( $blocked_users, 'blocked' );
 
 		$resets = $this->get_users_with_recent_password_resets();
 
