@@ -107,8 +107,9 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'inactive_users_reset_on_unlock' => 'yes',
 			'failed_login_policies_enabled'  => 'no',
 			'failed_login_attempts'          => 5,
+			'failed_login_reset_attempts'    => 1440,
 			'failed_login_unlock_setting'    => 'unlock-by-admin',
-			'failed_login_reset_hours'       => 1,
+			'failed_login_reset_hours'       => 60, // Mins @since 3.0.0.
 			'failed_login_reset_on_unblock'  => 'yes',
 			'disable_self_reset'             => 'no',
 			'disable_self_reset_message'     => '',

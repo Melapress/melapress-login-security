@@ -115,7 +115,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 		/**
 		 * @inheritDoc
 		 */
-		public function jsonSerialize() {
+		public function jsonSerialize():mixed {
 			return $this->rules;
 		}
 	}

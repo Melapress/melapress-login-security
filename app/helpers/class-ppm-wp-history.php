@@ -71,10 +71,9 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 			// push new event to the end of it
 			array_push( $password_history, $password_event );
 
-
 			// trim to the right size by
 			// we're technically saving the latest password + the required history
-			$length = $ppm->options->password_history + 2;
+			$length = $ppm->options->password_history + 1;
 			$new_password_history = array_slice( $password_history, -$ppm->options->password_history, $length );
 
 			// save it
