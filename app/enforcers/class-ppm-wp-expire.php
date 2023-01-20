@@ -155,22 +155,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 					'</a>'
 				);
 			}
-
-			// Check if the user is currently marked as inactive, as we do not want to apply the expired error in this case as the inactive user check will handle that.
-			if ( is_a( $user, '\WP_User' ) ) {
-				$is_user_inactive = PPMWP\Helpers\OptionsHelper::is_user_inactive( $user->ID );
-				// check if it password expired flag is existing.
-				if ( get_user_meta( $user->ID, PPM_WP_META_PASSWORD_EXPIRED, true ) && ! $is_user_inactive ) {
-					return new WP_Error( 'password-expired', sprintf(
-							/* translators: %s: user name */
-							__( '<strong>ERROR</strong>: The password you entered for the username %s has expired.', 'ppm-wp' ), '<strong>' . $user->user_login . '</strong>'
-						) .
-						' <a href="' . wp_lostpassword_url() . '">' .
-						__( 'Get a new password.', 'ppm-wp' ) .
-						'</a>'
-					);
-				}
-			}
+			
 
 			// Always return user object.
 			return $user;

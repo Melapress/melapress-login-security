@@ -80,45 +80,9 @@
 								</fieldset>
 							</td>
 						</tr>
-						<tr>
-							<th>
-								<label for="ppm-inactive-exempted">
-									<?php esc_html_e( 'Users exempted from inactive users policy', 'ppm-wp' ); ?>
-								</label>
-							</th>
-							<td>
-								<fieldset>
-									<input type="text" id="ppm-inactive-exempted-search" style="float: left; display: block; width: 250px;">
-									<input type="hidden"
-										id="ppm-inactive-exempted"
-										style="float: left; display: block; width: 250px;"
-										value="<?php echo ! empty( $this->options->ppm_setting->inactive_exempted[ 'users' ] ) ? htmlentities( json_encode( array_values( $this->options->ppm_setting->inactive_exempted[ 'users' ] ) ), ENT_QUOTES, 'UTF-8' ) : ''; ?>"
-										name="_ppm_options[inactive_exempted][users]"
-									>
-									<p class="description" style="clear:both;">
-										<?php
-										esc_html_e( 'Users in this list will be exempted from the inactive users policies.', 'ppm-wp' );
-										?>
-									</p>
-									<ul id="ppm-inactive-exempted-list">
-										<?php
-										if ( isset( $this->options->ppm_setting->inactive_exempted['users'] ) && is_array( $this->options->ppm_setting->inactive_exempted['users'] ) ) {
-											foreach ( $this->options->ppm_setting->inactive_exempted['users'] as $user_login ) {
-												$user = get_user_by( 'login', trim( $user_login ) );
-												if ( $user ) :
-													$user_id = $user->ID; ?>
-													<li class="ppm-exempted-list-item ppm-exempted-user user-btn button button-secondary" data-id="<?php echo $user_id; ?>">
-														<?php echo $user->user_login; ?>
-														<a href="#" class="remove remove-item"></a>
-													</li>
-												<?php endif;
-											}
-										}
-										?>
-									</ul>
-								</fieldset>
-							</td>
-						</tr>
+
+						<?php
+						?>
 
 						<tr valign="top">
 							<th scope="row">

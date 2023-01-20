@@ -199,7 +199,7 @@ msgstr ""
 msgid "Password Length"
 msgstr ""
 
-#: admin/templates/admin-form.php:136, admin/templates/views/settings.php:319
+#: admin/templates/admin-form.php:136, admin/templates/views/settings.php:283
 msgid "Save Changes"
 msgstr ""
 
@@ -245,11 +245,11 @@ msgstr ""
 msgid "Password Expiration Policy"
 msgstr ""
 
-#: admin/templates/form-table.php:130, admin/templates/views/settings.php:159, app/modules/inactive-users/class-inactive-users.php:350
+#: admin/templates/form-table.php:130, admin/templates/views/settings.php:123, app/modules/inactive-users/class-inactive-users.php:350
 msgid "days"
 msgstr ""
 
-#: admin/templates/form-table.php:131, admin/templates/views/settings.php:160, app/modules/inactive-users/class-inactive-users.php:351
+#: admin/templates/form-table.php:131, admin/templates/views/settings.php:124, app/modules/inactive-users/class-inactive-users.php:351
 msgid "hours"
 msgstr ""
 
@@ -287,7 +287,7 @@ msgstr ""
 msgid "Reset password on first login"
 msgstr ""
 
-#: admin/templates/form-table.php:200, admin/templates/views/settings.php:278, admin/templates/views/settings.php:285, admin/templates/views/settings.php:291
+#: admin/templates/form-table.php:200, admin/templates/views/settings.php:242, admin/templates/views/settings.php:249, admin/templates/views/settings.php:255
 msgid "Delete database data upon uninstall"
 msgstr ""
 
@@ -342,15 +342,6 @@ msgstr ""
 
 #: app/enforcers/class-ppm-wp-expire.php:154
 msgid "Lost your password?"
-msgstr ""
-
-#. translators: %s: user name
-#: app/enforcers/class-ppm-wp-expire.php:166
-msgid "<strong>ERROR</strong>: The password you entered for the username %s has expired."
-msgstr ""
-
-#: app/enforcers/class-ppm-wp-expire.php:169
-msgid "Get a new password."
 msgstr ""
 
 #: app/enforcers/class-ppm-wp-forms.php:337
@@ -648,78 +639,70 @@ msgstr ""
 msgid "Users in this list will be exempted from all the policies."
 msgstr ""
 
-#: admin/templates/views/settings.php:86
-msgid "Users exempted from inactive users policy"
-msgstr ""
-
-#: admin/templates/views/settings.php:100
-msgid "Users in this list will be exempted from the inactive users policies."
-msgstr ""
-
-#: admin/templates/views/settings.php:126, admin/templates/views/settings.php:133
+#: admin/templates/views/settings.php:90, admin/templates/views/settings.php:97
 msgid "Instantly terminate session on password expire or reset"
 msgstr ""
 
-#: admin/templates/views/settings.php:139
+#: admin/templates/views/settings.php:103
 msgid "Terminate session on password expire"
 msgstr ""
 
-#: admin/templates/views/settings.php:141
+#: admin/templates/views/settings.php:105
 msgid "By default when a users passwords expire or are reset their current session is not terminated and they are asked to reset their password once they logout and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset."
 msgstr ""
 
-#: admin/templates/views/settings.php:151
+#: admin/templates/views/settings.php:115
 msgid "Reset key expiry time"
 msgstr ""
 
 #. translators: %s: Configured password expiry period.
-#: admin/templates/views/settings.php:176
+#: admin/templates/views/settings.php:140
 msgid "Passwords reset keys should automatically expire in %s"
 msgstr ""
 
-#: admin/templates/views/settings.php:179
+#: admin/templates/views/settings.php:143
 msgid "By default when a user requests a password reset, the reset key will expire with 24 hours. Use this option to control this expiry time."
 msgstr ""
 
-#: admin/templates/views/settings.php:187
+#: admin/templates/views/settings.php:151
 msgid "Policy priority for users with multiple roles"
 msgstr ""
 
-#: admin/templates/views/settings.php:194
+#: admin/templates/views/settings.php:158
 msgid "Configure the priority of each user role's password policies"
 msgstr ""
 
-#: admin/templates/views/settings.php:196
+#: admin/templates/views/settings.php:160
 msgid "By default our plugin will apply the policy based on the 1st role found for a user, if your users are able to have multiple roles the correct policies may not be applied. To control this, sort the roles below into order priority (the higher the role means policies for this role will override subsequent policies which may also be applicable to a user)."
 msgstr ""
 
-#: admin/templates/views/settings.php:236
+#: admin/templates/views/settings.php:200
 msgid "Higher roles will superceed lower roles, meaning if a user has the role \"subscriber\" and also \"author\", to ensure \"author\" policies apply place it above \"subscriber\" to give these policies priority."
 msgstr ""
 
-#: admin/templates/views/settings.php:249
+#: admin/templates/views/settings.php:213
 msgid "From email address"
 msgstr ""
 
-#: admin/templates/views/settings.php:255
+#: admin/templates/views/settings.php:219
 msgid "Specify the from email address the plugin should use to send emails. If you do not specify an email address, the pre-defined default will be used."
 msgstr ""
 
-#: admin/templates/views/settings.php:263
+#: admin/templates/views/settings.php:227
 msgid "Email Test"
 msgstr ""
 
-#: admin/templates/views/settings.php:266
+#: admin/templates/views/settings.php:230
 msgid "Send Test Email"
 msgstr ""
 
-#: admin/templates/views/settings.php:269
+#: admin/templates/views/settings.php:233
 msgid ""
 "The plugin uses emails to alert users that their password has expired.\n"
 "									Use the test button below to send a test email to my email address and confirm email functionality."
 msgstr ""
 
-#: admin/templates/views/settings.php:293
+#: admin/templates/views/settings.php:257
 msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
 msgstr ""
 
@@ -906,35 +889,39 @@ msgstr ""
 msgid "Time period required to reset the failed logins count:"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:375
+#: app/modules/failed-logins/class-ppm-failed-logins.php:372
+msgid " minutes"
+msgstr ""
+
+#: app/modules/failed-logins/class-ppm-failed-logins.php:376
 msgid "Use this setting to specify how long for should the plugin keep a count of the failed logins. Once this time period passes, the failed logins count is reset to 0."
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:386
+#: app/modules/failed-logins/class-ppm-failed-logins.php:387
 msgid "When a user is locked: "
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:389
+#: app/modules/failed-logins/class-ppm-failed-logins.php:390
 msgid "it can be only unlocked by the administrator"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:391
+#: app/modules/failed-logins/class-ppm-failed-logins.php:392
 msgid "unlock it after"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:391
+#: app/modules/failed-logins/class-ppm-failed-logins.php:392
 msgid "minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:403, app/modules/inactive-users/class-inactive-users.php:419
+#: app/modules/failed-logins/class-ppm-failed-logins.php:404, app/modules/inactive-users/class-inactive-users.php:419
 msgid "Enable Inactive User Password Reset Feature"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:407
+#: app/modules/failed-logins/class-ppm-failed-logins.php:408
 msgid "Require blocked users to reset password on unblock."
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:410
+#: app/modules/failed-logins/class-ppm-failed-logins.php:411
 msgid "By default, when a previously blocked user has been unblocked by an administrator, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
 msgstr ""
 
