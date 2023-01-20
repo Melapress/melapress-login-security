@@ -49,7 +49,7 @@ if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 	 * Takes care of deactivation of the premium plugin when the free plugin is activated.
 	 */
 	function mls_free_on_plugin_activation() {
-		$premium_version_slug = 'melapress-login-security/melapress-login-security-premium.php';
+		$premium_version_slug = 'melapress-login-security-premium/melapress-login-security-premium.php';
 		if ( is_plugin_active( $premium_version_slug ) ) {
 			deactivate_plugins( $premium_version_slug, true );
 		}
@@ -98,50 +98,68 @@ if ( ! function_exists( $mpls ) ) {
 		define( 'PPM_WP_FILE', __FILE__ );
 	}
 
-	/**
-	 * Meta key for password history
-	 */
-	define( 'PPM_WP_META_KEY', PPMWP_PREFIX . '_password_history' );
+	if ( ! defined( 'PPM_WP_META_KEY' ) ) {
+		/**
+		 * Meta key for password history
+		 */
+		define( 'PPM_WP_META_KEY', PPMWP_PREFIX . '_password_history' );
+	}
 
-	/**
-	 * Meta key for delayed reset
-	 */
-	define( 'PPM_WP_META_DELAYED_RESET_KEY', PPMWP_PREFIX . '_delayed_reset' );
+	if ( ! defined( 'PPM_WP_META_DELAYED_RESET_KEY' ) ) {
+		/**
+		 * Meta key for delayed reset
+		 */
+		define( 'PPM_WP_META_DELAYED_RESET_KEY', PPMWP_PREFIX . '_delayed_reset' );
+	}
 
-	/**
-	 * Meta key for expired password mark
-	 */
-	define( 'PPM_WP_META_PASSWORD_EXPIRED', PPMWP_PREFIX . '_password_expired' );
+	if ( ! defined( 'PPM_WP_META_PASSWORD_EXPIRED' ) ) {
+		/**
+		 * Meta key for expired password mark
+		 */
+		define( 'PPM_WP_META_PASSWORD_EXPIRED', PPMWP_PREFIX . '_password_expired' );
+	}
 
-	/**
-	 * Meta key to flag email was sent.
-	 */
-	define( 'PPM_WP_META_EXPIRED_EMAIL_SENT', PPMWP_PREFIX . '_expired_email_sent' );
+	if ( ! defined( 'PPM_WP_META_EXPIRED_EMAIL_SENT' ) ) {
+		/**
+		 * Meta key to flag email was sent.
+		 */
+		define( 'PPM_WP_META_EXPIRED_EMAIL_SENT', PPMWP_PREFIX . '_expired_email_sent' );
+	}
 
-	/**
-	 * Meta key for new user mark.
-	 */
-	define( 'PPM_WP_META_NEW_USER', PPMWP_PREFIX . '_new_user_register' );
+	if ( ! defined( 'PPM_WP_META_NEW_USER' ) ) {
+		/**
+		 * Meta key for new user mark.
+		 */
+		define( 'PPM_WP_META_NEW_USER', PPMWP_PREFIX . '_new_user_register' );
+	}
 
-	/**
-	 * Meta key flag to reset on next login.
-	 */
-	define( 'PPM_WP_META_USER_RESET_PW_ON_LOGIN', PPMWP_PREFIX . '_reset_pw_on_login' );
+	if ( ! defined( 'PPM_WP_META_USER_RESET_PW_ON_LOGIN' ) ) {
+		/**
+		 * Meta key flag to reset on next login.
+		 */
+		define( 'PPM_WP_META_USER_RESET_PW_ON_LOGIN', PPMWP_PREFIX . '_reset_pw_on_login' );
+	}
 
-	/**
-	 * Meta key flag to mark user as inactive.
-	 */
-	define( 'PPMWP_DORMANT_FLAG_KEY', PPMWP_PREFIX . '_inactive_user_flag' );
+	if ( ! defined( 'PPMWP_DORMANT_FLAG_KEY' ) ) {
+		/**
+		 * Meta key flag to mark user as inactive.
+		 */
+		define( 'PPMWP_DORMANT_FLAG_KEY', PPMWP_PREFIX . '_inactive_user_flag' );
+	}
 
-	/**
-	 * Meta key flag to mark user as blocked.
-	 */
-	define( 'PPMWP_USER_BLOCK_FURTHER_LOGINS_KEY', PPMWP_PREFIX . '_is_blocked_user' );
+	if ( ! defined( 'PPMWP_USER_BLOCK_FURTHER_LOGINS_KEY' ) ) {
+		/**
+		 * Meta key flag to mark user as blocked.
+		 */
+		define( 'PPMWP_USER_BLOCK_FURTHER_LOGINS_KEY', PPMWP_PREFIX . '_is_blocked_user' );
+	}
 
-	/**
-	 * Meta key flag to mark user as blocked.
-	 */
-	define( 'PPMWP_USER_BLOCK_FURTHER_LOGINS_TIMESTAMP', PPMWP_PREFIX . '_blocked_since' );
+	if ( ! defined( 'PPMWP_USER_BLOCK_FURTHER_LOGINS_TIMESTAMP' ) ) {
+		/**
+		 * Meta key flag to mark user as blocked.
+		 */
+		define( 'PPMWP_USER_BLOCK_FURTHER_LOGINS_TIMESTAMP', PPMWP_PREFIX . '_blocked_since' );
+	}
 
 	/*
 	 * Include classes that define and provide policies
