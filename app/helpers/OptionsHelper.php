@@ -218,35 +218,6 @@ class OptionsHelper {
 	}
 
 	/**
-	 * Sets the inactive users array.
-	 *
-	 * Array should be a single dimentional array containing user IDs.
-	 *
-	 * @method set_inactive_users_array
-	 * @since  2.1.0
-	 * @param  array $inactive_array an array of `inactive` and `reset` ids.
-	 */
-	public static function set_inactive_users_array( $inactive_array ) {
-		$updated = false;
-		if ( is_array( $inactive_array ) ) {
-			$updated = update_site_option( PPMWP_PREFIX . '_inactive_users', $inactive_array );
-		}
-		return $updated;
-	}
-
-	/**
-	 * Checks if a user is considered inactive.
-	 *
-	 * @method is_user_inactive
-	 * @since  2.1.0
-	 * @param  int $user_id user ID to use.
-	 * @return boolean
-	 */
-	public static function is_user_inactive( $user_id = 0 ) {
-		return get_user_meta( $user_id, PPMWP_PREFIX . '_' . InactiveUsers::DORMANT_USER_FLAG_KEY, true );
-	}
-
-	/**
 	 * Gets the users last history timestamp from user meta.
 	 *
 	 * @method get_users_last_history_time
@@ -566,7 +537,6 @@ class OptionsHelper {
 	 * @return void
 	 */
 	public static function prioritise_roles( $roles = [] ) {
-
 		$ppm               = ppm_wp();
 
         if ( ! isset( $ppm->options->ppm_setting->multiple_role_order ) ) {
@@ -616,4 +586,5 @@ class OptionsHelper {
 		$standard_page = 'wp-login.php';
 		return apply_filters( 'ppmwp_reset_reset_pw_login_page', $standard_page );
 	}
+
 }

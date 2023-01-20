@@ -44,6 +44,21 @@
 $mpls = 'ppm_freemius';
 $mpls = 'ppm_wp';
 
+if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
+	/**
+	 * Takes care of deactivation of the premium plugin when the free plugin is activated.
+	 */
+	function mlsa_free_on_plugin_activation() {
+		$premium_version_slug = 'melapress-login-security/melapress-login-security-premium.php';
+		if ( is_plugin_active( $premium_version_slug ) ) {
+			deactivate_plugins( $premium_version_slug, true );
+		}
+	}
+
+	register_activation_hook( __FILE__, 'mls_free_on_plugin_activation' );
+}
+// phpcs:ignore
+
 if ( ! function_exists( $mpls ) ) {
 
 
