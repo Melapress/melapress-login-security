@@ -4,7 +4,7 @@
  *
  * @since 2.1.0
  *
- * @package wordpress
+ * @package WordPress
  */
 
 namespace PPMWP\Ajax;

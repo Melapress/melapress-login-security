@@ -1,9 +1,9 @@
 <?php
-
 /**
- * @package wordpress
- * @subpackage wpassword
+ * Handle user inputs.
  *
+ * @package WordPress
+ * @subpackage wpassword
  */
 
 use PPMWP\Helpers\OptionsHelper;
@@ -16,18 +16,21 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 	class PPM_WP_Forms {
 
 		/**
+		 * Plugins options.
 		 *
 		 * @var array Plugin Options
 		 */
 		private $options;
 
 		/**
+		 * Password hint messages.
 		 *
 		 * @var PPM_WP_Msgs Instance of PPM_WP_Msgs
 		 */
 		private $msgs;
 
 		/**
+		 * Plugin regex.
 		 *
 		 * @var PPM_WP_Regex Instance of PPM_WP_Regex
 		 */
@@ -35,6 +38,8 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 
 		/**
 		 * User Options
+		 *
+		 * @var $role_options Role specific settings.
 		 */
 		private $role_options;
 
@@ -57,35 +62,35 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		/**
 		 * Hook into WP to modify forms
 		 */
-		public function hook(){
+		public function hook() {
 
 			// Check if the filter is being hit.
-			$scripts_required     = apply_filters( 'ppm_enable_custom_form', [] );
-			$arr_scripts_required = apply_filters( 'ppm_enable_custom_forms_array', [] );
+			$scripts_required     = apply_filters( 'ppm_enable_custom_form', array() );
+			$arr_scripts_required = apply_filters( 'ppm_enable_custom_forms_array', array() );
 
 			// If so, fire up function.
 			if ( ! empty( $scripts_required ) || ! empty( $arr_scripts_required ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enable_custom_form' ) );
 			}
 
-			if ( $this->role_options == null || ! OptionsHelper::getPluginIsEnabled() ) {
+			if ( null == $this->role_options || ! OptionsHelper::get_plugin_is_enabled() ) {
 				return;
 			}
 
 			// deregister default scripts and register custom
-			// user-edit screen
+			// user-edit screen.
 			add_action( 'load-user-edit.php', array( $this, 'user_edit' ) );
 
-			// profile screen
+			// profile screen.
 			add_action( 'load-profile.php', array( $this, 'load_profile' ) );
 
-			// add new user screen
+			// add new user screen.
 			add_action( 'load-user-new.php', array( $this, 'user_new' ) );
 
-			// reset password form
+			// reset password form.
 			add_action( 'validate_password_reset', array( $this, 'reset_pass' ), 10, 2 );
 
-			// localise js objects
+			// localise js objects.
 			add_action( 'admin_print_styles-user-edit.php', array( $this, 'localise' ) );
 			add_action( 'admin_print_styles-profile.php', array( $this, 'localise' ) );
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'localise' ) );
@@ -104,15 +109,18 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 
 		/**
 		 * Enable policy for custom form
+		 *
+		 * @param array $shortcode_attributes - Possible attributes.
 		 */
-		public function enable_custom_form( $shortcode_attributes = [] ) {
+		public function enable_custom_form( $shortcode_attributes = array() ) {
 
-			$custom_form = [];
+			$custom_form = array();
 
-			// apply policy for custom forms
-			$custom_form = apply_filters( 'ppm_enable_custom_form',
+			// apply policy for custom forms.
+			$custom_form = apply_filters(
+				'ppm_enable_custom_form',
 				array(
-					'element'	       => '',
+					'element'          => '',
 					'button_class'     => '',
 					'elements_to_hide' => '',
 				)
@@ -125,30 +133,32 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				$custom_form['elements_to_hide'] = $shortcode_attributes['elements_to_hide'];
 			}
 
-			$custom_form_arr = apply_filters( 'ppm_enable_custom_forms_array', [] );
+			$custom_form_arr = apply_filters( 'ppm_enable_custom_forms_array', array() );
 
 			if ( ! empty( $custom_form['element'] ) || ! empty( $custom_form_arr ) ) {
-				// wp_deregister_script( 'user-profile' );
+
 				wp_deregister_script( 'password-strength-meter' );
 
-				wp_register_script( 'password-strength-meter', PPM_WP_URL . "assets/js/password-strength-meter.js", array( 'jquery', 'zxcvbn-async' ), false, 1 );
+				wp_register_script( 'password-strength-meter', PPM_WP_URL . 'assets/js/password-strength-meter.js', array( 'jquery', 'zxcvbn-async' ), PPMWP_VERSION, 1 );
 
-				wp_localize_script( 'password-strength-meter', 'pwsL10n', $this->msgs->pwsL10n );
+				wp_localize_script( 'password-strength-meter', 'pws_l10n', $this->msgs->pws_l10n );
 				wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ) );
 
-				wp_enqueue_script( 'ppm-user-profile', PPM_WP_URL . "assets/js/custom-form.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), false, 1 );
+				wp_enqueue_script( 'ppm-user-profile', PPM_WP_URL . 'assets/js/custom-form.js', array( 'jquery', 'password-strength-meter', 'wp-util' ), PPMWP_VERSION, 1 );
 
-				wp_localize_script( 'ppm-user-profile', 'userProfileL10n', $this->msgs->userProfileL10n );
+				wp_localize_script( 'ppm-user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
 
 				// Variables to check shortly.
 				$element_to_apply_form_js_to      = $custom_form['element'];
 				$button_class_to_apply_form_js_to = isset( $custom_form['button_class'] ) ? $custom_form['button_class'] : '';
 				$elements_to_hide                 = isset( $custom_form['elements_to_hide'] ) ? $custom_form['elements_to_hide'] : '';
 
-				wp_localize_script( 'ppm-user-profile', 'PPM_Custom_Form',
+				wp_localize_script(
+					'ppm-user-profile',
+					'PPM_Custom_Form',
 					array(
-						'policy'	       => $this->password_hint(),
-						'element'	       => $element_to_apply_form_js_to,
+						'policy'           => $this->password_hint(),
+						'element'          => $element_to_apply_form_js_to,
 						'button_class'     => $button_class_to_apply_form_js_to,
 						'elements_to_hide' => $elements_to_hide,
 						'custom_forms_arr' => $custom_form_arr,
@@ -157,7 +167,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 
 				wp_localize_script( 'ppm-user-profile', 'ppmErrors', $this->msgs->error_strings );
 				wp_localize_script( 'ppm-user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
-				wp_localize_script( 'ppm-user-profile', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ));
+				wp_localize_script( 'ppm-user-profile', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ) );
 
 				add_filter( 'password_hint', array( $this, 'password_hint' ) );
 
@@ -166,29 +176,30 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		}
 
 		/**
+		 * Check if on user edit screen.
 		 *
 		 * @global type $user_id
 		 */
 		public function user_edit() {
 			global $user_id;
 
-			// we don't want to overwrite the global if WP doesn't want to set it yet
+			// we don't want to overwrite the global if WP doesn't want to set it yet.
 			$userid = $user_id;
 
-
-			$userid = isset( $_GET[ 'user_id' ] ) ? $_GET[ 'user_id' ] : $userid;
+			$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid;
 
 			$this->modify_user_scripts( $userid );
 		}
 
 		/**
+		 * Check if on user profile screen.
 		 *
 		 * @global type $user_id
 		 */
 		public function load_profile() {
 			global $user_id;
 
-			// we don't want to overwrite the global if WP doesn't want to set it yet
+			// we don't want to overwrite the global if WP doesn't want to set it yet.
 			$userid = $user_id;
 
 			$userid = empty( $userid ) ? get_current_user_id() : false;
@@ -197,6 +208,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		}
 
 		/**
+		 * Handles new user screen.
 		 *
 		 * @global type $user_id
 		 */
@@ -207,15 +219,15 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		}
 
 		/**
+		 * Reset user password.
 		 *
-		 * @global type $user_id
-		 * @param type $errors
-		 * @param type $user
+		 * @param type    $errors - Current errors.
+		 * @param WP_User $user - Current User.
 		 */
 		public function reset_pass( $errors, $user ) {
 			global $user_id;
 
-			// we don't want to overwrite the global if WP doesn't want to set it yet
+			// we don't want to overwrite the global if WP doesn't want to set it yet.
 			$userid = $user_id;
 
 			if ( empty( $userid ) && ! empty( $user ) ) {
@@ -226,8 +238,9 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		}
 
 		/**
+		 * Handles loading custom scripts/hints where needed.
 		 *
-		 * @param type $user_id
+		 * @param type $user_id - Current user ID.
 		 * @return type
 		 */
 		private function modify_user_scripts( $user_id ) {
@@ -236,32 +249,31 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				return;
 			}
 
-			// $suffix = WP_DEBUG ? '' : '.min';
 			$suffix = '';
 
 			wp_deregister_script( 'user-profile' );
 			wp_deregister_script( 'password-strength-meter' );
 
-			wp_register_script( 'password-strength-meter', PPM_WP_URL . "assets/js/password-strength-meter$suffix.js", array( 'jquery', 'zxcvbn-async' ), false, 1 );
+			wp_register_script( 'password-strength-meter', PPM_WP_URL . "assets/js/password-strength-meter$suffix.js", array( 'jquery', 'zxcvbn-async' ), PPMWP_VERSION, 1 );
 
-			wp_localize_script( 'password-strength-meter', 'pwsL10n', $this->msgs->pwsL10n );
+			wp_localize_script( 'password-strength-meter', 'pws_l10n', $this->msgs->pws_l10n );
 
 			wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ) );
 
 			wp_add_inline_script( 'password-strength-meter', 'jQuery(document).ready(function() { jQuery(\'.pw-weak\').remove();});' );
 
-			wp_register_script( 'user-profile', PPM_WP_URL . "assets/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), false, 1 );
+			wp_register_script( 'user-profile', PPM_WP_URL . "assets/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), PPMWP_VERSION, 1 );
 
-			wp_localize_script( 'user-profile', 'userProfileL10n', $this->msgs->userProfileL10n );
+			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
 			wp_localize_script( 'user-profile', 'ppmErrors', $this->msgs->error_strings );
 			wp_localize_script( 'user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
 		}
 
 		/**
+		 * Locaise scripts.
 		 *
-		 * @global type $user_id
-		 * @param type $errors
-		 * @param type $user
+		 * @param WP_Error $errors - Current errors.
+		 * @param WP_User  $user - Current user.
 		 * @return type
 		 */
 		public function localise( $errors = false, $user = false ) {
@@ -282,14 +294,14 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			 * of scripts and styles into places where a cookie is being set.
 			 */
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WP doesn't use a nonce for login/reset form.
-			if ( isset( $_REQUEST['action'] ) && 'resetpass' === sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) || isset( $_REQUEST['wc_reset_password'] ) && $_REQUEST['wc_reset_password'] ) {
+			if ( isset( $_REQUEST['action'] ) && 'resetpass' === sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) || isset( $_REQUEST['wc_reset_password'] ) && $_REQUEST['wc_reset_password'] ) { // phpcs:ignore
 				return;
 			}
 			// phpcs:enable
 
 			add_filter( 'password_hint', array( $this, 'password_hint' ) );
 
-			wp_localize_script( 'user-profile', 'userProfileL10n', $this->msgs->userProfileL10n );
+			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
 			wp_localize_script( 'user-profile', 'ppmErrors', $this->msgs->error_strings );
 			wp_localize_script( 'user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
 		}
@@ -307,12 +319,12 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			 * of scripts and styles into places where a cookie is being set.
 			 */
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WP doesn't use a nonce for login/reset form.
-			if ( isset( $_REQUEST['action'] ) && 'resetpass' === sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) || isset( $_REQUEST['wc_reset_password'] ) && $_REQUEST['wc_reset_password'] ) {
+			if ( isset( $_REQUEST['action'] ) && 'resetpass' === sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) || isset( $_REQUEST['wc_reset_password'] ) && $_REQUEST['wc_reset_password'] ) {  // phpcs:ignore
 				return;
 			}
 			$deps = ( is_admin() ) ? array( 'login' ) : array();
 			// phpcs:enable
-			wp_enqueue_style( 'ppmwp-form-css', PPM_WP_URL . 'assets/css/styling.css', $deps );
+			wp_enqueue_style( 'ppmwp-form-css', PPM_WP_URL . 'assets/css/styling.css', $deps, PPMWP_VERSION );
 		}
 
 		/**
@@ -322,7 +334,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		 * @since  2.1.0
 		 */
 		public function add_admin_css() {
-			wp_enqueue_style( 'ppmwp-admin-css', PPM_WP_URL . 'admin/assets/css/backend-styling.css');
+			wp_enqueue_style( 'ppmwp-admin-css', PPM_WP_URL . 'admin/assets/css/backend-styling.css', array(), PPMWP_VERSION );
 		}
 
 		/**
@@ -334,7 +346,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			ob_start();
 			?>
 			<div class="pass-strength-result">
-			<strong><?php esc_html_e('Hints for a strong password', 'ppm-wp'); ?>:</strong>
+			<strong><?php esc_html_e( 'Hints for a strong password', 'ppm-wp' ); ?>:</strong>
 				<ul>
 					<?php
 					unset( $this->msgs->error_strings['history'] );
@@ -346,18 +358,18 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 					 * Edge case when all special characters are excluded in the excluded characters
 					 * can return false positive when new password is set
 					 */
-					if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules[ 'special_chars' ] ) && isset( $this->msgs->error_strings[ 'special_chars' ] ) ) {
-						unset( $this->msgs->error_strings[ 'special_chars' ] );
+					if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['special_chars'] ) && isset( $this->msgs->error_strings['special_chars'] ) ) {
+						unset( $this->msgs->error_strings['special_chars'] );
 					}
 
 					if ( ! $is_needed || ! $do_we_have_chars_to_exclude ) {
 						// doesn't have any characters excluded.
-						unset( $this->msgs->error_strings[ 'exclude_special_chars' ] );
+						unset( $this->msgs->error_strings['exclude_special_chars'] );
 					}
 
 					foreach ( array_filter( $this->msgs->error_strings ) as $key => $error ) {
 						?>
-						<li class="<?php echo esc_attr( $key ); ?>"><?php echo $error; ?></li>
+						<li class="<?php echo esc_attr( $key ); ?>"><?php echo wp_kses_post( $error ); ?></li>
 						<?php
 					}
 					?>
@@ -365,26 +377,26 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			</div>
 			<?php
 				return ob_get_clean();
-			}
+		}
 
 			/**
 			 * Add password hints to reset password form.
 			 */
-			public function add_hint_to_reset_form() {
-				if ( isset( $_GET['action'] ) && 'resetpass' === $_GET['action'] ) {
-					echo $this->password_hint();
-					echo '<style>.indicator-hint { display: none; } #pass1-text { margin-bottom: 0; }</style><br>';
-				}
+		public function add_hint_to_reset_form() {
+			if ( isset( $_GET['action'] ) && 'resetpass' === $_GET['action'] ) {
+				echo wp_kses_post( $this->password_hint() );
+				echo '<style>.indicator-hint { display: none; } #pass1-text { margin-bottom: 0; }</style><br>';
 			}
+		}
 
 			/**
 			 * Remove WCs built in PW meter to avoid conflics -
 			 * see https://github.com/WPWhiteSecurity/password-policy-manager/issues/298.
 			 */
-			public function remove_wc_password_strength() {
-				wp_dequeue_script( 'wc-password-strength-meter' );
-			}
-
+		public function remove_wc_password_strength() {
+			wp_dequeue_script( 'wc-password-strength-meter' );
 		}
 
 	}
+
+}

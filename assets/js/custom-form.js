@@ -1,4 +1,4 @@
-/* global ajaxurl, pwsL10n, userProfileL10n */
+/* global ajaxurl, pws_l10n, user_profile_l10n */
 ( function( $ ) {
 	var $pass1,
 	inputEvent;

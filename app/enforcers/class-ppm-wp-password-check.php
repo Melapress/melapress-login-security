@@ -95,7 +95,8 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 			}
 
 			// get the password from form submission.
-			$password = isset( $_POST['pass1'] ) ? $_POST['pass1'] : false;
+			$post_array = filter_input_array( INPUT_POST );
+			$password   = isset( $post_array['pass1'] ) ? $post_array['pass1'] : false;
 
 			// no password submitted, bail.
 			if ( empty( $password ) ) {
@@ -117,7 +118,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 */
 		public function edit_user( WP_Error $errors, $update, $user ) {
 
-			// While creating user, $user->ID is not set, return early in this case
+			// While creating user, $user->ID is not set, return early in this case.
 			if ( ! isset( $user->ID ) ) {
 				return;
 			}
@@ -160,7 +161,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 			}
 
 			// by now, the is_password_ok would have populated violations.
-			// if the policy check fails, if not, bail
+			// if the policy check fails, if not, bail.
 			if ( empty( $this->violations ) ) {
 				return;
 			}
@@ -192,16 +193,17 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * Check if a password is valid.
 		 *
 		 * @param string $password The password string.
+		 * @param int    $user_id - Current user ID.
 		 * @return boolean
 		 */
 		private function is_password_ok( $password, $user_id = false ) {
 
 			// if no user is supplied, assume current user.
-			if ( $user_id === false ) {
+			if ( false === $user_id ) {
 				$user_id = get_current_user_id();
 			}
 
-			if ( ! Validator::validatePasswordNotContainUsername( $password, $user_id ) ) {
+			if ( ! Validator::validate_password_not_contain_username( $password, $user_id ) ) {
 				$this->violations['username'] = true;
 
 				return false;
@@ -217,7 +219,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 			}
 
 			// set history violation.
-			if ( $is_old_password === true ) {
+			if ( true === $is_old_password ) {
 				$this->violations['history'] = true;
 			}
 
@@ -228,7 +230,8 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		/**
 		 * Check if password violates rules.
 		 *
-		 * @param type $password.
+		 * @param string $password - PW to check.
+		 * @param bool   $return_failures - Just return if needed.
 		 * @return mixed - Return of violation test.
 		 */
 		public function does_violate_rules( $password, $return_failures = false ) {
@@ -313,7 +316,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		/**
 		 * Filters Pattern Matching results to create boolean violations.
 		 *
-		 * @param array $regex_result.
+		 * @param array $regex_result - Violations check result.
 		 * @return boolean
 		 */
 		private function _is_violation( $regex_result ) {
@@ -344,15 +347,15 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		/**
 		 * Match Password with each rule pattern.
 		 *
-		 * @param type $password.
-		 * @return array The result of the pattern matching.
+		 * @param  string $password - PW to check.
+		 * @return array  The result of the pattern matching.
 		 */
 		private function _match_rules( $password ) {
 
 			$result = array();
 
 			// convert regexes to an array.
-			$rules = json_decode( json_encode( $this->regex ), true );
+			$rules = json_decode( wp_json_encode( $this->regex ), true );
 
 			foreach ( $rules as $rule => $regex ) {
 
@@ -390,19 +393,19 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * @param int    $user_id User to perform check for.
 		 * @return boolean
 		 */
-		static function _is_old_password( $new_pass, $user_id ) {
+		public static function _is_old_password( $new_pass, $user_id ) {
 
-			// get the saved history
+			// get the saved history.
 			$password_history = get_user_meta( $user_id, PPM_WP_META_KEY, true );
 
-			// no history, no need to check
+			// no history, no need to check.
 			if ( empty( $password_history ) ) {
 				return false;
 			}
 
 			foreach ( $password_history as $event ) {
 
-				// check against old password
+				// check against old password.
 				$match = wp_check_password( $new_pass, $event['password'], $user_id );
 
 				if ( $match ) {

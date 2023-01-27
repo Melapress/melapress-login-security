@@ -1,12 +1,29 @@
 <?php
+/**
+ * Handle BG processes.
+ *
+ * @package WordPress
+ * @subpackage wpassword
+ */
 
+/**
+ * Handles bacgrkund resets..
+ */
 class PPM_Reset_User_PW_Process extends WP_Background_Process {
 
 	/**
+	 * Action to run.
+	 *
 	 * @var string
 	 */
 	protected $action = 'ppm_reset_user_pw';
 
+	/**
+	 * Task logic.
+	 *
+	 * @param int $item - User ID.
+	 * @return bool.
+	 */
 	protected function task( $item ) {
 
 		if ( empty( $item ) || ! isset( $item ) ) {
@@ -23,6 +40,8 @@ class PPM_Reset_User_PW_Process extends WP_Background_Process {
 	}
 
 	/**
+	 * Did complete.
+	 *
 	 * @inheritDoc
 	 */
 	protected function complete() {
