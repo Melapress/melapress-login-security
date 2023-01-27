@@ -108,10 +108,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				);
 			}
 
-			/*
-			*/
-			// bootstraps the inactive users feature of the plugin.
-			add_action( 'init', array( $this, 'setup_inactive_users_feature' ) );
 
 			// Ensure user is sent to reset if needed.
 			add_action( 'admin_init', array( $this, 'redirect_user_to_forced_pw_reset' ) );
