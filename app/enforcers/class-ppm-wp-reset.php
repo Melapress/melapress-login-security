@@ -1,7 +1,8 @@
 <?php
-
 /**
- * @package wordpress
+ * Handle PW resets.
+ *
+ * @package WordPress
  * @subpackage wpassword
  *
  */
@@ -22,7 +23,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		public function hook() {
 
 			$ppm = ppm_wp();
-			//Hook the function only if reset delay is checked in the options
+			// Hook the function only if reset delay is checked in the options.
 			if ( $ppm->options->ppm_setting->terminate_session_password ) {
 				add_action( 'wp_authenticate', array( $this, 'check_on_login' ), 0, 2 );
 			}
@@ -35,31 +36,32 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		/**
 		 * Resets a user's password.
 		 *
-		 * @global object $wpdb
-		 * @param integer $user_id The user ID
-		 * @param string $by Reset by system, admin or user
-		 * @param bool $reset_all
+		 * @global object  $wpdb
+		 * @param  integer $user_id The user ID.
+		 * @param  string  $current_password - Current password.
+		 * @param  string  $by Reset by system, admin or user.
+		 * @param  bool    $reset_all - Did reset.
 		 */
 		public function reset( $user_id, $current_password, $by = 'system', $reset_all = false ) {
 			$ppm = ppm_wp();
 
-			// we can't reset without a user ID
-			if ( $user_id === false ) {
+			// we can't reset without a user ID.
+			if ( false === $user_id ) {
 				return;
 			}
 
-			// create a password event
+			// create a password event.
 			$password_event = array(
-				'password' => $current_password,
+				'password'  => $current_password,
 				'timestamp' => current_time( 'timestamp' ),
-				'by' => $by,
+				'by'        => $by,
 			);
 
-			// push current password to password history of the user
+			// push current password to password history of the user.
 			PPM_WP_History::_push( $user_id, $password_event );
 
-			if( in_array($by, ['admin', 'system']) ){
-				// update user's expired status 1
+			if ( in_array( $by, array( 'admin', 'system' ) ) ) {
+				// update user's expired status 1.
 				if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->terminate_session_password ) ) {
 					$this->delayed_reset( $user_id );
 				} else {
@@ -74,46 +76,42 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		/**
 		 * Sends reset email to user. Message depends on $by value
 		 *
-		 * @param int    $user_id        User ID
+		 * @param int    $user_id        User ID.
 		 * @param string $by             Can be 'system' or 'admin'. Depending on its value different messages are sent.
 		 * @param bool   $return_on_fail Flag to determine if we return or die on mail failure.
+		 * @param bool   $is_delayed	 Is delayed or instant.
 		 */
 		public function send_reset_email( $user_id, $by, $return_on_fail = false, $is_delayed = false ) {
 
-			$ppm       = ppm_wp();
+			$ppm = ppm_wp();
 
 			// Check if message has already been sent.
 			$email_sent = get_user_meta( $user_id, PPM_WP_META_EXPIRED_EMAIL_SENT, true );
-			// if ( $email_sent ) {
-			// 	return;
-			// }
-			
+
 			$user_data = get_userdata( $user_id );
 
 			// Redefining user_login ensures we return the right case in the email.
-			$user_login	 = $user_data->user_login;
-			$user_email	 = $user_data->user_email;
-			$key		 = get_password_reset_key( $user_data );
-			$login_page  = PPMWP\Helpers\OptionsHelper::get_password_reset_page();
+			$user_login = $user_data->user_login;
+			$user_email = $user_data->user_email;
+			$key        = get_password_reset_key( $user_data );
+			$login_page = PPMWP\Helpers\OptionsHelper::get_password_reset_page();
 			if ( ! is_wp_error( $key ) ) {
-				if( $by == 'admin' ) {
-					$by_str = __('Your user password was reset by the website administrator. Below are the details:', 'ppm-wp');
+				if ( 'admin' === $by ) {
+					$by_str = __( 'Your user password was reset by the website administrator. Below are the details:', 'ppm-wp' );
 					if ( $is_delayed ) {
-						$content   = isset( $ppm->options->ppm_setting->user_delayed_reset_email_body ) ? $ppm->options->ppm_setting->user_delayed_reset_email_body : \PPM_Email_Settings::default_message_contents( 'global_delayed_reset' );
+						$content = isset( $ppm->options->ppm_setting->user_delayed_reset_email_body ) ? $ppm->options->ppm_setting->user_delayed_reset_email_body : \PPM_Email_Settings::default_message_contents( 'global_delayed_reset' );
 						$message = \PPM_Email_Settings::replace_email_strings( $ppm->options->ppm_setting->user_delayed_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 					} else {
-						$content   = isset( $ppm->options->ppm_setting->user_reset_email_body ) ? $ppm->options->ppm_setting->user_reset_email_body : \PPM_Email_Settings::default_message_contents( 'password_reset' );
-						$message = \PPM_Email_Settings::replace_email_strings( $ppm->options->ppm_setting->user_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=". rawurlencode( $user_login ), 'login' ) ) ) );
+						$content = isset( $ppm->options->ppm_setting->user_reset_email_body ) ? $ppm->options->ppm_setting->user_reset_email_body : \PPM_Email_Settings::default_message_contents( 'password_reset' );
+						$message = \PPM_Email_Settings::replace_email_strings( $ppm->options->ppm_setting->user_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 					}
-
-				}
-				else {
-					$content   = isset( $ppm->options->ppm_setting->user_password_expired_email_body ) ? $ppm->options->ppm_setting->user_password_expired_email_body : \PPM_Email_Settings::default_message_contents( 'password_expired' );
+				} else {
+					$content = isset( $ppm->options->ppm_setting->user_password_expired_email_body ) ? $ppm->options->ppm_setting->user_password_expired_email_body : \PPM_Email_Settings::default_message_contents( 'password_expired' );
 					$message = \PPM_Email_Settings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 				}
 			}
 
-			if( $by == 'admin' ) {
+			if ( 'admin' === $by ) {
 				/* translators: Password reset email subject. 1: Site name */
 				$title = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_delayed_reset_title ) ? $ppm->options->ppm_setting->user_delayed_reset_title : \PPM_Email_Settings::get_default_string( 'user_delayed_reset_title' ), $user_id );
 			} else {
@@ -128,7 +126,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 
 			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', parse_url( network_site_url(), PHP_URL_HOST ) );
 			$from_email = sanitize_email( $from_email );
-			$headers[] = 'From: ' . $from_email;
+			$headers[]  = 'From: ' . $from_email;
 
 			if ( $message && ! wp_mail( $user_email, wp_specialchars_decode( $title ), $message, $headers ) ) {
 				$fail_message = __( 'The email could not be sent.', 'ppm-wp' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'ppm-wp' );
@@ -142,10 +140,15 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			}
 		}
 
+		/**
+		 * Send notification email to admins upon global reset.
+		 *
+		 * @return bool - Result.
+		 */
 		public function send_admin_email() {
 			$user_data = get_userdata( get_current_user_id() );
 
-			$message = __( 'All passwords have been reset for:', 'ppm-wp' ) . "\r\n\r\n";
+			$message  = __( 'All passwords have been reset for:', 'ppm-wp' ) . "\r\n\r\n";
 			$message .= network_home_url( '/' ) . "\r\n\r\n";
 
 			if ( is_multisite() ) {
@@ -162,12 +165,13 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 
 			$ppm = ppm_wp();
 
-			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@'.str_ireplace('www.', '', parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', parse_url( network_site_url(), PHP_URL_HOST ) );
 			$from_email = sanitize_email( $from_email );
-			$headers[] = 'From: ' . $from_email;
+			$headers[]  = 'From: ' . $from_email;
 
-			if ( $message && ! wp_mail( $user_data->user_email, wp_specialchars_decode( $title ), $message, $headers ) )
-				wp_die( __( 'The email could not be sent.', 'ppm-wp' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'ppm-wp' ) );
+			if ( $message && ! wp_mail( $user_data->user_email, wp_specialchars_decode( $title ), $message, $headers ) ) {
+				wp_die( esc_html__( 'The email could not be sent.', 'ppm-wp' ) . "<br />\n" . esc_html__( 'Possible reason: your host may have disabled the mail() function.', 'ppm-wp' ) );
+			}
 			return true;
 		}
 
@@ -179,14 +183,15 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 
 			$exempted_users = array();
 
-			if ( isset( $_POST['current_user'] ) ) {
+			// Nonce was checked prior to this call via process_reset.
+			if ( isset( $_POST['current_user'] ) ) { // phpcs:ignore
 				array_push( $exempted_users, get_current_user_id() );
 			}
 
-			// exclude exempted roles and users
+			// exclude exempted roles and users.
 			$user_args = array(
-				'exclude'		 => $exempted_users,
-				'fields' 		 => array( 'ID' ),
+				'exclude' => $exempted_users,
+				'fields'  => array( 'ID' ),
 			);
 
 			// If check multisite installed OR not.
@@ -195,16 +200,16 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			}
 
 			// Send users for bg processing later.
-			$total_users = count_users();
-			$batch_size  = 50;
-			$slices      = ceil( $total_users['total_users'] / $batch_size );
-			$users       = array();
+			$total_users        = count_users();
+			$batch_size         = 50;
+			$slices             = ceil( $total_users['total_users'] / $batch_size );
+			$users              = array();
 			$background_process = new PPM_Reset_User_PW_Process();
 
 			for ( $count = 0; $count < $slices; $count++ ) {
 				$user_args['number'] = $batch_size;
 				$user_args['offset'] = $count * $batch_size;
-				$users = get_users( $user_args );
+				$users               = get_users( $user_args );
 
 				if ( ! empty( $users ) ) {
 					foreach ( $users as $user ) {
@@ -216,10 +221,15 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			// Fire off bg processes.
 			$background_process->save()->dispatch();
 
-
 			return $this->send_admin_email();
 		}
 
+		/**
+		 * Flag user for reset later.
+		 *
+		 * @param  int $user_id - User ID to flag.
+		 * @return void
+		 */
 		public function delayed_reset( $user_id ) {
 
 			$ppm = ppm_wp();
@@ -231,9 +241,9 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			// Destroy user session.
 			// THIS METHOD CAN ONLY BE REACHED IF THE OPTION TO TERMINATE
 			// SESSIONS IS _UNCHECKED_. SESSIONS SHOULDN'T BE DESTROYED HERE.
-			//$ppm->ppm_user_session_destroy( $user_id );
+			// $ppm->ppm_user_session_destroy( $user_id );.
 
-			// Update user meta
+			// Update user meta.
 			update_user_meta( $user_id, PPM_WP_META_DELAYED_RESET_KEY, true );
 			update_user_meta( $user_id, PPM_WP_META_PASSWORD_EXPIRED, 1 );
 
@@ -243,8 +253,8 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		/**
 		 * Runs on every login request
 		 *
-		 * @param type $user_login
-		 * @param type $user_password
+		 * @param type $user_login - User login name.
+		 * @param type $user_password - User PW.
 		 */
 		public function check_on_login( $user_login, $user_password ) {
 			if ( empty( $user_login ) || empty( $user_password ) ) {
@@ -260,16 +270,16 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		/**
 		 * Tries to reset the password if needed
 		 *
-		 * @param type $user_id
+		 * @param type $user_id - User ID.
 		 */
 		private function maybe_reset( $user_id ) {
 
-			if ( !$this->should_password_reset( $user_id ) ) {
+			if ( ! $this->should_password_reset( $user_id ) ) {
 				return;
 			}
 
-			$user_data			 = get_userdata( $user_id );
-			$current_password	 = $user_data->user_pass;
+			$user_data        = get_userdata( $user_id );
+			$current_password = $user_data->user_pass;
 
 			$this->reset( $user_id, $current_password, 'admin' );
 			delete_user_meta( $user_id, PPM_WP_META_DELAYED_RESET_KEY );
@@ -278,7 +288,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		/**
 		 * Returns whether the password should be reset or not
 		 *
-		 * @param type $user_id
+		 * @param type $user_id - User ID.
 		 * @return boolean
 		 */
 		private function should_password_reset( $user_id ) {
@@ -302,7 +312,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 		 * Get user reset by user ID.
 		 *
 		 * @param  object $user User object.
-		 *
+		 * @param  string $meta_key Reset type.
 		 * @return object
 		 */
 		public function ppm_get_user_reset_key( $user, $meta_key ) {
@@ -324,13 +334,20 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			return $verify_reset_key;
 		}
 
+		/**
+		 * Check if users is allowed to reset.
+		 *
+		 * @param  bool $allow - Is currently allowed.
+		 * @param  int  $user_id - User ID.
+		 * @return bool result.
+		 */
 		public function ppm_is_user_allowed_to_reset( $allow, $user_id ) {
-			$ppm = ppm_wp();
-			$default_options = PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : [];
+			$ppm             = ppm_wp();
+			$default_options = PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : array();
 
 			// Get user by ID.
 			$get_userdata = get_user_by( 'ID', $user_id );
-			$roles         = $get_userdata->roles;
+			$roles        = $get_userdata->roles;
 
 			$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $roles );
 			$roles = reset( $roles );
@@ -342,8 +359,8 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 
 			// Allow if request is from an admin.
 			if ( isset( $_REQUEST['action'] ) && 'resetpassword' == $_REQUEST['action'] || isset( $_REQUEST['action'] ) && 'ppmwp_unlock_inactive_user' == $_REQUEST['action'] || isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' == $_REQUEST['action'] && 'profile' == $_REQUEST['from'] ) {
-				$user = wp_get_current_user();
-				$allowed_roles = [ 'administrator' ];
+				$user          = wp_get_current_user();
+				$allowed_roles = array( 'administrator' );
 				if ( array_intersect( $allowed_roles, $user->roles ) ) {
 					return true;
 				}

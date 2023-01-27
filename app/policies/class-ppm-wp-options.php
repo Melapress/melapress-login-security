@@ -72,16 +72,16 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 		 *       use with any password checks.
 		 */
 		public $default_options = array(
-			'master_switch'           => 'no',
-			'enforce_password'        => 'no',
-			'min_length'              => 8,
-			'password_history'        => 1,
-			'inherit_policies'        => 'yes',
-			'password_expiry'         => array(
+			'master_switch'                  => 'no',
+			'enforce_password'               => 'no',
+			'min_length'                     => 8,
+			'password_history'               => 1,
+			'inherit_policies'               => 'yes',
+			'password_expiry'                => array(
 				'value' => 0,
 				'unit'  => 'months',
 			),
-			'ui_rules'                => array(
+			'ui_rules'                       => array(
 				'history'               => 'yes',
 				'username'              => 'yes',
 				'length'                => 'yes',
@@ -90,7 +90,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'special_chars'         => 'yes',
 				'exclude_special_chars' => 'no',
 			),
-			'rules'                   => array(
+			'rules'                          => array(
 				'length'                => 'yes',
 				'numeric'               => 'yes',
 				'upper_case'            => 'yes',
@@ -98,9 +98,9 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'special_chars'         => 'yes',
 				'exclude_special_chars' => 'no',
 			),
-			'change_initial_password'  => 'no',
-			'inactive_users_enabled'   => 'no',
-			'inactive_users_expiry'    => array(
+			'change_initial_password'        => 'no',
+			'inactive_users_enabled'         => 'no',
+			'inactive_users_expiry'          => array(
 				'value' => 30,
 				'unit'  => 'days',
 			),
@@ -120,54 +120,54 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 		 *
 		 * @var array
 		 */
-        public static $defaultOptionsValidationRules = [
-			'min_length' => [
+		public static $default_options_validation_rules = array(
+			'min_length'               => array(
 				'typeRule' => 'number',
 				'min'      => '1',
-			],
-            'password_expiry' => [
-                'value' => [
+			),
+			'password_expiry'          => array(
+				'value' => array(
 					'typeRule' => 'number',
 					'min'      => '0',
-				],
-				'unit' => [
+				),
+				'unit'  => array(
 					'typeRule' => 'inset',
-					'set'      => [
+					'set'      => array(
 						'months',
 						'days',
 						'hours',
 						'seconds',
-					],
-				],
-            ],
-			'password_history' => [
+					),
+				),
+			),
+			'password_history'         => array(
 				'typeRule' => 'number',
 				'min'      => '0',
 				'max'      => '100',
-			],
-            'inactive_users_expiry' => [
-                'value' => [
+			),
+			'inactive_users_expiry'    => array(
+				'value' => array(
 					'typeRule' => 'number',
 					'min'      => '0',
-				],
-				'unit' => [
+				),
+				'unit'  => array(
 					'typeRule' => 'inset',
-					'set'      => [
+					'set'      => array(
 						'months',
 						'days',
 						'hours',
-					],
-				],
-            ],
-			'failed_login_attempts' => [
+					),
+				),
+			),
+			'failed_login_attempts'    => array(
 				'typeRule' => 'number',
 				'min'      => '1',
-			],
-			'failed_login_reset_hours' => [
+			),
+			'failed_login_reset_hours' => array(
 				'typeRule' => 'number',
 				'min'      => '1',
-			],
-        ];
+			),
+		);
 
 		/**
 		 * Set plugin setting options.
@@ -175,27 +175,27 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 		 * @var array
 		 */
 		public $default_setting = array(
-			'send_summary_email'                  => 'yes',
-			'exempted'                            => array(
+			'send_summary_email'         => 'yes',
+			'exempted'                   => array(
 				'users' => array(),
 			),
-			'from_email'                          => '',
-			'terminate_session_password'          => 'no',
-			'users_have_multiple_roles'           => 'no',
-			'multiple_role_order'                 => '',
-			'clear_history'                       => 'no',
-			'excluded_special_chars'              => '',
-			'password_reset_key_expiry'           => array(
+			'from_email'                 => '',
+			'terminate_session_password' => 'no',
+			'users_have_multiple_roles'  => 'no',
+			'multiple_role_order'        => '',
+			'clear_history'              => 'no',
+			'excluded_special_chars'     => '',
+			'password_reset_key_expiry'  => array(
 				'value' => 24,
 				'unit'  => 'hours',
 			),
-			'enable_wc_pw_reset'                  => 'no',
-			'enable_bp_register'                  => 'no',
-			'enable_bp_pw_update'                 => 'no',
-			'enable_ld_register'                  => 'no',
-			'enable_um_register'                  => 'no',
-			'enable_um_pw_update'                 => 'no',
-			'enable_bbpress_pw_update'			  => 'no',
+			'enable_wc_pw_reset'         => 'no',
+			'enable_bp_register'         => 'no',
+			'enable_bp_pw_update'        => 'no',
+			'enable_ld_register'         => 'no',
+			'enable_um_register'         => 'no',
+			'enable_um_pw_update'        => 'no',
+			'enable_bbpress_pw_update'   => 'no',
 		);
 
 		/**
@@ -203,21 +203,21 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 		 *
 		 * @var array
 		 */
-        public static $settingsOptionsValidationRules = [
-            'password_reset_key_expiry' => [
-                'value' => [
+		public static $settings_options_validation_rules = array(
+			'password_reset_key_expiry' => array(
+				'value' => array(
 					'typeRule' => 'number',
 					'min'      => '0',
-				],
-				'unit' => [
+				),
+				'unit'  => array(
 					'typeRule' => 'inset',
-					'set'      => [
+					'set'      => array(
 						'days',
 						'hours',
-					],
-				],
-            ],
-        ];
+					),
+				),
+			),
+		);
 
 		/**
 		 * PPM main class object
@@ -246,14 +246,12 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			/*
 			 * Setting options.
 			 */
-			$tab_role = ! empty( $_GET['role'] ) ? '_' . $_GET['role'] : '';
+			$tab_role = ! empty( $_GET['role'] ) ? '_' . sanitize_text_field( wp_unslash( $_GET['role'] ) ) : '';
 
 			$ppm_default_policy = $this->inherit;
 
 			$settings_tab          = get_site_option( PPMWP_PREFIX . $tab_role . '_options', $ppm_default_policy );
 			$this->setting_options = (object) wp_parse_args( $settings_tab, $ppm_default_policy );
-
-			// End
 
 			/**
 			 * Get user ID Default 0.
@@ -261,9 +259,9 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			$user_id = 0;
 			// If check user resetpassword key exists OR not.
 			if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ) {
-				// Get user reset password cookie
-				$username = strstr( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ], ':', true );
-				// Get user by user_login
+				// Get user reset password cookie.
+				$username = strstr( sanitize_text_field( wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ), ':', true );
+				// Get user by user_login.
 				$user_by_login = get_user_by( 'login', $username );
 				if ( $user_by_login ) {
 					$user_id = $user_by_login->ID;
@@ -285,7 +283,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				// Get included user.
 				$included_user = reset( $user_by_id );
 				// Get user role.
-				$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
+				$roles     = PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
 				$user_role = reset( $roles );
 			} else {
 				// Get userdata by user id.
@@ -353,7 +351,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			 */
 			if ( isset( $_POST['ppm_usr'] ) ) {
 
-				$user = get_user_by( 'login', sanitize_user($_POST['ppm_usr']));
+				$user = get_user_by( 'login', sanitize_user( wp_unslash( $_POST['ppm_usr'] ) ) );
 				if ( false !== $user ) {
 					$_REQUEST['user_id'] = $user->ID;
 				}
@@ -362,7 +360,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			/**
 			 * Tries to exctract the proper user id - that is called when forms are submitted
 			 */
-			$get_user_id = isset( $_REQUEST['user_id'] ) ? $_REQUEST['user_id'] : get_current_user_id();
+			$get_user_id = isset( $_REQUEST['user_id'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ) ) : get_current_user_id();
 
 			/**
 			 * Get user ID Default 0.
@@ -378,14 +376,13 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			// If check user resetpassword key exists OR not.
 			if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ) {
 
-				$username = strstr( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ], ':', true );
+				$username = strstr( sanitize_text_field( wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ), ':', true );
 
 				// Get user data by login.
 				$user_obj = get_user_by( 'login', $username );
 				if ( $user_obj ) {
 					$user_id = $user_obj->ID;
 				}
-
 			} else {
 
 				$user_id = (int) $get_user_id;
@@ -394,7 +391,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 
 			// If check user ID.
 			if ( ! $user_id ) {
-                // If we have no ID, grab the default settings.
+				// If we have no ID, grab the default settings.
 				$this->users_options = (object) get_site_option( PPMWP_PREFIX . '_options', $this->default_options );
 				return $this->users_options;
 			}
@@ -412,16 +409,15 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				// Get included user.
 				$included_user = reset( $user_by_id );
 				// Get user role.
-				$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
+				$roles     = PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
 				$user_role = reset( $roles );
 			} else {
 				// Get userdata by user id.
 				$userdata = get_userdata( $user_id );
 				// Get user role.
-				$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
+				$roles     = PPMWP\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
 				$user_role = ( is_array( $roles ) ) ? reset( $roles ) : array();
 			}
-
 
 			// Get current role in user edit page.
 			$current_role = ! empty( $user_role ) ? '_' . $user_role : '';
@@ -429,7 +425,8 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			// Override current role if this is being called via the user-new.php admin screen
 			// This means we can then apply the policy for the role submitted, rather than current_user.
 			if ( isset( $_POST['action'] ) && 'createuser' === $_POST['action'] && isset( $_POST['role'] ) ) {
-				$current_role = ! empty( $_POST['role'] ) ? '_' . $_POST['role'] : '';
+				$post_array   = filter_input_array( INPUT_POST );
+				$current_role = ! empty( $post_array['role'] ) ? '_' . $post_array['role'] : '';
 			}
 
 			$settings = get_site_option( PPMWP_PREFIX . $current_role . '_options' );
@@ -472,14 +469,14 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 
 			$ppm_setting = wp_parse_args( $options, $this->ppm_setting );
 
-			$role_order = ( empty( $ppm_setting[ 'multiple_role_order' ] ) ) ? [] : $ppm_setting[ 'multiple_role_order' ];
+			$role_order = ( empty( $ppm_setting['multiple_role_order'] ) ) ? array() : $ppm_setting['multiple_role_order'];
 
 			// Correct bool values.
 			$ppm_setting['terminate_session_password'] = \PPMWP\Helpers\OptionsHelper::bool_to_string( $ppm_setting['terminate_session_password'] );
-			$ppm_setting['send_summary_email'] = \PPMWP\Helpers\OptionsHelper::bool_to_string( $ppm_setting['send_summary_email'] );
-			$ppm_setting['users_have_multiple_roles'] = \PPMWP\Helpers\OptionsHelper::bool_to_string( $ppm_setting['users_have_multiple_roles'] );
-			$ppm_setting['multiple_role_order'] = array_map( 'esc_attr', $role_order );
-			$ppm_setting['clear_history'] = \PPMWP\Helpers\OptionsHelper::bool_to_string( $ppm_setting['clear_history'] );
+			$ppm_setting['send_summary_email']         = \PPMWP\Helpers\OptionsHelper::bool_to_string( $ppm_setting['send_summary_email'] );
+			$ppm_setting['users_have_multiple_roles']  = \PPMWP\Helpers\OptionsHelper::bool_to_string( $ppm_setting['users_have_multiple_roles'] );
+			$ppm_setting['multiple_role_order']        = array_map( 'esc_attr', $role_order );
+			$ppm_setting['clear_history']              = \PPMWP\Helpers\OptionsHelper::bool_to_string( $ppm_setting['clear_history'] );
 
 			$this->ppm_setting = (object) $ppm_setting;
 
@@ -494,7 +491,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 		public function _save( $options ) {
 
 			$options = $this->refactor( $options );
-			//We need options, not default options here in wp_parse_args
+			// We need options, not default options here in wp_parse_args.
 			$this->options = wp_parse_args( $options, $this->options );
 			// Get current tab role.
 			$tab_role = ! empty( $this->options['ppm-user-role'] ) ? '_' . $this->options['ppm-user-role'] : '';

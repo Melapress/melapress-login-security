@@ -95,8 +95,23 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				// Admin init.
 				add_action( 'admin_init', array( $this, 'ppm_overwrite_admin_menu' ) );
 
+				/*
+				*/
+				// Admin footer.
+				add_action( 'admin_footer', array( $this, 'ppm_freemium_submenu' ) );
+				// FS pricing url filter.
+				add_filter(
+					'fs_pricing_url_password-policy-manager',
+					function() {
+						return esc_url( 'https://www.wpwhitesecurity.com/wordpress-plugins/password-policy-manager-wordpress/pricing/' );
+					}
+				);
 			}
 
+			/*
+			*/
+			// bootstraps the inactive users feature of the plugin.
+			add_action( 'init', array( $this, 'setup_inactive_users_feature' ) );
 
 			// Ensure user is sent to reset if needed.
 			add_action( 'admin_init', array( $this, 'redirect_user_to_forced_pw_reset' ) );
@@ -116,9 +131,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 * @since  2.1.0
 		 */
 		public function register_dependencies() {
-			require_once PPM_WP_PATH . 'app/crons/CronInterface.php';
-			require_once PPM_WP_PATH . 'app/ajax/AjaxInterface.php';
-			require_once PPM_WP_PATH . 'app/helpers/OptionsHelper.php';
+			require_once PPM_WP_PATH . 'app/crons/class-croninterface.php';
+			require_once PPM_WP_PATH . 'app/ajax/class-ajaxinterface.php';
+			require_once PPM_WP_PATH . 'app/helpers/class-optionshelper.php';
 			$this->hooks();
 		}
 
@@ -130,7 +145,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 * @return void
 		 */
 		public function register_summary_email_cron() {
-			require_once PPM_WP_PATH . 'app/crons/SummaryEmail.php';
+			require_once PPM_WP_PATH . 'app/crons/class-summaryemail.php';
 			// setup the cron for this.
 			$this->crons['summary_email'] = new PPMWP\Crons\SummaryEmail( $this );
 			$this->crons['summary_email']->register();
@@ -227,12 +242,14 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 					);
 				}
 
+				$help = array_search( 'Help & Contact Us', array_column( $submenu['ppm_wp_settings'], 0 ) );
+
 				/**
 				 * Help menu move to last.
 				 *
 				 * @var $submenu
 				 */
-				if ( $help = array_search( 'Help & Contact Us', array_column( $submenu['ppm_wp_settings'], 0 ) ) ) {
+				if ( $help ) {
 					$help_menu = $submenu['ppm_wp_settings'][ $help ];
 					unset( $submenu['ppm_wp_settings'][ $help ] );
 					$submenu['ppm_wp_settings'][] = $help_menu; // phpcs:ignore

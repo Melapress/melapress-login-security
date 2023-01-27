@@ -1,11 +1,18 @@
 <?php
-	// Plugin adverts sidebar
-	require_once 'sidebar.php';
+/**
+ * System info
+ *
+ * @package WordPress
+ * @subpackage wpassword
+ */
+
+// Plugin adverts sidebar.
+require_once 'sidebar.php';
 ?>
 <div class="ppm-help-main">
 	<!-- getting started -->
 	<div class="title">
-		<h2><?php _e( 'System information', 'ppm-wp' ); ?></h2>
+		<h2><?php esc_html_e( 'System information', 'ppm-wp' ); ?></h2>
 	</div>
 	<?php $ppm = ppm_wp(); ?>
 	<form method="post" dir="ltr">

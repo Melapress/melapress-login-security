@@ -1,10 +1,11 @@
 <?php
-
 /**
- * @package wordpress
- * @subpackage wpassword
+ * Handle PW history.
  *
+ * @package WordPress
+ * @subpackage wpassword
  */
+
 if ( ! class_exists( 'PPM_WP_History' ) ) {
 
 	/**
@@ -30,7 +31,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 * After password reset hook
 		 */
 		public function ppm_after_password_reset() {
-			// update password history when user resets password manually
+			// update password history when user resets password manually.
 			add_action( 'password_reset', array( $this, 'reset_by_user' ), 10, 2 );
 			add_action( 'after_password_reset', array( $this, 'reset_by_user' ), 10, 2 );
 		}
@@ -38,45 +39,45 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		/**
 		 * Push new password to user's password history
 		 *
-		 * @param integer $user_id User ID
-		 * @param array $password_event An array of the password and it's timestamp
+		 * @param  integer $user_id User ID.
+		 * @param  array   $password_event An array of the password and it's timestamp.
 		 * @return boolean True on success, false if failed
 		 */
-		static function _push( $user_id, $password_event ) {
+		public static function _push( $user_id, $password_event ) {
 
 			$ppm = ppm_wp();
 
-			// get the saved history
+			// get the saved history.
 			$password_history = get_user_meta( $user_id, PPM_WP_META_KEY, true );
 
 			if ( empty( $password_history ) ) {
 				$password_history = array();
 			}
 
-			//Creating dummy event array to find if the password was already set
+			// Creating dummy event array to find if the password was already set.
 			$dummy_event = array( $password_event );
 			if ( count( array_uintersect( $dummy_event, $password_history, 'PPM_WP_History::compare_passwords' ) ) ) {
-				//So the password already exists in history, no need to add it again
+				// So the password already exists in history, no need to add it again.
 				return true;
 			}
 
 			// Ensure we dont store repeat requests.
 			foreach ( $password_history as $event ) {
-				$diff = abs( $password_event[ 'timestamp' ] - $event['timestamp'] );
+				$diff = abs( $password_event['timestamp'] - $event['timestamp'] );
 				if ( $diff < 10 ) {
 					return true;
 				}
 			}
 
-			// push new event to the end of it
+			// push new event to the end of it.
 			array_push( $password_history, $password_event );
 
-			// trim to the right size by
-			// we're technically saving the latest password + the required history
-			$length = $ppm->options->password_history + 1;
+			// trim to the right size by.
+			// we're technically saving the latest password + the required history.
+			$length               = $ppm->options->password_history + 1;
 			$new_password_history = array_slice( $password_history, -$ppm->options->password_history, $length );
 
-			// save it
+			// save it.
 			return update_user_meta( $user_id, PPM_WP_META_KEY, $new_password_history );
 		}
 
@@ -87,14 +88,14 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 * Reset password by user also happens after password expiration. User clicks "get new password" link.
 		 * So the same action happens as he reset password after he forgot his password.
 		 *
-		 * @param integer $user The user object
-		 * @param string $new_pass The new password in plain text
+		 * @param integer $user The user object,
+		 * @param string  $new_pass The new password in plain text.
 		 */
 		public function reset_by_user( $user, $new_pass ) {
 
 			$ppm = ppm_wp();
 
-			// create a password event
+			// create a password event.
 			$password_event = array(
 				'password'  => wp_hash_password( $new_pass ),
 				'timestamp' => current_time( 'timestamp' ),
@@ -102,10 +103,10 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 				'test'      => 'user',
 			);
 
-			// push current password to password history of the user
+			// push current password to password history of the user.
 			self::_push( $user->ID, $password_event );
 
-			// Remove password expired flag
+			// Remove password expired flag.
 			delete_user_meta( $user->ID, PPM_WP_META_PASSWORD_EXPIRED, '1' );
 			delete_user_meta( $user->ID, PPM_WP_META_EXPIRED_EMAIL_SENT );
 			delete_user_meta( $user->ID, PPM_WP_META_DELAYED_RESET_KEY, '1' );
@@ -123,20 +124,20 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		/**
 		 * Pushes password updated on profile to history
 		 *
-		 * @param int $user_id
+		 * @param int $user_id - User ID.
 		 */
 		public function user_register( $user_id ) {
 
 			$userdata = get_userdata( $user_id );
 			$password = $userdata->user_pass;
 
-			$push_event = ( isset( $_REQUEST[ 'action' ] ) && 'lostpassword' === $_REQUEST[ 'action' ] ) ? false : true;
+			$push_event = ( isset( $_REQUEST['action'] ) && 'lostpassword' === $_REQUEST['action'] ) ? false : true;
 
 			$password_event = array(
-				'password' => $password,
+				'password'  => $password,
 				'timestamp' => current_time( 'timestamp' ),
-				'by' => 'user',
-				'pest' => 'sss',
+				'by'        => 'user',
+				'pest'      => 'sss',
 			);
 			if ( $push_event ) {
 				self::_push( $user_id, $password_event );
@@ -167,7 +168,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 					} else {
 						if ( $this->ppm_get_first_login_policy( $userdata->ID ) ) {
 							// Double check we are not doing profile_update to avoid
-							// https://github.com/WPWhiteSecurity/password-policy-manager/issues/239
+							// https://github.com/WPWhiteSecurity/password-policy-manager/issues/239.
 							if ( ! doing_action( 'profile_update' ) ) {
 								$this->ppm_apply_forced_reset_usermeta( $user_id );
 							}
@@ -181,12 +182,13 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 
 		/**
 		 * Compare two password event arrays to check if its the same password
-		 * @param array $a Password event array
-		 * @param array $b Password event array
-		 * @return integer Returns 0 if its the same password in both arrays, returns 1 if they are different
+		 *
+		 * @param array $a Password event array.
+		 * @param array $b Password event array.
+		 * @return integer Returns 0 if its the same password in both arrays, returns 1 if they are different.
 		 */
 		private static function compare_passwords( $a, $b ) {
-			if ( $a[ 'password' ] == $b[ 'password' ] ) {
+			if ( $a['password'] == $b['password'] ) {
 				return 0;
 			} else {
 				return 1;
@@ -210,16 +212,16 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 * Get first login policy by user ID.
 		 *
 		 * @param  integer $user_id User's ID.
-		 * @param  array $roles User's role (or roles)
+		 * @param  array   $roles User's role (or roles).
 		 * @return bool
 		 */
 		public function ppm_get_first_login_policy( $user_id = 0, $roles = array() ) {
-			$ppm = ppm_wp();
+			$ppm             = ppm_wp();
 			$default_options = isset( $ppm->options->inherit['master_switch'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : array();
 			if ( ! is_multisite() || ! doing_action( 'invite_user' ) ) {
 				// Get user by ID.
 				$get_userdata = get_user_by( 'ID', $user_id );
-				$roles         = $get_userdata->roles;
+				$roles        = $get_userdata->roles;
 			}
 
 			$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $roles );
@@ -249,16 +251,16 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 *
 		 * @param int    $user_id New user ID.
 		 * @param string $role User role.
-		 * @param string    $newuser_key User key.
+		 * @param string $newuser_key User key.
 		 */
 		public function ppm_invite_user( $user_id, $role, $newuser_key ) {
-			$userdata = get_userdata( $user_id );
-			$password = $userdata->user_pass;
+			$userdata       = get_userdata( $user_id );
+			$password       = $userdata->user_pass;
 			$password_event = array(
-				'password' => $password,
+				'password'  => $password,
 				'timestamp' => current_time( 'timestamp' ),
-				'by' => 'user',
-				'pest' => 'sss',
+				'by'        => 'user',
+				'pest'      => 'sss',
 			);
 			self::_push( $user_id, $password_event );
 			// If check current running action `profile_update`.
@@ -271,7 +273,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		/**
 		 * Applies a reset key to a given users ID.
 		 *
-		 * @param  int $user_id
+		 * @param  int $user_id user ID.
 		 */
 		public function ppm_apply_forced_reset_usermeta( $user_id ) {
 			$userdata = get_userdata( $user_id );

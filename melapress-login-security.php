@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     3.0.0
+ * Version:     1.0.0
  * Plugin URI:  https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
  * Description: WPassword allows you to configure password policies for your WordPress website users, ensuring top notch password security.
  * Author:      WP White Security
@@ -161,6 +161,13 @@ if ( ! function_exists( $mpls ) ) {
 		define( 'PPMWP_USER_BLOCK_FURTHER_LOGINS_TIMESTAMP', PPMWP_PREFIX . '_blocked_since' );
 	}
 
+	if ( ! defined( 'PPMWP_VERSION' ) ) {
+		/**
+		 * Meta key flag to mark user as blocked.
+		 */
+		define( 'PPMWP_VERSION', '1.0.0' );
+	}
+
 	/*
 	 * Include classes that define and provide policies
 	 */
@@ -263,8 +270,8 @@ if ( ! function_exists( $mpls ) ) {
 
 	// Include classes usually loaded via composer.
 	if ( ! file_exists( plugin_dir_path( __FILE__ ) . '/sdk/ppm-freemius.php' ) ) {
-		require_once PPM_WP_PATH . 'app/Utilities/ValidatorFactory.php';
-		require_once PPM_WP_PATH . 'app/Validators/Validator.php';
+		require_once PPM_WP_PATH . 'app/Utilities/class-validatorfactory.php';
+		require_once PPM_WP_PATH . 'app/Validators/class-validator.php';
 	}
 
 	/**
@@ -273,9 +280,11 @@ if ( ! function_exists( $mpls ) ) {
 	 * @param integer $user_id - ID of user we are checking.
 	 * @return boolean
 	 */
-	function ppm_is_user_exempted( $user_id = false ) {
-		$exempted = PPM_WP::is_user_exempted( $user_id );
-		return $exempted;
+	if ( ! function_exists( 'ppm_is_user_exempted' ) ) {
+		function ppm_is_user_exempted( $user_id = false ) {
+			$exempted = PPM_WP::is_user_exempted( $user_id );
+			return $exempted;
+		}
 	}
 
 	/**
@@ -283,13 +292,15 @@ if ( ! function_exists( $mpls ) ) {
 	 *
 	 * @return object
 	 */
-	function ppm_wp() {
+	if ( ! function_exists( 'ppm_wp' ) ) {
+		function ppm_wp() {
 
-		/**
-		 * Instantiate & start the plugin
-		 */
-		$ppm = PPM_WP::_instance();
-		return $ppm;
+			/**
+			 * Instantiate & start the plugin
+			 */
+			$ppm = PPM_WP::_instance();
+			return $ppm;
+		}
 	}
 
 	add_action( 'plugins_loaded', 'ppm_wp' );

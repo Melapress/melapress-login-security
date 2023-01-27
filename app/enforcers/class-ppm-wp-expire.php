@@ -2,7 +2,7 @@
 /**
  * WPassword Expire Class.
  *
- * @package wordpress
+ * @package WordPress
  * @subpackage wpassword
  */
 
@@ -107,16 +107,16 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 				// This user is exempt, so lets stop here.
 				if ( ppm_is_user_exempted( $user->ID ) ) {
 					return $user;
-				} 
+				}
 				$password_history = get_user_meta( $user->ID, PPM_WP_META_KEY, true );
 			} else {
 				$password_history = false;
 			}
 
-            // Ensure we dont check a change as its happening within UM.
-            if ( isset( $_POST["um_account_nonce_password"] ) ) {
-                return $user;
-            }
+			// Ensure we dont check a change as its happening within UM.
+			if ( isset( $_POST['um_account_nonce_password'] ) ) {
+				return $user;
+			}
 
 			// If check user password history exists OR not.
 			if ( $password_history ) {
@@ -155,7 +155,30 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 					'</a>'
 				);
 			}
+
+			/*
+			*/
+			// Check if the user is currently marked as inactive, as we do not want to apply the expired error in this case as the inactive user check will handle that.
+			if ( is_a( $user, '\WP_User' ) ) {
+				$is_user_inactive = PPMWP\Helpers\OptionsHelper::is_user_inactive( $user->ID );
+				// check if it password expired flag is existing.
+				if ( get_user_meta( $user->ID, PPM_WP_META_PASSWORD_EXPIRED, true ) && ! $is_user_inactive ) {
+					return new WP_Error(
+						'password-expired',
+						sprintf(
+							/* translators: %s: user name */
+							__( '<strong>ERROR</strong>: The password you entered for the username %s has expired.', 'ppm-wp' ),
+							'<strong>' . $user->user_login . '</strong>'
+						) .
+						' <a href="' . wp_lostpassword_url() . '">' .
+						__( 'Get a new password.', 'ppm-wp' ) .
+						'</a>'
+					);
+				}
+			}
 			
+			/*
+			*/
 
 			// Always return user object.
 			return $user;
@@ -205,7 +228,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			$expiry = $ppm->options->password_expiry;
 
 			// no need to expire if expiry is set to 0 (by default, or by choice).
-			if ( $expiry[ 'value' ] < 1 ) {
+			if ( $expiry['value'] < 1 ) {
 				return false;
 			}
 
@@ -217,7 +240,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			} else {
 				// check the last entry.
 				$last_password_event = end( $password_history );
-				$last_reset = (int) $last_password_event[ 'timestamp' ];
+				$last_reset          = (int) $last_password_event['timestamp'];
 			}
 
 			// get the expiry into a string.

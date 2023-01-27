@@ -4,7 +4,7 @@
  *
  * @since 2.1.0
  *
- * @package wordpress
+ * @package WordPress
  */
 
 namespace PPMWP\Helpers;
@@ -41,7 +41,7 @@ class OptionsHelper {
 		// If accessed early this item can be an array but we always want an
 		// object.
 		$master_policy = self::get_master_policy_options();
-		
+
 		// check if we are enabled.
 		if (
 			( isset( $master_policy->inactive_users_enabled ) && self::string_to_bool( $master_policy->inactive_users_enabled ) ||
@@ -100,10 +100,10 @@ class OptionsHelper {
 	 *
 	 * @return bool
 	 */
-	public static function getPluginIsEnabled(): bool {
-		$globalSettings = self::get_master_policy_options();
+	public static function get_plugin_is_enabled(): bool {
+		$global_settings = self::get_master_policy_options();
 
-		return self::string_to_bool( $globalSettings->master_switch );
+		return self::string_to_bool( $global_settings->master_switch );
 	}
 
 	/**
@@ -363,7 +363,7 @@ class OptionsHelper {
 			// if no roles were passed then get them.
 			if ( empty( $roles ) ) {
 				$userdata = get_userdata( $user_id );
-				$roles = self::prioritise_roles( $userdata->roles );
+				$roles    = self::prioritise_roles( $userdata->roles );
 			}
 			foreach ( $roles as $role ) {
 				if ( isset( $ppm->inactive ) && $ppm->inactive->is_role_exempt( $role ) ) {
@@ -374,7 +374,7 @@ class OptionsHelper {
 					break;
 				}
 				$role_options = self::get_role_options( $role );
-				
+
 				// if the policy is inherited then we should skip.
 				if ( isset( $role_options->inherit_policies ) && self::string_to_bool( $role_options->inherit_policies ) ) {
 					continue;
@@ -444,7 +444,7 @@ class OptionsHelper {
 		if ( isset( $inactive_users ) && in_array( $user_id, $inactive_users ) ) {
 			$key = array_search( $user_id, $inactive_users );
 			// phpcs:enable
-			// remove this user from the inactive array
+			// remove this user from the inactive array.
 			if ( isset( $inactive_users[ $key ] ) ) {
 				$inactive_array_modified = true;
 				unset( $inactive_users[ $key ] );
@@ -470,8 +470,8 @@ class OptionsHelper {
 	 * @param  \WP_User $user a user object to maybe be added to inactive exempt list.
 	 */
 	public static function add_initial_user_to_inactive_exempt_list( $user ) {
-		$added                = false;
-		$ppm                  = ppm_wp();
+		$added                 = false;
+		$ppm                   = ppm_wp();
 		$inactive_exempt_users = isset( $ppm->options->ppm_setting->inactive_exempted['users'] ) ? $ppm->options->ppm_setting->inactive_exempted['users'] : array();
 		// if we have an empty list then add this user.
 		if ( empty( $inactive_exempt_users ) ) {
@@ -485,9 +485,15 @@ class OptionsHelper {
 		return $added;
 	}
 
+	/**
+	 * Get dormancy perior  for a specific role.
+	 *
+	 * @param  int $user_id - User ID.
+	 * @return string Time.
+	 */
 	public static function get_role_specific_dormancy_period( $user_id ) {
 		$user_data = get_userdata( $user_id );
-		$roles = self::prioritise_roles( $user_data->roles );
+		$roles     = self::prioritise_roles( $user_data->roles );
 		foreach ( $roles as $user_role ) {
 			$role_options = self::get_role_options( $user_role );
 
@@ -506,14 +512,14 @@ class OptionsHelper {
 	}
 
 	/**
- * Converts a string (e.g. 'yes' or 'no') to a bool.
- *
- * @since 4.1.3
- * @param string $string String to convert.
- * @return bool
- */
+	 * Converts a string to a bool.
+	 *
+	 * @since 4.1.3
+	 * @param bool $string String to convert.
+	 * @return string Result.
+	 */
 	public static function string_to_bool( $string ) {
-		return is_bool( $string ) ? $string : ( 'yes' === $string || 1 === $string || 'true' === $string || '1' === $string || 'on' === $string || 'enable' === $string);
+		return is_bool( $string ) ? $string : ( 'yes' === $string || 1 === $string || 'true' === $string || '1' === $string || 'on' === $string || 'enable' === $string );
 	}
 
 	/**
@@ -533,25 +539,28 @@ class OptionsHelper {
 	/**
 	 * Takes the array of roles a user has and sorts them into our own priority.
 	 *
-	 * @param array $roles
-	 * @return void
+	 * @param array $roles - Rule array.
+	 * @return array - Sorted array.
 	 */
-	public static function prioritise_roles( $roles = [] ) {
-		$ppm               = ppm_wp();
+	public static function prioritise_roles( $roles = array() ) {
+		$ppm = ppm_wp();
 
-        if ( ! isset( $ppm->options->ppm_setting->multiple_role_order ) ) {
+		if ( ! isset( $ppm->options->ppm_setting->multiple_role_order ) ) {
 			return $roles;
 		}
 
-		$preferred_roles   = $ppm->options->ppm_setting->multiple_role_order;
+		$preferred_roles = $ppm->options->ppm_setting->multiple_role_order;
 
 		if ( empty( $preferred_roles ) ) {
 			return $roles;
 		}
 
-		$preferred_roles   = array_map( function ( $role ) {
-			return str_replace( ' ', '_', strtolower( $role ) );
-		}, $preferred_roles );
+		$preferred_roles = array_map(
+			function ( $role ) {
+				return str_replace( ' ', '_', strtolower( $role ) );
+			},
+			$preferred_roles
+		);
 
 		$processing_needed = self::string_to_bool( $ppm->options->ppm_setting->users_have_multiple_roles );
 		// Only do this if we want to.
@@ -566,11 +575,11 @@ class OptionsHelper {
 	/**
 	 * Sort roles and return options for prefered role.
 	 *
-	 * @param array $roles
-	 * @return void
+	 * @param array $roles - Roles array.
+	 * @return array - Options for role.
 	 */
 	public static function get_preferred_role_options( $roles ) {
-		$roles = self::prioritise_roles( $roles );
+		$roles     = self::prioritise_roles( $roles );
 		$user_role = reset( $roles );
 
 		return self::get_role_options( $user_role );
@@ -579,8 +588,7 @@ class OptionsHelper {
 	/**
 	 * SReturn filterable redirect URL.
 	 *
-	 * @param array $roles
-	 * @return void
+	 * @return string - Reset page.
 	 */
 	public static function get_password_reset_page() {
 		$standard_page = 'wp-login.php';
