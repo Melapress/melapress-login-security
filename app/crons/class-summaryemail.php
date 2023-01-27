@@ -141,29 +141,6 @@ class SummaryEmail implements CronInterface {
 			return;
 		}
 
-		/*
-		*/
-		// Show recently inactive users.
-		if ( ! empty( $inactive_users ) ) {
-			$message .= '<p><strong>' . __( 'Users marked as inactive:', 'ppm-wp' ) . '</strong><br>';
-
-			foreach ( $inactive_users as $user_id => $details ) {
-				$message .= $details['user_login'] . ' | ' . $details['user_role'] . ' | ' . __( 'Inactive since', 'ppm-wp' ) . ': ' . $details['timestamp'] . '<br>';
-			}
-
-			$message .= '</p>';
-		}
-
-		// Show recent failed login lockouts.
-		if ( ! empty( $blocked_users ) ) {
-			$message .= '<p><strong>' . __( 'Uers who exceeded failed login attempts:', 'ppm-wp' ) . '</strong><br>';
-
-			foreach ( $blocked_users as $user_id => $details ) {
-				$message .= $details['user_login'] . ' | ' . $details['user_role'] . ' | ' . __( 'Blocked since', 'ppm-wp' ) . ': ' . $details['timestamp'] . '<br>';
-			}
-
-			$message .= '</p>';
-		}
 
 		// Show recent resets.
 		if ( ! empty( $resets ) ) {

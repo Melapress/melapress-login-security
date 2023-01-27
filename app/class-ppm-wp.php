@@ -95,17 +95,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				// Admin init.
 				add_action( 'admin_init', array( $this, 'ppm_overwrite_admin_menu' ) );
 
-				/*
-				*/
-				// Admin footer.
-				add_action( 'admin_footer', array( $this, 'ppm_freemium_submenu' ) );
-				// FS pricing url filter.
-				add_filter(
-					'fs_pricing_url_password-policy-manager',
-					function() {
-						return esc_url( 'https://www.wpwhitesecurity.com/wordpress-plugins/password-policy-manager-wordpress/pricing/' );
-					}
-				);
 			}
 
 
