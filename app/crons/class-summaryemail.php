@@ -174,12 +174,12 @@ class SummaryEmail implements CronInterface {
 	public function get_users_with_recent_password_resets() {
 		global $wpdb;
 
-		$users          = $wpdb->query(
+		$users          = $wpdb->get_results(
 			$wpdb->prepare(
 				"
 			SELECT ID FROM $wpdb->users
-			INNER JOIN ' . $wpdb->usermeta . ' ON ' . $wpdb->users . '.ID = ' . $wpdb->usermeta . '.user_id
-			WHERE ' . $wpdb->usermeta . '.meta_key LIKE %s
+			INNER JOIN $wpdb->usermeta ON $wpdb->users.ID = $wpdb->usermeta.user_id
+			WHERE $wpdb->usermeta.meta_key LIKE %s
 			",
 				array(
 					'ppmwp_password_history%',
