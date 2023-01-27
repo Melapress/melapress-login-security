@@ -163,11 +163,11 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: app/class-ppm-wp.php:557
+#: app/class-ppm-wp.php:553
 msgid "The WPassword plugin is a multisite network tool. Please activate it from the network dashboard."
 msgstr ""
 
-#: app/class-ppm-wp.php:559
+#: app/class-ppm-wp.php:555
 msgid "Redirect me to the network dashboard"
 msgstr ""
 
@@ -367,15 +367,6 @@ msgstr ""
 
 #: app/enforcers/class-ppm-wp-expire.php:154
 msgid "Lost your password?"
-msgstr ""
-
-#. translators: %s: user name
-#: app/enforcers/class-ppm-wp-expire.php:170
-msgid "<strong>ERROR</strong>: The password you entered for the username %s has expired."
-msgstr ""
-
-#: app/enforcers/class-ppm-wp-expire.php:174
-msgid "Get a new password."
 msgstr ""
 
 #: app/enforcers/class-ppm-wp-forms.php:349
