@@ -8,7 +8,7 @@
  */
 
 use \PPMWP\Helpers\OptionsHelper;
-use \PPMWP\Helpers\PPM_Email_Settings;
+use \PPMWP\Helpers\PPM_EmailStrings;
 
 // If check class exists OR not.
 if ( ! class_exists( 'PPM_User_Profile' ) ) {
@@ -180,11 +180,11 @@ if ( ! class_exists( 'PPM_User_Profile' ) ) {
 			$email_content = false;
 
 			if ( 'admin' === $by ) {
-				$content       = isset( $ppm->options->ppm_setting->user_reset_next_login_email_body ) ? $ppm->options->ppm_setting->user_reset_next_login_email_body : \PPM_Email_Settings::default_message_contents( 'reset_next_login' );
-				$email_content = \PPM_Email_Settings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
+				$content       = isset( $ppm->options->ppm_setting->user_reset_next_login_email_body ) ? $ppm->options->ppm_setting->user_reset_next_login_email_body : \PPM_EmailStrings::default_message_contents( 'reset_next_login' );
+				$email_content = \PPM_EmailStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 			}
 
-			$title = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_reset_next_login_title ) ? $ppm->options->ppm_setting->user_reset_next_login_title : \PPM_Email_Settings::get_default_string( 'user_reset_next_login_title' ), $user_id );
+			$title = \PPM_EmailStrings::replace_email_strings( isset( $ppm->options->ppm_setting->user_reset_next_login_title ) ? $ppm->options->ppm_setting->user_reset_next_login_title : \PPM_EmailStrings::get_default_string( 'user_reset_next_login_title' ), $user_id );
 
 			$ppm = ppm_wp();
 

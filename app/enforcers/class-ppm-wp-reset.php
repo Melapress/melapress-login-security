@@ -99,24 +99,24 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 				if ( 'admin' === $by ) {
 					$by_str = __( 'Your user password was reset by the website administrator. Below are the details:', 'ppm-wp' );
 					if ( $is_delayed ) {
-						$content = isset( $ppm->options->ppm_setting->user_delayed_reset_email_body ) ? $ppm->options->ppm_setting->user_delayed_reset_email_body : \PPM_Email_Settings::default_message_contents( 'global_delayed_reset' );
-						$message = \PPM_Email_Settings::replace_email_strings( $ppm->options->ppm_setting->user_delayed_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
+						$content = isset( $ppm->options->ppm_setting->user_delayed_reset_email_body ) ? $ppm->options->ppm_setting->user_delayed_reset_email_body : \PPM_EmailStrings::default_message_contents( 'global_delayed_reset' );
+						$message = \PPM_EmailStrings::replace_email_strings( $ppm->options->ppm_setting->user_delayed_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 					} else {
-						$content = isset( $ppm->options->ppm_setting->user_reset_email_body ) ? $ppm->options->ppm_setting->user_reset_email_body : \PPM_Email_Settings::default_message_contents( 'password_reset' );
-						$message = \PPM_Email_Settings::replace_email_strings( $ppm->options->ppm_setting->user_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
+						$content = isset( $ppm->options->ppm_setting->user_reset_email_body ) ? $ppm->options->ppm_setting->user_reset_email_body : \PPM_EmailStrings::default_message_contents( 'password_reset' );
+						$message = \PPM_EmailStrings::replace_email_strings( $ppm->options->ppm_setting->user_reset_email_body, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 					}
 				} else {
-					$content = isset( $ppm->options->ppm_setting->user_password_expired_email_body ) ? $ppm->options->ppm_setting->user_password_expired_email_body : \PPM_Email_Settings::default_message_contents( 'password_expired' );
-					$message = \PPM_Email_Settings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
+					$content = isset( $ppm->options->ppm_setting->user_password_expired_email_body ) ? $ppm->options->ppm_setting->user_password_expired_email_body : \PPM_EmailStrings::default_message_contents( 'password_expired' );
+					$message = \PPM_EmailStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 				}
 			}
 
 			if ( 'admin' === $by ) {
 				/* translators: Password reset email subject. 1: Site name */
-				$title = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_delayed_reset_title ) ? $ppm->options->ppm_setting->user_delayed_reset_title : \PPM_Email_Settings::get_default_string( 'user_delayed_reset_title' ), $user_id );
+				$title = \PPM_EmailStrings::replace_email_strings( isset( $ppm->options->ppm_setting->user_delayed_reset_title ) ? $ppm->options->ppm_setting->user_delayed_reset_title : \PPM_EmailStrings::get_default_string( 'user_delayed_reset_title' ), $user_id );
 			} else {
 				/* translators: Password reset email subject. 1: Site name */
-				$title = \PPM_Email_Settings::replace_email_strings( isset( $ppm->options->ppm_setting->user_password_expired_title ) ? $ppm->options->ppm_setting->user_password_expired_title : \PPM_Email_Settings::get_default_string( 'user_password_expired_title' ), $user_id );
+				$title = \PPM_EmailStrings::replace_email_strings( isset( $ppm->options->ppm_setting->user_password_expired_title ) ? $ppm->options->ppm_setting->user_password_expired_title : \PPM_EmailStrings::get_default_string( 'user_password_expired_title' ), $user_id );
 			}
 
 			// Update usermeta so we know we have sent a message.
