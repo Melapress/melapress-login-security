@@ -8,7 +8,7 @@
  */
 
 use \PPMWP\Helpers\OptionsHelper;
-use \PPMWP\Helpers\PPM_Email_Settings;
+use \PPMWP\Helpers\PPM_EmailStrings;
 
 if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 

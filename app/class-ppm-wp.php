@@ -119,6 +119,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			require_once PPM_WP_PATH . 'app/crons/class-croninterface.php';
 			require_once PPM_WP_PATH . 'app/ajax/class-ajaxinterface.php';
 			require_once PPM_WP_PATH . 'app/helpers/class-optionshelper.php';
+			require_once PPM_WP_PATH . 'app/helpers/class-ppm-emailstrings.php';
 			$this->hooks();
 		}
 
