@@ -163,11 +163,11 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: app/class-ppm-wp.php:542
+#: app/class-ppm-wp.php:543
 msgid "The WPassword plugin is a multisite network tool. Please activate it from the network dashboard."
 msgstr ""
 
-#: app/class-ppm-wp.php:544
+#: app/class-ppm-wp.php:545
 msgid "Redirect me to the network dashboard"
 msgstr ""
 
@@ -362,7 +362,7 @@ msgstr ""
 msgid "<strong>ERROR</strong>: New password %s"
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:100, app/modules/email-settings/class-ppm-email-settings.php:124, app/modules/email-settings/class-ppm-email-settings.php:115
+#: app/enforcers/class-ppm-wp-reset.php:100, app/helpers/class-ppm-emailstrings.php:85, app/helpers/class-ppm-emailstrings.php:76
 msgid "Your user password was reset by the website administrator. Below are the details:"
 msgstr ""
 
@@ -401,6 +401,54 @@ msgstr ""
 
 #: app/helpers/class-pointer.php:41
 msgid "to configure the policies in the site's settings."
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:99, app/helpers/class-ppm-emailstrings.php:92, app/helpers/class-ppm-emailstrings.php:84, app/helpers/class-ppm-emailstrings.php:75, app/helpers/class-ppm-emailstrings.php:66, app/helpers/class-ppm-emailstrings.php:57
+msgid "Hello"
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:100, app/helpers/class-ppm-emailstrings.php:86, app/helpers/class-ppm-emailstrings.php:77, app/helpers/class-ppm-emailstrings.php:68, app/helpers/class-ppm-emailstrings.php:59
+msgid "Website: "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:101, app/helpers/class-ppm-emailstrings.php:87, app/helpers/class-ppm-emailstrings.php:78, app/helpers/class-ppm-emailstrings.php:69, app/helpers/class-ppm-emailstrings.php:60
+msgid "Username: "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:102, app/helpers/class-ppm-emailstrings.php:94
+msgid "Please visit the following URL to reset your password: {reset_url}"
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:103, app/helpers/class-ppm-emailstrings.php:95
+msgid "If you have any questions or require assistance contact your website administrator on {admin_email}."
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:104, app/helpers/class-ppm-emailstrings.php:96, app/helpers/class-ppm-emailstrings.php:89, app/helpers/class-ppm-emailstrings.php:81, app/helpers/class-ppm-emailstrings.php:72, app/helpers/class-ppm-emailstrings.php:63
+msgid "Thank you. "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:93
+msgid "Your password for the user {user_login_name} on the website {home_url} has expired."
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:88
+msgid "Please be aware your password has been reset by the sites administrator and you will be required to provide a new one upon next login. If you have any questions or require assistance contact your website administrator on "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:79
+msgid "You will be asked to reset your password when you next login. Otherwise, you can visit the following URL to reset your password: "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:80, app/helpers/class-ppm-emailstrings.php:71, app/helpers/class-ppm-emailstrings.php:62
+msgid "If you have any questions or require assistance contact your website administrator on "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:67
+msgid "Your user account has been unblocked from further login attempts by the website administrator. Below are the details:"
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:58
+msgid "Your user account has been unlocked by the website administrator. Below are the details:"
 msgstr ""
 
 #: app/policies/class-ppm-wp-msgs.php:83
@@ -718,163 +766,115 @@ msgstr ""
 msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:36
+#: app/modules/email-settings/class-ppm-email-settings.php:37
 msgid "Email settings"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:138, app/modules/email-settings/class-ppm-email-settings.php:131, app/modules/email-settings/class-ppm-email-settings.php:123, app/modules/email-settings/class-ppm-email-settings.php:114, app/modules/email-settings/class-ppm-email-settings.php:105, app/modules/email-settings/class-ppm-email-settings.php:96
-msgid "Hello"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:139, app/modules/email-settings/class-ppm-email-settings.php:125, app/modules/email-settings/class-ppm-email-settings.php:116, app/modules/email-settings/class-ppm-email-settings.php:107, app/modules/email-settings/class-ppm-email-settings.php:98
-msgid "Website: "
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:140, app/modules/email-settings/class-ppm-email-settings.php:126, app/modules/email-settings/class-ppm-email-settings.php:117, app/modules/email-settings/class-ppm-email-settings.php:108, app/modules/email-settings/class-ppm-email-settings.php:99
-msgid "Username: "
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:141, app/modules/email-settings/class-ppm-email-settings.php:133
-msgid "Please visit the following URL to reset your password: {reset_url}"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:142, app/modules/email-settings/class-ppm-email-settings.php:134
-msgid "If you have any questions or require assistance contact your website administrator on {admin_email}."
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:143, app/modules/email-settings/class-ppm-email-settings.php:135, app/modules/email-settings/class-ppm-email-settings.php:128, app/modules/email-settings/class-ppm-email-settings.php:120, app/modules/email-settings/class-ppm-email-settings.php:111, app/modules/email-settings/class-ppm-email-settings.php:102
-msgid "Thank you. "
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:132
-msgid "Your password for the user {user_login_name} on the website {home_url} has expired."
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:127
-msgid "Please be aware your password has been reset by the sites administrator and you will be required to provide a new one upon next login. If you have any questions or require assistance contact your website administrator on "
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:118
-msgid "You will be asked to reset your password when you next login. Otherwise, you can visit the following URL to reset your password: "
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:119, app/modules/email-settings/class-ppm-email-settings.php:110, app/modules/email-settings/class-ppm-email-settings.php:101
-msgid "If you have any questions or require assistance contact your website administrator on "
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:106
-msgid "Your user account has been unblocked from further login attempts by the website administrator. Below are the details:"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:97
-msgid "Your user account has been unlocked by the website administrator. Below are the details:"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:161
+#: app/modules/email-settings/class-ppm-email-settings.php:70
 msgid "The following tags are available for use in all email template fields."
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:162
+#: app/modules/email-settings/class-ppm-email-settings.php:71
 msgid "Available tags:"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:163
+#: app/modules/email-settings/class-ppm-email-settings.php:72
 msgid "- Site URL"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:164
+#: app/modules/email-settings/class-ppm-email-settings.php:73
 msgid "- Site Name"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:165
+#: app/modules/email-settings/class-ppm-email-settings.php:74
 msgid "- User Login Name"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:166
+#: app/modules/email-settings/class-ppm-email-settings.php:75
 msgid "- User First Name"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:167
+#: app/modules/email-settings/class-ppm-email-settings.php:76
 msgid "- User Last Name"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:168
+#: app/modules/email-settings/class-ppm-email-settings.php:77
 msgid "- User Display Name"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:169
+#: app/modules/email-settings/class-ppm-email-settings.php:78
 msgid "- Site Admin Email"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:170
+#: app/modules/email-settings/class-ppm-email-settings.php:79
 msgid "- Blog Name"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:171
+#: app/modules/email-settings/class-ppm-email-settings.php:80
 msgid "- Reset/Continue Message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:172
+#: app/modules/email-settings/class-ppm-email-settings.php:81
 msgid "- Reset URL"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:179
+#: app/modules/email-settings/class-ppm-email-settings.php:88
 msgid "User Account Unlocked Title"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:191
+#: app/modules/email-settings/class-ppm-email-settings.php:100
 msgid "User Account proceed to reset message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:203
+#: app/modules/email-settings/class-ppm-email-settings.php:112
 msgid "User Account continue as normal"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:215
+#: app/modules/email-settings/class-ppm-email-settings.php:124
 msgid "User Account Unlocked Message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:238
+#: app/modules/email-settings/class-ppm-email-settings.php:147
 msgid "User Account Unblocked Title"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:250
+#: app/modules/email-settings/class-ppm-email-settings.php:159
 msgid "User Account Unblocked proceed to reset message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:262
+#: app/modules/email-settings/class-ppm-email-settings.php:171
 msgid "User Account Unblocked continue as normal"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:274
+#: app/modules/email-settings/class-ppm-email-settings.php:183
 msgid "User Account Unblocked Message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:297
+#: app/modules/email-settings/class-ppm-email-settings.php:206
 msgid "User Reset on next login title"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:309
+#: app/modules/email-settings/class-ppm-email-settings.php:218
 msgid "User Reset on Next Login Message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:332
+#: app/modules/email-settings/class-ppm-email-settings.php:241
 msgid "User Password reset title"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:344
+#: app/modules/email-settings/class-ppm-email-settings.php:253
 msgid "User Delayed Reset Message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:367
+#: app/modules/email-settings/class-ppm-email-settings.php:276
 msgid "User Reset Message"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:390
+#: app/modules/email-settings/class-ppm-email-settings.php:299
 msgid "User Password Expired email title"
 msgstr ""
 
-#: app/modules/email-settings/class-ppm-email-settings.php:402
+#: app/modules/email-settings/class-ppm-email-settings.php:311
 msgid "User Password Expired Message"
 msgstr ""
 
