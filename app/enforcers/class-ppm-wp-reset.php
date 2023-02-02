@@ -88,6 +88,10 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			// Check if message has already been sent.
 			$email_sent = get_user_meta( $user_id, PPM_WP_META_EXPIRED_EMAIL_SENT, true );
 
+			if ( $email_sent ) {
+				return;
+			}
+
 			$user_data = get_userdata( $user_id );
 
 			// Redefining user_login ensures we return the right case in the email.
