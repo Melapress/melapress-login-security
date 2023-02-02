@@ -362,24 +362,24 @@ msgstr ""
 msgid "<strong>ERROR</strong>: New password %s"
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:100, app/helpers/class-ppm-emailstrings.php:85, app/helpers/class-ppm-emailstrings.php:76
+#: app/enforcers/class-ppm-wp-reset.php:104, app/helpers/class-ppm-emailstrings.php:85, app/helpers/class-ppm-emailstrings.php:76
 msgid "Your user password was reset by the website administrator. Below are the details:"
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:132, app/enforcers/class-ppm-wp-reset.php:173, app/enforcers/class-user-profile.php:196
+#: app/enforcers/class-ppm-wp-reset.php:136, app/enforcers/class-ppm-wp-reset.php:177, app/enforcers/class-user-profile.php:196
 msgid "The email could not be sent."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:132, app/enforcers/class-ppm-wp-reset.php:173, app/enforcers/class-user-profile.php:196
+#: app/enforcers/class-ppm-wp-reset.php:136, app/enforcers/class-ppm-wp-reset.php:177, app/enforcers/class-user-profile.php:196
 msgid "Possible reason: your host may have disabled the mail() function."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:151
+#: app/enforcers/class-ppm-wp-reset.php:155
 msgid "All passwords have been reset for:"
 msgstr ""
 
 #. translators: Password reset email subject. 1: Site name
-#: app/enforcers/class-ppm-wp-reset.php:164
+#: app/enforcers/class-ppm-wp-reset.php:168
 msgid "[%s] Global Password Reset Complete"
 msgstr ""
 

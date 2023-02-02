@@ -168,12 +168,17 @@ if ( ! function_exists( $mpls ) ) {
 		define( 'PPMWP_VERSION', '1.0.0' );
 	}
 
-	/*
-	 * Include classes that define and provide policies
-	 */
-	$autoloader_file_path = PPM_WP_PATH . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-	if ( file_exists( $autoloader_file_path ) ) {
-		require_once $autoloader_file_path;
+
+	// Include classes usually loaded via composer.
+	if ( ! file_exists( plugin_dir_path( __FILE__ ) . '/sdk/ppm-freemius.php' ) ) {
+		require_once PPM_WP_PATH . 'app/Utilities/class-validatorfactory.php';
+		require_once PPM_WP_PATH . 'app/Validators/class-validator.php';
+		if ( ! class_exists( 'WP_Async_Request' ) && file_exists( PPM_WP_PATH . 'third-party/wp-async-request.php' ) ) {
+			require_once PPM_WP_PATH . 'third-party/wp-async-request.php';
+		}
+		if ( ! class_exists( 'WP_Background_Process' ) && file_exists( PPM_WP_PATH . 'third-party/wp-background-process.php' ) ) {
+			require_once PPM_WP_PATH . 'third-party/wp-background-process.php';
+		}
 	}
 
 	/**
@@ -267,12 +272,6 @@ if ( ! function_exists( $mpls ) ) {
 	 * Include class that handles shortcodes.
 	 */
 	require_once PPM_WP_PATH . 'app/enforcers/class-shortcodes.php';
-
-	// Include classes usually loaded via composer.
-	if ( ! file_exists( plugin_dir_path( __FILE__ ) . '/sdk/ppm-freemius.php' ) ) {
-		require_once PPM_WP_PATH . 'app/Utilities/class-validatorfactory.php';
-		require_once PPM_WP_PATH . 'app/Validators/class-validator.php';
-	}
 
 	/**
 	 * Checks if a user is exempted from the policies
