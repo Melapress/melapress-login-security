@@ -105,6 +105,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 					$this->rules['special_chars'] = "[{$allowed_special_chars}]";
 					// Escape dash.
 					$this->rules['special_chars'] = str_replace( '-', '\-', $this->rules['special_chars'] );
+					$this->rules['special_chars'] = str_replace( '\-+', '-\+', $this->rules['special_chars'] );
 				} else {
 					unset( $this->rules['special_chars'] );
 				}

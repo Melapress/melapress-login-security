@@ -228,94 +228,95 @@ msgstr ""
 msgid "Numbers"
 msgstr ""
 
-#: admin/templates/form-table.php:70
-msgid "Password must contain at least one numeric digit (<code>0-9</code>)."
+#. translators: 1 - example of numeral
+#: admin/templates/form-table.php:73
+msgid "Password must contain at least one special character (%1$s)."
 msgstr ""
 
-#: admin/templates/form-table.php:83
+#: admin/templates/form-table.php:89
 msgid "Special Characters"
 msgstr ""
 
 #. translators: 1 - a list of special characters wrapped in a code block
-#: admin/templates/form-table.php:92
+#: admin/templates/form-table.php:98
 msgid "Password must contain at least one special character (eg: %1$s)."
 msgstr ""
 
-#: admin/templates/form-table.php:109
+#: admin/templates/form-table.php:115
 msgid "Do not allow these special characters in passwords:"
 msgstr ""
 
-#: admin/templates/form-table.php:121
+#: admin/templates/form-table.php:127
 msgid "To enter multiple special characters simply type them in one next to the other."
 msgstr ""
 
-#: admin/templates/form-table.php:130
+#: admin/templates/form-table.php:136
 msgid "Password Expiration Policy"
 msgstr ""
 
-#: admin/templates/form-table.php:139, admin/templates/views/settings.php:136, app/modules/inactive-users/class-inactive-users.php:368
+#: admin/templates/form-table.php:145, admin/templates/views/settings.php:136, app/modules/inactive-users/class-inactive-users.php:368
 msgid "days"
 msgstr ""
 
-#: admin/templates/form-table.php:140, admin/templates/views/settings.php:137, app/modules/inactive-users/class-inactive-users.php:369
+#: admin/templates/form-table.php:146, admin/templates/views/settings.php:137, app/modules/inactive-users/class-inactive-users.php:369
 msgid "hours"
 msgstr ""
 
-#: admin/templates/form-table.php:141, app/modules/inactive-users/class-inactive-users.php:370
+#: admin/templates/form-table.php:147, app/modules/inactive-users/class-inactive-users.php:370
 msgid "months"
 msgstr ""
 
-#: admin/templates/form-table.php:144, app/modules/inactive-users/class-inactive-users.php:373
+#: admin/templates/form-table.php:150, app/modules/inactive-users/class-inactive-users.php:373
 msgid "seconds"
 msgstr ""
 
 #. translators: %s: Configured password expiry period.
-#: admin/templates/form-table.php:161
+#: admin/templates/form-table.php:167
 msgid "Passwords should automatically expire in %s"
 msgstr ""
 
-#: admin/templates/form-table.php:164
+#: admin/templates/form-table.php:170
 msgid "Set to 0 to disable automatic expiration."
 msgstr ""
 
-#: admin/templates/form-table.php:177
+#: admin/templates/form-table.php:183
 msgid "Disallow old passwords on reset"
 msgstr ""
 
 #. translators: %s: Configured number of old password to check for duplication.
-#: admin/templates/form-table.php:191
+#: admin/templates/form-table.php:197
 msgid "Don't allow users to use the last %s passwords when they reset their password."
 msgstr ""
 
-#: admin/templates/form-table.php:194
+#: admin/templates/form-table.php:200
 msgid "You can configure the plugin to remember up to 100 previously used passwords that users cannot use. It will remember the last 1 password by default (minimum value: 1)."
 msgstr ""
 
-#: admin/templates/form-table.php:203, admin/templates/form-table.php:216
+#: admin/templates/form-table.php:209, admin/templates/form-table.php:222
 msgid "Reset password on first login"
 msgstr ""
 
-#: admin/templates/form-table.php:210, admin/templates/views/settings.php:263, admin/templates/views/settings.php:270, admin/templates/views/settings.php:276
+#: admin/templates/form-table.php:216, admin/templates/views/settings.php:263, admin/templates/views/settings.php:270, admin/templates/views/settings.php:276
 msgid "Delete database data upon uninstall"
 msgstr ""
 
-#: admin/templates/form-table.php:218
+#: admin/templates/form-table.php:224
 msgid "Enable this setting to force new users to reset their password the first time they login."
 msgstr ""
 
-#: admin/templates/form-table.php:228, admin/templates/form-table.php:235
+#: admin/templates/form-table.php:234, admin/templates/form-table.php:241
 msgid "Disable sending of password reset links"
 msgstr ""
 
-#: admin/templates/form-table.php:241
+#: admin/templates/form-table.php:247
 msgid "Do not send password reset links"
 msgstr ""
 
-#: admin/templates/form-table.php:243
+#: admin/templates/form-table.php:249
 msgid "By default users who forget their password can request a password reset link that is sent to their email address. Enable this setting to stop WordPress sending these links, so users have to contact the website administrator if they forgot their password and need to reset it."
 msgstr ""
 
-#: admin/templates/form-table.php:249
+#: admin/templates/form-table.php:255
 msgid "Display the following message when a user requests a password reset."
 msgstr ""
 
