@@ -67,7 +67,13 @@
 				<label for="ppm-numeric">
 					<input name="_ppm_options[ui_rules][numeric]" type="checkbox" id="ppm-numeric"
 						   value="1" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->setting_tab->ui_rules['numeric'] ) ); ?>/>
-						   <?php esc_html_e( 'Password must contain at least one numeric digit (<code>0-9</code>).', 'ppm-wp' ); ?>
+						   <?php
+							printf(
+								/* translators: 1 - example of numeral */
+								esc_html__( 'Password must contain at least one special character (%1$s).', 'ppm-wp' ),
+								'<code>0-9</code>'
+							);
+							?>
 				</label>
 			</fieldset>
 		</td>

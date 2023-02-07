@@ -423,42 +423,6 @@ class OptionsHelper {
 		return $exempt;
 	}
 
-	/**
-	 * Clears all relevent data about a inactive user.
-	 *
-	 * Removes them from the inactive array, deletes their inactive set time and
-	 * their inactive flag.
-	 *
-	 * @method clear_inactive_data_about_user
-	 * @since  2.1.0
-	 * @param  int $user_id A user id to work with.
-	 */
-	public static function clear_inactive_data_about_user( $user_id = 0 ) {
-		if ( ! $user_id || ! is_int( $user_id ) ) {
-			return;
-		}
-		$inactive_users          = self::get_inactive_users();
-		$inactive_array_modified = false;
-		// remove from the inactive users list.
-		// phpcs:disable WordPress.PHP.StrictInArray.MissingTrueStrict -- don't care if type is string or int.
-		if ( isset( $inactive_users ) && in_array( $user_id, $inactive_users ) ) {
-			$key = array_search( $user_id, $inactive_users );
-			// phpcs:enable
-			// remove this user from the inactive array.
-			if ( isset( $inactive_users[ $key ] ) ) {
-				$inactive_array_modified = true;
-				unset( $inactive_users[ $key ] );
-			}
-		}
-
-		if ( $inactive_array_modified ) {
-			self::set_inactive_users_array( $inactive_users );
-		}
-
-		// delete the inactive flag and inactive set time.
-		delete_user_meta( $user_id, PPMWP_PREFIX . '_' . InactiveUsers::DORMANT_USER_FLAG_KEY );
-		delete_user_meta( $user_id, PPMWP_PREFIX . '_' . InactiveUsers::DORMANT_SET_TIME );
-	}
 
 	/**
 	 * Adds the initial user that enabled inactive users feature to the list of

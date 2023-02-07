@@ -114,8 +114,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 			delete_user_meta( $user->ID, PPM_WP_META_USER_RESET_PW_ON_LOGIN );
 			// clear the key that remembers the last expiry time.
 			\PPMWP\Helpers\OptionsHelper::set_user_last_expiry_time( 0, $user->ID );
-			// clear any inactive users data attached to the user.
-			\PPMWP\Helpers\OptionsHelper::clear_inactive_data_about_user( $user->ID );
+
 
 			// Destroy user session.
 			$ppm->ppm_user_session_destroy( $user->ID );
