@@ -14,7 +14,7 @@
 
 			<!-- getting started -->
 			<div class="page-head">
-				<h2><?php esc_html_e( 'WPassword Settings', 'ppm-wp' ); ?></h2>
+				<h2><?php esc_html_e( 'Plugin settings', 'ppm-wp' ); ?></h2>
 			</div>
 
 			<?php

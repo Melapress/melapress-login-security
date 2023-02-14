@@ -119,32 +119,5 @@
 				</div>
 			</div>
 		</li>
-		<li>
-			<div class="plugin-box">
-				<div class="plugin-img">
-					<img src="<?php echo esc_url( PPM_WP_URL . 'assets/images/activity-log-for-mainwp.jpg' ); ?>" alt="">
-				</div>
-				<div class="plugin-desc">
-					<p><?php esc_html_e( 'See the activity logs of all child sites from one central place - the MainWP dashboard.', 'ppm-wp' ); ?></p>
-					<div class="cta-btn">
-						<a href="
-						<?php
-						echo esc_url(
-							add_query_arg(
-								array(
-									'utm_source'   => 'plugin',
-									'utm_medium'   => 'referral',
-									'utm_campaign' => 'AL4MWP',
-									'utm_content'  => 'PPMWP+banner',
-								),
-								'https://wpactivitylog.com/extensions/mainwp-activity-log/'
-							)
-						);
-						?>
-						" target="_blank"><?php esc_html_e( 'LEARN MORE', 'ppm-wp' ); ?></a>
-					</div>
-				</div>
-			</div>
-		</li>
 	</ul>
 </div>
