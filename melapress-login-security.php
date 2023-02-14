@@ -9,7 +9,7 @@
  * Plugin Name: Melapress Login Security
  * Version:     1.0.0
  * Plugin URI:  https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
- * Description: WPassword allows you to configure password policies for your WordPress website users, ensuring top notch password security.
+ * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      WP White Security
  * Author URI:  https://www.wpwhitesecurity.com/
  * Text Domain: ppm-wp

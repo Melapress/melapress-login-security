@@ -162,8 +162,8 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 * @since  2.1.0
 		 * @return string
 		 */
-		public function get_special_chars() {
-			return '[!@#$%^&*()_?£"-+=~;:€<>]';
+		public function get_special_chars( $return_escaped = false ) {
+			return ( $return_escaped ) ? '[!@#$%^&*()_?£"\\-\\+=~;:€<>\\[\\]]' : '[!@#$%^&*()_?£"-+=~;:€<>]';
 		}
 
 		/**

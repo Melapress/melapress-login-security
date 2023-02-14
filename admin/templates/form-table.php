@@ -7,7 +7,11 @@
  */
 
 ?>
-
+	<tr class="setting-heading" valign="top">
+		<th scope="row">
+			<h3><?php esc_html_e( 'Password policies', 'ppm-wp' ); ?></h3>
+		</th>
+	</tr>
 	<tr valign="top">
 		<th scope="row">
 			<?php esc_html_e( 'Password Policies', 'ppm-wp' ); ?>
@@ -120,7 +124,7 @@
 					id="ppm-excluded-special-chars"
 					class="small-input"
 					value="<?php echo esc_attr( ( isset( $this->setting_tab->excluded_special_chars ) ) ? $this->setting_tab->excluded_special_chars : $this->options->default_setting['excluded_special_chars'] ); ?>"
-					pattern="<?php echo esc_attr( ppm_wp()->get_special_chars() ); ?>*?"
+					pattern="<?php echo esc_attr( ppm_wp()->get_special_chars( true) ); ?>*?"
 					onkeypress="accept_only_special_chars_input( event )"
 				/>
 				<p class="description" style="clear:both;max-width:570px">
@@ -171,11 +175,6 @@
 			</p>
 		</td>
 	</tr>
-
-	<?php
-		$inactive_users_settings = apply_filters( 'ppm_settings_add_inactive_users_settings', '', $this->setting_tab );
-		echo wp_kses( $inactive_users_settings, $this->allowed_kses_args() );
-	?>
 
 	<tr valign="top">
 		<th scope="row">
@@ -258,13 +257,14 @@
 			</div>
 		</td>
 	</tr>
-
+	
 	<?php
+		$inactive_users_settings = apply_filters( 'ppm_settings_add_inactive_users_settings', '', $this->setting_tab );
+		echo wp_kses( $inactive_users_settings, $this->allowed_kses_args() );
+		
 		$failed_login_settings = apply_filters( 'ppm_settings_add_failed_login_settings', '', $this->setting_tab );
 		echo wp_kses( $failed_login_settings, $this->allowed_kses_args() );
-	?>
-
-	<?php
+		
 		$additional = apply_filters( 'ppm_settings_additional_settings', '', $this->setting_tab );
 		echo wp_kses( $additional, $this->allowed_kses_args() );
 	?>

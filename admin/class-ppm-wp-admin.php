@@ -67,7 +67,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
 			$this->menu_name = 'ppm_wp_settings';
 
-			add_filter( 'plugin_action_links_' . PPM_WP_BASENAME, array( $this, 'plugin_action_links' ), 10, 1 );
+			add_filter( 'plugin_action_links_' . PPM_WP_BASENAME, array( $this, 'plugin_action_links' ), 100, 1 );
 
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 
@@ -160,9 +160,23 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		public function plugin_action_links( $old_links ) {
 			$new_links = array(
 				'<a href="' . add_query_arg( 'page', $this->menu_name, network_admin_url( 'admin.php' ) ) . '">' .
-				__( 'Configure Password Policies', 'ppm-wp' ) .
+				__( 'Configure Login Security', 'ppm-wp' ) .
 				'</a>',
 			);
+			
+			if ( function_exists( 'ppm_freemius' ) ) {
+				if ( ppm_freemius()->can_use_premium_code() && isset( $old_links['upgrade'] ) ) {
+					unset( $old_links['upgrade'] );
+				}
+			} else {
+				$upgrade_link = array(
+					'<a href="' . add_query_arg( 'page', 'ppm-upgrade', network_admin_url( 'admin.php' ) ) . '">' .
+					__( 'Upgrade', 'ppm-wp' ) .
+					'</a>',
+				);
+				array_push( $new_links, $upgrade_link );
+			}
+
 			return array_merge( $new_links, $old_links );
 		}
 
@@ -171,11 +185,11 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 */
 		public function admin_menu() {
 			// Add admin menu page.
-			$hook_name = add_menu_page( __( 'Password Policies', 'ppm-wp' ), __( 'Login Security', 'ppm-wp' ), 'manage_options', $this->menu_name, array( $this, 'screen' ), 'data:image/svg+xml;base64,' . ppm_wp()->icon, 99 );
+			$hook_name = add_menu_page( __( 'Login Security Policies', 'ppm-wp' ), __( 'Login Security', 'ppm-wp' ), 'manage_options', $this->menu_name, array( $this, 'screen' ), 'data:image/svg+xml;base64,' . ppm_wp()->icon, 99 );
 			add_action( "load-$hook_name", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$hook_name", array( $this, 'process' ) );
 
-			add_submenu_page( $this->menu_name, __( 'Password Policies', 'ppm-wp' ), __( 'Password Policies', 'ppm-wp' ), 'manage_options', $this->menu_name, array( $this, 'screen' ) );
+			add_submenu_page( $this->menu_name, __( 'Login Security Policies', 'ppm-wp' ), __( 'Login Security Policies', 'ppm-wp' ), 'manage_options', $this->menu_name, array( $this, 'screen' ) );
 
 			// Add admin submenu page.
 			$hook_submenu = add_submenu_page(
@@ -622,7 +636,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					'test_email_nonce'           => wp_create_nonce( 'send_test_email' ),
 					'settings_nonce'             => wp_create_nonce( 'ppm_wp_settings' ),
 					'terminate_session_password' => PPMWP\Helpers\OptionsHelper::string_to_bool( $session_setting ),
-					'special_chars_regex'        => str_replace( '>]', '>\\[\\]]', ppm_wp()->get_special_chars() ),
+					'special_chars_regex'        => ppm_wp()->get_special_chars( true ),
 				)
 			);
 			do_action( 'ppmwp_enqueue_admin_scripts' );
@@ -1037,6 +1051,9 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					'style'    => array(),
 					'data-tab-target' => array(),
 					'href' => array(),
+				),
+				'h3'       => array(
+					'class' => array(),
 				),
 				'br'       => array(),
 				'b'       => array(),

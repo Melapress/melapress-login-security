@@ -11,13 +11,16 @@ global $wp_roles;
 $roles = $wp_roles->get_names();
 // current tab.
 $current_tab         = isset( $_REQUEST['role'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['role'] ) ) : '';
-$master_switch_title = ! empty( $current_tab ) ? __( 'Inherit Password Policies', 'ppm-wp' ) : __( 'Enable Password Policies', 'ppm-wp' );
+$master_switch_title = ! empty( $current_tab ) ? __( 'Inherit password & login security policies', 'ppm-wp' ) : __( 'Enable password & login security policies', 'ppm-wp' );
+$sidebar_required    = false;
+// Override in free edition.
+$sidebar_required    = true;
+$form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 <div class="wrap ppm-wrap">
-	<form method="post" id="ppm-wp-settings">
-	<input type="hidden" id="ppm-exempted-role" value="<?php echo $current_tab ? esc_attr( $current_tab ) : ''; ?>" name="_ppm_options[ppm-user-role]">
+
 	<div class="page-head">
-		<h2><?php esc_html_e( 'Password Policies', 'ppm-wp' ); ?></h2>
+		<h2><?php esc_html_e( 'Login Security Policies', 'ppm-wp' ); ?></h2>
 		<div class="action">
 			<?php
 			if ( 0 === $this->get_global_reset_timestamp() ) {
@@ -36,44 +39,47 @@ $master_switch_title = ! empty( $current_tab ) ? __( 'Inherit Password Policies'
 		</div>
 	</div>
 
-	<p class="short-message"><?php esc_html_e( 'The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role\'s tab.', 'ppm-wp' ); ?></p>
+	<form method="post" id="ppm-wp-settings" class="<?php echo esc_attr( $form_class ); ?>">
+		<input type="hidden" id="ppm-exempted-role" value="<?php echo $current_tab ? esc_attr( $current_tab ) : ''; ?>" name="_ppm_options[ppm-user-role]">
 
-	<div class="nav-tab-wrapper">
-		<a href="<?php echo esc_url( add_query_arg( 'page', 'ppm_wp_settings', network_admin_url( 'admin.php' ) ) ); ?>" class="nav-tab<?php echo empty( $current_tab ) && ! isset( $_REQUEST['tab'] ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Site-wide policies', 'ppm-wp' ); ?></a>
-		<div id="ppmwp-role_tab_link_wrapper">
-			<div id="ppmwp_links-inner-wrapper">
-				<?php
-				if ( isset( $roles[ $current_tab ] ) ) {
-					$first_item = array(
-						$current_tab => $roles[ $current_tab ],
-					);
-					unset( $roles[ $current_tab ] );
+		<p class="short-message"><?php esc_html_e( 'The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role\'s tab.', 'ppm-wp' ); ?></p>
 
-					$roles = $first_item + $roles;
-				}
-
-				foreach ( $roles as $key => $value ) {
-					$url = add_query_arg(
-						array(
-							'page' => 'ppm_wp_settings',
-							'role' => $key,
-						),
-						network_admin_url( 'admin.php' )
-					);
-					// Active tab.
-					$active       = ( $current_tab === $key ) ? ' nav-tab-active' : '';
-					$settings_tab = get_site_option( PPMWP_PREFIX . '_' . $key . '_options' );
-					$icon         = empty( $settings_tab ) || 1 === $settings_tab['master_switch'] ? '<span style="opacity: 0.2" class="dashicons dashicons-admin-settings"></span> ' : '<span class="dashicons dashicons-admin-settings"></span> ';
-					?>
-					<a href="<?php echo esc_url( $url ); ?>" class="nav-tab<?php echo esc_attr( $active ); ?>" id="<?php echo esc_attr( $key ); ?>"><?php echo wp_kses( $icon . $value, $this->allowed_kses_args() ); ?></a>
+		<div class="nav-tab-wrapper">
+			<a href="<?php echo esc_url( add_query_arg( 'page', 'ppm_wp_settings', network_admin_url( 'admin.php' ) ) ); ?>" class="nav-tab<?php echo empty( $current_tab ) && ! isset( $_REQUEST['tab'] ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Site-wide policies', 'ppm-wp' ); ?></a>
+			<div id="ppmwp-role_tab_link_wrapper">
+				<div id="ppmwp_links-inner-wrapper">
 					<?php
-				}
-				?>
+					if ( isset( $roles[ $current_tab ] ) ) {
+						$first_item = array(
+							$current_tab => $roles[ $current_tab ],
+						);
+						unset( $roles[ $current_tab ] );
+
+						$roles = $first_item + $roles;
+					}
+
+					foreach ( $roles as $key => $value ) {
+						$url = add_query_arg(
+							array(
+								'page' => 'ppm_wp_settings',
+								'role' => $key,
+							),
+							network_admin_url( 'admin.php' )
+						);
+						// Active tab.
+						$active       = ( $current_tab === $key ) ? ' nav-tab-active' : '';
+						$settings_tab = get_site_option( PPMWP_PREFIX . '_' . $key . '_options' );
+						$icon         = empty( $settings_tab ) || 1 === $settings_tab['master_switch'] ? '<span style="opacity: 0.2" class="dashicons dashicons-admin-settings"></span> ' : '<span class="dashicons dashicons-admin-settings"></span> ';
+						?>
+						<a href="<?php echo esc_url( $url ); ?>" class="nav-tab<?php echo esc_attr( $active ); ?>" id="<?php echo esc_attr( $key ); ?>"><?php echo wp_kses( $icon . $value, $this->allowed_kses_args() ); ?></a>
+						<?php
+					}
+					?>
+				</div>
+				<span class="dashicons dashicons-arrow-down"></span>
 			</div>
-			<span class="dashicons dashicons-arrow-down"></span>
 		</div>
-	</div>
-	<?php if ( ! isset( $_REQUEST['tab'] ) ) : ?>
+		<?php if ( ! isset( $_REQUEST['tab'] ) ) : ?>
 		<div>
 			<table class="form-table" data-id="<?php echo esc_attr( $current_tab ); ?>">
 				<tbody>
@@ -146,4 +152,9 @@ $master_switch_title = ! empty( $current_tab ) ? __( 'Inherit Password Policies'
 		}
 		?>
 	</form>
+
+	<?php
+	require_once PPM_WP_PATH . 'admin/templates/views/upgrade-sidebar.php';
+
+	?>
 </div>
