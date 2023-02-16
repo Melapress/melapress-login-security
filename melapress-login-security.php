@@ -49,6 +49,7 @@ if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 	 * Takes care of deactivation of the premium plugin when the free plugin is activated.
 	 */
 	function mls_free_on_plugin_activation() {
+		update_site_option( 'mls_redirect_to_settings', true );
 		$premium_version_slug = 'melapress-login-security-premium/melapress-login-security-premium.php';
 		if ( is_plugin_active( $premium_version_slug ) ) {
 			deactivate_plugins( $premium_version_slug, true );
@@ -305,4 +306,14 @@ if ( ! function_exists( $mpls ) ) {
 	add_action( 'plugins_loaded', 'ppm_wp' );
 	register_activation_hook( __FILE__, array( 'PPM_WP', 'activation_timestamp' ) );
 	register_deactivation_hook( __FILE__, array( 'PPM_WP', 'ppm_deactivation' ) );
+
+	// Redirect to settings on activate.
+	add_action( 'admin_init', 'mls_plugin_activate_redirect' );
+	function mls_plugin_activate_redirect() {
+		if ( get_option( 'mls_redirect_to_settings', false )) {
+			delete_option( 'mls_redirect_to_settings' );
+			$url = add_query_arg( 'page', 'ppm_wp_settings', network_admin_url( 'admin.php' ) );
+			wp_redirect( $url );
+		}
+	}
 }
