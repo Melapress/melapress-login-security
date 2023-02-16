@@ -19,7 +19,7 @@
                 <ul class="c4wp-pro-features-ul">
                     <li class="dashicons-before dashicons-yes-alt"> Block Failed Login Attempts</li>
                     <li class="dashicons-before dashicons-yes-alt"> Automatically Lock Inactive Users</li>
-                    <li class="dashicons-before dashicons-yes-alt"> Configurable Email Template<</li>
+                    <li class="dashicons-before dashicons-yes-alt"> Configurable Email Template</li>
                     <li class="dashicons-before dashicons-yes-alt"> WooCommerce Ready</li>
                     <li class="dashicons-before dashicons-yes-alt"> No Ads!</li>
                 </ul>
