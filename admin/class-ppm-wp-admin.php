@@ -169,8 +169,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					unset( $old_links['upgrade'] );
 				}
 			} else {
-				$upgrade_link = '<a href="' . add_query_arg( 'page', 'ppm-upgrade', network_admin_url( 'admin.php' ) ) . '">' .
-				__( 'Upgrade', 'ppm-wp' ) .
+				$upgrade_link = '<a href="' . add_query_arg( 'page', 'ppm-upgrade', network_admin_url( 'admin.php' ) ) . '">' . __( 'Upgrade', 'ppm-wp' ) . '</a>';
 				array_push( $new_links, $upgrade_link );
 			}
 
