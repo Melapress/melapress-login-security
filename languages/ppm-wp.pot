@@ -24,119 +24,123 @@ msgstr ""
 msgid "Configure Login Security"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:174
+#: admin/class-ppm-wp-admin.php:173
 msgid "Upgrade"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-admin.php:192, admin/class-ppm-wp-admin.php:192, admin/templates/admin-form.php:23
+#: admin/class-ppm-wp-admin.php:185, admin/class-ppm-wp-admin.php:189, admin/class-ppm-wp-admin.php:189, admin/templates/admin-form.php:23
 msgid "Login Security Policies"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:188
+#: admin/class-ppm-wp-admin.php:185
 msgid "Login Security"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:197, admin/class-ppm-wp-admin.php:198
+#: admin/class-ppm-wp-admin.php:194, admin/class-ppm-wp-admin.php:195
 msgid "Help & Contact Us"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:212, admin/class-ppm-wp-admin.php:213, admin/class-ppm-wp-ms-admin.php:77, admin/class-ppm-wp-ms-admin.php:77
+#: admin/class-ppm-wp-admin.php:209, admin/class-ppm-wp-admin.php:210, admin/class-ppm-wp-ms-admin.php:77, admin/class-ppm-wp-ms-admin.php:77
 msgid "Settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:225, admin/class-ppm-wp-admin.php:225
+#: admin/class-ppm-wp-admin.php:227, admin/class-ppm-wp-admin.php:228, admin/templates/views/settings-forms.php:17
+msgid "Forms & Placement"
+msgstr ""
+
+#: admin/class-ppm-wp-admin.php:241, admin/class-ppm-wp-admin.php:241
 msgid "Premium Features ➤"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:418, admin/class-ppm-wp-admin.php:422
+#: admin/class-ppm-wp-admin.php:464, admin/class-ppm-wp-admin.php:468
 msgid "You are not allowed to reset your password. Please contact the website administrator."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:443
+#: admin/class-ppm-wp-admin.php:489
 msgid "User Added to Inactive Exempt List"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:444
+#: admin/class-ppm-wp-admin.php:490
 msgid "Your user has been exempted from the Inactive Users policy since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:454
+#: admin/class-ppm-wp-admin.php:500
 msgid "View settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:647
+#: admin/class-ppm-wp-admin.php:693
 msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:648
+#: admin/class-ppm-wp-admin.php:694
 msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:649
+#: admin/class-ppm-wp-admin.php:695
 msgid "Should the plugin reset your password as well?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:678
+#: admin/class-ppm-wp-admin.php:724
 msgid "Please check your email for instructions on how to reset your password."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:679
+#: admin/class-ppm-wp-admin.php:725
 msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:680
+#: admin/class-ppm-wp-admin.php:726
 msgid "OK"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:681
+#: admin/class-ppm-wp-admin.php:727
 msgid "No"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:706
+#: admin/class-ppm-wp-admin.php:752
 msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:707
+#: admin/class-ppm-wp-admin.php:753
 msgid "For more information please contact the WordPress admin on "
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:708
+#: admin/class-ppm-wp-admin.php:754
 msgid "Reset password"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:835
+#: admin/class-ppm-wp-admin.php:881
 msgid "Policies updated successfully."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:848
+#: admin/class-ppm-wp-admin.php:894
 msgid "Policies update failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:861
+#: admin/class-ppm-wp-admin.php:907
 msgid "This setting is mandatory. Please specify a value."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:874
+#: admin/class-ppm-wp-admin.php:920
 msgid "All passwords were reset."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:887
+#: admin/class-ppm-wp-admin.php:933
 msgid "Resetting passswords failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:906
+#: admin/class-ppm-wp-admin.php:952
 msgid "No user logged in."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:909
+#: admin/class-ppm-wp-admin.php:955
 msgid "Current user has no email address defined"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:914
+#: admin/class-ppm-wp-admin.php:960
 msgid "WPassword plugin email test"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:916
+#: admin/class-ppm-wp-admin.php:962
 msgid ""
 "Hooray!\n"
 "\n"
@@ -147,15 +151,15 @@ msgid ""
 ""
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:942
+#: admin/class-ppm-wp-admin.php:988
 msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:940
+#: admin/class-ppm-wp-admin.php:986
 msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:957
+#: admin/class-ppm-wp-admin.php:1003
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
@@ -215,7 +219,7 @@ msgstr ""
 msgid "Password Length"
 msgstr ""
 
-#: admin/templates/admin-form.php:149, admin/templates/views/settings.php:300
+#: admin/templates/admin-form.php:149, admin/templates/views/settings-forms.php:70, admin/templates/views/settings.php:300
 msgid "Save Changes"
 msgstr ""
 
@@ -332,25 +336,34 @@ msgstr ""
 msgid "Display the following message when a user requests a password reset."
 msgstr ""
 
-#: app/crons/class-summaryemail.php:127
-msgid "WPassword update - Week "
+#. translators: Password reset email subject. 1: Site name, 2: Week number
+#: app/crons/class-summaryemail.php:139
+msgid "[%1s] Week %2s password resets summary"
 msgstr ""
 
-#: app/crons/class-summaryemail.php:137
+#: app/crons/class-summaryemail.php:153
 msgid "Here is your weekly summary."
 msgstr ""
 
-#: app/crons/class-summaryemail.php:147
+#: app/crons/class-summaryemail.php:163
 msgid "Recent users with password resets:"
 msgstr ""
 
-#: app/crons/class-summaryemail.php:150
+#: app/crons/class-summaryemail.php:164
+msgid "Login name"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:164
+msgid "Role"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:164
 msgid "Last reset"
 msgstr ""
 
 #. translators: %1s: link to our plugin.
-#: app/crons/class-summaryemail.php:158
-msgid "This email is generated by the %1$s WPassword plugin %2$s"
+#: app/crons/class-summaryemail.php:175
+msgid "This email is generated by the %1$s MelaPress Login Security plugin %2$s"
 msgstr ""
 
 #: app/enforcers/class-new-user.php:89
@@ -678,6 +691,22 @@ msgstr ""
 
 #: admin/templates/help/system-info.php:15
 msgid "System information"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:26
+msgid "Standard forms"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:34
+msgid "Wordpress forms"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:42
+msgid "This website's password reset page"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:49
+msgid "User profile page"
 msgstr ""
 
 #: admin/templates/views/settings.php:17
@@ -1054,58 +1083,54 @@ msgstr ""
 msgid "inactivty"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:77
-msgid "Forms & Placement"
+#: app/modules/third-party/class-thirdparties.php:85
+msgid "Third party forms"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:91
-msgid "Use the below checkboxes to add the password policy checks on specific forms on your website."
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:97
+#: app/modules/third-party/class-thirdparties.php:92
 msgid "WooCommerce"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:105
+#: app/modules/third-party/class-thirdparties.php:100
 msgid "WooCommerce password reset page"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:114
+#: app/modules/third-party/class-thirdparties.php:109
 msgid "LearnDash"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:122
+#: app/modules/third-party/class-thirdparties.php:117
 msgid "LearnDash User register page"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:131
+#: app/modules/third-party/class-thirdparties.php:126
 msgid "Ultimate Member"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:139
+#: app/modules/third-party/class-thirdparties.php:134
 msgid "Ultimate Member user signup form"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:146
+#: app/modules/third-party/class-thirdparties.php:141
 msgid "Ultimate Member password update form."
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:155
+#: app/modules/third-party/class-thirdparties.php:150
 msgid "BuddyPress"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:163
+#: app/modules/third-party/class-thirdparties.php:158
 msgid "BuddyPress user signup form"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:170
+#: app/modules/third-party/class-thirdparties.php:165
 msgid "BuddyPress password update form."
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:179
+#: app/modules/third-party/class-thirdparties.php:174
 msgid "BBPress"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:187
+#: app/modules/third-party/class-thirdparties.php:182
 msgid "BBPress User register page"
 msgstr ""

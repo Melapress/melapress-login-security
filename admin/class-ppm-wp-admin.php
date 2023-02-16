@@ -169,11 +169,8 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					unset( $old_links['upgrade'] );
 				}
 			} else {
-				$upgrade_link = array(
-					'<a href="' . add_query_arg( 'page', 'ppm-upgrade', network_admin_url( 'admin.php' ) ) . '">' .
-					__( 'Upgrade', 'ppm-wp' ) .
-					'</a>',
-				);
+				$upgrade_link = '<a href="' . add_query_arg( 'page', 'ppm-upgrade', network_admin_url( 'admin.php' ) ) . '">' .
+				__( 'Upgrade', 'ppm-wp' ) .
 				array_push( $new_links, $upgrade_link );
 			}
 
@@ -222,6 +219,25 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
 			add_action( "load-$settings_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$settings_hook_submenu", array( $this, 'process' ) );
+
+
+			// Add admin submenu page for form placement
+			$forms_hook_submenu = add_submenu_page(
+				$this->menu_name,
+				__( 'Forms & Placement', 'ppm-wp' ),
+				__( 'Forms & Placement', 'ppm-wp' ),
+				'manage_options',
+				'ppm-forms',
+				array(
+					$this,
+					'ppm_display_forms_page',
+				),
+				1
+			);
+
+			add_action( "load-$forms_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
+			add_action( "admin_head-$forms_hook_submenu", array( $this, 'process_forms' ) );
+
 			$hook_upgrade_submenu = add_submenu_page( $this->menu_name, esc_html__( 'Premium Features ➤', 'ppm-wp' ), esc_html__( 'Premium Features ➤', 'ppm-wp' ), 'manage_options', 'ppm-upgrade', array( $this, 'ppm_display_upgrade_page' ), 2 );
 			add_action( "load-$hook_upgrade_submenu", array( $this, 'help_page_enqueue_scripts' ) );
 		}
@@ -238,6 +254,13 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 */
 		public function ppm_display_settings_page() {
 			require_once 'templates/views/settings.php';
+		}
+
+		/**
+		 * Display forms and placement settings page.
+		 */
+		public function ppm_display_forms_page() {
+			require_once 'templates/views/settings-forms.php';
 		}
 
 		/**
@@ -259,6 +282,15 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				$this->process_reset();
 
 				$this->save();
+			}
+		}
+
+		public function process_forms() {
+			// nonce checked later before processing happens.
+			$is_user_action = isset( $_POST[ PPMWP_PREFIX . '_nonce' ] ) ? true : false; // phpcs:ignore
+
+			if ( $is_user_action ) {
+				$this->save( 'forms_and_placement' );
 			}
 		}
 
@@ -305,7 +337,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 *
 		 * @return type
 		 */
-		public function save() {
+		public function save( $settings_type = '' ) {
 			// PPM Object.
 			$ppm = ppm_wp();
 
@@ -344,13 +376,6 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				$settings['exempted']['users']          = $this->decode_js_var( $settings['exempted']['users'] );
 				$settings['terminate_session_password'] = isset( $settings['terminate_session_password'] );
 				$settings['send_summary_email']         = isset( $settings['send_summary_email'] );
-				$settings['enable_wc_pw_reset']         = isset( $settings['enable_wc_pw_reset'] );
-				$settings['enable_bp_register']         = isset( $settings['enable_bp_register'] );
-				$settings['enable_bp_pw_update']        = isset( $settings['enable_bp_pw_update'] );
-				$settings['enable_ld_register']         = isset( $settings['enable_ld_register'] );
-				$settings['enable_um_register']         = isset( $settings['enable_um_register'] );
-				$settings['enable_um_pw_update']        = isset( $settings['enable_um_pw_update'] );
-				$settings['enable_bbpress_pw_update']   = isset( $settings['enable_bbpress_pw_update'] );
 
 				$settings['users_have_multiple_roles'] = isset( $settings['users_have_multiple_roles'] );
 				$settings['multiple_role_order']       = explode( ',', $settings['multiple_role_order'] );
@@ -388,9 +413,30 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				}
 
 				if ( $ok_to_save ) {
-					if ( $this->options->_ppm_setting_save( $settings ) ) {
+					$ppm_setting = PPMWP\Helpers\OptionsHelper::recursive_parse_args( $settings, $ppm->options->ppm_setting );
+
+					if ( $this->options->_ppm_setting_save( $ppm_setting ) ) {
 						$this->notice( 'admin_save_success_notice' );
 					}
+				}
+				return;
+			}
+
+			if ( 'forms_and_placement' === $settings_type ) {
+				$settings['enable_wc_pw_reset']         = isset( $settings['enable_wc_pw_reset'] );
+				$settings['enable_bp_register']         = isset( $settings['enable_bp_register'] );
+				$settings['enable_bp_pw_update']        = isset( $settings['enable_bp_pw_update'] );
+				$settings['enable_ld_register']         = isset( $settings['enable_ld_register'] );
+				$settings['enable_um_register']         = isset( $settings['enable_um_register'] );
+				$settings['enable_um_pw_update']        = isset( $settings['enable_um_pw_update'] );
+				$settings['enable_bbpress_pw_update']   = isset( $settings['enable_bbpress_pw_update'] );
+
+				$other_settings = (array) $ppm->options->ppm_setting;
+
+				$ppm_setting = PPMWP\Helpers\OptionsHelper::recursive_parse_args( $settings, $ppm->options->ppm_setting );
+
+				if ( $this->options->_ppm_setting_save( $ppm_setting ) ) {
+					$this->notice( 'admin_save_success_notice' );
 				}
 				return;
 			}
