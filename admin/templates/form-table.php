@@ -74,7 +74,7 @@
 						   <?php
 							printf(
 								/* translators: 1 - example of numeral */
-								esc_html__( 'Password must contain at least one special character (%1$s).', 'ppm-wp' ),
+								esc_html__( 'Password must contain at least one numeric character (%1$s).', 'ppm-wp' ),
 								'<code>0-9</code>'
 							);
 							?>
@@ -146,8 +146,8 @@
 			ob_start();
 			$test_mode = apply_filters( 'ppmwp_enable_testing_mode', false );
 			$units     = array(
-				'days'   => __( 'days', 'ppm-wp' ),
 				'hours'  => __( 'hours', 'ppm-wp' ),
+				'days'   => __( 'days', 'ppm-wp' ),
 				'months' => __( 'months', 'ppm-wp' ),
 			);
 			if ( $test_mode ) {

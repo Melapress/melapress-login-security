@@ -6,10 +6,13 @@
  * @subpackage wpassword
  */
 
+// Override in free edition.
+$sidebar_required    = true;
+$form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 
 <div class="wrap ppm-wrap">
-	<form method="post" id="ppm-wp-settings">
+	<form method="post" id="ppm-wp-settings" class="<?php esc_attr_e( $form_class ); ?>">
 		<div class="ppm-settings">
 
 			<!-- getting started -->
@@ -300,6 +303,11 @@
 		value="<?php echo esc_attr( __( 'Save Changes', 'ppm-wp' ) ); ?>" />
 		</div>
 	</form>
+
+	<?php
+	require_once PPM_WP_PATH . 'admin/templates/views/upgrade-sidebar.php';
+
+	?>
 </div> 
 
 <?php
