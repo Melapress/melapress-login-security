@@ -28,15 +28,15 @@ msgstr ""
 msgid "Upgrade"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:184, admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-admin.php:188, admin/templates/admin-form.php:23
+#: admin/class-ppm-wp-admin.php:184, admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-ms-admin.php:60, admin/class-ppm-wp-ms-admin.php:65, admin/class-ppm-wp-ms-admin.php:65, admin/templates/admin-default.php:13, admin/templates/admin-form.php:23
 msgid "Login Security Policies"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:184
+#: admin/class-ppm-wp-admin.php:184, admin/class-ppm-wp-ms-admin.php:60
 msgid "Login Security"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:193, admin/class-ppm-wp-admin.php:194
+#: admin/class-ppm-wp-admin.php:193, admin/class-ppm-wp-admin.php:194, admin/class-ppm-wp-ms-admin.php:68, admin/class-ppm-wp-ms-admin.php:68
 msgid "Help & Contact Us"
 msgstr ""
 
@@ -44,11 +44,11 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:226, admin/class-ppm-wp-admin.php:227, admin/templates/views/settings-forms.php:17
+#: admin/class-ppm-wp-admin.php:226, admin/class-ppm-wp-admin.php:227, admin/class-ppm-wp-ms-admin.php:91, admin/class-ppm-wp-ms-admin.php:92, admin/templates/views/settings-forms.php:17
 msgid "Forms & Placement"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:240, admin/class-ppm-wp-admin.php:240
+#: admin/class-ppm-wp-admin.php:240, admin/class-ppm-wp-admin.php:240, admin/class-ppm-wp-ms-admin.php:105, admin/class-ppm-wp-ms-admin.php:105
 msgid "Premium Features ➤"
 msgstr ""
 
@@ -163,18 +163,6 @@ msgstr ""
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
-#: admin/class-ppm-wp-ms-admin.php:60, admin/class-ppm-wp-ms-admin.php:65, admin/class-ppm-wp-ms-admin.php:65, admin/templates/form-table.php:17
-msgid "Password Policies"
-msgstr ""
-
-#: admin/class-ppm-wp-ms-admin.php:60, admin/templates/admin-default.php:13
-msgid "WPassword"
-msgstr ""
-
-#: admin/class-ppm-wp-ms-admin.php:68, admin/class-ppm-wp-ms-admin.php:68, admin/templates/help/index.php:13, admin/templates/help/index.php:20
-msgid "Help"
-msgstr ""
-
 #: app/class-ppm-wp.php:543
 msgid "The WPassword plugin is a multisite network tool. Please activate it from the network dashboard."
 msgstr ""
@@ -225,6 +213,10 @@ msgstr ""
 
 #: admin/templates/form-table.php:12
 msgid "Password policies"
+msgstr ""
+
+#: admin/templates/form-table.php:17
+msgid "Password Policies"
 msgstr ""
 
 #. translators: %s: Configured miniumum password length.
@@ -659,6 +651,10 @@ msgstr ""
 
 #: admin/templates/help/help.php:59
 msgid "Open support ticket"
+msgstr ""
+
+#: admin/templates/help/index.php:13, admin/templates/help/index.php:20
+msgid "Help"
 msgstr ""
 
 #: admin/templates/help/index.php:26
