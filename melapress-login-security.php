@@ -310,8 +310,8 @@ if ( ! function_exists( $mpls ) ) {
 	// Redirect to settings on activate.
 	add_action( 'admin_init', 'mls_plugin_activate_redirect' );
 	function mls_plugin_activate_redirect() {
-		if ( get_option( 'mls_redirect_to_settings', false )) {
-			delete_option( 'mls_redirect_to_settings' );
+		if ( get_site_option( 'mls_redirect_to_settings', false )) {
+			delete_site_option( 'mls_redirect_to_settings' );
 			$url = add_query_arg( 'page', 'ppm_wp_settings', network_admin_url( 'admin.php' ) );
 			wp_redirect( $url );
 		}

@@ -122,6 +122,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 		 *
 		 * @inheritDoc
 		 */
+		 #[\ReturnTypeWillChange]
 		public function jsonSerialize() {
 			return $this->rules;
 		}
