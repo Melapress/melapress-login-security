@@ -157,6 +157,24 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			}
 
 
+			/* @freetart */
+			if ( is_a( $user, '\WP_User' ) ) {
+				// check if it password expired flag is existing.
+				if ( get_user_meta( $user->ID, PPM_WP_META_PASSWORD_EXPIRED, true ) ) {
+					return new WP_Error(
+						'password-expired',
+						sprintf(
+							/* translators: %s: user name */
+							__( '<strong>ERROR</strong>: The password you entered for the username %s has expired.', 'ppm-wp' ),
+							'<strong>' . $user->user_login . '</strong>'
+						) .
+						' <a href="' . wp_lostpassword_url() . '">' .
+						__( 'Get a new password.', 'ppm-wp' ) .
+						'</a>'
+					);
+				}
+			}			
+
 			// Always return user object.
 			return $user;
 		}

@@ -371,6 +371,15 @@ msgstr ""
 msgid "Lost your password?"
 msgstr ""
 
+#. translators: %s: user name
+#: app/enforcers/class-ppm-wp-expire.php:168
+msgid "<strong>ERROR</strong>: The password you entered for the username %s has expired."
+msgstr ""
+
+#: app/enforcers/class-ppm-wp-expire.php:172
+msgid "Get a new password."
+msgstr ""
+
 #: app/enforcers/class-ppm-wp-forms.php:349
 msgid "Hints for a strong password"
 msgstr ""
@@ -1079,54 +1088,54 @@ msgstr ""
 msgid "inactivty"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:85
+#: app/modules/third-party/class-thirdparties.php:87
 msgid "Third party forms"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:92
+#: app/modules/third-party/class-thirdparties.php:94
 msgid "WooCommerce"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:100
-msgid "WooCommerce password reset page"
+#: app/modules/third-party/class-thirdparties.php:102
+msgid "WooCommerce password reset/update page"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:109
+#: app/modules/third-party/class-thirdparties.php:111
 msgid "LearnDash"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:117
+#: app/modules/third-party/class-thirdparties.php:119
 msgid "LearnDash User register page"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:126
+#: app/modules/third-party/class-thirdparties.php:128
 msgid "Ultimate Member"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:134
+#: app/modules/third-party/class-thirdparties.php:136
 msgid "Ultimate Member user signup form"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:141
-msgid "Ultimate Member password update form."
+#: app/modules/third-party/class-thirdparties.php:143
+msgid "Ultimate Member password reset/update form."
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:150
+#: app/modules/third-party/class-thirdparties.php:152
 msgid "BuddyPress"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:158
+#: app/modules/third-party/class-thirdparties.php:160
 msgid "BuddyPress user signup form"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:165
+#: app/modules/third-party/class-thirdparties.php:167
 msgid "BuddyPress password update form."
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:174
+#: app/modules/third-party/class-thirdparties.php:176
 msgid "BBPress"
 msgstr ""
 
-#: app/modules/third-party/class-thirdparties.php:182
-msgid "BBPress User register page"
+#: app/modules/third-party/class-thirdparties.php:184
+msgid "BBPress password update form."
 msgstr ""
