@@ -606,7 +606,7 @@ msgstr ""
 msgid "callback must be a function"
 msgstr ""
 
-#: admin/templates/help/contact-us.php:15, admin/templates/help/help.php:60, admin/templates/help/index.php:23
+#: admin/templates/help/contact-us.php:15, admin/templates/help/help.php:60
 msgid "Contact Us"
 msgstr ""
 
@@ -666,7 +666,7 @@ msgstr ""
 msgid "Help"
 msgstr ""
 
-#: admin/templates/help/index.php:26
+#: admin/templates/help/index.php:23
 msgid "System Info"
 msgstr ""
 
