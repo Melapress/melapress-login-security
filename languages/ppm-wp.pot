@@ -44,7 +44,7 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:226, admin/class-ppm-wp-admin.php:227, admin/class-ppm-wp-ms-admin.php:91, admin/class-ppm-wp-ms-admin.php:92, admin/templates/views/settings-forms.php:20
+#: admin/class-ppm-wp-admin.php:226, admin/class-ppm-wp-admin.php:227, admin/class-ppm-wp-ms-admin.php:91, admin/class-ppm-wp-ms-admin.php:92, admin/templates/views/settings-forms.php:21
 msgid "Forms & Placement"
 msgstr ""
 
@@ -179,35 +179,35 @@ msgstr ""
 msgid "Enable password & login security policies"
 msgstr ""
 
-#: admin/templates/admin-form.php:29
+#: admin/templates/admin-form.php:34
 msgid "Last reset on"
 msgstr ""
 
-#: admin/templates/admin-form.php:27
+#: admin/templates/admin-form.php:32
 msgid "Reset All Passwords was never used"
 msgstr ""
 
-#: admin/templates/admin-form.php:36
+#: admin/templates/admin-form.php:41
 msgid "Reset All Users' Passwords"
 msgstr ""
 
-#: admin/templates/admin-form.php:45
+#: admin/templates/admin-form.php:46
 msgid "The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role's tab."
 msgstr ""
 
-#: admin/templates/admin-form.php:48
+#: admin/templates/admin-form.php:49
 msgid "Site-wide policies"
 msgstr ""
 
-#: admin/templates/admin-form.php:89
+#: admin/templates/admin-form.php:90
 msgid "Do not enforce password policies for this role"
 msgstr ""
 
-#: admin/templates/admin-form.php:109, admin/templates/form-table.php:23
+#: admin/templates/admin-form.php:110, admin/templates/form-table.php:23
 msgid "Password Length"
 msgstr ""
 
-#: admin/templates/admin-form.php:149, admin/templates/views/settings-forms.php:73, admin/templates/views/settings.php:303
+#: admin/templates/admin-form.php:150, admin/templates/views/settings-forms.php:74, admin/templates/views/settings.php:304
 msgid "Save Changes"
 msgstr ""
 
@@ -262,11 +262,11 @@ msgstr ""
 msgid "Password Expiration Policy"
 msgstr ""
 
-#: admin/templates/form-table.php:149, admin/templates/views/settings.php:140, app/modules/inactive-users/class-inactive-users.php:368
+#: admin/templates/form-table.php:149, admin/templates/views/settings.php:141, app/modules/inactive-users/class-inactive-users.php:368
 msgid "hours"
 msgstr ""
 
-#: admin/templates/form-table.php:150, admin/templates/views/settings.php:139, app/modules/inactive-users/class-inactive-users.php:369
+#: admin/templates/form-table.php:150, admin/templates/views/settings.php:140, app/modules/inactive-users/class-inactive-users.php:369
 msgid "days"
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Reset password on first login"
 msgstr ""
 
-#: admin/templates/form-table.php:215, admin/templates/views/settings.php:266, admin/templates/views/settings.php:273, admin/templates/views/settings.php:279
+#: admin/templates/form-table.php:215, admin/templates/views/settings.php:267, admin/templates/views/settings.php:274, admin/templates/views/settings.php:280
 msgid "Delete database data upon uninstall"
 msgstr ""
 
@@ -698,114 +698,114 @@ msgstr ""
 msgid "System information"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:29
+#: admin/templates/views/settings-forms.php:30
 msgid "Standard forms"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:37
+#: admin/templates/views/settings-forms.php:38
 msgid "Wordpress forms"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:45
+#: admin/templates/views/settings-forms.php:46
 msgid "This website's password reset page"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:52
+#: admin/templates/views/settings-forms.php:53
 msgid "User profile page"
 msgstr ""
 
-#: admin/templates/views/settings.php:20
+#: admin/templates/views/settings.php:21
 msgid "Plugin settings"
 msgstr ""
 
-#: admin/templates/views/settings.php:42
+#: admin/templates/views/settings.php:43
 msgid "Weekly Summary"
 msgstr ""
 
-#: admin/templates/views/settings.php:49
+#: admin/templates/views/settings.php:50
 msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week."
 msgstr ""
 
-#: admin/templates/views/settings.php:55
+#: admin/templates/views/settings.php:56
 msgid "Enable weekly summary emails."
 msgstr ""
 
-#: admin/templates/views/settings.php:57
+#: admin/templates/views/settings.php:58
 msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week. Uses from/default address set below."
 msgstr ""
 
-#: admin/templates/views/settings.php:67
+#: admin/templates/views/settings.php:68
 msgid "Users exempted from password policies"
 msgstr ""
 
-#: admin/templates/views/settings.php:76
+#: admin/templates/views/settings.php:77
 msgid "Users in this list will be exempted from all the policies."
 msgstr ""
 
-#: admin/templates/views/settings.php:106, admin/templates/views/settings.php:113
+#: admin/templates/views/settings.php:107, admin/templates/views/settings.php:114
 msgid "Instantly terminate session on password expire or reset"
 msgstr ""
 
-#: admin/templates/views/settings.php:119
+#: admin/templates/views/settings.php:120
 msgid "Terminate session on password expire"
 msgstr ""
 
-#: admin/templates/views/settings.php:121
+#: admin/templates/views/settings.php:122
 msgid "By default when a users passwords expire or are reset their current session is not terminated and they are asked to reset their password once they logout and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset."
 msgstr ""
 
-#: admin/templates/views/settings.php:131
+#: admin/templates/views/settings.php:132
 msgid "Reset key expiry time"
 msgstr ""
 
 #. translators: %s: Configured password expiry period.
-#: admin/templates/views/settings.php:157
+#: admin/templates/views/settings.php:158
 msgid "Passwords reset keys should automatically expire in %s"
 msgstr ""
 
-#: admin/templates/views/settings.php:160
+#: admin/templates/views/settings.php:161
 msgid "By default when a user requests a password reset, the reset key will expire with 24 hours. Use this option to control this expiry time."
 msgstr ""
 
-#: admin/templates/views/settings.php:168
+#: admin/templates/views/settings.php:169
 msgid "Policy priority for users with multiple roles"
 msgstr ""
 
-#: admin/templates/views/settings.php:175
+#: admin/templates/views/settings.php:176
 msgid "Configure the priority of each user role's password policies"
 msgstr ""
 
-#: admin/templates/views/settings.php:177
+#: admin/templates/views/settings.php:178
 msgid "By default our plugin will apply the policy based on the 1st role found for a user, if your users are able to have multiple roles the correct policies may not be applied. To control this, sort the roles below into order priority (the higher the role means policies for this role will override subsequent policies which may also be applicable to a user)."
 msgstr ""
 
-#: admin/templates/views/settings.php:220
+#: admin/templates/views/settings.php:221
 msgid "Higher roles will superceed lower roles, meaning if a user has the role \"subscriber\" and also \"author\", to ensure \"author\" policies apply place it above \"subscriber\" to give these policies priority."
 msgstr ""
 
-#: admin/templates/views/settings.php:232
+#: admin/templates/views/settings.php:233
 msgid "From email address"
 msgstr ""
 
-#: admin/templates/views/settings.php:238
+#: admin/templates/views/settings.php:239
 msgid "Specify the from email address the plugin should use to send emails. If you do not specify an email address, the pre-defined default will be used."
 msgstr ""
 
-#: admin/templates/views/settings.php:246
+#: admin/templates/views/settings.php:247
 msgid "Email Test"
 msgstr ""
 
-#: admin/templates/views/settings.php:249
+#: admin/templates/views/settings.php:250
 msgid "Send Test Email"
 msgstr ""
 
-#: admin/templates/views/settings.php:253
+#: admin/templates/views/settings.php:254
 msgid ""
 "The plugin uses emails to alert users that their password has expired.\n"
 "									Use the test button below to send a test email to my email address and confirm email functionality."
 msgstr ""
 
-#: admin/templates/views/settings.php:281
+#: admin/templates/views/settings.php:282
 msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
 msgstr ""
 
@@ -1024,7 +1024,7 @@ msgstr ""
 msgid "Inactive users accounts will be will be locked. You can unlock users from the %1$s page in this plugin. To learn more about this policy, read the %2$s feature document"
 msgstr ""
 
-#: app/modules/inactive-users/class-inactive-users.php:426, app/modules/inactive-users/inactive-users.php:49, app/modules/inactive-users/inactive-users.php:33
+#: app/modules/inactive-users/class-inactive-users.php:426, app/modules/inactive-users/inactive-users.php:50, app/modules/inactive-users/inactive-users.php:34
 msgid "Inactive users policy"
 msgstr ""
 
@@ -1036,11 +1036,11 @@ msgstr ""
 msgid "By default, when a inactive user has been unlocked, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
 msgstr ""
 
-#: app/modules/inactive-users/inactive-users.php:46
+#: app/modules/inactive-users/inactive-users.php:47
 msgid "In this section you can see a list of inactive WordPress users on your website if you enable the %1$s, or the block failed logins policy"
 msgstr ""
 
-#: app/modules/inactive-users/inactive-users.php:30
+#: app/modules/inactive-users/inactive-users.php:31
 msgid "In this section you can see a list of locked users. Users can be locked if they have been inactive for a long time, or they have had too many failed login attempts. More information on the %1$s"
 msgstr ""
 

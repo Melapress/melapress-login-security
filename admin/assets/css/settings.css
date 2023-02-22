@@ -286,3 +286,19 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
     left: -2px;
     top: 1px;
 }
+
+.mls-reset-all-wrapper {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+@media all and (max-width: 900px) {
+    .mls-reset-all-wrapper {
+        position: relative;
+    }  
+    .sidebar-present {
+        width: 100%;
+        float: none;
+    }
+}
