@@ -6,9 +6,10 @@
  * @subpackage wpassword
  */
 
-// Override in free edition.
-$sidebar_required    = true;
-$form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
+ $sidebar_required    = false;
+ // Override in free edition.
+ $sidebar_required    = true;
+ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 
 <div class="wrap ppm-wrap">

@@ -21,7 +21,12 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 	<div class="page-head">
 		<h2><?php esc_html_e( 'Login Security Policies', 'ppm-wp' ); ?></h2>
-		<div class="action">
+	</div>
+
+	<form method="post" id="ppm-wp-settings" class="<?php echo esc_attr( $form_class ); ?>">
+		<input type="hidden" id="ppm-exempted-role" value="<?php echo $current_tab ? esc_attr( $current_tab ) : ''; ?>" name="_ppm_options[ppm-user-role]">
+
+		<div class="action mls-reset-all-wrapper">
 			<?php
 			if ( 0 === $this->get_global_reset_timestamp() ) {
 				$reset_string = __( 'Reset All Passwords was never used', 'ppm-wp' );
@@ -37,10 +42,6 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 				<p class="description"><?php echo esc_html( $reset_string ); ?></p>
 			</div>
 		</div>
-	</div>
-
-	<form method="post" id="ppm-wp-settings" class="<?php echo esc_attr( $form_class ); ?>">
-		<input type="hidden" id="ppm-exempted-role" value="<?php echo $current_tab ? esc_attr( $current_tab ) : ''; ?>" name="_ppm_options[ppm-user-role]">
 
 		<p class="short-message"><?php esc_html_e( 'The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role\'s tab.', 'ppm-wp' ); ?></p>
 
