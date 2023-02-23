@@ -2,7 +2,7 @@
 /**
  * PPM_WP Class
  *
- * @package wordpress
+ * @package WordPress
  * @subpackage wpassword
  */
 
@@ -42,7 +42,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 * @var object instance of PPM_WP
 		 * @since 0.1
 		 */
-		private static $_instance = null;
+		private static $_instance = null; // phpcs:ignore
 
 		/**
 		 * Password policy menu icon.
@@ -75,26 +75,18 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			new PPM_Reset_User_PW_Process();
 
 			$this->register_dependencies();
-			// Add FS custom icon.
-			ppm_freemius()->add_filter( 'plugin_icon', array( $this, 'ppm_fs_custom_icon' ) );
-			// Remove freemius delegation option.
-			ppm_freemius()->add_filter( 'show_delegation_option', '__return_false' );
-			// Remove freemius per site activation option.
-			ppm_freemius()->add_filter( 'enable_per_site_activation', '__return_false' );
-			// Remove contact page.
-			ppm_freemius()->add_action( 'is_submenu_visible', array( $this, 'hide_freemius_submenu_items' ), 10, 2 );
+
+			$can_continue = true;
+
 
 			// Check if a user is on a trial or has an activated license that enables premium features.
-			if ( ppm_freemius()->can_use_premium_code() ) {
+			if ( $can_continue ) {
 				// initialise options.
 				$this->options = new PPM_WP_Options();
 				// initialise rule regexes.
 				$this->regex = new PPM_WP_Regex();
 				// initialise strings.
 				$this->msgs = new PPM_WP_Msgs();
-				//
-				// $background_process = new PPM_User_Meta_Upgrade_Process();
-				// $background_process;
 
 				// Load plugin's text language files.
 				add_action( 'init', array( $this, 'localise' ) );
@@ -102,33 +94,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				add_action( 'init', array( $this, 'init' ) );
 				// Admin init.
 				add_action( 'admin_init', array( $this, 'ppm_overwrite_admin_menu' ) );
-				// Admin footer.
-				add_action( 'admin_footer', array( $this, 'ppm_freemium_submenu' ) );
-				// FS pricing url filter.
-				add_filter(
-					'fs_pricing_url_password-policy-manager',
-					function() {
-						return esc_url( 'https://www.wpwhitesecurity.com/wordpress-plugins/password-policy-manager-wordpress/pricing/' );
-					}
-				);
-			} else {
-				if ( is_multisite() ) {
-					add_action( 'network_admin_menu', array( $this, 'ppm_can_use_premium_code' ) );
-					remove_action( 'admin_menu', array( ppm_freemius(), '_prepare_admin_menu' ), WP_FS__LOWEST_PRIORITY );
-				} else {
-					add_action( 'admin_menu', array( $this, 'ppm_can_use_premium_code' ) );
-				}
-				if ( current_user_can( 'administrator' ) ) {
-					if ( is_multisite() && is_main_network() ) {
-						add_action( 'network_admin_notices', array( $this, 'ppm_can_use_premium_code_admin_notice' ) );
-					} else {
-						add_action( 'admin_notices', array( $this, 'ppm_can_use_premium_code_admin_notice' ) );
-					}
-				}
+
 			}
 
-			// bootstraps the inactive users feature of the plugin.
-			add_action( 'init', array( $this, 'setup_inactive_users_feature' ) );
 
 			// Ensure user is sent to reset if needed.
 			add_action( 'admin_init', array( $this, 'redirect_user_to_forced_pw_reset' ) );
@@ -136,11 +104,10 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			// Update user's last activity.
 			add_action( 'wp_login', array( $this, 'update_user_last_activity' ) );
 			add_action( 'wp_logout', array( $this, 'update_user_last_activity' ) );
-			add_action( 'wp_login_failed', array( $this, 'update_user_last_activity' ) );			
-
+			add_action( 'wp_login_failed', array( $this, 'update_user_last_activity' ) );
 			add_action( 'wp_loaded', array( $this, 'register_summary_email_cron' ) );
-			
 		}
+
 
 		/**
 		 * Registers some dependency classes and files for the plugin.
@@ -149,14 +116,11 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 * @since  2.1.0
 		 */
 		public function register_dependencies() {
-			require_once PPM_WP_PATH . 'app/crons/CronInterface.php';
-			require_once PPM_WP_PATH . 'app/ajax/AjaxInterface.php';
-			require_once PPM_WP_PATH . 'app/helpers/OptionsHelper.php';
-			require_once PPM_WP_PATH . 'app/helpers/class-ppm-email-settings.php';
-			// inactive users bootstrapper class.
-			require_once PPM_WP_PATH . 'app/InactiveUsers.php';
+			require_once PPM_WP_PATH . 'app/crons/class-croninterface.php';
+			require_once PPM_WP_PATH . 'app/ajax/class-ajaxinterface.php';
+			require_once PPM_WP_PATH . 'app/helpers/class-optionshelper.php';
+			require_once PPM_WP_PATH . 'app/helpers/class-ppm-emailstrings.php';
 			$this->hooks();
-
 		}
 
 		/**
@@ -167,13 +131,11 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 * @return void
 		 */
 		public function register_summary_email_cron() {
-			require_once PPM_WP_PATH . 'app/crons/SummaryEmail.php';
+			require_once PPM_WP_PATH . 'app/crons/class-summaryemail.php';
 			// setup the cron for this.
 			$this->crons['summary_email'] = new PPMWP\Crons\SummaryEmail( $this );
-			$this->crons['summary_email']->register();	
-			
+			$this->crons['summary_email']->register();
 		}
-
 
 		/**
 		 * Adds various hooks that are used for the plugin.
@@ -200,22 +162,8 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 * @since  2.1.0
 		 * @return string
 		 */
-		public function get_special_chars() {
-			return '[!@#$%^&*()_?£"-+=~;:€<>]';
-		}
-
-
-		/**
-		 * Setup the inactive users feature if it should be enabled.
-		 *
-		 * @method setup_inactive_users_feature
-		 * @since  2.1.0
-		 * @return null|void
-		 */
-		public function setup_inactive_users_feature() {
-			// feature should be enabled so start it.
-			$this->inactive = new \PPMWP\InactiveUsers( $this );
-			$this->inactive->init();
+		public function get_special_chars( $return_escaped = false ) {
+			return ( $return_escaped ) ? '[!@#$%^&*()_?£"\\-\\+=~;:€<>\\[\\]]' : '[!@#$%^&*()_?£"-+=~;:€<>]';
 		}
 
 		/**
@@ -261,14 +209,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			return $chars;
 		}
 
-		/**
-		 * Add FS custom icon.
-		 *
-		 * @return string ( return plugin icon )
-		 */
-		public function ppm_fs_custom_icon() {
-			return dirname( __FILE__ ) . '/../assets/images/password-policy-manager.png';
-		}
 
 		/**
 		 * Overwrite admin menu URL.
@@ -279,7 +219,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				$menu_index = array_search( 'ppm_wp_settings-pricing', array_column( $submenu['ppm_wp_settings'], 2 ) );
 				if ( $menu_index ) {
 					$upgrade_menu                              = $submenu['ppm_wp_settings'][ $menu_index ];
-					$submenu['ppm_wp_settings'][ $menu_index ] = array_replace(
+					$submenu['ppm_wp_settings'][ $menu_index ] = array_replace( // phpcs:ignore
 						$upgrade_menu,
 						array_fill_keys(
 							array_keys( $upgrade_menu, 'ppm_wp_settings-pricing' ),
@@ -288,39 +228,19 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 					);
 				}
 
+				$help = array_search( 'Help & Contact Us', array_column( $submenu['ppm_wp_settings'], 0 ) );
+
 				/**
 				 * Help menu move to last.
 				 *
 				 * @var $submenu
 				 */
-				if ( $help = array_search( 'Help & Contact Us', array_column( $submenu['ppm_wp_settings'], 0 ) ) ) {
+				if ( $help ) {
 					$help_menu = $submenu['ppm_wp_settings'][ $help ];
 					unset( $submenu['ppm_wp_settings'][ $help ] );
-					$submenu['ppm_wp_settings'][] = $help_menu;
+					$submenu['ppm_wp_settings'][] = $help_menu; // phpcs:ignore
 				}
 			}
-		}
-
-		/**
-		 * Add default menu
-		 */
-		public function ppm_can_use_premium_code() {
-			$hook = add_menu_page( __( 'Password Policies', 'ppm-wp' ), __( 'Password Policies', 'ppm-wp' ), 'manage_options', 'ppm_wp_settings', '__return_false', 'data:image/svg+xml;base64,' . ppm_wp()->icon, 99, 99 );
-		}
-
-		/**
-		 * Show license expired admin notice.
-		 */
-		public function ppm_can_use_premium_code_admin_notice() { ?>
-			<div class="notice notice-warning is-dismissible">
-				<p>
-					<?php
-						/* translators: %s: PPMWP pricing URL. */
-						echo wp_sprintf( __( 'WARNING: Password policies have been disabled because the plugin license has expired. <a href="%1$s" target="_blank">%2$s</a>.', 'ppm-wp' ), esc_url( 'https://www.wpwhitesecurity.com/wordpress-plugins/password-policy-manager-wordpress/pricing/' ), __( ' Click here to renew', 'ppm-wp' ) );
-					?>
-				</p>
-			</div>
-			<?php
 		}
 
 		/**
@@ -356,14 +276,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$new_user = new PPM_User_Profile();
 			$new_user->init();
 
-			$failed_logins = new PPM_Failed_Logins();
-			$failed_logins->init();
-
 			$shortcodes = new PPM_Shortcodes();
 			$shortcodes->init();
 
-			$ppm_tp = new PPM_ThirdParties();
-			$ppm_tp->init();
 
 			// call ppm history all hook.
 			$history->hook();
@@ -480,7 +395,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			$ppm_setting = get_site_option( PPMWP_PREFIX . '_setting' );
 			if ( $ppm_setting ) {
-			    $clear_up_needed = isset( $ppm_setting['clear_history'] ) && ( 'yes' === $ppm_setting['clear_history'] || 1 === $ppm_setting['clear_history'] );
+				$clear_up_needed = isset( $ppm_setting['clear_history'] ) && ( 'yes' === $ppm_setting['clear_history'] || 1 === $ppm_setting['clear_history'] );
 
 				if ( $clear_up_needed ) {
 					self::clear_options();
@@ -529,11 +444,10 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 		/**
 		 * Clear User meta
-		 *
 		 */
 		public static function clear_usermeta() {
 			global $wpdb;
-			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->usermeta WHERE meta_key LIKE %s", [ 'ppmwp_%' ] ) );
+			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->usermeta WHERE meta_key LIKE %s", array( 'ppmwp_%' ) ) );
 		}
 
 		/**
@@ -543,10 +457,10 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 */
 		public static function clear_ms_history( $args ) {
 			// Specify a large number so we get more than 100 sites.
-			$sites_args = [
-				'number'  => 10000,
-			];
-			$sites = get_sites( $sites_args );
+			$sites_args = array(
+				'number' => 10000,
+			);
+			$sites      = get_sites( $sites_args );
 
 			foreach ( $sites as $site ) {
 
@@ -572,22 +486,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			foreach ( $users as $user ) {
 				delete_user_meta( $user->ID, PPM_WP_META_KEY );
 			}
-		}
-
-		/**
-		 * Freemium submenu open in a new tab.
-		 */
-		public function ppm_freemium_submenu() {
-			?>
-			<script type="text/javascript">
-				jQuery( document ).ready( function( $ ) {
-					// Freemium pricing submenu.
-					$( '.toplevel_page_ppm_wp_settings' ).next( 'ul' ).find( 'a[href="https://www.wpwhitesecurity.com/wordpress-plugins/password-policy-manager-wordpress/pricing/"]' ).attr( 'target', '_blank' );
-					// User account upgrade tab.
-					$( '.wrap.fs-section' ).find( 'a[href="https://www.wpwhitesecurity.com/wordpress-plugins/password-policy-manager-wordpress/pricing/"]' ).attr( 'target', '_blank' );
-				} );
-			</script>
-			<?php
 		}
 
 		/**
@@ -657,6 +555,11 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			}
 		}
 
+		/**
+		 * Updater for change of prefix.
+		 *
+		 * @return void
+		 */
 		public static function ppm_run_prefix_update() {
 
 			// Update plugin version stored in db.
@@ -669,7 +572,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				return;
 			}
 
-			// Check if we have already run
+			// Check if we have already run.
 			$been_updated = get_site_option( 'ppmwp_prefixes_updated' );
 
 			if ( $been_updated ) {
@@ -728,10 +631,10 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			for ( $count = 0; $count < $slices; $count++ ) {
 				$args  = array(
-					'number' => $batch_size,
-					'offset' => $count * $batch_size,
-					'fields' => array( 'ID' ),
-					'meta_query'   => array(
+					'number'     => $batch_size,
+					'offset'     => $count * $batch_size,
+					'fields'     => array( 'ID' ),
+					'meta_query' => array(
 						array(
 							'relation' => 'OR',
 							array(
@@ -775,9 +678,13 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			// Fire off bg processes.
 			$background_process->dispatch();
-
 		}
 
+		/**
+		 * Applies activation timestamp to user meta.
+		 *
+		 * @return void
+		 */
 		public static function ppm_apply_timestammp_for_users() {
 
 			// Send users for bg processing later.
@@ -816,7 +723,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$user = wp_get_current_user();
 
 			// Get user reset key.
-			$reset = new PPM_WP_Reset();
+			$reset            = new PPM_WP_Reset();
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'reset-on-login' );
 
 			// If check reset key exists OR not.
@@ -828,9 +735,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		/**
 		 * Simple handler to perform redirection where needed.
 		 *
-		 * @param Object $verify_reset_key - Users reset key.
-		 * @param boolean $send_json_after - Send json when done?
-		 * @param boolean $exit_on_over - Exit or die?
+		 * @param Object  $verify_reset_key - Users reset key.
+		 * @param boolean $send_json_after - Send json when done.
+		 * @param boolean $exit_on_over - Exit or die.
 		 * @return void
 		 */
 		public function handle_user_redirection( $verify_reset_key, $send_json_after = false, $exit_on_over = false ) {
@@ -845,17 +752,19 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 					network_site_url( 'wp-login.php' )
 				);
 				if ( $send_json_after ) {
-					wp_send_json_success( array(
-						'success'  => true,
-						'redirect' => $redirect_to
-					) );
+					wp_send_json_success(
+						array(
+							'success'  => true,
+							'redirect' => $redirect_to,
+						)
+					);
 				} else {
 					wp_safe_redirect( $redirect_to );
 					if ( $exit_on_over ) {
 						exit;
 					} else {
 						die;
-					}					
+					}
 				}
 			}
 
@@ -864,7 +773,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		/**
 		 * Update the users last activity
 		 *
-		 * @param  int|string $user
+		 * @param  int|string $user - User for which to update.
 		 * @return void
 		 */
 		public function update_user_last_activity( $user ) {
@@ -888,37 +797,33 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			}
 		}
 
-		public function hide_freemius_submenu_items( $is_visible, $submenu_id ) {
-			if ( 'contact' === $submenu_id ) {
-				$is_visible = false;
-			}
-			return $is_visible;
-		}
-
+		/**
+		 * Generates system info panel.
+		 */
 		public function get_sysinfo() {
 			// System info.
 			global $wpdb;
-	
+
 			$sysinfo = '### System Info → Begin ###' . "\n\n";
-	
+
 			// Start with the basics...
 			$sysinfo .= '-- Site Info --' . "\n\n";
 			$sysinfo .= 'Site URL (WP Address):    ' . site_url() . "\n";
 			$sysinfo .= 'Home URL (Site Address):  ' . home_url() . "\n";
 			$sysinfo .= 'Multisite:                ' . ( is_multisite() ? 'Yes' : 'No' ) . "\n";
-	
+
 			// Get theme info.
 			$theme_data   = wp_get_theme();
-			$theme        = $theme_data->Name . ' ' . $theme_data->Version;
-			$parent_theme = $theme_data->Template;
+			$theme        = $theme_data->Name . ' ' . $theme_data->Version; // phpcs:ignore
+			$parent_theme = $theme_data->Template; // phpcs:ignore
 			if ( ! empty( $parent_theme ) ) {
 				$parent_theme_data = wp_get_theme( $parent_theme );
-				$parent_theme      = $parent_theme_data->Name . ' ' . $parent_theme_data->Version;
+				$parent_theme      = $parent_theme_data->Name . ' ' . $parent_theme_data->Version; // phpcs:ignore
 			}
-	
+
 			// Language information.
 			$locale = get_locale();
-	
+
 			// WordPress configuration.
 			$sysinfo .= "\n" . '-- WordPress Configuration --' . "\n\n";
 			$sysinfo .= 'Version:                  ' . get_bloginfo( 'version' ) . "\n";
@@ -929,93 +834,93 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				$sysinfo .= 'Parent Theme:             ' . $parent_theme . "\n";
 			}
 			$sysinfo .= 'Show On Front:            ' . get_option( 'show_on_front' ) . "\n";
-	
+
 			// Only show page specs if frontpage is set to 'page'.
 			if ( 'page' === get_option( 'show_on_front' ) ) {
 				$front_page_id = (int) get_option( 'page_on_front' );
 				$blog_page_id  = (int) get_option( 'page_for_posts' );
-	
+
 				$sysinfo .= 'Page On Front:            ' . ( 0 !== $front_page_id ? get_the_title( $front_page_id ) . ' (#' . $front_page_id . ')' : 'Unset' ) . "\n";
 				$sysinfo .= 'Page For Posts:           ' . ( 0 !== $blog_page_id ? get_the_title( $blog_page_id ) . ' (#' . $blog_page_id . ')' : 'Unset' ) . "\n";
 			}
-	
+
 			$sysinfo .= 'ABSPATH:                  ' . ABSPATH . "\n";
 			$sysinfo .= 'WP_DEBUG:                 ' . ( defined( 'WP_DEBUG' ) ? WP_DEBUG ? 'Enabled' : 'Disabled' : 'Not set' ) . "\n";
 			$sysinfo .= 'WP Memory Limit:          ' . WP_MEMORY_LIMIT . "\n";
-	
-		// Get plugins that have an update.
-		$updates = get_plugin_updates();
 
-		// Must-use plugins.
-		// NOTE: MU plugins can't show updates!
-		$muplugins = get_mu_plugins();
-		if ( count( $muplugins ) > 0 ) {
-			$sysinfo .= "\n" . '-- Must-Use Plugins --' . "\n\n";
+			// Get plugins that have an update.
+			$updates = get_plugin_updates();
 
-			foreach ( $muplugins as $plugin => $plugin_data ) {
-				$sysinfo .= $plugin_data['Name'] . ': ' . $plugin_data['Version'] . "\n";
-			}
-		}
+			// Must-use plugins.
+			// NOTE: MU plugins can't show updates!
+			$muplugins = get_mu_plugins();
+			if ( count( $muplugins ) > 0 ) {
+				$sysinfo .= "\n" . '-- Must-Use Plugins --' . "\n\n";
 
-		// WordPress active plugins.
-		$sysinfo .= "\n" . '-- WordPress Active Plugins --' . "\n\n";
-
-		$plugins        = get_plugins();
-		$active_plugins = get_option( 'active_plugins', array() );
-
-		foreach ( $plugins as $plugin_path => $plugin ) {
-			if ( ! in_array( $plugin_path, $active_plugins ) ) {
-				continue;
+				foreach ( $muplugins as $plugin => $plugin_data ) {
+					$sysinfo .= $plugin_data['Name'] . ': ' . $plugin_data['Version'] . "\n";
+				}
 			}
 
-			$update   = ( array_key_exists( $plugin_path, $updates ) ) ? ' (needs update - ' . $updates[ $plugin_path ]->update->new_version . ')' : '';
-			$sysinfo .= $plugin['Name'] . ': ' . $plugin['Version'] . $update . "\n";
-		}
+			// WordPress active plugins.
+			$sysinfo .= "\n" . '-- WordPress Active Plugins --' . "\n\n";
 
-		// WordPress inactive plugins.
-		$sysinfo .= "\n" . '-- WordPress Inactive Plugins --' . "\n\n";
+			$plugins        = get_plugins();
+			$active_plugins = get_option( 'active_plugins', array() );
 
-		foreach ( $plugins as $plugin_path => $plugin ) {
-			if ( in_array( $plugin_path, $active_plugins ) ) {
-				continue;
-			}
-
-			$update   = ( array_key_exists( $plugin_path, $updates ) ) ? ' (needs update - ' . $updates[ $plugin_path ]->update->new_version . ')' : '';
-			$sysinfo .= $plugin['Name'] . ': ' . $plugin['Version'] . $update . "\n";
-		}
-
-		if ( is_multisite() ) {
-			// WordPress Multisite active plugins.
-			$sysinfo .= "\n" . '-- Network Active Plugins --' . "\n\n";
-
-			$plugins        = wp_get_active_network_plugins();
-			$active_plugins = get_site_option( 'active_sitewide_plugins', array() );
-
-			foreach ( $plugins as $plugin_path ) {
-				$plugin_base = plugin_basename( $plugin_path );
-
-				if ( ! array_key_exists( $plugin_base, $active_plugins ) ) {
+			foreach ( $plugins as $plugin_path => $plugin ) {
+				if ( ! in_array( $plugin_path, $active_plugins ) ) {
 					continue;
 				}
 
 				$update   = ( array_key_exists( $plugin_path, $updates ) ) ? ' (needs update - ' . $updates[ $plugin_path ]->update->new_version . ')' : '';
-				$plugin   = get_plugin_data( $plugin_path );
 				$sysinfo .= $plugin['Name'] . ': ' . $plugin['Version'] . $update . "\n";
 			}
-		}
-	
+
+			// WordPress inactive plugins.
+			$sysinfo .= "\n" . '-- WordPress Inactive Plugins --' . "\n\n";
+
+			foreach ( $plugins as $plugin_path => $plugin ) {
+				if ( in_array( $plugin_path, $active_plugins ) ) {
+					continue;
+				}
+
+				$update   = ( array_key_exists( $plugin_path, $updates ) ) ? ' (needs update - ' . $updates[ $plugin_path ]->update->new_version . ')' : '';
+				$sysinfo .= $plugin['Name'] . ': ' . $plugin['Version'] . $update . "\n";
+			}
+
+			if ( is_multisite() ) {
+				// WordPress Multisite active plugins.
+				$sysinfo .= "\n" . '-- Network Active Plugins --' . "\n\n";
+
+				$plugins        = wp_get_active_network_plugins();
+				$active_plugins = get_site_option( 'active_sitewide_plugins', array() );
+
+				foreach ( $plugins as $plugin_path ) {
+					$plugin_base = plugin_basename( $plugin_path );
+
+					if ( ! array_key_exists( $plugin_base, $active_plugins ) ) {
+						continue;
+					}
+
+					$update   = ( array_key_exists( $plugin_path, $updates ) ) ? ' (needs update - ' . $updates[ $plugin_path ]->update->new_version . ')' : '';
+					$plugin   = get_plugin_data( $plugin_path );
+					$sysinfo .= $plugin['Name'] . ': ' . $plugin['Version'] . $update . "\n";
+				}
+			}
+
 			// Server configuration.
 			$server_software = filter_input( INPUT_SERVER, 'SERVER_SOFTWARE', FILTER_SANITIZE_STRING );
 			$sysinfo        .= "\n" . '-- Webserver Configuration --' . "\n\n";
 			$sysinfo        .= 'PHP Version:              ' . PHP_VERSION . "\n";
 			$sysinfo        .= 'MySQL Version:            ' . $wpdb->db_version() . "\n";
-	
+
 			if ( isset( $server_software ) ) {
 				$sysinfo .= 'Webserver Info:           ' . $server_software . "\n";
 			} else {
 				$sysinfo .= 'Webserver Info:           Global $_SERVER array is not set.' . "\n";
 			}
-	
+
 			// PHP configs.
 			$sysinfo .= "\n" . '-- PHP Configuration --' . "\n\n";
 			$sysinfo .= 'Memory Limit:             ' . ini_get( 'memory_limit' ) . "\n";
@@ -1025,13 +930,13 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$sysinfo .= 'Time Limit:               ' . ini_get( 'max_execution_time' ) . "\n";
 			$sysinfo .= 'Max Input Vars:           ' . ini_get( 'max_input_vars' ) . "\n";
 			$sysinfo .= 'Display Errors:           ' . ( ini_get( 'display_errors' ) ? 'On (' . ini_get( 'display_errors' ) . ')' : 'N/A' ) . "\n";
-	
+
 			$sysinfo .= "\n" . '-- PPMWP Settings  --' . "\n\n";
-			
-			$ppm_options  = $this->options->ppm_setting;
-	
+
+			$ppm_options = $this->options->ppm_setting;
+
 			if ( ! empty( $ppm_options ) ) {
-				foreach ( $ppm_options as $option => $value) {
+				foreach ( $ppm_options as $option => $value ) {
 					$sysinfo .= 'Option: ' . $option . "\n";
 					$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n";
 				}
@@ -1043,18 +948,19 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			foreach ( $roles_obj->role_names as $role ) {
 				$role_options = PPMWP\Helpers\OptionsHelper::get_role_options( $role );
-				$sysinfo .= "\n" . '-- '. $role .'  --' . "\n\n";
+				$sysinfo     .= "\n" . '-- ' . $role . '  --' . "\n\n";
 				if ( ! empty( $role_options ) ) {
-					foreach ( $role_options as $option => $value) {
+					foreach ( $role_options as $option => $value ) {
 						$sysinfo .= 'Option: ' . $option . "\n";
 						$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n";
 					}
 				}
 			}
-			
+
 			$sysinfo .= "\n" . '### System Info → End ###' . "\n\n";
-	
+
 			return $sysinfo;
 		}
+
 	}
 }

@@ -3,9 +3,9 @@ Plugin URI: https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
-Tested up to: 6.0.1
-Stable tag: 2.6.1
-Requires PHP: 7.0
+Tested up to: 6.1.1
+Stable tag: 1.0.0
+Requires PHP: 7.2
 
 == Description ==
 

@@ -1,10 +1,11 @@
 <?php
-
 /**
- * @package wordpress
- * @subpackage wpassword
+ * Handles regex within plugin.
  *
+ * @package WordPress
+ * @subpackage wpassword
  */
+
 if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 
 	/**
@@ -13,21 +14,24 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 	class PPM_WP_Regex implements JsonSerializable {
 
 		/**
+		 * Patterns.
 		 *
 		 * @var array Regexes to check password policies
 		 *
 		 * NOTE: these are javascript regex patterns and not PCRE.
 		 */
 		private $rules = array(
-			'length'                => '.{$length,}', // the $length placeholder
+			'length'                => '.{$length,}', // the $length placeholder.
 			'numeric'               => '[0-9]',
 			'upper_case'            => '[A-Z]',
 			'lower_case'            => '[a-z]',
-			'special_chars'         => '[!@#$%^&*()_?£"-+=~;:€<>]',
+			'special_chars'         => '[!@#$%^&*()_?£"\-+=~;:€<>]',
 			'exclude_special_chars' => '^((?![{excluded_chars}]).)*$',
 		);
 
 		/**
+		 * Plugin Options
+		 *
 		 * @var array Plugin Options
 		 */
 		private $user_options;
@@ -39,25 +43,25 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 
 			global $pagenow;
 
-			// get options
-			$ppm = ppm_wp();
+			// get options.
+			$ppm                = ppm_wp();
 			$this->user_options = $ppm->options->users_options;
 
-			$allowed_pages = [ 'user-new.php', 'user-edit.php', 'profile.php' ];
+			$allowed_pages = array( 'user-new.php', 'user-edit.php', 'profile.php' );
 			if ( ! $this->user_options && ! in_array( $pagenow, $allowed_pages ) && ! isset( $_POST['action'] ) ) {
 				return;
 			}
 
-			// set minimum length
+			// set minimum length.
 			$this->set_min_length();
 			// replace the excluded chars placeholder with the values.
 			$this->set_excluded_chars();
 
-			// set each property so it can be used conveniently
+			// set each property so it can be used conveniently.
 			foreach ( $this->user_options->rules as $key => $rule ) {
 				if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) ) {
-					// for eg, $this->length
-					if ( isset($this->rules[ $key ]) ) {
+					// for eg, $this->length.
+					if ( isset( $this->rules[ $key ] ) ) {
 						$this->{$key} = $this->rules[ $key ];
 					}
 				}
@@ -65,7 +69,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 				// If the rule is not enabled in the policy settings,
 				// remove it from rules.
 				if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) ) {
-					unset( $this->rules[$key] );
+					unset( $this->rules[ $key ] );
 				}
 			}
 
@@ -75,8 +79,8 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 		 * Set minimum length in regex from options
 		 */
 		private function set_min_length() {
-			// replace $length placeholder with actual length
-			$this->rules[ 'length' ] = preg_replace( '/\$length/', $this->user_options->min_length, $this->rules[ 'length' ] );
+			// replace $length placeholder with actual length.
+			$this->rules['length'] = preg_replace( '/\$length/', $this->user_options->min_length, $this->rules['length'] );
 		}
 
 		/**
@@ -88,8 +92,8 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 		private function set_excluded_chars() {
 			// replace $excluded_chars placeholder with actual excluded chars.
 			if ( isset( $this->user_options->ui_rules['exclude_special_chars'] )
-			     && PPMWP\Helpers\OptionsHelper::string_to_bool( $this->user_options->ui_rules['exclude_special_chars'] )
-			     && ! empty( $this->user_options->excluded_special_chars )
+				 && PPMWP\Helpers\OptionsHelper::string_to_bool( $this->user_options->ui_rules['exclude_special_chars'] )
+				 && ! empty( $this->user_options->excluded_special_chars )
 			) {
 				$allowed_special_chars = ltrim( rtrim( $this->rules['special_chars'], ']' ), '[' );
 				$excluded_chars_arr    = str_split( html_entity_decode( str_replace( '&pound', '£', $this->user_options->excluded_special_chars ), null, 'UTF-8' ), 1 );
@@ -97,15 +101,16 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 					$allowed_special_chars = str_replace( $excluded_char, '', $allowed_special_chars );
 				}
 
-				if ( '' !== trim($allowed_special_chars) ) {
+				if ( '' !== trim( $allowed_special_chars ) ) {
 					$this->rules['special_chars'] = "[{$allowed_special_chars}]";
 					// Escape dash.
-					$this->rules['special_chars'] = str_replace( '-', '\-', $this->rules['special_chars'] );					
+					$this->rules['special_chars'] = str_replace( '-', '\-', $this->rules['special_chars'] );
+					$this->rules['special_chars'] = str_replace( '\-+', '-\+', $this->rules['special_chars'] );
 				} else {
 					unset( $this->rules['special_chars'] );
 				}
 
-				$excluded_chars = ( preg_quote($this->user_options->excluded_special_chars ) );
+				$excluded_chars                       = ( preg_quote( $this->user_options->excluded_special_chars ) );
 				$this->rules['exclude_special_chars'] = preg_replace( '/{excluded_chars}/', $excluded_chars, $this->rules['exclude_special_chars'] );
 			} else {
 				unset( $this->rules['exclude_special_chars'] );
@@ -113,8 +118,11 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 		}
 
 		/**
+		 * Return rules.
+		 *
 		 * @inheritDoc
 		 */
+		 #[\ReturnTypeWillChange]
 		public function jsonSerialize() {
 			return $this->rules;
 		}

@@ -234,3 +234,71 @@ div#reset-container input#_ppm_reset {
     z-index: 500;
     top: 8px;
 }
+
+#ppm-failed-login-reset-attempts {
+    min-width: 60px;
+}
+
+.setting-heading th {
+    width: auto;
+    padding: 0;
+}
+
+.setting-heading h3 {
+    margin-top: 0;
+}
+
+.setting-heading h3.mt-40 {
+    margin-top: 40px;;
+}
+
+.upgrade-sidebar {
+    width: 280px;
+    position: relative;
+    top: 90px;
+}
+
+.sidebar-present {
+    width: calc( 100% - 280px );
+    float: left;
+}
+
+.premium-link {
+    background: #114e6f;
+    color: #fff !important;
+    padding: 8px 12px;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 15px;
+    display: inline-block;
+}
+
+.c4wp-pro-features-ul li {
+    padding-left: 25px;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
+    color:#114e6f;
+    position: absolute;
+    left: -2px;
+    top: 1px;
+}
+
+.mls-reset-all-wrapper {
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+@media all and (max-width: 900px) {
+    .mls-reset-all-wrapper {
+        position: relative;
+    }  
+    .sidebar-present {
+        width: 100%;
+        float: none;
+    }
+}
