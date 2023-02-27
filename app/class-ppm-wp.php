@@ -279,6 +279,8 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$shortcodes = new PPM_Shortcodes();
 			$shortcodes->init();
 
+			do_action( 'mls_extension_init' );
+
 
 			// call ppm history all hook.
 			$history->hook();
