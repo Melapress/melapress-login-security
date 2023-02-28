@@ -113,7 +113,14 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'failed_login_reset_on_unblock'  => 'yes',
 			'disable_self_reset'             => 'no',
 			'disable_self_reset_message'     => '',
+			'deactivated_account_message'    => '',
 		);
+
+		public static function get_default_account_deactivated_message() {
+			$admin_email = get_site_option( 'admin_email' );
+			$email_link  = '<a href="mailto:' . esc_url( $admin_email ) . '">' . __( 'website administrator', 'ppm-wp' ) . '</a>';			
+			return sprintf( __( 'Your WordPress user has been deactivated. Please contact the %1s to activate back your user.', 'ppm-wp' ), $email_link );
+		}
 
 		/**
 		 * Validator rules for default options

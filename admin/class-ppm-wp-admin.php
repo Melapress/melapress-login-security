@@ -604,6 +604,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
 			// Process reset blocked message.
 			$ppm_options_updated['disable_self_reset_message'] = ( ! empty( $ppm_options['disable_self_reset_message'] ) ) ? sanitize_textarea_field( $ppm_options['disable_self_reset_message'] ) : false;
+			$ppm_options_updated['deactivated_account_message'] = ( isset( $ppm_options['deactivated_account_message'] ) && ! empty( $ppm_options['deactivated_account_message'] ) ) ? wp_kses_post( $ppm_options['deactivated_account_message'] ) : trim( \PPM_WP_Options::get_default_account_deactivated_message() );
 
 			$processed_ppm_options = array_merge( $ppm_options, $ppm_options_updated );
 
@@ -963,7 +964,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
 <p>You received the test email. Now you can <a href="https://www.wpwhitesecurity.com/support/kb/getting-started-wpassword/?utm_source=plugin&utm_medium=referral&utm_campaign=PPMWP&utm_content=help+page">enable the password policies</a>.</p>
 
-<p>Thank you for using the WPassword plugin for WordPress.</p>
+<p>Thank you for using the Melapress Login Security plugin for WordPress.</p>
 
 ',
 					'ppm-wp'
@@ -1079,6 +1080,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				'p'        => array(
 					'class' => array(),
 					'id'    => array(),
+					'style' => array(),
 				),
 				'span'        => array(
 					'class' => array(),
@@ -1114,6 +1116,13 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				),
 				'tbody'        => array(
 					'class' => array(),
+					'id'    => array(),
+				),
+				'textarea' => array(
+					'class' => array(),
+					'name'  => array(),
+					'rows'  => array(),
+					'cols'  => array(),
 					'id'    => array(),
 				),
 			);

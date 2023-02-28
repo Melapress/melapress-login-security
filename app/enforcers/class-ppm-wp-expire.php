@@ -19,6 +19,8 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 		 */
 		private $options;
 
+		private $filter_priority = 0;
+
 		/**
 		 * Init hooks.
 		 */
@@ -31,13 +33,16 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			add_action( 'wp_loaded', array( $this, 'check_on_load_front_end' ) );
 			// Session expired AJAX.
 			add_action( 'wp_ajax_ppm_ajax_session_expired', array( $this, 'ppm_ajax_session_expired' ) );
+
+			$override_needed = apply_filters( 'mls_override_has_expired_priority', false );
+			$this->filter_priority = ( $override_needed && is_int( $override_needed ) ) ? $override_needed : $this->filter_priority;
 		}
 
 		/**
 		 * Check wp authenticate user
 		 */
 		public function ppm_authenticate_user() {
-			add_filter( 'wp_authenticate_user', array( $this, 'has_expired' ), 0, 2 );
+			add_filter( 'wp_authenticate_user', array( $this, 'has_expired' ), $this->filter_priority, 2 );
 		}
 
 		/**
