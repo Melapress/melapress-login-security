@@ -119,7 +119,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 											value="1" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->ppm_setting->terminate_session_password ) ); ?>/>
 											<?php esc_html_e( 'Terminate session on password expire', 'ppm-wp' ); ?>
 										<p class="description">
-											<?php esc_html_e( 'By default when a users passwords expire or are reset their current session is not terminated and they are asked to reset their password once they logout and log back in. Enable this option to instantly terminate the users\' sessions once the password expires or is reset.', 'ppm-wp' ); ?>
+											<?php esc_html_e( "By default when a user\'s password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset.", 'ppm-wp' ); ?>
 										</p>
 									</label>
 								</fieldset>

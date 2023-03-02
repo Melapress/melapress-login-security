@@ -29,7 +29,7 @@ if ( ! class_exists( 'PPM_EmailStrings' ) ) {
 			'user_unblocked_email_reset_message'    => 'Please visit the following URL to reset your password:',
 			'user_unblocked_email_continue_message' => 'You may continue to login as normal',
 			'user_reset_next_login_title'           => '[{blogname}] Password Reset',
-			'user_delayed_reset_title'              => '[{blogname}] Password Reset',
+			'user_delayed_reset_title'              => '[{blogname}] Password Expired',
 			'user_password_expired_title'           => '[{blogname}] Password Expired',
 		);
 
