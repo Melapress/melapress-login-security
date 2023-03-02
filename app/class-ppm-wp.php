@@ -281,7 +281,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			do_action( 'mls_extension_init' );
 
-
 			// call ppm history all hook.
 			$history->hook();
 

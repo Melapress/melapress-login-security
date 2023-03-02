@@ -20,7 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p><?php esc_html_e( 'The security of your WordPress website & WooCommerce store is as strong as the weakest password!', 'c4wp-wpp' ); ?></p>
 			<p><?php esc_html_e( 'Weak passwords should not jeopardize the security of your website. Configure strong password policies with WPassword and ensure your team, customers & subscribers use strong passwords.', 'c4wp-wpp' ); ?></p>
 			<div class="premium-cta">
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/" target="_blank" rel="noopener">Upgrade to Premium</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to Premium</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free Premium trial</a>
 			</div>
 		</div>
 
@@ -95,17 +96,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Use CAPTCHA in any country</strong>Select from different domains to prevent service outages due to domain restrictions.</span></p>
-						</td>
-						<td class="c8" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-						<td class="c12" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-					</tr>
-					<tr class="c2">
-						<td class="c6" colspan="1" rowspan="1">
 							<p class="c10"><span class="c5"><strong>1-Click Reset All Passwords</strong>Reset all of the password and terminate all logged in sessions with just 1 click in case of suspicious activity. All users receive clear instructions on how reset their passwords, making this an easy process.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
@@ -117,18 +107,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Configurable CAPTCHA language</strong>Choose from multiple CAPTCHA text languages.</span></p>
-						</td>
-						<td class="c8" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-						<td class="c12" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-					</tr>
-					<tr class="c2">
-						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Weekly summary email</strong>Configure the plugin to send a weekly email with a summary of password activity including inactivity lockouts, failed logins, and password resets..</span></p>
+							<p class="c10"><span class="c5"><strong>Weekly summary email</strong>Get a weekly email with a detailed summary of all password resets and changes, inactivity lockouts, failed logins, and more.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -139,7 +118,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>WooCommerce Ready</strong>Do you have a subscription or eCommerce business powered website with WooCommerce? Enforce policies on shop managers, subscribers & customers with just a few mouse clicks.</span></p>
+							<p class="c10"><span class="c5"><strong>WooCommerce & Third Party Plugins Ready</strong>Do you use WooCommerce for your eCommerce website? Do you use LearnDash, MemberPress and other popular plugins for Membership and business websites? Enforce login security policies on forms from these plugins with just a mouse click.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -150,7 +129,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Block Failed Login Attempts</strong>Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks.</span></p>
+							<p class="c10"><span class="c5"><strong>Limit Login Attempts</strong>Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -186,7 +165,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="premium-cta">
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/" target="_blank" rel="noopener">Upgrade to Premium</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to Premium</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free Premium trial</a>
 		</div>
 
 	</div>
@@ -255,6 +235,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	.premium-cta a:hover, .table-link:hover, .premium-cta a.inverse, .table-link.inverse {
 		color: #4da8dc;
 		background-color: #fff;
+	}
+
+	.premium-cta a.inverse:hover {
+		color: #fff;
+		background-color: #4da8dc;
 	}
 
 	.content-block {

@@ -87,7 +87,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 				<?php if ( ! empty( $current_tab ) ) : ?>
 					<tr valign="top">
 						<th scope="row">
-							<?php esc_html_e( 'Do not enforce password policies for this role', 'ppm-wp' ); ?>
+							<?php esc_html_e( 'Do not enforce password & login policies for this role', 'ppm-wp' ); ?>
 						</th>
 						<td>
 							<fieldset>

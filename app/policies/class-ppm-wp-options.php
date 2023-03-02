@@ -328,6 +328,8 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			if ( empty( $this->role_options[ $role ] ) ) {
 				$inherit = $this->inherit;
 				$options = get_site_option( PPMWP_PREFIX . '_' . $role . '_options', $inherit );
+				// Ensure we have something passed.
+				$options = ( ! $options || empty( $options ) ) ? get_site_option( PPMWP_PREFIX . '_options', $inherit ) : $options;
 				// ensure that we have an object and not an array.
 				$options = (object) wp_parse_args( $options, $this->default_options );
 				// store the fetched values in property so we don't need to
