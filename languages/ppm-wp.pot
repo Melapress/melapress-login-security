@@ -163,11 +163,11 @@ msgstr ""
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
-#: app/class-ppm-wp.php:545
+#: app/class-ppm-wp.php:544
 msgid "The WPassword plugin is a multisite network tool. Please activate it from the network dashboard."
 msgstr ""
 
-#: app/class-ppm-wp.php:547
+#: app/class-ppm-wp.php:546
 msgid "Redirect me to the network dashboard"
 msgstr ""
 
@@ -200,7 +200,7 @@ msgid "Site-wide policies"
 msgstr ""
 
 #: admin/templates/admin-form.php:90
-msgid "Do not enforce password policies for this role"
+msgid "Do not enforce password & login policies for this role"
 msgstr ""
 
 #: admin/templates/admin-form.php:110, admin/templates/form-table.php:23
@@ -854,7 +854,7 @@ msgid "- User Display Name"
 msgstr ""
 
 #: app/modules/email-settings/class-ppm-email-settings.php:78
-msgid "- Site Admin Email"
+msgid "- From email address / site admin email"
 msgstr ""
 
 #: app/modules/email-settings/class-ppm-email-settings.php:79
@@ -940,51 +940,51 @@ msgid_plural "You have %d attempts remaining."
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:349
+#: app/modules/failed-logins/class-ppm-failed-logins.php:358
 msgid "Enable Failed Logins Policies"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:365, app/modules/failed-logins/class-ppm-failed-logins.php:369
+#: app/modules/failed-logins/class-ppm-failed-logins.php:374, app/modules/failed-logins/class-ppm-failed-logins.php:378
 msgid "Number of failed login attempts before locking a user:"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:375
+#: app/modules/failed-logins/class-ppm-failed-logins.php:384
 msgid "Time period required to reset the failed logins count:"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:378
+#: app/modules/failed-logins/class-ppm-failed-logins.php:387
 msgid " minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:382
+#: app/modules/failed-logins/class-ppm-failed-logins.php:391
 msgid "Use this setting to specify how long for should the plugin keep a count of the failed logins. Once this time period passes, the failed logins count is reset to 0."
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:393
+#: app/modules/failed-logins/class-ppm-failed-logins.php:402
 msgid "When a user is locked: "
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:396
+#: app/modules/failed-logins/class-ppm-failed-logins.php:405
 msgid "it can be only unlocked by the administrator"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:398
+#: app/modules/failed-logins/class-ppm-failed-logins.php:407
 msgid "unlock it after"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:398
+#: app/modules/failed-logins/class-ppm-failed-logins.php:407
 msgid "minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:410, app/modules/inactive-users/class-inactive-users.php:457
+#: app/modules/failed-logins/class-ppm-failed-logins.php:419, app/modules/inactive-users/class-inactive-users.php:457
 msgid "Enable Inactive User Password Reset Feature"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:414
+#: app/modules/failed-logins/class-ppm-failed-logins.php:423
 msgid "Require blocked users to reset password on unblock."
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:417
+#: app/modules/failed-logins/class-ppm-failed-logins.php:426
 msgid "By default, when a previously blocked user has been unblocked by an administrator, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
 msgstr ""
 

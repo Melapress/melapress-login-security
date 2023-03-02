@@ -31,6 +31,7 @@ class OptionsHelper {
 	 */
 	public static function should_inactive_users_feature_be_active() {
 		$ppm = \ppm_wp();
+
 		// return early if the inactive class already is set active.
 		if ( isset( $ppm->inactive ) && null !== $ppm->inactive->is_feature_enabled() ) {
 			return $ppm->inactive->is_feature_enabled();
@@ -41,6 +42,10 @@ class OptionsHelper {
 		// If accessed early this item can be an array but we always want an
 		// object.
 		$master_policy = self::get_master_policy_options();
+		if ( empty( $master_policy ) || ! isset( $master_policy->inactive_users_enabled ) ) {
+			// If empty, then check DB.
+			$master_policy = ( object )get_site_option( PPMWP_PREFIX . '_options' );
+		}
 
 		// check if we are enabled.
 		if (
