@@ -20,127 +20,127 @@ msgstr ""
 "X-Poedit-SourceCharset: UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: admin/class-ppm-wp-admin.php:163
+#: admin/class-ppm-wp-admin.php:166
 msgid "Configure Login Security"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:172
+#: admin/class-ppm-wp-admin.php:179, admin/class-ppm-wp-admin.php:175
 msgid "Upgrade"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:184, admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-ms-admin.php:60, admin/class-ppm-wp-ms-admin.php:65, admin/class-ppm-wp-ms-admin.php:65, admin/templates/admin-default.php:13, admin/templates/admin-form.php:23
+#: admin/class-ppm-wp-admin.php:191, admin/class-ppm-wp-admin.php:195, admin/class-ppm-wp-admin.php:195, admin/class-ppm-wp-ms-admin.php:65, admin/class-ppm-wp-ms-admin.php:70, admin/class-ppm-wp-ms-admin.php:70, admin/templates/admin-default.php:13, admin/templates/admin-form.php:23
 msgid "Login Security Policies"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:184, admin/class-ppm-wp-ms-admin.php:60
+#: admin/class-ppm-wp-admin.php:191, admin/class-ppm-wp-ms-admin.php:65
 msgid "Login Security"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:193, admin/class-ppm-wp-admin.php:194, admin/class-ppm-wp-ms-admin.php:68, admin/class-ppm-wp-ms-admin.php:68
+#: admin/class-ppm-wp-admin.php:200, admin/class-ppm-wp-admin.php:201, admin/class-ppm-wp-ms-admin.php:73, admin/class-ppm-wp-ms-admin.php:73
 msgid "Help & Contact Us"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:208, admin/class-ppm-wp-admin.php:209, admin/class-ppm-wp-ms-admin.php:77, admin/class-ppm-wp-ms-admin.php:77
+#: admin/class-ppm-wp-admin.php:215, admin/class-ppm-wp-admin.php:216, admin/class-ppm-wp-ms-admin.php:82, admin/class-ppm-wp-ms-admin.php:82
 msgid "Settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:226, admin/class-ppm-wp-admin.php:227, admin/class-ppm-wp-ms-admin.php:91, admin/class-ppm-wp-ms-admin.php:92, admin/templates/views/settings-forms.php:21
+#: admin/class-ppm-wp-admin.php:233, admin/class-ppm-wp-admin.php:234, admin/class-ppm-wp-ms-admin.php:96, admin/class-ppm-wp-ms-admin.php:97, admin/templates/views/settings-forms.php:21
 msgid "Forms & Placement"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:240, admin/class-ppm-wp-admin.php:240, admin/class-ppm-wp-ms-admin.php:105, admin/class-ppm-wp-ms-admin.php:105
+#: admin/class-ppm-wp-admin.php:247, admin/class-ppm-wp-admin.php:247, admin/class-ppm-wp-ms-admin.php:110, admin/class-ppm-wp-ms-admin.php:110
 msgid "Premium Features ➤"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:463, admin/class-ppm-wp-admin.php:467
+#: admin/class-ppm-wp-admin.php:470, admin/class-ppm-wp-admin.php:474
 msgid "You are not allowed to reset your password. Please contact the website administrator."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:488
+#: admin/class-ppm-wp-admin.php:495
 msgid "User Added to Inactive Exempt List"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:489
+#: admin/class-ppm-wp-admin.php:496
 msgid "Your user has been exempted from the Inactive Users policy since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:499
+#: admin/class-ppm-wp-admin.php:506
 msgid "View settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:693
+#: admin/class-ppm-wp-admin.php:700
 msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:694
+#: admin/class-ppm-wp-admin.php:701
 msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:695
+#: admin/class-ppm-wp-admin.php:702
 msgid "Should the plugin reset your password as well?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:724
+#: admin/class-ppm-wp-admin.php:731
 msgid "Please check your email for instructions on how to reset your password."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:725
+#: admin/class-ppm-wp-admin.php:732
 msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:726
+#: admin/class-ppm-wp-admin.php:733
 msgid "OK"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:727
+#: admin/class-ppm-wp-admin.php:734
 msgid "No"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:752
+#: admin/class-ppm-wp-admin.php:759
 msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:753
+#: admin/class-ppm-wp-admin.php:760
 msgid "For more information please contact the WordPress admin on "
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:754
+#: admin/class-ppm-wp-admin.php:761
 msgid "Reset password"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:881
+#: admin/class-ppm-wp-admin.php:888
 msgid "Policies updated successfully."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:894
+#: admin/class-ppm-wp-admin.php:901
 msgid "Policies update failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:907
+#: admin/class-ppm-wp-admin.php:914
 msgid "This setting is mandatory. Please specify a value."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:920
+#: admin/class-ppm-wp-admin.php:927
 msgid "All passwords were reset."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:933
+#: admin/class-ppm-wp-admin.php:940
 msgid "Resetting passswords failed. Please try again."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:952
+#: admin/class-ppm-wp-admin.php:959
 msgid "No user logged in."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:955
+#: admin/class-ppm-wp-admin.php:962
 msgid "Current user has no email address defined"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:960
+#: admin/class-ppm-wp-admin.php:967
 msgid "WPassword plugin email test"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:962
+#: admin/class-ppm-wp-admin.php:969
 msgid ""
 "Hooray!\n"
 "\n"
@@ -151,32 +151,32 @@ msgid ""
 ""
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:988
+#: admin/class-ppm-wp-admin.php:995
 msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:986
+#: admin/class-ppm-wp-admin.php:993
 msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:1003
+#: admin/class-ppm-wp-admin.php:1010
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
-#: app/class-ppm-wp.php:544
+#: app/class-ppm-wp.php:543
 msgid "The WPassword plugin is a multisite network tool. Please activate it from the network dashboard."
 msgstr ""
 
-#: app/class-ppm-wp.php:546
+#: app/class-ppm-wp.php:545
 msgid "Redirect me to the network dashboard"
 msgstr ""
 
 #: admin/templates/admin-form.php:14
-msgid "Inherit password & login security policies"
+msgid "Inherit login security policies"
 msgstr ""
 
 #: admin/templates/admin-form.php:14
-msgid "Enable password & login security policies"
+msgid "Enable login security policies"
 msgstr ""
 
 #: admin/templates/admin-form.php:34
@@ -221,7 +221,7 @@ msgstr ""
 
 #. translators: %s: Configured miniumum password length.
 #: admin/templates/form-table.php:36
-msgid "Passwords must be minimum %s characters."
+msgid "Passwords must be %s characters minimum."
 msgstr ""
 
 #: admin/templates/form-table.php:50
@@ -759,7 +759,7 @@ msgid "Terminate session on password expire"
 msgstr ""
 
 #: admin/templates/views/settings.php:122
-msgid "By default when a user\'s password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset."
+msgid "By default when a user's password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset."
 msgstr ""
 
 #: admin/templates/views/settings.php:132
@@ -929,62 +929,62 @@ msgstr ""
 msgid "User Password Expired Message"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:90, app/modules/failed-logins/class-ppm-failed-logins.php:152
+#: app/modules/failed-logins/class-ppm-failed-logins.php:111, app/modules/failed-logins/class-ppm-failed-logins.php:174
 msgid "Your account has surpassed the allowed number of login attempts and can no longer log in."
 msgstr ""
 
 #. translators: %d: Number of attempts remaining
-#: app/modules/failed-logins/class-ppm-failed-logins.php:165
+#: app/modules/failed-logins/class-ppm-failed-logins.php:192
 msgid "You have %d attempt remaining."
 msgid_plural "You have %d attempts remaining."
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:358
+#: app/modules/failed-logins/class-ppm-failed-logins.php:393
 msgid "Enable Failed Logins Policies"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:374, app/modules/failed-logins/class-ppm-failed-logins.php:378
+#: app/modules/failed-logins/class-ppm-failed-logins.php:409, app/modules/failed-logins/class-ppm-failed-logins.php:413
 msgid "Number of failed login attempts before locking a user:"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:384
+#: app/modules/failed-logins/class-ppm-failed-logins.php:419
 msgid "Time period required to reset the failed logins count:"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:387
+#: app/modules/failed-logins/class-ppm-failed-logins.php:422
 msgid " minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:391
+#: app/modules/failed-logins/class-ppm-failed-logins.php:426
 msgid "Use this setting to specify how long for should the plugin keep a count of the failed logins. Once this time period passes, the failed logins count is reset to 0."
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:402
+#: app/modules/failed-logins/class-ppm-failed-logins.php:437
 msgid "When a user is locked: "
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:405
+#: app/modules/failed-logins/class-ppm-failed-logins.php:440
 msgid "it can be only unlocked by the administrator"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:407
+#: app/modules/failed-logins/class-ppm-failed-logins.php:442
 msgid "unlock it after"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:407
+#: app/modules/failed-logins/class-ppm-failed-logins.php:442
 msgid "minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:419, app/modules/inactive-users/class-inactive-users.php:457
+#: app/modules/failed-logins/class-ppm-failed-logins.php:454, app/modules/inactive-users/class-inactive-users.php:457
 msgid "Enable Inactive User Password Reset Feature"
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:423
+#: app/modules/failed-logins/class-ppm-failed-logins.php:458
 msgid "Require blocked users to reset password on unblock."
 msgstr ""
 
-#: app/modules/failed-logins/class-ppm-failed-logins.php:426
+#: app/modules/failed-logins/class-ppm-failed-logins.php:461
 msgid "By default, when a previously blocked user has been unblocked by an administrator, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
 msgstr ""
 

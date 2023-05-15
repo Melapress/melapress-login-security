@@ -45,7 +45,7 @@ require_once 'sidebar.php';
 	</div>
 	<p><?php esc_html_e( 'For more technical information about the MelaPress Login Security plugin please visit the plugin’s knowledge base.', 'ppm-wp' ); ?></p>
 	<div class="btn">
-		<a href="<?php echo esc_url( 'https://www.wpwhitesecurity.com/support/kb/?utm_source=plugin&utm_medium=referral&utm_campaign=PPMWP&utm_content=help+page' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Knowledge Base', 'ppm-wp' ); ?></a>
+		<a href="<?php echo esc_url( 'https://www.wpwhitesecurity.com/support/kb/category/mls-plugin-documentation/?utm_source=plugin&utm_medium=referral&utm_campaign=PPMWP&utm_content=help+page' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Knowledge Base', 'ppm-wp' ); ?></a>
 	</div>
 	<br>
 	<!-- End -->

@@ -454,7 +454,7 @@ function confirm_custom_messages(obj, message_disable, message_enable){
 function accept_only_special_chars_input( event ) {
 	var ch     = String.fromCharCode( event.charCode );
 	var filter = new RegExp( ppm_ajax.special_chars_regex );
-	if ( ! filter.test( ch ) ) {
+	if ( ! filter.test( ch ) || event.target.value.indexOf( ch ) > -1 ) {
 		event.preventDefault();
 	}
 }

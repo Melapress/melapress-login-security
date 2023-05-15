@@ -1,7 +1,0 @@
-\.vscode/
-composer\.phar
-
-node_modules/
-**/.DS_Store
-**/.gitconfig
-.DS_Store

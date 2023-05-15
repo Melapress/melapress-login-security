@@ -11,7 +11,7 @@ global $wp_roles;
 $roles = $wp_roles->get_names();
 // current tab.
 $current_tab         = isset( $_REQUEST['role'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['role'] ) ) : '';
-$master_switch_title = ! empty( $current_tab ) ? __( 'Inherit password & login security policies', 'ppm-wp' ) : __( 'Enable password & login security policies', 'ppm-wp' );
+$master_switch_title = ! empty( $current_tab ) ? __( 'Inherit login security policies', 'ppm-wp' ) : __( 'Enable login security policies', 'ppm-wp' );
 $sidebar_required    = false;
 // Override in free edition.
 $sidebar_required    = true;
