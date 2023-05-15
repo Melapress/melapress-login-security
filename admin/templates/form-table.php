@@ -13,7 +13,7 @@
 		</th>
 	</tr>
 	<tr valign="top">
-		<th scope="row">
+		<th scope="row" style="vertical-align: middle;">
 			<?php esc_html_e( 'Password Policies', 'ppm-wp' ); ?>
 		</th>
 		<td>
@@ -33,7 +33,7 @@
 							<?php
 							$input_length = ob_get_clean();
 								 /* translators: %s: Configured miniumum password length. */
-							printf( esc_html__( 'Passwords must be minimum %s characters.', 'ppm-wp' ), wp_kses( $input_length, $this->allowed_kses_args() ) );
+							printf( esc_html__( 'Passwords must be %s characters minimum.', 'ppm-wp' ), wp_kses( $input_length, $this->allowed_kses_args() ) );
 							?>
 				</label>
 			</fieldset>
