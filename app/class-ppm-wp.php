@@ -80,7 +80,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 
 			// Check if a user is on a trial or has an activated license that enables premium features.
-			if ( $can_continue ) {
+			if ( $can_continue || $free_plan ) {
 				// initialise options.
 				$this->options = new PPM_WP_Options();
 				// initialise rule regexes.
@@ -317,9 +317,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			}
 
 			if ( ! is_multisite() ) {
-				$admin = new PPM_WP_Admin( $this->options, $user_settings, $role_setting );
+				$admin = new PPMWP\Admin\PPM_WP_Admin( $this->options, $user_settings, $role_setting );
 			} else {
-				$admin = new PPM_WP_MS_Admin( $this->options, $user_settings, $role_setting );
+				$admin = new PPMWP\Admin\PPM_WP_MS_Admin( $this->options, $user_settings, $role_setting );
 			}
 		}
 
@@ -375,7 +375,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		public static function activation_timestamp() {
 			update_site_option( PPMWP_PREFIX . '_activation', current_time( 'timestamp' ) );
 			self::ppm_multisite_install_plugin();
-			self::ppm_apply_timestammp_for_users();
 			self::ppm_run_prefix_update();
 		}
 

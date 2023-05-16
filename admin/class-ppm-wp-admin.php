@@ -6,7 +6,10 @@
  * @subpackage wpassword
  */
 
-use PPMWP\Utilities\ValidatorFactory;
+namespace PPMWP\Admin;
+
+use \PPMWP\Utilities\ValidatorFactory as ValidatorFactory;
+use \PPMWP\Helpers\OptionsHelper as OptionsHelper;
 
 if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
@@ -79,14 +82,14 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			add_action( 'admin_footer', array( $this, 'admin_footer_session_expired_dialog' ) );
 			add_action( 'admin_footer', array( $this, 'popup_notices' ) );
 
-			$options_master_switch    = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->master_switch );
-			$settings_master_switch   = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->settings->master_switch );
-			$inherit_policies_setting = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->settings->inherit_policies );
+			$options_master_switch    = OptionsHelper::string_to_bool( $this->options->master_switch );
+			$settings_master_switch   = OptionsHelper::string_to_bool( $this->settings->master_switch );
+			$inherit_policies_setting = OptionsHelper::string_to_bool( $this->settings->inherit_policies );
 
 			$is_needed = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
 
 			if ( $is_needed ) {
-				if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $this->settings->enforce_password ) ) {
+				if ( OptionsHelper::string_to_bool( $this->settings->enforce_password ) ) {
 					return;
 				}
 				add_action( 'admin_enqueue_scripts', array( $this, 'global_admin_enqueue_scripts' ) );
@@ -149,6 +152,17 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					<?php
 				}
 			}
+
+			?>
+				<div id="mls_admin_lockout_notice_modal" class="hidden">
+					<div class="notice_modal_wrapper">
+						<p><?php esc_html_e( 'To ensure you dont lock yourself out of your own dashboard, be sure to exclude your own admin account from password policies when enabling this feature.', 'ppm-wp' ); ?></p>
+						<div class="notice_modal_footer">
+							<button type="button" class="button-primary" onclick="ppmwp_close_thickbox()"><?php esc_html_e( 'Acknowledge', 'ppm-wp' ); ?></button>
+						</div>
+					</div>
+				</div>
+			<?php
 		}
 
 		/**
@@ -167,6 +181,10 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			if ( function_exists( 'ppm_freemius' ) ) {
 				if ( ppm_freemius()->can_use_premium_code() && isset( $old_links['upgrade'] ) ) {
 					unset( $old_links['upgrade'] );
+				} else if ( ppm_freemius()->is_free_plan() ) {
+					unset( $old_links['upgrade'] );
+					$upgrade_link = '<a href="' . add_query_arg( 'page', 'ppm-upgrade', network_admin_url( 'admin.php' ) ) . '">' . __( 'Upgrade', 'ppm-wp' ) . '</a>';
+					array_push( $new_links, $upgrade_link );
 				}
 			} else {
 				$upgrade_link = '<a href="' . add_query_arg( 'page', 'ppm-upgrade', network_admin_url( 'admin.php' ) ) . '">' . __( 'Upgrade', 'ppm-wp' ) . '</a>';
@@ -237,8 +255,10 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			add_action( "load-$forms_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$forms_hook_submenu", array( $this, 'process_forms' ) );
 
+			/* @free:start */
 			$hook_upgrade_submenu = add_submenu_page( $this->menu_name, esc_html__( 'Premium Features ➤', 'ppm-wp' ), esc_html__( 'Premium Features ➤', 'ppm-wp' ), 'manage_options', 'ppm-upgrade', array( $this, 'ppm_display_upgrade_page' ), 2 );
 			add_action( "load-$hook_upgrade_submenu", array( $this, 'help_page_enqueue_scripts' ) );
+			/* @free:end */
 		}
 
 		/**
@@ -262,12 +282,14 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			require_once 'templates/views/settings-forms.php';
 		}
 
+		/* @free:start */
 		/**
 		 * Display help page.
 		 */
 		public function ppm_display_upgrade_page() {
 			require_once PPM_WP_PATH . 'admin/templates/help/upgrade.php';
 		}
+		/* @free:end */
 
 		/**
 		 * PPM onload process
@@ -389,7 +411,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				/**
 				 * Validates the input based on the rules defined in the @see PPM_WP_Options::$settings_options_validation_rules
 				 */
-				foreach ( PPM_WP_Options::$settings_options_validation_rules as $key => $valid_rules ) {
+				foreach ( \PPM_WP_Options::$settings_options_validation_rules as $key => $valid_rules ) {
 
 					if ( is_array( $valid_rules ) && ! isset( $valid_rules['typeRule'] ) ) {
 						foreach ( $valid_rules as $field_name => $rule ) {
@@ -412,7 +434,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				}
 
 				if ( $ok_to_save ) {
-					$ppm_setting = PPMWP\Helpers\OptionsHelper::recursive_parse_args( $settings, $ppm->options->ppm_setting );
+					$ppm_setting = OptionsHelper::recursive_parse_args( $settings, $ppm->options->ppm_setting );
 
 					if ( $this->options->_ppm_setting_save( $ppm_setting ) ) {
 						$this->notice( 'admin_save_success_notice' );
@@ -432,7 +454,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
 				$other_settings = (array) $ppm->options->ppm_setting;
 
-				$ppm_setting = PPMWP\Helpers\OptionsHelper::recursive_parse_args( $settings, $ppm->options->ppm_setting );
+				$ppm_setting = OptionsHelper::recursive_parse_args( $settings, $ppm->options->ppm_setting );
 
 				if ( $this->options->_ppm_setting_save( $ppm_setting ) ) {
 					$this->notice( 'admin_save_success_notice' );
@@ -458,9 +480,17 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			if ( ! isset( $_POST['_ppm_options']['disable_self_reset'] ) ) {
 				$_POST['_ppm_options']['disable_self_reset'] = 0;
 			}
+		
+			if ( ! isset( $_POST['_ppm_options']['locked_user_disable_self_reset'] ) ) {
+				$_POST['_ppm_options']['locked_user_disable_self_reset'] = 0;
+			}
 
 			if ( ! isset( $_POST['_ppm_options']['disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['disable_self_reset_message'] ) ) {
 				$_POST['_ppm_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'ppm-wp' );
+			}
+
+			if ( ! isset( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) ) {
+				$_POST['_ppm_options']['locked_user_disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'ppm-wp' );
 			}
 
 			if ( ! isset( $_POST['_ppm_options']['user_unlocked_email_title'] ) || empty( $_POST['_ppm_options']['user_unlocked_email_title'] ) ) {
@@ -481,7 +511,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				$_POST['_ppm_options']['inactive_users_enabled'] = 1;
 				// add the current user to the inactive exempt list if that list
 				// is empty.
-				$added = \PPMWP\Helpers\OptionsHelper::add_initial_user_to_inactive_exempt_list( wp_get_current_user() );
+				$added = OptionsHelper::add_initial_user_to_inactive_exempt_list( wp_get_current_user() );
 				if ( $added ) {
 					// add details to output for the modal popup.
 					$this->extra_notice_details[] = array(
@@ -538,7 +568,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			/**
 			 * Validates the input based on the rules defined in the @see PPM_WP_Options::$default_options_validation_rules
 			 */
-			foreach ( PPM_WP_Options::$default_options_validation_rules as $key => $valid_rules ) {
+			foreach ( \PPM_WP_Options::$default_options_validation_rules as $key => $valid_rules ) {
 
 				if ( is_array( $valid_rules ) && ! isset( $valid_rules['typeRule'] ) ) {
 					foreach ( $valid_rules as $field_name => $rule ) {
@@ -580,7 +610,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				$ppm_options['ui_rules'][ $rule ] = isset( $ppm_options['ui_rules'][ $rule ] ) && ! in_array( $ppm_options['ui_rules'][ $rule ], array( 0, '0', false, '' ) );
 			}
 
-			$main_bool_options     = array( 'master_switch', 'enforce_password', 'inherit_policies', 'change_initial_password', 'disable_self_reset', 'inactive_users_enabled', 'inactive_users_reset_on_unlock', 'failed_login_policies_enabled', 'failed_login_reset_on_unblock' );
+			$main_bool_options     = array( 'master_switch', 'enforce_password', 'inherit_policies', 'change_initial_password', 'disable_self_reset', 'locked_user_disable_self_reset', 'inactive_users_enabled', 'inactive_users_reset_on_unlock', 'failed_login_policies_enabled', 'failed_login_reset_on_unblock' );
 			$ui_rules_bool_options = array( 'history', 'username', 'length', 'numeric', 'mix_case', 'special_chars', 'exclude_special_chars' );
 			$pw_rules_bool_options = array( 'length', 'numeric', 'upper_case', 'lower_case', 'special_chars', 'exclude_special_chars' );
 
@@ -589,22 +619,23 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			// Process main options.
 			foreach ( $main_bool_options as $main_bool ) {
 				$bool_to_check                     = ( isset( $ppm_options[ $main_bool ] ) ) ? $ppm_options[ $main_bool ] : false;
-				$ppm_options_updated[ $main_bool ] = PPMWP\Helpers\OptionsHelper::bool_to_string( $bool_to_check );
+				$ppm_options_updated[ $main_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
 			}
 			// Process UI options.
 			foreach ( $ui_rules_bool_options as $ui_bool ) {
 				$bool_to_check                               = ( isset( $ppm_options['ui_rules'][ $ui_bool ] ) ) ? $ppm_options['ui_rules'][ $ui_bool ] : false;
-				$ppm_options_updated['ui_rules'][ $ui_bool ] = PPMWP\Helpers\OptionsHelper::bool_to_string( $bool_to_check );
+				$ppm_options_updated['ui_rules'][ $ui_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
 			}
 			// Process PW options.
 			foreach ( $pw_rules_bool_options as $pw_rules_bool ) {
 				$bool_to_check                                  = ( isset( $ppm_options['rules'][ $pw_rules_bool ] ) ) ? $ppm_options['rules'][ $pw_rules_bool ] : false;
-				$ppm_options_updated['rules'][ $pw_rules_bool ] = PPMWP\Helpers\OptionsHelper::bool_to_string( $bool_to_check );
+				$ppm_options_updated['rules'][ $pw_rules_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
 			}
 
 			// Process reset blocked message.
-			$ppm_options_updated['disable_self_reset_message'] = ( ! empty( $ppm_options['disable_self_reset_message'] ) ) ? sanitize_textarea_field( $ppm_options['disable_self_reset_message'] ) : false;
-			$ppm_options_updated['deactivated_account_message'] = ( isset( $ppm_options['deactivated_account_message'] ) && ! empty( $ppm_options['deactivated_account_message'] ) ) ? wp_kses_post( $ppm_options['deactivated_account_message'] ) : trim( \PPM_WP_Options::get_default_account_deactivated_message() );
+			$ppm_options_updated['disable_self_reset_message']             = ( ! empty( $ppm_options['disable_self_reset_message'] ) ) ? sanitize_textarea_field( $ppm_options['disable_self_reset_message'] ) : false;
+			$ppm_options_updated['locked_user_disable_self_reset_message'] = ( ! empty( $ppm_options['locked_user_disable_self_reset_message'] ) ) ? sanitize_textarea_field( $ppm_options['locked_user_disable_self_reset_message'] ) : false;
+			$ppm_options_updated['deactivated_account_message']            = ( isset( $ppm_options['deactivated_account_message'] ) && ! empty( $ppm_options['deactivated_account_message'] ) ) ? wp_kses_post( $ppm_options['deactivated_account_message'] ) : trim( \PPM_WP_Options::get_default_account_deactivated_message() );
 
 			$processed_ppm_options = array_merge( $ppm_options, $ppm_options_updated );
 
@@ -681,7 +712,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					'ajax_url'                   => admin_url( 'admin-ajax.php' ),
 					'test_email_nonce'           => wp_create_nonce( 'send_test_email' ),
 					'settings_nonce'             => wp_create_nonce( 'ppm_wp_settings' ),
-					'terminate_session_password' => PPMWP\Helpers\OptionsHelper::string_to_bool( $session_setting ),
+					'terminate_session_password' => OptionsHelper::string_to_bool( $session_setting ),
 					'special_chars_regex'        => ppm_wp()->get_special_chars( true ),
 				)
 			);
@@ -728,7 +759,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				)
 			);
 			// Check password expired.
-			$should_password_expire = PPM_WP_Expire::should_password_expire( get_current_user_id() );
+			$should_password_expire = \PPM_WP_Expire::should_password_expire( get_current_user_id() );
 			$session_setting        = isset( $this->options->ppm_setting->terminate_session_password ) ? $this->options->ppm_setting->terminate_session_password : $this->options->default_setting->terminate_session_password;
 			// localize options.
 			wp_localize_script(
@@ -737,8 +768,8 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				array(
 					'global_ajax_url'            => admin_url( 'admin-ajax.php' ),
 					'wp_admin'                   => wp_logout_url( network_admin_url() ),
-					'terminate_session_password' => PPMWP\Helpers\OptionsHelper::string_to_bool( $session_setting ),
-					'should_password_expire'     => PPMWP\Helpers\OptionsHelper::string_to_bool( $should_password_expire ),
+					'terminate_session_password' => OptionsHelper::string_to_bool( $session_setting ),
+					'should_password_expire'     => OptionsHelper::string_to_bool( $should_password_expire ),
 				)
 			);
 		}
@@ -844,9 +875,9 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				),
 			);
 			// Get users by search keyword.
-			$user_query = new WP_User_Query( $args );
+			$user_query = new \WP_User_Query( $args );
 			// Get user by search user meta value.
-			$user_query_by_meta = new WP_User_Query( $meta_args );
+			$user_query_by_meta = new \WP_User_Query( $meta_args );
 			// Merge users.
 			$users = $user_query->results + $user_query_by_meta->results;
 			// Return found users.
@@ -948,7 +979,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
 			// Checking if request is made by a logged in user or not.
 			$current_user = wp_get_current_user();
-			if ( ! is_user_logged_in() || ! ( $current_user instanceof WP_User ) ) {
+			if ( ! is_user_logged_in() || ! ( $current_user instanceof \WP_User ) ) {
 				wp_send_json_error( array( 'message' => __( 'No user logged in.', 'ppm-wp' ) ) );
 			}
 			if ( ! isset( $current_user->user_email ) || empty( $current_user->user_email ) ) {

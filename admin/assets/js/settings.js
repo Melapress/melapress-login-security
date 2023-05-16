@@ -454,8 +454,18 @@ function confirm_custom_messages(obj, message_disable, message_enable){
 function accept_only_special_chars_input( event ) {
 	var ch     = String.fromCharCode( event.charCode );
 	var filter = new RegExp( ppm_ajax.special_chars_regex );
-	if ( ! filter.test( ch ) ) {
+	if ( ! filter.test( ch ) || event.target.value.indexOf( ch ) > -1 ) {
 		event.preventDefault();
+	}
+}
+
+/**
+ * Warn admin to exclude themselves if needed.
+ */
+function admin_lockout_check( event ) {
+	var expiryVal = document.getElementById('ppm-expiry-value').value;	
+	if ( expiryVal > 0 && event.target.checked ) {
+		tb_show( '' , '#TB_inline?height=110&width=500&inlineId=mls_admin_lockout_notice_modal' );
 	}
 }
 

@@ -4,7 +4,8 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Tested up to: 6.1.1
-Stable tag: 1.0.0
+Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
+Stable tag: %%VERSION%%
 Requires PHP: 7.2
 
 Implement customized secure WordPress login policies with efficiency
