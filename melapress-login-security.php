@@ -6,7 +6,7 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or higher
  *
  * @wordpress-plugin
- * Plugin Name: Melapress Login Security
+ * Plugin Name: Melapress Login Security Premium
  * Version:     1.0.0
  * Plugin URI:  https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
@@ -42,8 +42,11 @@
 
 // Setup function name based on build.
 $mpls = 'ppm_freemius';
+/* @free:start */
 $mpls = 'ppm_wp';
+/* @free:end */
 
+/* @free:start */
 if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 	/**
 	 * Takes care of deactivation of the premium plugin when the free plugin is activated.
@@ -59,6 +62,7 @@ if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 	register_activation_hook( __FILE__, 'mls_free_on_plugin_activation' );
 }
 // phpcs:ignore
+/* @free:end */
 
 if ( ! function_exists( $mpls ) ) {
 
@@ -169,110 +173,13 @@ if ( ! function_exists( $mpls ) ) {
 		define( 'PPMWP_VERSION', '1.0.0' );
 	}
 
-
-	// Include classes usually loaded via composer.
-	if ( ! file_exists( plugin_dir_path( __FILE__ ) . '/sdk/ppm-freemius.php' ) ) {
-		require_once PPM_WP_PATH . 'app/Utilities/class-validatorfactory.php';
-		require_once PPM_WP_PATH . 'app/Validators/class-validator.php';
-		if ( ! class_exists( 'WP_Async_Request' ) && file_exists( PPM_WP_PATH . 'third-party/wp-async-request.php' ) ) {
-			require_once PPM_WP_PATH . 'third-party/wp-async-request.php';
-		}
-		if ( ! class_exists( 'WP_Background_Process' ) && file_exists( PPM_WP_PATH . 'third-party/wp-background-process.php' ) ) {
-			require_once PPM_WP_PATH . 'third-party/wp-background-process.php';
-		}
+	/*
+	 * Include classes that define and provide policies
+	 */
+	$autoloader_file_path = PPM_WP_PATH . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+	if ( file_exists( $autoloader_file_path ) ) {
+		require_once $autoloader_file_path;
 	}
-
-	/**
-	 * Include class that provides the saved options for run-time
-	 */
-	require_once PPM_WP_PATH . 'app/policies/class-ppm-wp-options.php';
-
-	/**
-	 * Include class that provides all the string messages shown to the user
-	 */
-	require_once PPM_WP_PATH . 'app/policies/class-ppm-wp-msgs.php';
-
-	/**
-	 * Include class that provides rules to check passwords against
-	 */
-	require_once PPM_WP_PATH . 'app/policies/class-ppm-wp-regex.php';
-
-	/**
-	 * Include class that expires passwords
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-ppm-wp-expire.php';
-
-	/**
-	 * Include class that resets passwords
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-ppm-wp-reset.php';
-
-	/**
-	 * Include class that validates and generates passwords
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-ppm-wp-password-check.php';
-
-	/**
-	 * Include class that hooks into user forms
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-ppm-wp-forms.php';
-
-	/**
-	 * Include class that manipulates password history
-	 */
-	require_once PPM_WP_PATH . 'app/helpers/class-ppm-wp-password-gen.php';
-
-	/**
-	 * Include class that manipulates password history
-	 */
-	require_once PPM_WP_PATH . 'app/helpers/class-ppm-wp-history.php';
-
-	/**
-	 * Include class that show WP pointer
-	 */
-	require_once PPM_WP_PATH . 'app/helpers/class-pointer.php';
-
-	/**
-	 * Include Admin class
-	 */
-	require_once PPM_WP_PATH . 'admin/class-ppm-wp-admin.php';
-
-	/**
-	 * Include multisite admin class
-	 */
-	require_once PPM_WP_PATH . 'admin/class-ppm-wp-ms-admin.php';
-
-	/**
-	 * Include main class
-	 */
-	require_once PPM_WP_PATH . 'app/class-ppm-wp.php';
-
-	/**
-	 * Include helpers.
-	 */
-	require_once PPM_WP_PATH . 'app/helpers/class-ppm-user-meta-upgrade-process.php';
-	require_once PPM_WP_PATH . 'app/helpers/class-ppm-apply-timestamp-for-users-process.php';
-	require_once PPM_WP_PATH . 'app/helpers/class-ppm-mb-string-helper.php';
-
-	/**
-	 * Include new user class
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-new-user.php';
-
-	/**
-	 * Include new user class
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-user-profile.php';
-
-	/**
-	 * Include reset password bg processing class
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-ppm-wp-reset-bg-process.php';
-
-	/**
-	 * Include class that handles shortcodes.
-	 */
-	require_once PPM_WP_PATH . 'app/enforcers/class-shortcodes.php';
 
 	/**
 	 * Checks if a user is exempted from the policies
@@ -307,6 +214,7 @@ if ( ! function_exists( $mpls ) ) {
 	register_activation_hook( __FILE__, array( 'PPM_WP', 'activation_timestamp' ) );
 	register_deactivation_hook( __FILE__, array( 'PPM_WP', 'ppm_deactivation' ) );
 
+	/* @free:start */
 	// Redirect to settings on activate.
 	add_action( 'admin_init', 'mls_plugin_activate_redirect' );
 	function mls_plugin_activate_redirect() {
@@ -316,4 +224,5 @@ if ( ! function_exists( $mpls ) ) {
 			wp_redirect( $url );
 		}
 	}
+	/* @free:end */
 }

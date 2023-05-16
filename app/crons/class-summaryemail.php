@@ -135,6 +135,7 @@ class SummaryEmail implements CronInterface {
 		}
 
 
+		/* @free:start */
 		/* translators: Password reset email subject. 1: Site name, 2: Week number */
 		$title = sprintf( __( '[%1s] Week %2s password resets summary', 'ppm-wp' ), $blogname, $weeknumber );
 		/* @freestart */

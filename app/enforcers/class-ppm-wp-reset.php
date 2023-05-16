@@ -375,6 +375,17 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			if ( isset( $options['disable_self_reset'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $options['disable_self_reset'] ) ) {
 				return new WP_Error( 'reset_disabled', esc_attr( $options['disable_self_reset_message'] ) );
 			}
+
+			// Check if user is currently considered to be 'locked'.
+			$is_user_blocked = get_user_meta( $user_id, PPMWP_USER_BLOCK_FURTHER_LOGINS_KEY, true );
+			$inactive_flag   = OptionsHelper::is_user_inactive( $user_id );
+			
+			// If user is currently deactivated, show specific message.
+			if ( $is_user_blocked || $inactive_flag ) {
+				if ( isset( $options['locked_user_disable_self_reset'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $options['locked_user_disable_self_reset'] ) ) {
+					return new WP_Error( 'reset_disabled', esc_attr( $options['locked_user_disable_self_reset_message'] ) );
+				}
+			}
 			return true;
 		}
 	}

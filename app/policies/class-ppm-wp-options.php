@@ -114,6 +114,8 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'disable_self_reset'             => 'no',
 			'disable_self_reset_message'     => '',
 			'deactivated_account_message'    => '',
+			'locked_user_disable_self_reset'         => 'no',
+			'locked_user_disable_self_reset_message' => '',
 		);
 
 		public static function get_default_account_deactivated_message() {
