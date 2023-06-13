@@ -4,7 +4,8 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Tested up to: 6.1.1
-Stable tag: 1.0.0
+Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
+Stable tag: %%VERSION%%
 Requires PHP: 7.2
 
 Implement customized secure WordPress login policies with efficiency
@@ -106,4 +107,4 @@ You can find more detailed information about WordPress website security, passwor
 
 	* Initial release of the Free edition.
 
-Please refer to the [plugin changelog](https://www.wpwhitesecurity.com/support/kb/ppmwp-plugin-changelog/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) for information on what was new, improved and fixed in every update of the WPassword.
+Please refer to the [plugin changelog](https://www.wpwhitesecurity.com/support/kb/ppmwp-plugin-changelog/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) for information on what was new, improved and fixed in every update of Melapress Login Security.

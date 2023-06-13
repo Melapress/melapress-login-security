@@ -121,6 +121,10 @@ if ( ! class_exists( 'PPM_EmailStrings' ) ) {
 			$ppm  = ppm_wp();
 			$user = get_userdata( $user_id );
 
+			if ( ! is_a( $user, '\WP_User' ) ) {
+				return $input;
+			}
+
 			// Prepare email details.
 			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
 

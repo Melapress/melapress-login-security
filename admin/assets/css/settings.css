@@ -211,19 +211,19 @@ div#reset-container input#_ppm_reset {
     height: 35px;
     overflow: hidden;
     position: relative;
-    width: 222px;
+    width: 242px;
 }
 
 #ppmwp-role_tab_link_wrapper:hover, #ppmwp-role_tab_link_wrapper:hover #ppmwp_links-inner-wrapper {
     overflow: visible;
 }
-#ppmwp-role_tab_link_wrapper a {display: block;clear: both;width: 160px;}
+#ppmwp-role_tab_link_wrapper a, #ppmwp-role_tab_link_wrapper .dummy {display: block;clear: both;width: 180px;}
 
 #ppmwp_links-inner-wrapper {
     position: absolute;
     overflow: hidden;
     width: auto;
-    max-width: 222px;
+    max-width: 242px;
     z-index: 100;
     background: #eee;;
 }
@@ -301,4 +301,8 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
         width: 100%;
         float: none;
     }
+}
+
+.inactiveusers th.column-actions {
+    text-align: right;
 }

@@ -114,11 +114,13 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'disable_self_reset'             => 'no',
 			'disable_self_reset_message'     => '',
 			'deactivated_account_message'    => '',
+			'locked_user_disable_self_reset'         => 'no',
+			'locked_user_disable_self_reset_message' => '',
 		);
 
 		public static function get_default_account_deactivated_message() {
 			$admin_email = get_site_option( 'admin_email' );
-			$email_link  = '<a href="mailto:' . esc_url( $admin_email ) . '">' . __( 'website administrator', 'ppm-wp' ) . '</a>';			
+			$email_link  = '<a href="mailto:' . sanitize_email( $admin_email ) . '">' . __( 'website administrator', 'ppm-wp' ) . '</a>';			
 			return sprintf( __( 'Your WordPress user has been deactivated. Please contact the %1s to activate back your user.', 'ppm-wp' ), $email_link );
 		}
 
@@ -203,6 +205,10 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'enable_um_register'         => 'no',
 			'enable_um_pw_update'        => 'no',
 			'enable_bbpress_pw_update'   => 'no',
+			'enable_mepr_register'       => 'no',
+			'enable_mepr_pw_update'      => 'no',
+			'custom_login_url'           => '',
+			'custom_login_redirect'      => '',
 		);
 
 		/**
@@ -474,6 +480,13 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 
 			if ( isset( $options['from_email'] ) && $options['from_email'] ) {
 				$options['from_email'] = sanitize_email( $options['from_email'] );
+			}
+
+			if ( isset( $options['custom_login_url'] ) && $options['custom_login_url'] ) {
+				$options['custom_login_url'] = esc_attr( $options['custom_login_url'] );
+			}
+			if ( isset( $options['custom_login_redirect'] ) && $options['custom_login_redirect'] ) {
+				$options['custom_login_redirect'] = esc_attr( $options['custom_login_redirect'] );
 			}
 
 			$ppm_setting = wp_parse_args( $options, $this->ppm_setting );

@@ -7,8 +7,10 @@
  */
 
  $sidebar_required    = false;
+ /* @free:start */
  // Override in free edition.
  $sidebar_required    = true;
+ /* @free:end */
  $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 
@@ -76,7 +78,9 @@
 	</form>
 
 	<?php
+	/* @free:start */
 	require_once PPM_WP_PATH . 'admin/templates/views/upgrade-sidebar.php';
+	/* @free:end */
 
 	?>
 
