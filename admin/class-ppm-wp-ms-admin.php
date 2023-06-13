@@ -7,6 +7,11 @@
  * @author WP White Security
  */
 
+namespace PPMWP\Admin;
+
+use \PPMWP\Utilities\ValidatorFactory as ValidatorFactory;
+use \PPMWP\Helpers\OptionsHelper as OptionsHelper;
+
 if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 
 	/**
@@ -39,15 +44,15 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 			// Add dialog box.
 			add_action( 'admin_footer', array( $this, 'admin_footer_session_expired_dialog' ) );
 
-			$options_master_switch    = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->master_switch );
-			$settings_master_switch   = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->settings->master_switch );
-			$inherit_policies_setting = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->settings->inherit_policies );
+			$options_master_switch    = OptionsHelper::string_to_bool( $this->options->master_switch );
+			$settings_master_switch   = OptionsHelper::string_to_bool( $this->settings->master_switch );
+			$inherit_policies_setting = OptionsHelper::string_to_bool( $this->settings->inherit_policies );
 
 			$is_needed = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
 
 			if ( $is_needed ) {
 			// Enqueue admin scripts.
-				if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $this->settings->enforce_password ) ) return;
+				if ( OptionsHelper::string_to_bool( $this->settings->enforce_password ) ) return;
 				add_action( 'admin_enqueue_scripts', array( $this, 'global_admin_enqueue_scripts' ) );
 			}
 		}
@@ -102,8 +107,10 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 			add_action( "load-$forms_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$forms_hook_submenu", array( $this, 'process_forms' ) );
 
+			/* @free:start */
 			$hook_upgrade_submenu = add_submenu_page( $this->menu_name, esc_html__( 'Premium Features ➤', 'ppm-wp' ), esc_html__( 'Premium Features ➤', 'ppm-wp' ), 'manage_options', 'ppm-upgrade', array( $this, 'ppm_display_upgrade_page' ), 2 );
 			add_action( "load-$hook_upgrade_submenu", array( $this, 'help_page_enqueue_scripts' ) );
+			/* @free:end */
 		}
 
 		/**
@@ -164,9 +171,9 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 				),
 			);
 			// Get users by search keyword.
-			$user_query = new WP_User_Query( $args );
+			$user_query = new \WP_User_Query( $args );
 			// Get user by search user meta value.
-			$user_query_by_meta = new WP_User_Query( $meta_args );
+			$user_query_by_meta = new \WP_User_Query( $meta_args );
 			// Merge users.
 			$users = $user_query->results + $user_query_by_meta->results;
 			// Return found users.

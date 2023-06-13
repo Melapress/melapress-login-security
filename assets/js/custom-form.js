@@ -14,6 +14,37 @@
 		inputEvent = 'keyup';
 	}
 
+	// Memebrpress reg.
+	if ( jQuery( '.mls_pw_errors' ).length ) {
+		setTimeout(() => {
+			var errorString = jQuery( '.mls_pw_errors' ).attr( 'data-error-keys' );
+			var errorArray = errorString.split(',');
+			jQuery( '.mls_pw_errors' ).html( '' )
+			jQuery.each( errorArray, function ( index, value ) {
+				var errText = jQuery( '.pass-strength-result .' + jQuery.trim( value ) ).text();
+				if ( 'undefined' !== typeof errText ) {
+					jQuery( '.mls_pw_errors' ).append( errText + '<br>' );					
+				}
+			});		
+		}, 50);
+	}
+
+	// Memebrpress pw update.
+	if ( window.location.href.indexOf('mls_errors') > 0 ) {
+		setTimeout(() => {
+			var errorString = window.location.href.split('errors=')[1];
+			var errorArray = errorString.split(',');				
+			jQuery.each( errorArray, function ( index, value ) {
+				var errText = jQuery( '.pass-strength-result .' + jQuery.trim( value ) ).text();
+				if ( 'undefined' !== typeof errText ) {
+					jQuery( '.mepr_pro_error ul' ).append( '<li>' + errText + '</li>' );					
+				}
+			});	
+			jQuery( '.mepr_pro_error ul' ).append( '<br>' );
+		}, 50);
+	}
+
+
 	function check_pass_strength( form, is_known_single = false ) {
 
 		// Empty vars we will fill later.

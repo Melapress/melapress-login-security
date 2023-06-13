@@ -31,6 +31,42 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			add_filter( 'password_reset_expiration', array( $this, 'customize_reset_key_expiry_time' ) );
 
 			add_filter( 'allow_password_reset', array( $this, 'ppm_is_user_allowed_to_reset' ), 10, 2 );
+			add_filter( 'mepr-validate-forgot-password', array( $this, 'mepr_forgot_password' ), 10, 1 );
+		}
+
+		/**
+		 * Monitor for memberpress password reset requests.
+		 *
+		 * @param  array $post
+		 * @return array $post
+		 * 
+		 * @since 1.1.0
+		 */
+		public function mepr_forgot_password( $post ) {
+			if ( isset( $_POST[ 'mepr_process_forgot_password_form' ] ) && isset( $_POST[ 'mepr_user_or_email' ] ) ) {
+				if ( filter_var( $_POST[ 'mepr_user_or_email' ], FILTER_VALIDATE_EMAIL ) ) {
+					$user = get_user_by( 'email', $_POST[ 'mepr_user_or_email' ] );
+				} else {
+					$user = get_user_by( 'login', $_POST[ 'mepr_user_or_email' ] );
+				}
+			}
+
+			if ( ! isset( $user->ID ) ) {
+				return $post;
+			}
+
+			$allow   = $this->ppm_is_user_allowed_to_reset( true, $user->ID );
+			
+			if ( class_exists( 'MeprUtils' ) ) {
+				if ( is_wp_error( $allow ) ) {
+					$login_url           = $mepr_options->login_page_url();
+					$login_delim         = MeprAppCtrl::get_param_delimiter_char($login_url);
+					$forgot_password_url = "{$login_url}{$login_delim}action=forgot_password&error=failed";
+					MeprUtils::wp_redirect( $forgot_password_url );
+				}				
+			}
+
+			return $post;
 		}
 
 		/**
@@ -375,6 +411,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			if ( isset( $options['disable_self_reset'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $options['disable_self_reset'] ) ) {
 				return new WP_Error( 'reset_disabled', esc_attr( $options['disable_self_reset_message'] ) );
 			}
+
 			return true;
 		}
 	}

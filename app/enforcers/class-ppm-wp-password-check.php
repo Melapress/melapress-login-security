@@ -293,6 +293,16 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 				unset( $failed_regexes['lower_case'] );
 			}
 
+			// length fallback.
+			if ( isset( $failed_regexes['length'] ) && ( isset( $_POST['mepr-confirm-password'] ) || isset( $_POST['mepr_user_password'] ) ) ) {
+				$min = $this->options->min_length;
+				if ( strlen( $password ) < $min ) {
+					$failed_regexes['length'] = true;
+				} else {
+					unset( $failed_regexes['length'] );
+				}
+			}
+
 			// no violations.
 			if ( empty( $failed_regexes ) ) {
 				return false;

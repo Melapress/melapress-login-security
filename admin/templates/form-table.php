@@ -13,7 +13,7 @@
 		</th>
 	</tr>
 	<tr valign="top">
-		<th scope="row">
+		<th scope="row" style="vertical-align: middle;">
 			<?php esc_html_e( 'Password Policies', 'ppm-wp' ); ?>
 		</th>
 		<td>
@@ -33,7 +33,7 @@
 							<?php
 							$input_length = ob_get_clean();
 								 /* translators: %s: Configured miniumum password length. */
-							printf( esc_html__( 'Passwords must be minimum %s characters.', 'ppm-wp' ), wp_kses( $input_length, $this->allowed_kses_args() ) );
+							printf( esc_html__( 'Passwords must be %s characters minimum.', 'ppm-wp' ), wp_kses( $input_length, $this->allowed_kses_args() ) );
 							?>
 				</label>
 			</fieldset>
@@ -241,7 +241,7 @@
 					</span>
 				</legend>
 				<label for="disable-self-reset">
-					<input name="_ppm_options[disable_self_reset]" type="checkbox" id="disable-self-reset"
+					<input name="_ppm_options[disable_self_reset]" type="checkbox" id="disable-self-reset" onclick="admin_lockout_check( event )" 
 						   value="1" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->setting_tab->disable_self_reset ) ); ?> />
 						   <?php esc_html_e( 'Do not send password reset links', 'ppm-wp' ); ?>
 					<p class="description">

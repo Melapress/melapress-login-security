@@ -80,9 +80,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 
 			// Check if a user is on a trial or has an activated license that enables premium features.
-			if ( $can_continue ) {
+			if ( $can_continue || $free_plan ) {
 				// initialise options.
-				$this->options = new PPM_WP_Options();
+				$this->options = new PPM_WP_Options();;
 				// initialise rule regexes.
 				$this->regex = new PPM_WP_Regex();
 				// initialise strings.
@@ -106,6 +106,11 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			add_action( 'wp_logout', array( $this, 'update_user_last_activity' ) );
 			add_action( 'wp_login_failed', array( $this, 'update_user_last_activity' ) );
 			add_action( 'wp_loaded', array( $this, 'register_summary_email_cron' ) );
+
+			$login_control = new MLS_Login_Page_Control();
+			add_action( 'plugins_loaded', array( $login_control, 'is_login_check' ), 9999 );
+			add_action( 'wp_loaded', array( $login_control, 'redirect_user' ) );
+
 		}
 
 
@@ -279,6 +284,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$shortcodes = new PPM_Shortcodes();
 			$shortcodes->init();
 
+			$login_control = new MLS_Login_Page_Control();
+			$login_control->init();
+
 			do_action( 'mls_extension_init' );
 
 			// call ppm history all hook.
@@ -317,9 +325,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			}
 
 			if ( ! is_multisite() ) {
-				$admin = new PPM_WP_Admin( $this->options, $user_settings, $role_setting );
+				$admin = new PPMWP\Admin\PPM_WP_Admin( $this->options, $user_settings, $role_setting );
 			} else {
-				$admin = new PPM_WP_MS_Admin( $this->options, $user_settings, $role_setting );
+				$admin = new PPMWP\Admin\PPM_WP_MS_Admin( $this->options, $user_settings, $role_setting );
 			}
 		}
 
@@ -375,7 +383,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		public static function activation_timestamp() {
 			update_site_option( PPMWP_PREFIX . '_activation', current_time( 'timestamp' ) );
 			self::ppm_multisite_install_plugin();
-			self::ppm_apply_timestammp_for_users();
 			self::ppm_run_prefix_update();
 		}
 
@@ -541,7 +548,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$installation_errors = false;
 			// If check multisite and network admin.
 			if ( is_multisite() && is_super_admin() && ! is_network_admin() ) {
-				$installation_errors  = esc_html__( 'The WPassword plugin is a multisite network tool. Please activate it from the network dashboard.', 'ppm-wp' );
+				$installation_errors  = esc_html__( 'The Melapress Login Security plugin is a multisite network tool. Please activate it from the network dashboard.', 'ppm-wp' );
 				$installation_errors .= '<br />';
 				$installation_errors .= '<a href="javascript:;" onclick="window.top.location.href=\'' . esc_url( network_admin_url( 'plugins.php' ) ) . '\'">' . esc_html__( 'Redirect me to the network dashboard', 'ppm-wp' ) . '</a> ';
 			}
@@ -793,8 +800,16 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			}
 
 			if ( isset( $user->ID ) ) {
-				// Apply last active time.
-				update_user_meta( $user->ID, 'ppmwp_last_activity', current_time( 'timestamp' ) );
+				if ( method_exists( 'PPMWP\Helpers\OptionsHelper','is_user_inactive' ) ) {
+					// Check if user is already handled by our inactivity feature.
+					$is_user_inactive = PPMWP\Helpers\OptionsHelper::is_user_inactive( $user->ID );
+					if ( ! $is_user_inactive ) {
+						// Apply last active time.
+						update_user_meta( $user->ID, 'ppmwp_last_activity', current_time( 'timestamp' ) );
+					}
+				} else {
+					update_user_meta( $user->ID, 'ppmwp_last_activity', current_time( 'timestamp' ) );
+				}
 			}
 		}
 

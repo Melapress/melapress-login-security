@@ -1,213 +1,88 @@
-# Copyright (C) 2023 melapress-login-security
-# This file is distributed under the same license as the melapress-login-security package.
+# Copyright (C) 2023 WP White Security
+# This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: melapress-login-security\n"
+"Project-Id-Version: Melapress Login Security Premium 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
+"Last-Translator: WP White Security <info@wpwhitesecurity.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Content-Transfer-Econdig: 8bit\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Language-Team: WP White Security <info@wpwhitesecurity.com>\n"
-"Last-Translator: WP White Security <info@wpwhitesecurity.com>\n"
-"MIME-Version: 1.0\n"
-"Project-Id-Version: melapress-login-security\n"
-"Report-Msgid-Bugs-To: https://www.wpwhitesecurity.com\n"
-"X-Poedit-Basepath: ..\n"
-"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
-"X-Poedit-SearchPath-0: .\n"
-"X-Poedit-SearchPathExcluded-0: *.js\n"
-"X-Poedit-SourceCharset: UTF-8\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"POT-Creation-Date: 2023-06-13T11:25:21+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.7.1\n"
+"X-Domain: ppm-wp\n"
 
-#: admin/class-ppm-wp-admin.php:163
-msgid "Configure Login Security"
+#. Plugin Name of the plugin
+msgid "Melapress Login Security Premium"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:172
-msgid "Upgrade"
+#. Plugin URI of the plugin
+msgid "https://www.wpwhitesecurity.com/wordpress-plugins/password-security/"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:184, admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-admin.php:188, admin/class-ppm-wp-ms-admin.php:60, admin/class-ppm-wp-ms-admin.php:65, admin/class-ppm-wp-ms-admin.php:65, admin/templates/admin-default.php:13, admin/templates/admin-form.php:23
+#. Description of the plugin
+msgid "Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts."
+msgstr ""
+
+#. Author of the plugin
+msgid "WP White Security"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://www.wpwhitesecurity.com/"
+msgstr ""
+
+#: admin/templates/admin-default.php:13
+#: admin/templates/admin-form.php:25
 msgid "Login Security Policies"
 msgstr ""
 
-#: admin/class-ppm-wp-admin.php:184, admin/class-ppm-wp-ms-admin.php:60
-msgid "Login Security"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:193, admin/class-ppm-wp-admin.php:194, admin/class-ppm-wp-ms-admin.php:68, admin/class-ppm-wp-ms-admin.php:68
-msgid "Help & Contact Us"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:208, admin/class-ppm-wp-admin.php:209, admin/class-ppm-wp-ms-admin.php:77, admin/class-ppm-wp-ms-admin.php:77
-msgid "Settings"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:226, admin/class-ppm-wp-admin.php:227, admin/class-ppm-wp-ms-admin.php:91, admin/class-ppm-wp-ms-admin.php:92, admin/templates/views/settings-forms.php:21
-msgid "Forms & Placement"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:240, admin/class-ppm-wp-admin.php:240, admin/class-ppm-wp-ms-admin.php:105, admin/class-ppm-wp-ms-admin.php:105
-msgid "Premium Features ➤"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:463, admin/class-ppm-wp-admin.php:467
-msgid "You are not allowed to reset your password. Please contact the website administrator."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:488
-msgid "User Added to Inactive Exempt List"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:489
-msgid "Your user has been exempted from the Inactive Users policy since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:499
-msgid "View settings"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:693
-msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:694
-msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:695
-msgid "Should the plugin reset your password as well?"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:724
-msgid "Please check your email for instructions on how to reset your password."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:725
-msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:726
-msgid "OK"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:727
-msgid "No"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:752
-msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:753
-msgid "For more information please contact the WordPress admin on "
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:754
-msgid "Reset password"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:881
-msgid "Policies updated successfully."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:894
-msgid "Policies update failed. Please try again."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:907
-msgid "This setting is mandatory. Please specify a value."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:920
-msgid "All passwords were reset."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:933
-msgid "Resetting passswords failed. Please try again."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:952
-msgid "No user logged in."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:955
-msgid "Current user has no email address defined"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:960
-msgid "WPassword plugin email test"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:962
-msgid ""
-"Hooray!\n"
-"\n"
-"<p>You received the test email. Now you can <a href=\"https://www.wpwhitesecurity.com/support/kb/getting-started-wpassword/?utm_source=plugin&utm_medium=referral&utm_campaign=PPMWP&utm_content=help+page\">enable the password policies</a>.</p>\n"
-"\n"
-"<p>Thank you for using the Melapress Login Security plugin for WordPress.</p>\n"
-"\n"
-""
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:988
-msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:986
-msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
-msgstr ""
-
-#: admin/class-ppm-wp-admin.php:1003
-msgid "Mail was not sent due to some unknown error"
-msgstr ""
-
-#: app/class-ppm-wp.php:544
-msgid "The WPassword plugin is a multisite network tool. Please activate it from the network dashboard."
-msgstr ""
-
-#: app/class-ppm-wp.php:546
-msgid "Redirect me to the network dashboard"
+#: admin/templates/admin-form.php:14
+msgid "Inherit login security policies"
 msgstr ""
 
 #: admin/templates/admin-form.php:14
-msgid "Inherit password & login security policies"
-msgstr ""
-
-#: admin/templates/admin-form.php:14
-msgid "Enable password & login security policies"
+msgid "Enable login security policies"
 msgstr ""
 
 #: admin/templates/admin-form.php:34
-msgid "Last reset on"
-msgstr ""
-
-#: admin/templates/admin-form.php:32
 msgid "Reset All Passwords was never used"
 msgstr ""
 
-#: admin/templates/admin-form.php:41
+#: admin/templates/admin-form.php:36
+msgid "Last reset on"
+msgstr ""
+
+#: admin/templates/admin-form.php:43
 msgid "Reset All Users' Passwords"
 msgstr ""
 
-#: admin/templates/admin-form.php:46
+#: admin/templates/admin-form.php:48
 msgid "The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role's tab."
 msgstr ""
 
-#: admin/templates/admin-form.php:49
+#: admin/templates/admin-form.php:51
 msgid "Site-wide policies"
 msgstr ""
 
-#: admin/templates/admin-form.php:90
+#: admin/templates/admin-form.php:57
+msgid "Role-based policies"
+msgstr ""
+
+#: admin/templates/admin-form.php:96
 msgid "Do not enforce password & login policies for this role"
 msgstr ""
 
-#: admin/templates/admin-form.php:110, admin/templates/form-table.php:23
+#: admin/templates/admin-form.php:116
+#: admin/templates/form-table.php:23
 msgid "Password Length"
 msgstr ""
 
-#: admin/templates/admin-form.php:150, admin/templates/views/settings-forms.php:74, admin/templates/views/settings.php:304
+#: admin/templates/admin-form.php:156
+#: admin/templates/views/settings-forms.php:76
+#: admin/templates/views/settings.php:310
 msgid "Save Changes"
 msgstr ""
 
@@ -221,7 +96,7 @@ msgstr ""
 
 #. translators: %s: Configured miniumum password length.
 #: admin/templates/form-table.php:36
-msgid "Passwords must be minimum %s characters."
+msgid "Passwords must be %s characters minimum."
 msgstr ""
 
 #: admin/templates/form-table.php:50
@@ -262,19 +137,21 @@ msgstr ""
 msgid "Password Expiration Policy"
 msgstr ""
 
-#: admin/templates/form-table.php:149, admin/templates/views/settings.php:141, app/modules/inactive-users/class-inactive-users.php:384
+#: admin/templates/form-table.php:149
+#: admin/templates/views/settings.php:143
 msgid "hours"
 msgstr ""
 
-#: admin/templates/form-table.php:150, admin/templates/views/settings.php:140, app/modules/inactive-users/class-inactive-users.php:385
+#: admin/templates/form-table.php:150
+#: admin/templates/views/settings.php:142
 msgid "days"
 msgstr ""
 
-#: admin/templates/form-table.php:151, app/modules/inactive-users/class-inactive-users.php:386
+#: admin/templates/form-table.php:151
 msgid "months"
 msgstr ""
 
-#: admin/templates/form-table.php:154, app/modules/inactive-users/class-inactive-users.php:389
+#: admin/templates/form-table.php:154
 msgid "seconds"
 msgstr ""
 
@@ -300,11 +177,15 @@ msgstr ""
 msgid "You can configure the plugin to remember up to 100 previously used passwords that users cannot use. It will remember the last 1 password by default (minimum value: 1)."
 msgstr ""
 
-#: admin/templates/form-table.php:208, admin/templates/form-table.php:221
+#: admin/templates/form-table.php:208
+#: admin/templates/form-table.php:221
 msgid "Reset password on first login"
 msgstr ""
 
-#: admin/templates/form-table.php:215, admin/templates/views/settings.php:267, admin/templates/views/settings.php:274, admin/templates/views/settings.php:280
+#: admin/templates/form-table.php:215
+#: admin/templates/views/settings.php:269
+#: admin/templates/views/settings.php:276
+#: admin/templates/views/settings.php:282
 msgid "Delete database data upon uninstall"
 msgstr ""
 
@@ -312,7 +193,8 @@ msgstr ""
 msgid "Enable this setting to force new users to reset their password the first time they login."
 msgstr ""
 
-#: admin/templates/form-table.php:233, admin/templates/form-table.php:240
+#: admin/templates/form-table.php:233
+#: admin/templates/form-table.php:240
 msgid "Disable sending of password reset links"
 msgstr ""
 
@@ -328,33 +210,248 @@ msgstr ""
 msgid "Display the following message when a user requests a password reset."
 msgstr ""
 
+#: admin/templates/help/contact-us.php:15
+#: admin/templates/help/help.php:62
+msgid "Contact Us"
+msgstr ""
+
+#: admin/templates/help/help.php:15
+#: admin/templates/help/help.php:25
+msgid "Getting Started"
+msgstr ""
+
+#: admin/templates/help/help.php:19
+msgid "Getting started with the MelaPress Login Security"
+msgstr ""
+
+#: admin/templates/help/help.php:20
+msgid "Configure different password policies for different user roles"
+msgstr ""
+
+#: admin/templates/help/help.php:21
+msgid "How to exclude users or roles from the password policies"
+msgstr ""
+
+#: admin/templates/help/help.php:31
+#: admin/templates/help/help.php:57
+msgid "Plugin Support"
+msgstr ""
+
+#: admin/templates/help/help.php:33
+msgid "You can post your question on our support forum or send us an email for 1 to 1 support. Email support is provided to both free and premium plugin users."
+msgstr ""
+
+#: admin/templates/help/help.php:35
+msgid "Free support forum"
+msgstr ""
+
+#: admin/templates/help/help.php:36
+msgid "Free email support"
+msgstr ""
+
+#: admin/templates/help/help.php:46
+msgid "Plugin Documentation"
+msgstr ""
+
+#: admin/templates/help/help.php:48
+msgid "For more technical information about the MelaPress Login Security plugin please visit the plugin’s knowledge base."
+msgstr ""
+
+#: admin/templates/help/help.php:50
+msgid "Knowledge Base"
+msgstr ""
+
+#: admin/templates/help/help.php:59
+msgid "Have you encountered or noticed any issues while using the MelaPress Login Security plugin? Or do you want to report something to us?"
+msgstr ""
+
+#: admin/templates/help/help.php:61
+msgid "Open support ticket"
+msgstr ""
+
+#: admin/templates/help/index.php:13
+#: admin/templates/help/index.php:20
+msgid "Help"
+msgstr ""
+
+#: admin/templates/help/index.php:23
+msgid "System Info"
+msgstr ""
+
+#: admin/templates/help/sidebar.php:12
+msgid "Our WordPress Plugins"
+msgstr ""
+
+#: admin/templates/help/sidebar.php:20
+msgid "Keep a log of users and under the hood site activity."
+msgstr ""
+
+#: admin/templates/help/sidebar.php:36
+#: admin/templates/help/sidebar.php:63
+#: admin/templates/help/sidebar.php:90
+#: admin/templates/help/sidebar.php:117
+msgid "LEARN MORE"
+msgstr ""
+
+#: admin/templates/help/sidebar.php:47
+msgid "Add an extra layer of security to your login pages with 2FA & require your users to use it."
+msgstr ""
+
+#: admin/templates/help/sidebar.php:74
+msgid "Protect website forms & login pages from spambots & automated attacks."
+msgstr ""
+
+#: admin/templates/help/sidebar.php:101
+msgid "Automatically identify unauthorized file changes on your WordPress site."
+msgstr ""
+
+#: admin/templates/help/system-info.php:15
+msgid "System information"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:23
+msgid "Forms & Placement"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:32
+msgid "Standard forms"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:40
+msgid "Wordpress forms"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:48
+msgid "This website's password reset page"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:55
+msgid "User profile page"
+msgstr ""
+
+#: admin/templates/views/settings.php:23
+msgid "Plugin settings"
+msgstr ""
+
+#: admin/templates/views/settings.php:45
+msgid "Weekly Summary"
+msgstr ""
+
+#: admin/templates/views/settings.php:52
+msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week."
+msgstr ""
+
+#: admin/templates/views/settings.php:58
+msgid "Enable weekly summary emails."
+msgstr ""
+
+#: admin/templates/views/settings.php:60
+msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week. Uses from/default address set below."
+msgstr ""
+
+#: admin/templates/views/settings.php:70
+msgid "Users exempted from password policies"
+msgstr ""
+
+#: admin/templates/views/settings.php:79
+msgid "Users in this list will be exempted from all the policies."
+msgstr ""
+
+#: admin/templates/views/settings.php:109
+#: admin/templates/views/settings.php:116
+msgid "Instantly terminate session on password expire or reset"
+msgstr ""
+
+#: admin/templates/views/settings.php:122
+msgid "Terminate session on password expire"
+msgstr ""
+
+#: admin/templates/views/settings.php:124
+msgid "By default when a user's password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset."
+msgstr ""
+
+#: admin/templates/views/settings.php:134
+msgid "Reset key expiry time"
+msgstr ""
+
+#. translators: %s: Configured password expiry period.
+#: admin/templates/views/settings.php:160
+msgid "Passwords reset keys should automatically expire in %s"
+msgstr ""
+
+#: admin/templates/views/settings.php:163
+msgid "By default when a user requests a password reset, the reset key will expire with 24 hours. Use this option to control this expiry time."
+msgstr ""
+
+#: admin/templates/views/settings.php:171
+msgid "Policy priority for users with multiple roles"
+msgstr ""
+
+#: admin/templates/views/settings.php:178
+msgid "Configure the priority of each user role's password policies"
+msgstr ""
+
+#: admin/templates/views/settings.php:180
+msgid "By default our plugin will apply the policy based on the 1st role found for a user, if your users are able to have multiple roles the correct policies may not be applied. To control this, sort the roles below into order priority (the higher the role means policies for this role will override subsequent policies which may also be applicable to a user)."
+msgstr ""
+
+#: admin/templates/views/settings.php:223
+msgid "Higher roles will superceed lower roles, meaning if a user has the role \"subscriber\" and also \"author\", to ensure \"author\" policies apply place it above \"subscriber\" to give these policies priority."
+msgstr ""
+
+#: admin/templates/views/settings.php:235
+msgid "From email address"
+msgstr ""
+
+#: admin/templates/views/settings.php:241
+msgid "Specify the from email address the plugin should use to send emails. If you do not specify an email address, the pre-defined default will be used."
+msgstr ""
+
+#: admin/templates/views/settings.php:249
+msgid "Email Test"
+msgstr ""
+
+#: admin/templates/views/settings.php:252
+msgid "Send Test Email"
+msgstr ""
+
+#: admin/templates/views/settings.php:256
+msgid ""
+"The plugin uses emails to alert users that their password has expired.\n"
+"\t\t\t\t\t\t\t\t\tUse the test button below to send a test email to my email address and confirm email functionality."
+msgstr ""
+
+#: admin/templates/views/settings.php:284
+msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
+msgstr ""
+
 #. translators: Password reset email subject. 1: Site name, 2: Week number
-#: app/crons/class-summaryemail.php:139
+#: app/crons/class-summaryemail.php:140
 msgid "[%1s] Week %2s password resets summary"
 msgstr ""
 
-#: app/crons/class-summaryemail.php:153
+#: app/crons/class-summaryemail.php:154
 msgid "Here is your weekly summary."
 msgstr ""
 
-#: app/crons/class-summaryemail.php:163
+#: app/crons/class-summaryemail.php:164
 msgid "Recent users with password resets:"
 msgstr ""
 
-#: app/crons/class-summaryemail.php:164
+#: app/crons/class-summaryemail.php:165
 msgid "Login name"
 msgstr ""
 
-#: app/crons/class-summaryemail.php:164
+#: app/crons/class-summaryemail.php:165
 msgid "Role"
 msgstr ""
 
-#: app/crons/class-summaryemail.php:164
+#: app/crons/class-summaryemail.php:165
 msgid "Last reset"
 msgstr ""
 
 #. translators: %1s: link to our plugin.
-#: app/crons/class-summaryemail.php:175
+#: app/crons/class-summaryemail.php:176
 msgid "This email is generated by the %1$s MelaPress Login Security plugin %2$s"
 msgstr ""
 
@@ -380,7 +477,7 @@ msgstr ""
 msgid "Get a new password."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-forms.php:349
+#: app/enforcers/class-ppm-wp-forms.php:351
 msgid "Hints for a strong password"
 msgstr ""
 
@@ -389,28 +486,35 @@ msgstr ""
 msgid "<strong>ERROR</strong>: New password %s"
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:104, app/helpers/class-ppm-emailstrings.php:85, app/helpers/class-ppm-emailstrings.php:76
+#: app/enforcers/class-ppm-wp-reset.php:140
+#: app/helpers/class-ppm-emailstrings.php:76
+#: app/helpers/class-ppm-emailstrings.php:85
 msgid "Your user password was reset by the website administrator. Below are the details:"
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:136, app/enforcers/class-ppm-wp-reset.php:177, app/enforcers/class-user-profile.php:196
+#: app/enforcers/class-ppm-wp-reset.php:172
+#: app/enforcers/class-ppm-wp-reset.php:213
+#: app/enforcers/class-user-profile.php:196
 msgid "The email could not be sent."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:136, app/enforcers/class-ppm-wp-reset.php:177, app/enforcers/class-user-profile.php:196
+#: app/enforcers/class-ppm-wp-reset.php:172
+#: app/enforcers/class-ppm-wp-reset.php:213
+#: app/enforcers/class-user-profile.php:196
 msgid "Possible reason: your host may have disabled the mail() function."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:155
+#: app/enforcers/class-ppm-wp-reset.php:191
 msgid "All passwords have been reset for:"
 msgstr ""
 
 #. translators: Password reset email subject. 1: Site name
-#: app/enforcers/class-ppm-wp-reset.php:168
+#: app/enforcers/class-ppm-wp-reset.php:204
 msgid "[%s] Global Password Reset Complete"
 msgstr ""
 
-#: app/enforcers/class-user-profile.php:61, app/enforcers/class-user-profile.php:65
+#: app/enforcers/class-user-profile.php:61
+#: app/enforcers/class-user-profile.php:65
 msgid "Reset password on next login"
 msgstr ""
 
@@ -430,95 +534,152 @@ msgstr ""
 msgid "to configure the policies in the site's settings."
 msgstr ""
 
-#: app/helpers/class-ppm-emailstrings.php:99, app/helpers/class-ppm-emailstrings.php:92, app/helpers/class-ppm-emailstrings.php:84, app/helpers/class-ppm-emailstrings.php:75, app/helpers/class-ppm-emailstrings.php:66, app/helpers/class-ppm-emailstrings.php:57
+#: app/helpers/class-ppm-emailstrings.php:57
+#: app/helpers/class-ppm-emailstrings.php:66
+#: app/helpers/class-ppm-emailstrings.php:75
+#: app/helpers/class-ppm-emailstrings.php:84
+#: app/helpers/class-ppm-emailstrings.php:92
+#: app/helpers/class-ppm-emailstrings.php:99
 msgid "Hello"
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:100, app/helpers/class-ppm-emailstrings.php:86, app/helpers/class-ppm-emailstrings.php:77, app/helpers/class-ppm-emailstrings.php:68, app/helpers/class-ppm-emailstrings.php:59
-msgid "Website: "
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:101, app/helpers/class-ppm-emailstrings.php:87, app/helpers/class-ppm-emailstrings.php:78, app/helpers/class-ppm-emailstrings.php:69, app/helpers/class-ppm-emailstrings.php:60
-msgid "Username: "
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:102, app/helpers/class-ppm-emailstrings.php:94
-msgid "Please visit the following URL to reset your password: {reset_url}"
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:103, app/helpers/class-ppm-emailstrings.php:95
-msgid "If you have any questions or require assistance contact your website administrator on {admin_email}."
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:104, app/helpers/class-ppm-emailstrings.php:96, app/helpers/class-ppm-emailstrings.php:89, app/helpers/class-ppm-emailstrings.php:81, app/helpers/class-ppm-emailstrings.php:72, app/helpers/class-ppm-emailstrings.php:63
-msgid "Thank you. "
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:93
-msgid "Your password for the user {user_login_name} on the website {home_url} has expired."
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:88
-msgid "Please be aware your password has been reset by the sites administrator and you will be required to provide a new one upon next login. If you have any questions or require assistance contact your website administrator on "
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:79
-msgid "You will be asked to reset your password when you next login. Otherwise, you can visit the following URL to reset your password: "
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:80, app/helpers/class-ppm-emailstrings.php:71, app/helpers/class-ppm-emailstrings.php:62
-msgid "If you have any questions or require assistance contact your website administrator on "
-msgstr ""
-
-#: app/helpers/class-ppm-emailstrings.php:67
-msgid "Your user account has been unblocked from further login attempts by the website administrator. Below are the details:"
 msgstr ""
 
 #: app/helpers/class-ppm-emailstrings.php:58
 msgid "Your user account has been unlocked by the website administrator. Below are the details:"
 msgstr ""
 
+#: app/helpers/class-ppm-emailstrings.php:59
+#: app/helpers/class-ppm-emailstrings.php:68
+#: app/helpers/class-ppm-emailstrings.php:77
+#: app/helpers/class-ppm-emailstrings.php:86
+#: app/helpers/class-ppm-emailstrings.php:100
+msgid "Website: "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:60
+#: app/helpers/class-ppm-emailstrings.php:69
+#: app/helpers/class-ppm-emailstrings.php:78
+#: app/helpers/class-ppm-emailstrings.php:87
+#: app/helpers/class-ppm-emailstrings.php:101
+msgid "Username: "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:62
+#: app/helpers/class-ppm-emailstrings.php:71
+#: app/helpers/class-ppm-emailstrings.php:80
+msgid "If you have any questions or require assistance contact your website administrator on "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:63
+#: app/helpers/class-ppm-emailstrings.php:72
+#: app/helpers/class-ppm-emailstrings.php:81
+#: app/helpers/class-ppm-emailstrings.php:89
+#: app/helpers/class-ppm-emailstrings.php:96
+#: app/helpers/class-ppm-emailstrings.php:104
+msgid "Thank you. "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:67
+msgid "Your user account has been unblocked from further login attempts by the website administrator. Below are the details:"
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:79
+msgid "You will be asked to reset your password when you next login. Otherwise, you can visit the following URL to reset your password: "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:88
+msgid "Please be aware your password has been reset by the sites administrator and you will be required to provide a new one upon next login. If you have any questions or require assistance contact your website administrator on "
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:93
+msgid "Your password for the user {user_login_name} on the website {home_url} has expired."
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:94
+#: app/helpers/class-ppm-emailstrings.php:102
+msgid "Please visit the following URL to reset your password: {reset_url}"
+msgstr ""
+
+#: app/helpers/class-ppm-emailstrings.php:95
+#: app/helpers/class-ppm-emailstrings.php:103
+msgid "If you have any questions or require assistance contact your website administrator on {admin_email}."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:51
+msgid "Login page"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:82
+msgid "Change the login page URL"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:84
+msgid "The default WordPress login page URL is /wp-admin/ or /wp-login.php. If you would like to change it and use a custom URL please specify the URL in the setting below."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:90
+msgid "Login page URL"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:103
+msgid "Login access redirect"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:112
+msgid "Direct users who attempt to access the incorrect login page to the above page."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:196
+msgid "This feature is not enabled."
+msgstr ""
+
 #: app/policies/class-ppm-wp-msgs.php:83
 msgid "Should not use known words."
 msgstr ""
 
-#: app/policies/class-ppm-wp-msgs.php:84, app/policies/class-ppm-wp-msgs.php:107
+#: app/policies/class-ppm-wp-msgs.php:84
+#: app/policies/class-ppm-wp-msgs.php:107
 msgid "Cannot contain the username."
 msgstr ""
 
 #. translators: %d: Number of passwords the current password cannot be the same as
 #. translators: %d = number of passwords
-#: app/policies/class-ppm-wp-msgs.php:86, app/policies/class-ppm-wp-msgs.php:110
+#: app/policies/class-ppm-wp-msgs.php:86
+#: app/policies/class-ppm-wp-msgs.php:110
 msgid "Password cannot be the same as the last %d passwords."
 msgstr ""
 
 #. translators: %d: Configured minumum password length
 #. translators: %d = min pw length
-#: app/policies/class-ppm-wp-msgs.php:88, app/policies/class-ppm-wp-msgs.php:115
+#: app/policies/class-ppm-wp-msgs.php:88
+#: app/policies/class-ppm-wp-msgs.php:115
 msgid "Must be at least %d characters long."
 msgstr ""
 
-#: app/policies/class-ppm-wp-msgs.php:89, app/policies/class-ppm-wp-msgs.php:118
+#: app/policies/class-ppm-wp-msgs.php:89
+#: app/policies/class-ppm-wp-msgs.php:118
 msgid "Must contain both UPPERCASE & lowercase characters."
 msgstr ""
 
-#: app/policies/class-ppm-wp-msgs.php:90, app/policies/class-ppm-wp-msgs.php:119
+#: app/policies/class-ppm-wp-msgs.php:90
+#: app/policies/class-ppm-wp-msgs.php:119
 msgid "Must contain numbers."
 msgstr ""
 
 #. translators: %d: Characters which cannot be used in a password
 #. translators: %s = special chars
-#: app/policies/class-ppm-wp-msgs.php:92, app/policies/class-ppm-wp-msgs.php:122
+#: app/policies/class-ppm-wp-msgs.php:92
+#: app/policies/class-ppm-wp-msgs.php:122
 msgid "Must contain special characters such as %s"
 msgstr ""
 
 #. translators: 1 = list of special characters
-#. translators: 1 = list of special characters
-#: app/policies/class-ppm-wp-msgs.php:95, app/policies/class-ppm-wp-msgs.php:127
+#: app/policies/class-ppm-wp-msgs.php:95
+#: app/policies/class-ppm-wp-msgs.php:127
 msgid "Password cannot contain any of these special characters: %s"
 msgstr ""
 
-#: app/policies/class-ppm-wp-msgs.php:102, app/policies/class-ppm-wp-msgs.php:103
+#: app/policies/class-ppm-wp-msgs.php:102
+#: app/policies/class-ppm-wp-msgs.php:103
 msgid "is very easy to guess. Please avoid using known words in the password."
 msgstr ""
 
@@ -538,7 +699,8 @@ msgstr ""
 msgid "Too short"
 msgstr ""
 
-#: app/policies/class-ppm-wp-msgs.php:135, app/policies/class-ppm-wp-msgs.php:136
+#: app/policies/class-ppm-wp-msgs.php:135
+#: app/policies/class-ppm-wp-msgs.php:136
 msgid "Insecure:"
 msgstr ""
 
@@ -606,544 +768,10 @@ msgstr ""
 msgid "callback must be a function"
 msgstr ""
 
-#: app/policies/class-ppm-wp-options.php:121, app/modules/inactive-users/class-inactive-users.php:278
+#: app/policies/class-ppm-wp-options.php:123
 msgid "website administrator"
 msgstr ""
 
-#: app/policies/class-ppm-wp-options.php:122
+#: app/policies/class-ppm-wp-options.php:124
 msgid "Your WordPress user has been deactivated. Please contact the %1s to activate back your user."
-msgstr ""
-
-#: admin/templates/help/contact-us.php:15, admin/templates/help/help.php:60
-msgid "Contact Us"
-msgstr ""
-
-#: admin/templates/help/help.php:15, admin/templates/help/help.php:25
-msgid "Getting Started"
-msgstr ""
-
-#: admin/templates/help/help.php:19
-msgid "Getting started with the MelaPress Login Security"
-msgstr ""
-
-#: admin/templates/help/help.php:20
-msgid "Configure different password policies for different user roles"
-msgstr ""
-
-#: admin/templates/help/help.php:21
-msgid "How to exclude users or roles from the password policies"
-msgstr ""
-
-#: admin/templates/help/help.php:30, admin/templates/help/help.php:55
-msgid "Plugin Support"
-msgstr ""
-
-#: admin/templates/help/help.php:32
-msgid "You can post your question on our support forum or send us an email for 1 to 1 support. Email support is provided to both free and premium plugin users."
-msgstr ""
-
-#: admin/templates/help/help.php:34
-msgid "Free support forum"
-msgstr ""
-
-#: admin/templates/help/help.php:35
-msgid "Free email support"
-msgstr ""
-
-#: admin/templates/help/help.php:44
-msgid "Plugin Documentation"
-msgstr ""
-
-#: admin/templates/help/help.php:46
-msgid "For more technical information about the MelaPress Login Security plugin please visit the plugin’s knowledge base."
-msgstr ""
-
-#: admin/templates/help/help.php:48
-msgid "Knowledge Base"
-msgstr ""
-
-#: admin/templates/help/help.php:57
-msgid "Have you encountered or noticed any issues while using the MelaPress Login Security plugin? Or do you want to report something to us?"
-msgstr ""
-
-#: admin/templates/help/help.php:59
-msgid "Open support ticket"
-msgstr ""
-
-#: admin/templates/help/index.php:13, admin/templates/help/index.php:20
-msgid "Help"
-msgstr ""
-
-#: admin/templates/help/index.php:23
-msgid "System Info"
-msgstr ""
-
-#: admin/templates/help/sidebar.php:12
-msgid "Our WordPress Plugins"
-msgstr ""
-
-#: admin/templates/help/sidebar.php:20
-msgid "Keep a log of users and under the hood site activity."
-msgstr ""
-
-#: admin/templates/help/sidebar.php:36, admin/templates/help/sidebar.php:63, admin/templates/help/sidebar.php:90, admin/templates/help/sidebar.php:117
-msgid "LEARN MORE"
-msgstr ""
-
-#: admin/templates/help/sidebar.php:47
-msgid "Add an extra layer of security to your login pages with 2FA & require your users to use it."
-msgstr ""
-
-#: admin/templates/help/sidebar.php:74
-msgid "Protect website forms & login pages from spambots & automated attacks."
-msgstr ""
-
-#: admin/templates/help/sidebar.php:101
-msgid "Automatically identify unauthorized file changes on your WordPress site."
-msgstr ""
-
-#: admin/templates/help/system-info.php:15
-msgid "System information"
-msgstr ""
-
-#: admin/templates/views/settings-forms.php:30
-msgid "Standard forms"
-msgstr ""
-
-#: admin/templates/views/settings-forms.php:38
-msgid "Wordpress forms"
-msgstr ""
-
-#: admin/templates/views/settings-forms.php:46
-msgid "This website's password reset page"
-msgstr ""
-
-#: admin/templates/views/settings-forms.php:53
-msgid "User profile page"
-msgstr ""
-
-#: admin/templates/views/settings.php:21
-msgid "Plugin settings"
-msgstr ""
-
-#: admin/templates/views/settings.php:43
-msgid "Weekly Summary"
-msgstr ""
-
-#: admin/templates/views/settings.php:50
-msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week."
-msgstr ""
-
-#: admin/templates/views/settings.php:56
-msgid "Enable weekly summary emails."
-msgstr ""
-
-#: admin/templates/views/settings.php:58
-msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week. Uses from/default address set below."
-msgstr ""
-
-#: admin/templates/views/settings.php:68
-msgid "Users exempted from password policies"
-msgstr ""
-
-#: admin/templates/views/settings.php:77
-msgid "Users in this list will be exempted from all the policies."
-msgstr ""
-
-#: admin/templates/views/settings.php:107, admin/templates/views/settings.php:114
-msgid "Instantly terminate session on password expire or reset"
-msgstr ""
-
-#: admin/templates/views/settings.php:120
-msgid "Terminate session on password expire"
-msgstr ""
-
-#: admin/templates/views/settings.php:122
-msgid "By default when a user\'s password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset."
-msgstr ""
-
-#: admin/templates/views/settings.php:132
-msgid "Reset key expiry time"
-msgstr ""
-
-#. translators: %s: Configured password expiry period.
-#: admin/templates/views/settings.php:158
-msgid "Passwords reset keys should automatically expire in %s"
-msgstr ""
-
-#: admin/templates/views/settings.php:161
-msgid "By default when a user requests a password reset, the reset key will expire with 24 hours. Use this option to control this expiry time."
-msgstr ""
-
-#: admin/templates/views/settings.php:169
-msgid "Policy priority for users with multiple roles"
-msgstr ""
-
-#: admin/templates/views/settings.php:176
-msgid "Configure the priority of each user role's password policies"
-msgstr ""
-
-#: admin/templates/views/settings.php:178
-msgid "By default our plugin will apply the policy based on the 1st role found for a user, if your users are able to have multiple roles the correct policies may not be applied. To control this, sort the roles below into order priority (the higher the role means policies for this role will override subsequent policies which may also be applicable to a user)."
-msgstr ""
-
-#: admin/templates/views/settings.php:221
-msgid "Higher roles will superceed lower roles, meaning if a user has the role \"subscriber\" and also \"author\", to ensure \"author\" policies apply place it above \"subscriber\" to give these policies priority."
-msgstr ""
-
-#: admin/templates/views/settings.php:233
-msgid "From email address"
-msgstr ""
-
-#: admin/templates/views/settings.php:239
-msgid "Specify the from email address the plugin should use to send emails. If you do not specify an email address, the pre-defined default will be used."
-msgstr ""
-
-#: admin/templates/views/settings.php:247
-msgid "Email Test"
-msgstr ""
-
-#: admin/templates/views/settings.php:250
-msgid "Send Test Email"
-msgstr ""
-
-#: admin/templates/views/settings.php:254
-msgid ""
-"The plugin uses emails to alert users that their password has expired.\n"
-"									Use the test button below to send a test email to my email address and confirm email functionality."
-msgstr ""
-
-#: admin/templates/views/settings.php:282
-msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:37
-msgid "Email templates"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:70
-msgid "The following tags are available for use in all email template fields."
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:71
-msgid "Available tags:"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:72
-msgid "- Site URL"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:73
-msgid "- Site Name"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:74
-msgid "- User Login Name"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:75
-msgid "- User First Name"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:76
-msgid "- User Last Name"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:77
-msgid "- User Display Name"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:78
-msgid "- From email address / site admin email"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:79
-msgid "- Blog Name"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:80
-msgid "- Reset/Continue Message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:81
-msgid "- Reset URL"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:88
-msgid "User Account Unlocked Title"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:100
-msgid "User Account proceed to reset message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:112
-msgid "User Account continue as normal"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:124
-msgid "User Account Unlocked Message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:147
-msgid "User Account Unblocked Title"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:159
-msgid "User Account Unblocked proceed to reset message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:171
-msgid "User Account Unblocked continue as normal"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:183
-msgid "User Account Unblocked Message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:206
-msgid "User Reset on next login title"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:218
-msgid "User Reset on Next Login Message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:241
-msgid "User Password reset title"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:253
-msgid "User Delayed Reset Message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:276
-msgid "User Reset Message"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:299
-msgid "User Password Expired email title"
-msgstr ""
-
-#: app/modules/email-settings/class-ppm-email-settings.php:311
-msgid "User Password Expired Message"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:90, app/modules/failed-logins/class-ppm-failed-logins.php:152
-msgid "Your account has surpassed the allowed number of login attempts and can no longer log in."
-msgstr ""
-
-#. translators: %d: Number of attempts remaining
-#: app/modules/failed-logins/class-ppm-failed-logins.php:165
-msgid "You have %d attempt remaining."
-msgid_plural "You have %d attempts remaining."
-msgstr[0] ""
-msgstr[1] ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:358
-msgid "Enable Failed Logins Policies"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:374, app/modules/failed-logins/class-ppm-failed-logins.php:378
-msgid "Number of failed login attempts before locking a user:"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:384
-msgid "Time period required to reset the failed logins count:"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:387
-msgid " minutes"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:391
-msgid "Use this setting to specify how long for should the plugin keep a count of the failed logins. Once this time period passes, the failed logins count is reset to 0."
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:402
-msgid "When a user is locked: "
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:405
-msgid "it can be only unlocked by the administrator"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:407
-msgid "unlock it after"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:407
-msgid "minutes"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:419, app/modules/inactive-users/class-inactive-users.php:457
-msgid "Enable Inactive User Password Reset Feature"
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:423
-msgid "Require blocked users to reset password on unblock."
-msgstr ""
-
-#: app/modules/failed-logins/class-ppm-failed-logins.php:426
-msgid "By default, when a previously blocked user has been unblocked by an administrator, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:95, app/modules/inactive-users/class-inactive-users.php:96, app/modules/inactive-users/class-inactive-users.php:438, app/modules/inactive-users/locked-users-view.php:13
-msgid "Locked Users"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:248
-msgid "Resetting..."
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:249
-msgid "User Reset"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:250, app/modules/inactive-users/InactiveUsersTable.php:43
-msgid "Currently there are no locked users."
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:251
-msgid "Reloading..."
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:395
-msgid "User account policies"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:401, app/modules/inactive-users/InactiveUsersTable.php:29
-msgid "Inactive Users"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:407
-msgid "Enable Inactive Users Features"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:411
-msgid "Disable inactive user accounts if they are inactive for more than"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:434
-msgid "Inactive users accounts will be will be locked. You can unlock users from the %1$s page in this plugin. To learn more about this policy, read the %2$s feature document"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:442, app/modules/inactive-users/inactive-users.php:50, app/modules/inactive-users/inactive-users.php:34
-msgid "Inactive users policy"
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:461
-msgid "Require inactive users to reset password on unlock."
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:464
-msgid "By default, when a inactive user has been unlocked, they are required to reset their password upon logging in - leave this unchecked to disable this behaviour."
-msgstr ""
-
-#: app/modules/inactive-users/class-inactive-users.php:470
-msgid "Display the following message when a user has been deactivated."
-msgstr ""
-
-#: app/modules/inactive-users/inactive-users.php:47
-msgid "In this section you can see a list of inactive WordPress users on your website if you enable the %1$s, or the block failed logins policy"
-msgstr ""
-
-#: app/modules/inactive-users/inactive-users.php:31
-msgid "In this section you can see a list of locked users. Users can be locked if they have been inactive for a long time, or they have had too many failed login attempts. More information on the %1$s"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:28
-msgid "Inactive User"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:56
-msgid "User"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:57
-msgid "Roles"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:58
-msgid "Locked because of"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:59
-msgid "Inactive Since"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:60
-msgid "Actions"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:73, app/modules/inactive-users/InactiveUsersTable.php:293
-msgid "Unlock"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:86
-msgid "Run Inactive Check Now"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:212, app/modules/inactive-users/InactiveUsersTable.php:269
-msgid "No data to display..."
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:257
-msgid "failed logins"
-msgstr ""
-
-#: app/modules/inactive-users/InactiveUsersTable.php:257
-msgid "inactivty"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:87
-msgid "Third party forms"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:94
-msgid "WooCommerce"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:102
-msgid "WooCommerce password reset/update page"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:111
-msgid "LearnDash"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:119
-msgid "LearnDash User register page"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:128
-msgid "Ultimate Member"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:136
-msgid "Ultimate Member user signup form"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:143
-msgid "Ultimate Member password reset/update form."
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:152
-msgid "BuddyPress"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:160
-msgid "BuddyPress user signup form"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:167
-msgid "BuddyPress password update form."
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:176
-msgid "BBPress"
-msgstr ""
-
-#: app/modules/third-party/class-thirdparties.php:184
-msgid "BBPress password update form."
 msgstr ""

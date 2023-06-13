@@ -147,6 +147,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				wp_enqueue_script( 'ppm-user-profile', PPM_WP_URL . 'assets/js/custom-form.js', array( 'jquery', 'password-strength-meter', 'wp-util' ), PPMWP_VERSION, 1 );
 
 				wp_localize_script( 'ppm-user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
+				wp_localize_script( 'user-profile', 'pwsL10n', $this->msgs->user_profile_l10n );
 
 				// Variables to check shortly.
 				$element_to_apply_form_js_to      = $custom_form['element'];
@@ -264,6 +265,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 
 			wp_register_script( 'user-profile', PPM_WP_URL . "assets/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), PPMWP_VERSION, 1 );
 
+			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
 			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
 			wp_localize_script( 'user-profile', 'ppmErrors', $this->msgs->error_strings );
 			wp_localize_script( 'user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );

@@ -7,8 +7,10 @@
  */
 
 $sidebar_required    = false;
+/* @free:start */
 // Override in free edition.
 $sidebar_required    = true;
+/* @free:end */
 $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 
@@ -119,7 +121,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 											value="1" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->ppm_setting->terminate_session_password ) ); ?>/>
 											<?php esc_html_e( 'Terminate session on password expire', 'ppm-wp' ); ?>
 										<p class="description">
-											<?php esc_html_e( "By default when a user\'s password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset.", 'ppm-wp' ); ?>
+											<?php esc_html_e( "By default when a user's password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset.", 'ppm-wp' ); ?>
 										</p>
 									</label>
 								</fieldset>
@@ -293,6 +295,10 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 			<?php
 				$scripts_required = false;
 				$additonal_tabs   = apply_filters( 'ppmwp_settings_page_content_tabs', '' );
+				if ( ! empty( $additonal_tabs ) ) {
+					$scripts_required = true;
+					echo $additonal_tabs; // phpcs:ignore
+				}
 			?>
 
 		</div>
@@ -306,7 +312,9 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 	</form>
 
 	<?php
+	/* @free:start */
 	require_once PPM_WP_PATH . 'admin/templates/views/upgrade-sidebar.php';
+	/* @free:end */
 
 	?>
 </div> 
@@ -331,6 +339,12 @@ if ( $scripts_required ) {
 	if (window.location.href.indexOf( "#forms-and-placement-settings" ) > -1 ) {
 		jQuery( 'body' ).find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
 		jQuery( 'a[href="#forms-and-placement-settings"]' ).addClass( 'nav-tab-active' );
+		showTab();		
+	}
+
+	if (window.location.href.indexOf( "#login-page-settings" ) > -1 ) {
+		jQuery( 'body' ).find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
+		jQuery( 'a[href="#login-page-settings"]' ).addClass( 'nav-tab-active' );
 		showTab();		
 	}
 
