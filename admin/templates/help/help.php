@@ -25,6 +25,7 @@ require_once 'sidebar.php';
 	<p><iframe title="<?php esc_html_e( 'Getting Started', 'ppm-wp' ); ?>" class="wsal-youtube-embed" width="100%" height="315" src="https://www.youtube.com/embed/gXaMw4D_yo8" frameborder="0" allowfullscreen></iframe></p>
 
 	<?php
+	/* @free:start */
 	?>
 	<div class="title">
 		<h2 style="padding-left: 0;"><?php esc_html_e( 'Plugin Support', 'ppm-wp' ); ?></h2>
@@ -37,6 +38,7 @@ require_once 'sidebar.php';
 	<br>
 	<!-- End -->
 	<?php
+	/* @free:end */
 	?>
 
 	<!-- Plugin documentation -->
@@ -45,7 +47,7 @@ require_once 'sidebar.php';
 	</div>
 	<p><?php esc_html_e( 'For more technical information about the MelaPress Login Security plugin please visit the plugin’s knowledge base.', 'ppm-wp' ); ?></p>
 	<div class="btn">
-		<a href="<?php echo esc_url( 'https://www.wpwhitesecurity.com/support/kb/?utm_source=plugin&utm_medium=referral&utm_campaign=PPMWP&utm_content=help+page' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Knowledge Base', 'ppm-wp' ); ?></a>
+		<a href="<?php echo esc_url( 'https://www.wpwhitesecurity.com/support/kb/category/mls-plugin-documentation/?utm_source=plugin&utm_medium=referral&utm_campaign=PPMWP&utm_content=help+page' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Knowledge Base', 'ppm-wp' ); ?></a>
 	</div>
 	<br>
 	<!-- End -->

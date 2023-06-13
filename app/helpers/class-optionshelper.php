@@ -591,18 +591,35 @@ class OptionsHelper {
 	 * @arg array $b
 	 * @return array
 	 */
-	public static function recursive_parse_args( &$a, $b ) {
-		$a = (array) $a;
-		$b = (array) $b;
-		$r = $b;
+	public static function recursive_parse_args( &$a, $b, $remove_orphans = false ) {
+		$a          = (array) $a;
+		$b          = (array) $b;
+		$r          = $b;
+		$do_removal = false;
+
+		if ( $remove_orphans ) {
+			// Items which used to exist in $b but dont in the new settings.
+			$orphaned_keys = array_diff_key( $b, $a );
+			if ( ! empty( $orphaned_keys ) ) {
+				foreach( $orphaned_keys as $key => $val ) {
+					unset( $r[ $key ] );
+				}
+			}
+		}
 
 		foreach ( $a as $k => &$v ) {
+			if ( 'users' === $k ) {
+				$do_removal = true;
+			}
+
 			if ( is_array( $v ) && isset( $r[ $k ] ) ) {
-				$r[ $k ] = self::recursive_parse_args( $v, $r[ $k ] );
+				$r[ $k ] = self::recursive_parse_args( $v, $r[ $k ], $do_removal );
 			} else {
 				$r[ $k ] = $v;
 			}
 		}
+
+
 
 		return $r;
 	}

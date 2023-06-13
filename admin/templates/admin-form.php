@@ -11,10 +11,12 @@ global $wp_roles;
 $roles = $wp_roles->get_names();
 // current tab.
 $current_tab         = isset( $_REQUEST['role'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['role'] ) ) : '';
-$master_switch_title = ! empty( $current_tab ) ? __( 'Inherit password & login security policies', 'ppm-wp' ) : __( 'Enable password & login security policies', 'ppm-wp' );
+$master_switch_title = ! empty( $current_tab ) ? __( 'Inherit login security policies', 'ppm-wp' ) : __( 'Enable login security policies', 'ppm-wp' );
 $sidebar_required    = false;
+/* @free:start */
 // Override in free edition.
 $sidebar_required    = true;
+/* @free:end */
 $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 <div class="wrap ppm-wrap">
@@ -49,6 +51,10 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 			<a href="<?php echo esc_url( add_query_arg( 'page', 'ppm_wp_settings', network_admin_url( 'admin.php' ) ) ); ?>" class="nav-tab<?php echo empty( $current_tab ) && ! isset( $_REQUEST['tab'] ) ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Site-wide policies', 'ppm-wp' ); ?></a>
 			<div id="ppmwp-role_tab_link_wrapper">
 				<div id="ppmwp_links-inner-wrapper">
+					<?php
+					$title_active = isset( $roles[ $current_tab ] ) ? 'nav-tab-active' : '';
+					?>
+					<span class="nav-tab <?php esc_attr_e( $title_active ); ?> dummy"><span style="opacity: 0.2" class="dashicons dashicons-admin-settings"></span><?php esc_html_e( 'Role-based policies', 'ppm-wp' ); ?></span>
 					<?php
 					if ( isset( $roles[ $current_tab ] ) ) {
 						$first_item = array(
@@ -155,7 +161,9 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 	</form>
 
 	<?php
+	/* @free:start */
 	require_once PPM_WP_PATH . 'admin/templates/views/upgrade-sidebar.php';
+	/* @free:end */
 
 	?>
 </div>

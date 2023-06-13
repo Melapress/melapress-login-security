@@ -179,6 +179,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 					);
 				}
 			}			
+			/* @free:end */
 
 			// Always return user object.
 			return $user;

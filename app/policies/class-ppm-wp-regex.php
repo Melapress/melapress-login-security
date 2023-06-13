@@ -96,7 +96,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 				 && ! empty( $this->user_options->excluded_special_chars )
 			) {
 				$allowed_special_chars = ltrim( rtrim( $this->rules['special_chars'], ']' ), '[' );
-				$excluded_chars_arr    = str_split( html_entity_decode( str_replace( '&pound', '£', $this->user_options->excluded_special_chars ), null, 'UTF-8' ), 1 );
+				$excluded_chars_arr    = str_split( html_entity_decode( str_replace( '&pound', '£', $this->user_options->excluded_special_chars ), ENT_QUOTES, 'UTF-8' ), 1 );
 				foreach ( $excluded_chars_arr as $excluded_char ) {
 					$allowed_special_chars = str_replace( $excluded_char, '', $allowed_special_chars );
 				}
