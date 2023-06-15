@@ -45,51 +45,6 @@
                 "email": "nom@deliciousbrains.com"
             }
         ],
-        "description": "WP Background Processing can be used to fire off non-blocking asynchronous requests or as a background processing tool, allowing you to queue tasks.",
-        "support": {
-            "issues": "https://github.com/deliciousbrains/wp-background-processing/issues",
-            "source": "https://github.com/deliciousbrains/wp-background-processing/tree/1.1.0"
-        }
-    },
-    {
-        "name": "freemius/wordpress-sdk",
-        "version": "2.5.7",
-        "version_normalized": "2.5.7.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Freemius/wordpress-sdk.git",
-            "reference": "78b876e227905373b94fecdd5e5449bcc4d63407"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Freemius/wordpress-sdk/zipball/78b876e227905373b94fecdd5e5449bcc4d63407",
-            "reference": "78b876e227905373b94fecdd5e5449bcc4d63407",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.2"
-        },
-        "time": "2023-04-24T06:32:35+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "GPL-3.0-only"
-        ],
-        "description": "Freemius WordPress SDK",
-        "homepage": "https://freemius.com",
-        "keywords": [
-            "freemius",
-            "plugin",
-            "sdk",
-            "theme",
-            "wordpress",
-            "wordpress-plugin",
-            "wordpress-theme"
-        ],
-        "support": {
-            "issues": "https://github.com/Freemius/wordpress-sdk/issues",
-            "source": "https://github.com/Freemius/wordpress-sdk/tree/2.5.7"
-        }
+        "description": "WP Background Processing can be used to fire off non-blocking asynchronous requests or as a background processing tool, allowing you to queue tasks."
     }
 ]
