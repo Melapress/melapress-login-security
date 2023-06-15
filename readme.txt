@@ -3,7 +3,7 @@ Plugin URI: https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
-Tested up to: 6.1.1
+Tested up to: 6.2.2
 Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
 Stable tag: %%VERSION%%
 Requires PHP: 7.2
@@ -18,7 +18,7 @@ Achieve better WordPress login security through policies that put you firmly in 
 
 [FEATURES & BENEFITS](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) | [FREE PREMIUM TRIAL](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) | [GETTING STARTED](https://www.wpwhitesecurity.com/support/kb/getting-started-wpassword/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description)
 
-Use [MelaPress Login Security](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to implement WordPress password minimum lengths and complexity. The plugin also allows you to set expiration policies and prevent users from recycling old passwords.
+Use [Melapress Login Security](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to implement WordPress password minimum lengths and complexity. The plugin also allows you to set expiration policies and prevent users from recycling old passwords.
 
 #### MAINTAINED & SUPPORTED BY WP WHITE SECURITY
 
@@ -45,18 +45,18 @@ Ensure your WordPress users use the most secure password policies through the fo
 -   Reset all users’ passwords with just one click
     
 
-## Upgrade to MelaPress Login Security premium and get more
+## Upgrade to Melapress Login Security premium and get more
 
-The premium version of MelaPress Login Security comes bundled with even more features to take your WordPress website login security to the next level.
+The premium edition of Melapress Login Security comes bundled with even more features to take your WordPress website login security to the next level.
 
-In MelaPress Login Security's premium version, you can easily disable [inactive WordPress user accounts](https://wpactivitylog.com/inactive-users-wordpress/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) and force passwords to be reset once accounts have been unlocked. Inactive accounts can be managed within a single dashboard for increased efficiency and faster response times. Moreover, you can set accounts to be locked out after a number of failed login attempts and customize the duration and method of unlocking them.
+In Melapress Login Security's premium version, you can easily disable [inactive WordPress user accounts](https://wpactivitylog.com/inactive-users-wordpress/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) and force passwords to be reset once accounts have been unlocked. Inactive accounts can be managed within a single dashboard for increased efficiency and faster response times. Moreover, you can set accounts to be locked out after a number of failed login attempts and customize the duration and method of unlocking them.
 
 ### features list
 
 -   Everything in the free version
 -   Automatically disable inactive accounts after a set time
 -   [Limit login attempts](https://www.wpwhitesecurity.com/support/kb/failed-logins-policy-wordpress/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) and automatically disable user accounts after a number of failed login attempts
--   Change WordPress login page URL (and set a 404 for the old page)
+-   Change the WordPress login page URL (and set a 404 for the old page)
 -   Receive detailed weekly summary reports over email of password resets and changes, user account lockouts and more
 -   One-click integration with third-party plugins such as WooCommerce, LearnDash, and many others
     
@@ -65,7 +65,7 @@ In MelaPress Login Security's premium version, you can easily disable [inactive 
 
 Support for MelaPress Login Security is free on the WordPress support forums.
 
-Premium world-class support is available via email to all [MelaPress Login Security](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) users
+Premium world-class support is available via email to all [Melapress Login Security](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) users
 
 Note: paid customer support is given priority and is provided via one-to-one email. [Upgrade to](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to benefit from priority support.
 
@@ -84,14 +84,14 @@ You can find more detailed information about WordPress website security, passwor
 === Install the plugin from within WordPress ===
 
 1.  Navigate to ‘Plugins > Add New’
-2.  Search for ‘MelaPress Login Security’
-3.  Install & activate MelaPress Login Security from your Plugins page
+2.  Search for ‘Melapress Login Security’
+3.  Install & activate Melapress Login Security from your Plugins page
   
 === Install the plugin manually (via file upload) ===
 
 1.  Download the plugin from the WordPress plugins repository
 2.  Unzip the zip file and upload the folder to the /wp-content/plugins/ directory
-3.  Activate the MelaPress Login Security plugin through the ‘Plugins’ menu in WordPress
+3.  Activate the Melapress Login Security plugin through the ‘Plugins’ menu in WordPress
 
 == Screenshots ==
 
@@ -103,6 +103,33 @@ You can find more detailed information about WordPress website security, passwor
 6. Users are always notified via easy to understand notifications so they are not hindered from using secure passwords.
 
 == Changelog ==
+
+= 1.1.0 (2023-06-15)
+
+Release notes: [Melapress Login Security 1.1.0](https://www.wpwhitesecurity.com/mls-1-1-0/)
+
+* **New features**
+	* Custom login URL - Change the default WordPress login page URL and also set a 404 for the old slug.
+	* Out of the box support for the Memberpress Registration and user password update forms.
+	
+* **Improvements**
+	* Added compatibility with WooCommerce COT.
+	* Locked Users - User list is now paginated for much better performance.
+	* Plugin no longer applies any user meta on plugin activation resulting in a much faster activation on websites with thousands of users.
+	* Optimised loading of all plugins files via use of autoloading.
+	* Admin refinements and improvements of texts where needed.
+	* Inactive users are now ignored by Failed login policies, to ensure a user cannot be inactive then subsequently locked out.
+	* Overall build process improvements to ensure no extraneous files.
+	* Removal of now obsolete npm code.
+	* Improved Admin area JS to ensure no duplicate values when entering excluded chars.
+	* Better support for Learndash - Failed login attempts are now fully considered and counted when ‘failed login polices’ are enabled.
+	* The "Inactive users check" process is now performed in the background to aid performance on sites with large volumes of users.
+	
+* **Bug fixes**
+	* PHP 8.1 - Fixed possible deprecation warning.
+	* Upgrade link no longer leads to 404.
+	* Email templates - mailto tag no longer shows an ‘http’ protocol.
+	* Fixed bug where users excluded from policies would not be removable from the list.
 
 = 1.0.0 (2023-02-23)
 
