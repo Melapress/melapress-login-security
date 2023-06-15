@@ -6,8 +6,8 @@
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or higher
  *
  * @wordpress-plugin
- * Plugin Name: Melapress Login Security Premium
- * Version:     1.0.0
+ * Plugin Name: Melapress Login Security
+ * Version:     1.1.0
  * Plugin URI:  https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      WP White Security
@@ -170,7 +170,7 @@ if ( ! function_exists( $mpls ) ) {
 		/**
 		 * Meta key flag to mark user as blocked.
 		 */
-		define( 'PPMWP_VERSION', '1.0.0' );
+		define( 'PPMWP_VERSION', '1.1.0' );
 	}
 
 	/*
