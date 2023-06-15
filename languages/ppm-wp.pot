@@ -2,20 +2,20 @@
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security Premium 1.0.0\n"
+"Project-Id-Version: Melapress Login Security 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
 "Last-Translator: WP White Security <info@wpwhitesecurity.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-06-13T11:25:21+00:00\n"
+"POT-Creation-Date: 2023-06-15T08:52:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: ppm-wp\n"
 
 #. Plugin Name of the plugin
-msgid "Melapress Login Security Premium"
+msgid "Melapress Login Security"
 msgstr ""
 
 #. Plugin URI of the plugin

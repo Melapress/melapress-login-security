@@ -51,11 +51,12 @@ The premium version of MelaPress Login Security comes bundled with even more fea
 
 In MelaPress Login Security's premium version, you can easily disable [inactive WordPress user accounts](https://wpactivitylog.com/inactive-users-wordpress/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) and force passwords to be reset once accounts have been unlocked. Inactive accounts can be managed within a single dashboard for increased efficiency and faster response times. Moreover, you can set accounts to be locked out after a number of failed login attempts and customize the duration and method of unlocking them.
 
-### Premium features list
+### features list
 
 -   Everything in the free version
 -   Automatically disable inactive accounts after a set time
 -   [Limit login attempts](https://www.wpwhitesecurity.com/support/kb/failed-logins-policy-wordpress/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) and automatically disable user accounts after a number of failed login attempts
+-   Change WordPress login page URL (and set a 404 for the old page)
 -   Receive detailed weekly summary reports over email of password resets and changes, user account lockouts and more
 -   One-click integration with third-party plugins such as WooCommerce, LearnDash, and many others
     
@@ -64,9 +65,9 @@ In MelaPress Login Security's premium version, you can easily disable [inactive 
 
 Support for MelaPress Login Security is free on the WordPress support forums.
 
-Premium world-class support is available via email to all [MelaPress Login Security Premium](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) users
+Premium world-class support is available via email to all [MelaPress Login Security](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) users
 
-Note: paid customer support is given priority and is provided via one-to-one email. [Upgrade to Premium](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to benefit from priority support.
+Note: paid customer support is given priority and is provided via one-to-one email. [Upgrade to](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to benefit from priority support.
 
 For any other queries, feedback, or if you simply want to get in touch with us, please use our [contact form](https://www.wpwhitesecurity.com/contact/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description).
 

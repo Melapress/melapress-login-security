@@ -20,8 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p><?php esc_html_e( 'The security of your WordPress website & WooCommerce store is as strong as the weakest password!', 'c4wp-wpp' ); ?></p>
 			<p><?php esc_html_e( 'Weak passwords should not jeopardize the security of your website. Configure strong password policies with WPassword and ensure your team, customers & subscribers use strong passwords.', 'c4wp-wpp' ); ?></p>
 			<div class="premium-cta">
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to Premium</a>
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free Premium trial</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free trial</a>
 			</div>
 		</div>
 
@@ -165,8 +165,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="premium-cta">
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to Premium</a>
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free Premium trial</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to</a>
+			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free trial</a>
 		</div>
 
 	</div>
