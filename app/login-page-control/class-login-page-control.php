@@ -81,7 +81,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 				<br>
 				<h3><?php esc_html_e( 'Change the login page URL', 'ppm-wp' ); ?></h3>
 				<p class="description" style="max-width: none;">
-			<?php esc_html_e( 'The default WordPress login page URL is /wp-admin/ or /wp-login.php. If you would like to change it and use a custom URL please specify the URL in the setting below.', 'ppm-wp' ); ?>
+			<?php esc_html_e( 'The default WordPress login page URL is /wp-admin/ or /wp-login.php. Improve the security of your website by changing the URL of the WordPress login page to anything you want, thus preventing easy access to bots and attackers.', 'ppm-wp' ); ?>
 				</p>
 
 				<tr valign="top">
@@ -100,7 +100,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 				<tr valign="top">
 					<th scope="row">
 						<label for="ppm-from-email">
-			<?php esc_html_e( 'Login access redirect', 'ppm-wp' ); ?>
+			<?php esc_html_e( 'Old login page URL redirect', 'ppm-wp' ); ?>
 					</th>
 					<td>
 						<fieldset>
@@ -109,7 +109,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 							<br>
 							<br>
 							<p class="description">
-			<?php esc_html_e( 'Direct users who attempt to access the incorrect login page to the above page.', 'ppm-wp' ); ?>
+			<?php esc_html_e( 'Redirect anyone who tries to access the default WordPress login page URL to the above configured URL.', 'ppm-wp' ); ?>
 							</p>
 						</fieldset>
 					</td>
