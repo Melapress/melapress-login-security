@@ -19,8 +19,10 @@
 		<div class="ppm-settings">
 
 			<!-- getting started -->
-			<div class="page-head">
+			<div class="page-head" style="padding-right: 0">
 				<h2><?php esc_html_e( 'Forms & Placement', 'ppm-wp' ); ?></h2>
+				<p class="description" style="max-width: none"><?php esc_html_e( 'By default, the login and password security policies configured in this plugin can only be enforced on the native WordPress forms. However, the plugin also has out of the box support for third party popular plugins such as WooCommerce and BuddyPress. Use the checkboxes below to select on which forms you\'d like to also enforce the configured policies.', 'ppm-wp' ); ?></p>
+				<br>
 			</div>
 
 			<div class="ppm-general-settings">
@@ -30,7 +32,7 @@
 							<th scope="row">
 								<label for="ppm-send-summary-email">
 									<h3><?php esc_html_e( 'Standard forms', 'ppm-wp' ); ?></h3>
-								</label>
+								</label>								
 							</th>
 						</tr>
 

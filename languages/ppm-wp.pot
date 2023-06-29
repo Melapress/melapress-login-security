@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security 1.1.0\n"
+"Project-Id-Version: Melapress Login Security 1.1.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
 "Last-Translator: WP White Security <info@wpwhitesecurity.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-06-15T13:31:46+00:00\n"
+"POT-Creation-Date: 2023-06-29T12:22:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: ppm-wp\n"
@@ -81,7 +81,7 @@ msgid "Password Length"
 msgstr ""
 
 #: admin/templates/admin-form.php:156
-#: admin/templates/views/settings-forms.php:76
+#: admin/templates/views/settings-forms.php:78
 #: admin/templates/views/settings.php:310
 msgid "Save Changes"
 msgstr ""
@@ -313,19 +313,23 @@ msgstr ""
 msgid "Forms & Placement"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:32
+#: admin/templates/views/settings-forms.php:24
+msgid "By default, the login and password security policies configured in this plugin can only be enforced on the native WordPress forms. However, the plugin also has out of the box support for third party popular plugins such as WooCommerce and BuddyPress. Use the checkboxes below to select on which forms you'd like to also enforce the configured policies."
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:34
 msgid "Standard forms"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:40
+#: admin/templates/views/settings-forms.php:42
 msgid "Wordpress forms"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:48
+#: admin/templates/views/settings-forms.php:50
 msgid "This website's password reset page"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:55
+#: admin/templates/views/settings-forms.php:57
 msgid "User profile page"
 msgstr ""
 
@@ -613,7 +617,7 @@ msgid "Change the login page URL"
 msgstr ""
 
 #: app/login-page-control/class-login-page-control.php:84
-msgid "The default WordPress login page URL is /wp-admin/ or /wp-login.php. If you would like to change it and use a custom URL please specify the URL in the setting below."
+msgid "The default WordPress login page URL is /wp-admin/ or /wp-login.php. Improve the security of your website by changing the URL of the WordPress login page to anything you want, thus preventing easy access to bots and attackers."
 msgstr ""
 
 #: app/login-page-control/class-login-page-control.php:90
@@ -621,11 +625,11 @@ msgid "Login page URL"
 msgstr ""
 
 #: app/login-page-control/class-login-page-control.php:103
-msgid "Login access redirect"
+msgid "Old login page URL redirect"
 msgstr ""
 
 #: app/login-page-control/class-login-page-control.php:112
-msgid "Direct users who attempt to access the incorrect login page to the above page."
+msgid "Redirect anyone who tries to access the default WordPress login page URL to the above configured URL."
 msgstr ""
 
 #: app/login-page-control/class-login-page-control.php:196

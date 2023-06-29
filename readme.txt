@@ -5,7 +5,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Tested up to: 6.2.2
 Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 Requires PHP: 7.2
 
 Implement customized secure WordPress login policies with efficiency
@@ -103,6 +103,16 @@ You can find more detailed information about WordPress website security, passwor
 6. Users are always notified via easy to understand notifications so they are not hindered from using secure passwords.
 
 == Changelog ==
+
+= 1.1.1 (2023-07-05)
+
+* **Improvements**
+	* Improved contextual help text around the Login access settings page
+	* Added further help text to third-party forms area
+	* Renames Failed login policies to Login limitation policies in settings.
+
+* **Security fix**
+	*  Updated Freemius SDK
 
 = 1.1.0 (2023-06-15)
 
