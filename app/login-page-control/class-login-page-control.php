@@ -26,9 +26,6 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 		 * @return void
 		 */
 		public function init() {
-			add_filter( 'ppmwp_settings_page_nav_tabs', array( $this, 'settings_tab_link' ), 20, 1 );
-			add_filter( 'ppmwp_settings_page_content_tabs', array( $this, 'settings_tab' ), 10, 1 );
-
 			$ppm = ppm_wp();
 			if ( isset( $ppm->options->ppm_setting->custom_login_url ) && ! empty( $ppm->options->ppm_setting->custom_login_url ) ) {
 				add_filter( 'site_url', array( $this, 'login_control_site_url' ), 10, 4 );
@@ -42,35 +39,6 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 		}
 
 		/**
-		 * Add link to tabbed area within settings.
-		 *
-		 * @param  string $markup - Currently added content.
-		 * @return string $markup - Appended content.
-		 */
-		public function settings_tab_link( $markup ) {
-			return $markup . '<a href="#login-page-settings" class="nav-tab" data-tab-target=".ppm-login-page-settings">' . esc_attr__( 'Login page', 'ppm-wp' ) . '</a>';
-		}
-
-		/**
-		 * Add settings tab content to settings area
-		 *
-		 * @param  string $markup - Currently added content.
-		 * @return string $markup - Appended content.
-		 */
-		public function settings_tab( $markup ) {
-			ob_start(); ?>
-			<div class="settings-tab ppm-login-page-settings">
-				<table class="form-table">
-					<tbody>
-			<?php self::render_email_template_settings(); ?>
-					</tbody>
-				</table>
-			</div>
-			<?php
-			return $markup . ob_get_clean();
-		}
-
-		/**
 		 * Display settings markup for email tempplates.
 		 *
 		 * @return void
@@ -79,10 +47,11 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 			$ppm = ppm_wp();
 			?>
 				<br>
-				<h3><?php esc_html_e( 'Change the login page URL', 'ppm-wp' ); ?></h3>
-				<p class="description" style="max-width: none;">
-			<?php esc_html_e( 'The default WordPress login page URL is /wp-admin/ or /wp-login.php. Improve the security of your website by changing the URL of the WordPress login page to anything you want, thus preventing easy access to bots and attackers.', 'ppm-wp' ); ?>
-				</p>
+				<?php if ( is_multisite() ) { ?>
+				<i class="description" style="max-width: none;">
+					<?php esc_html_e( 'Please note: this will affect all sites on the network.', 'ppm-wp' ); ?>
+				</i>
+				<?php } ?>
 
 				<tr valign="top">
 					<th scope="row">
@@ -92,7 +61,8 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 					<td>
 						<fieldset>
 							<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo trailingslashit( site_url() ); ?></p>
-							<input type="text" name="_ppm_options[custom_login_url]" value="<?php echo esc_attr( isset( $ppm->options->ppm_setting->custom_login_url ) ? $ppm->options->ppm_setting->custom_login_url : '' ); ?>" id="ppm-custom_login_url" style="float: left; display: block; width: 250px;" />
+							<input type="text" name="_ppm_options[custom_login_url]" value="<?php echo esc_attr( isset( $ppm->options->ppm_setting->custom_login_url ) ? rtrim( $ppm->options->ppm_setting->custom_login_url, '/' ) : '' ); ?>" id="ppm-custom_login_url" style="float: left; display: block; width: 250px;" />
+							<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
 						</fieldset>
 					</td>
 				</tr>
@@ -105,7 +75,8 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 					<td>
 						<fieldset>
 							<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo trailingslashit( site_url() ); ?></p>
-							<input type="text" name="_ppm_options[custom_login_redirect]" value="<?php echo esc_attr( isset( $ppm->options->ppm_setting->custom_login_redirect ) ? $ppm->options->ppm_setting->custom_login_redirect : '' ); ?>" id="ppm-custom_login_redirect" style="float: left; display: block; width: 250px;" />
+							<input type="text" name="_ppm_options[custom_login_redirect]" value="<?php echo esc_attr( isset( $ppm->options->ppm_setting->custom_login_redirect ) ? rtrim( $ppm->options->ppm_setting->custom_login_redirect, '/' ) : '' ); ?>" id="ppm-custom_login_redirect" style="float: left; display: block; width: 250px;" />
+							<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
 							<br>
 							<br>
 							<p class="description">
@@ -192,7 +163,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 			if ( ! empty( $ppm_setting['custom_login_url'] ) ) {
 				global $pagenow;
 				$request = parse_url( rawurldecode( $_SERVER['REQUEST_URI'] ) );
-				if ( ! is_multisite() && ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-signup' ) !== false || strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-activate' ) !== false ) ) {
+				if ( ! is_multisite() && ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-signup.php' ) !== false || strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-activate.php' ) !== false ) ) {
 					wp_die( __( 'This feature is not enabled.', 'ppm-wp' ) );
 				}
 
@@ -227,7 +198,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 					if ( empty( $ppm_setting['custom_login_redirect'] ) || ! $ppm_setting['custom_login_redirect'] ) {
 						wp_safe_redirect( '/' );
 					} else {
-						wp_safe_redirect( '/' . $ppm_setting['custom_login_redirect'] );
+						wp_safe_redirect( '/' . rtrim( $ppm_setting['custom_login_redirect'], '/' ) );
 					}
 					die();
 				}
@@ -337,7 +308,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 		public function user_request_action_email_content( $email_text, $email_data ) {
 			$ppm = ppm_wp();
 			if ( ! empty( $ppm->options->ppm_setting->custom_login_url ) ) {
-				$email_text = str_replace( '###CONFIRM_URL###', esc_url_raw( str_replace( $ppm->options->ppm_setting->custom_login_url . '/', 'wp-login.php', $email_data['confirm_url'] ) ), $email_text );
+				$email_text = str_replace( '###CONFIRM_URL###', esc_url_raw( str_replace( rtrim( $ppm->options->ppm_setting->custom_login_url, '/' ) . '/', 'wp-login.php', $email_data['confirm_url'] ) ), $email_text );
 			}
 
 			return $email_text;

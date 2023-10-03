@@ -34,8 +34,6 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 
 			$this->setting_tab = $setting_options;
 
-			$this->menu_name = 'ppm_wp_settings';
-
 			add_filter( 'network_admin_plugin_action_links_' . PPM_WP_BASENAME, array( $this, 'plugin_action_links' ), 10, 1 );
 
 			add_action( 'network_admin_menu', array( $this, 'admin_menu' ) );
@@ -43,6 +41,7 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 			add_action( 'wp_ajax_ppm_wp_send_test_email', array( $this, 'send_test_email' ) );
 			// Add dialog box.
 			add_action( 'admin_footer', array( $this, 'admin_footer_session_expired_dialog' ) );
+			add_action( 'admin_footer', array( $this, 'popup_notices' ) );
 
 			$options_master_switch    = OptionsHelper::string_to_bool( $this->options->master_switch );
 			$settings_master_switch   = OptionsHelper::string_to_bool( $this->settings->master_switch );
@@ -62,24 +61,24 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 		 */
 		public function admin_menu() {
 			// Add admin menu page.
-			$hook_name = add_menu_page( __( 'Login Security Policies', 'ppm-wp' ), __( 'Login Security', 'ppm-wp' ), 'manage_network_options', $this->menu_name, array( $this, 'screen' ), 'data:image/svg+xml;base64,' . ppm_wp()->icon, 99 );
+			$hook_name = add_menu_page( __( 'Login Security Policies', 'ppm-wp' ), __( 'Login Security', 'ppm-wp' ), 'manage_network_options', PPMWP_MENU_SLUG, array( $this, 'screen' ), 'data:image/svg+xml;base64,' . ppm_wp()->icon, 99 );
 
 			add_action( "load-$hook_name", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$hook_name", array( $this, 'process' ) );
 
-			add_submenu_page( $this->menu_name, __( 'Login Security Policies', 'ppm-wp' ), __( 'Login Security Policies', 'ppm-wp' ), 'manage_options', $this->menu_name, array( $this, 'screen' ) );
+			add_submenu_page( PPMWP_MENU_SLUG, __( 'Login Security Policies', 'ppm-wp' ), __( 'Login Security Policies', 'ppm-wp' ), 'manage_options', PPMWP_MENU_SLUG, array( $this, 'screen' ) );
 
 			// Add admin submenu page.
-			$hook_submenu = add_submenu_page( $this->menu_name, __( 'Help & Contact Us', 'ppm-wp' ), __( 'Help & Contact Us', 'ppm-wp' ), 'manage_options', 'ppm-help',
+			$hook_submenu = add_submenu_page( PPMWP_MENU_SLUG, __( 'Help & Contact Us', 'ppm-wp' ), __( 'Help & Contact Us', 'ppm-wp' ), 'manage_options', 'ppm-help',
 				array(
 					$this,
 					'ppm_display_help_page',
-				)
+				),
 			);
 			add_action( "load-$hook_submenu", array( $this, 'help_page_enqueue_scripts' ) );
 
 			// Add admin submenu page for settings.
-			$settings_hook_submenu = add_submenu_page( $this->menu_name, __( 'Settings', 'ppm-wp' ), __( 'Settings', 'ppm-wp' ), 'manage_options', 'ppm-settings',
+			$settings_hook_submenu = add_submenu_page( PPMWP_MENU_SLUG, __( 'Settings', 'ppm-wp' ), __( 'Settings', 'ppm-wp' ), 'manage_options', 'ppm-settings',
 				array(
 					$this,
 					'ppm_display_settings_page',
@@ -92,7 +91,7 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 
 			// Add admin submenu page for form placement
 			$forms_hook_submenu = add_submenu_page(
-				$this->menu_name,
+				PPMWP_MENU_SLUG,
 				__( 'Forms & Placement', 'ppm-wp' ),
 				__( 'Forms & Placement', 'ppm-wp' ),
 				'manage_options',
@@ -107,8 +106,25 @@ if ( ! class_exists( 'PPM_WP_MS_Admin' ) ) {
 			add_action( "load-$forms_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$forms_hook_submenu", array( $this, 'process_forms' ) );
 
+			// Add admin submenu page for form placement
+			$hide_login_submenu = add_submenu_page(
+				PPMWP_MENU_SLUG,
+				__( 'Hide login page', 'ppm-wp' ),
+				__( 'Hide login page', 'ppm-wp' ),
+				'manage_options',
+				'ppm-hide-login',
+				array(
+					$this,
+					'ppm_display_hide_login_page',
+				),
+				2
+			);
+
+			add_action( "load-$hide_login_submenu", array( $this, 'admin_enqueue_scripts' ) );
+			add_action( "admin_head-$hide_login_submenu", array( $this, 'process_hide_login' ) );
+
 			/* @free:start */
-			$hook_upgrade_submenu = add_submenu_page( $this->menu_name, esc_html__( 'Premium Features ➤', 'ppm-wp' ), esc_html__( 'Premium Features ➤', 'ppm-wp' ), 'manage_options', 'ppm-upgrade', array( $this, 'ppm_display_upgrade_page' ), 2 );
+			$hook_upgrade_submenu = add_submenu_page( PPMWP_MENU_SLUG, esc_html__( 'Premium Features ➤', 'ppm-wp' ), esc_html__( 'Premium Features ➤', 'ppm-wp' ), 'manage_options', 'ppm-upgrade', array( $this, 'ppm_display_upgrade_page' ), 3 );
 			add_action( "load-$hook_upgrade_submenu", array( $this, 'help_page_enqueue_scripts' ) );
 			/* @free:end */
 		}

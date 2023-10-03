@@ -174,6 +174,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 
 				// resetting password, format errors differently.
 				case 'reset-form':
+				case 'reset-form-return':
 					foreach ( $this->violations as $violation ) {
 						$errors->add( 'password-strength-issue-' . $violation, $this->msgs->error_strings[ $violation ] );
 					}
@@ -187,6 +188,10 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 					}
 					break;
 			}
+
+			if ( 'reset-form-return' == $context ) {
+				return $this->violations;
+			}
 		}
 
 		/**
@@ -196,7 +201,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * @param int    $user_id - Current user ID.
 		 * @return boolean
 		 */
-		private function is_password_ok( $password, $user_id = false ) {
+		public function is_password_ok( $password, $user_id = false ) {
 
 			// if no user is supplied, assume current user.
 			if ( false === $user_id ) {
@@ -413,13 +418,14 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 				return false;
 			}
 
-			foreach ( $password_history as $event ) {
+			$ppm = ppm_wp();
+			$new_password_history = array_slice( array_reverse( $password_history ), 0, $ppm->options->password_history + 1 );
 
+			foreach ( $new_password_history as $event ) {				
 				// check against old password.
 				$match = wp_check_password( $new_pass, $event['password'], $user_id );
 
 				if ( $match ) {
-
 					return true;
 				}
 			}

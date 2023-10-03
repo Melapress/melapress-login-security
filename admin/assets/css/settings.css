@@ -264,7 +264,7 @@ div#reset-container input#_ppm_reset {
 }
 
 .premium-link {
-    background: #114e6f;
+    background: #dd2b0f;
     color: #fff !important;
     padding: 8px 12px;
     font-weight: bold;
@@ -281,7 +281,7 @@ div#reset-container input#_ppm_reset {
 }
 
 ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
-    color:#114e6f;
+    color:#dd2b0f;
     position: absolute;
     left: -2px;
     top: 1px;
@@ -305,4 +305,68 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
 
 .inactiveusers th.column-actions {
     text-align: right;
+}
+
+.day-span {
+    min-width: 100px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+    position: relative;
+    bottom: 1px;
+}
+
+.timed-login-select {
+    min-width: 60px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+    position: relative;
+    bottom: 1px;  
+}
+
+#TB_title {
+    background: #fff;
+    border-bottom: none;
+    height: 32px;
+    padding: 5px;
+}
+
+#TB_window {
+    position: fixed;
+    background-color: #fff;
+    z-index: 100050;
+    visibility: hidden;
+    text-align: left;
+    top: 50%;
+    left: 50%;
+    -webkit-box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
+    box-shadow: 0 3px 6px rgba( 0, 0, 0, 0.3 );
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#TB_ajaxContent p {
+    margin-top: 0 !important;
+}
+
+#TB_ajaxContent {
+    clear: both;
+    padding: 2px 15px 15px 15px;
+}
+
+#TB_closeWindowButton {
+    position: absolute;
+    left: auto;
+    right: 2px;
+    width: 25px;
+    height: 25px;
+    border: 0;
+    padding: 0;
+    background: none;
+    cursor: pointer;
+    outline: none;
+    -webkit-transition: color .1s ease-in-out, background .1s ease-in-out;
+    transition: color .1s ease-in-out, background .1s ease-in-out;
+    top: 4px;
 }

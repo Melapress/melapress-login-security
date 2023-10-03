@@ -29,6 +29,13 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 			'exclude_special_chars' => '^((?![{excluded_chars}]).)*$',
 		);
 
+		public $length;
+		public $numeric;
+		public $upper_case;
+		public $lower_case;
+		public $special_chars;
+		public $exclude_special_chars;
+
 		/**
 		 * Plugin Options
 		 *
@@ -61,7 +68,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 			foreach ( $this->user_options->rules as $key => $rule ) {
 				if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) ) {
 					// for eg, $this->length.
-					if ( isset( $this->rules[ $key ] ) ) {
+					if ( isset( $this->rules[ $key ] ) ) {;
 						$this->{$key} = $this->rules[ $key ];
 					}
 				}
