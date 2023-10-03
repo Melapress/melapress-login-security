@@ -20,8 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p><?php esc_html_e( 'The security of your WordPress website & WooCommerce store is as strong as the weakest password!', 'c4wp-wpp' ); ?></p>
 			<p><?php esc_html_e( 'Weak passwords should not jeopardize the security of your website. Configure strong password policies with WPassword and ensure your team, customers & subscribers use strong passwords.', 'c4wp-wpp' ); ?></p>
 			<div class="premium-cta">
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to</a>
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free trial</a>
+			<a href="https://www.melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=link&utm_campaign=mls" target="_blank" rel="noopener">Upgrade to Premium</a>
 			</div>
 		</div>
 
@@ -107,17 +106,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Weekly summary email</strong>Get a weekly email with a detailed summary of all password resets and changes, inactivity lockouts, failed logins, and more.</span></p>
-						</td>
-						<td class="c8" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-						<td class="c12" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
-						</td>
-					</tr>
-					<tr class="c2">
-						<td class="c6" colspan="1" rowspan="1">
 							<p class="c10"><span class="c5"><strong>WooCommerce & Third Party Plugins Ready</strong>Do you use WooCommerce for your eCommerce website? Do you use LearnDash, MemberPress and other popular plugins for Membership and business websites? Enforce login security policies on forms from these plugins with just a mouse click.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
@@ -129,7 +117,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong>Hide the WordPress login page</strong>Change the URL of your WordPress login page so it is not accessible to malicious attackers.</span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
 							<p class="c10"><span class="c5"><strong>Limit Login Attempts</strong>Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks.</span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong>Restrict user login times</strong>Restrict your users' login times to specific days and hours and enforce your working hours policy, improve website and user account security, and reduce your website's attack surface.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -160,13 +170,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
 						</td>
 					</tr>
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong>Weekly summary email</strong>Get a weekly email with a detailed summary of all password resets and changes, inactivity lockouts, failed logins, and more.</span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
 
 		<div class="premium-cta">
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" target="_blank" rel="noopener">Upgrade to</a>
-			<a href="https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=plugin&utm_medium=link&utm_campaign=MLS&utm_content=features+page" class="inverse" target="_blank" rel="noopener">Get Free trial</a>
+			<a href="https://www.melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=link&utm_campaign=mls target="_blank" rel="noopener">Upgrade to Premium</a>
 		</div>
 
 	</div>
@@ -203,7 +223,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	.feature-list li .dashicons {
-		color: #4da8dc
+		color:  #ff8977
 	}
 
 	.premium-cta {
@@ -212,14 +232,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	.premium-cta .text-link {
-		color: #4da8dc;
+		color:  #ff8977;
 		background: transparent;
-		border: #4da8dc;
+		border:  #ff8977;
 		text-decoration: dashed;
 	}
 
 	.premium-cta a, .table-link {
-		background-color: #4da8dc;
+		background-color:  #ff8977;
 		color: #fff;
 		padding: 15px 26px;
 		border-radius: 30px;
@@ -229,17 +249,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 		font-weight: 700;
 		display: inline-block;
 		margin-right: 15px;
-		border: 2px solid #4da8dc
+		border: 2px solid  #ff8977
 	}
 
 	.premium-cta a:hover, .table-link:hover, .premium-cta a.inverse, .table-link.inverse {
-		color: #4da8dc;
+		color:  #ff8977;
 		background-color: #fff;
 	}
 
 	.premium-cta a.inverse:hover {
 		color: #fff;
-		background-color: #4da8dc;
+		background-color:  #ff8977;
 	}
 
 	.content-block {

@@ -1,30 +1,30 @@
 === MelaPress Login Security ===
-Plugin URI: https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
+Plugin URI: https://melapress.com/wordpress-login-security/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Tested up to: 6.2.2
 Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Requires PHP: 7.2
 
-Implement customized secure WordPress login policies with efficiency
+Implement customized WordPress login and password security policies with easy to beef up the security of your users and website.
 
 == Description ==
 
 <strong>IMPLEMENT CUSTOMIZED SECURE WORDPRESS LOGIN POLICIES WITH EFFICIENCY</strong>
 
-Achieve better WordPress login security through policies that put you firmly in the driver’s seat. With high customizability and granularity, login security policies can be implemented by user role or site-wide for complete control over the security of your websites' login process.
+Achieve better WordPress login and password security through policies that put you firmly in the drive's seat. With high customizability and granularity, login security policies can be implemented by user role or site-wide for complete control over the security of your websites' login process.
 
-[FEATURES & BENEFITS](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) | [FREE PREMIUM TRIAL](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/plugin-trial/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) | [GETTING STARTED](https://www.wpwhitesecurity.com/support/kb/getting-started-wpassword/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description)
+[FEATURES & BENEFITS](https://melapress.com/wordpress-login-security/features/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) | [UPGRADE TO PREMIUM](https://melapress.com/wordpress-login-security/pricing/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) | [GETTING STARTED](https://melapress.com/support/kb/melapress-login-security-getting-started/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)
 
-Use [Melapress Login Security](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to implement WordPress password minimum lengths and complexity. The plugin also allows you to set expiration policies and prevent users from recycling old passwords.
+Use the free edition of [Melapress Login Security](https://melapress.com/wordpress-login-security/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) to implement WordPress password minimum lengths and complexity. The plugin also allows you to set expiration policies, prevent users from recycling old passwords, limit login attempts, and automatically disable inactive user accounts among other things.
 
-#### MAINTAINED & SUPPORTED BY WP WHITE SECURITY
+#### MAINTAINED & SUPPORTED BY MELAPRESS
 
-WP White Security builds high-quality WordPress security & admin plugins such as [WP 2FA](https://wp2fa.io/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description), and [WP Activity Log](https://wpactivitylog.com/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description), the #1 user-rated activity log plugin for WordPress.
+Melapress builds high-quality WordPress security & admin plugins such as [WP 2FA](https://melapress.com/wordpress-2fa/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), [CAPTCHA 4WP](https://melapress.com/wordpress-captcha/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls),and [WP Activity Log](https://melapress.com/wordpress-activity-log/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), the #1 user-rated activity log plugin for WordPress.
 
-Browse our list of [WordPress security and administration plugins](https://www.wpwhitesecurity.com/wordpress-plugins/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to see how our plugins can help you better manage and improve the security and administration of your WordPress websites and users.
+[Visit our website](https://melapress.com/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) to see how our plugins can help you better manage and improve the security and administration of your WordPress websites and users.
   
 
 ## Features
@@ -42,56 +42,55 @@ Ensure your WordPress users use the most secure password policies through the fo
 -   Disable password reset links
 -   Mandate WordPress password reset on the first login
 -   Define policy priority for users with multiple roles
--   Reset all users’ passwords with just one click
+-   Reset all usersâ€™ passwords with just one click
     
 
-## Upgrade to Melapress Login Security premium and get more
+## Upgrade to Melapress Login Security and get more
 
-The premium edition of Melapress Login Security comes bundled with even more features to take your WordPress website login security to the next level.
+The premium edition of Melapress Login Security comes bundled with even more features with which you can take your WordPress website login security to the next level. disable inactive WordPress user accounts]() and force passwords to be reset once accounts have been unlocked. Inactive accounts can be managed within a single dashboard for increased efficiency and faster response times. Moreover, you can set accounts to be locked out after a number of failed login attempts and customize the duration and method of unlocking them.
 
-In Melapress Login Security's premium version, you can easily disable [inactive WordPress user accounts](https://wpactivitylog.com/inactive-users-wordpress/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) and force passwords to be reset once accounts have been unlocked. Inactive accounts can be managed within a single dashboard for increased efficiency and faster response times. Moreover, you can set accounts to be locked out after a number of failed login attempts and customize the duration and method of unlocking them.
-
-### features list
+### Features list
 
 -   Everything in the free version
--   Automatically disable inactive accounts after a set time
--   [Limit login attempts](https://www.wpwhitesecurity.com/support/kb/failed-logins-policy-wordpress/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) and automatically disable user accounts after a number of failed login attempts
+-   One-click integration with third-party plugins such as WooCommerce, LearnDash, Memberpress, and many others
+-   [Limit failed login attempts](https://melapress.com/support/kb/melapress-login-security-failed-logins-policy-wordpress/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) and automatically disable user accounts after a number of failed login attempts
+-   Automatically [disable inactive WordPress users[https://melapress.com/inactive-users-wordpress/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) after a set time
 -   Change the WordPress login page URL (and set a 404 for the old page)
+-	Restrict WordPress users' login time by day and / or ours
 -   Receive detailed weekly summary reports over email of password resets and changes, user account lockouts and more
--   One-click integration with third-party plugins such as WooCommerce, LearnDash, and many others
+
     
 
 ## Free and premium support
 
 Support for MelaPress Login Security is free on the WordPress support forums.
 
-Premium world-class support is available via email to all [Melapress Login Security](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) users
+[Premium world-class support](https://melapress.com/support/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) is available via email to all Melapress Login Security users
 
-Note: paid customer support is given priority and is provided via one-to-one email. [Upgrade to](https://www.wpwhitesecurity.com/wordpress-plugins/password-security/pricing/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) to benefit from priority support.
+Note: Customer support for customers on a premium plan is given priority and is provided via one-to-one email. [Upgrade to premium](https://melapress.com/wordpress-login-security/pricing/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) to benefit from priority support.
 
-For any other queries, feedback, or if you simply want to get in touch with us, please use our [contact form](https://www.wpwhitesecurity.com/contact/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description).
+For any other queries, feedback, or if you simply want to get in touch with us, please use our [contact form](https://melapress.com/contact/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls).
 
 ##Further reading and documentation
 You can find more detailed information about WordPress website security, password security and user management, security best practices, and much more in the recommended reads linked below.
 
-[WordPress password protection - a complete guide](https://www.wpwhitesecurity.com/wordpress-password-protection-complete-guide/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description)
-[Password management best practices for WordPress administrators](https://www.wpwhitesecurity.com/password-manager-improve-wordpress-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description)
-[WordPress security & hardening, the definitive guide](https://www.wpwhitesecurity.com/wordpress-security/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description)
-[The definitive guide to WordPress security plugins](https://www.wpwhitesecurity.com/best-wordpress-security-plugins/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description)
+[WordPress password protection - a complete guide](https://melapress.com/wordpress-password-protection-complete-guide/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)
+[WordPress security & hardening - the definitive guide](https://melapress.com/wordpress-security/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)
+[The definitive guide to WordPress security plugins](https://melapress.com/best-wordpress-security-plugins/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)
 
 == Installation ==
 
 === Install the plugin from within WordPress ===
 
-1.  Navigate to ‘Plugins > Add New’
-2.  Search for ‘Melapress Login Security’
+1.  Navigate to Plugins > Add New
+2.  Search for ˜Melapress Login Security
 3.  Install & activate Melapress Login Security from your Plugins page
   
 === Install the plugin manually (via file upload) ===
 
 1.  Download the plugin from the WordPress plugins repository
 2.  Unzip the zip file and upload the folder to the /wp-content/plugins/ directory
-3.  Activate the Melapress Login Security plugin through the ‘Plugins’ menu in WordPress
+3.  Activate the Melapress Login Security plugin through the "Plugins" menu in WordPress
 
 == Screenshots ==
 
@@ -104,35 +103,35 @@ You can find more detailed information about WordPress website security, passwor
 
 == Changelog ==
 
-= 1.1.0 (2023-06-15)
-
-Release notes: [Melapress Login Security 1.1.0](https://www.wpwhitesecurity.com/mls-1-1-0/)
+= 1.2.0 (2023-10-02)
 
 * **New features**
-	* Custom login URL - Change the default WordPress login page URL and also set a 404 for the old slug.
-	* Out of the box support for the Memberpress Registration and user password update forms.
+	* User login time restrictions: restrict the time and days users can log in to the website
+	* Settings importer &amp; exporter: export the plugin's settings for backup purposes and / or to import the settings to new plugin installs.
+	* Setting to enable/disable individual emails the plugin sends to users to notify them about changes to their user account.
 	
-* **Improvements**
-	* Added compatibility with WooCommerce COT.
-	* Locked Users - User list is now paginated for much better performance.
-	* Plugin no longer applies any user meta on plugin activation resulting in a much faster activation on websites with thousands of users.
-	* Optimised loading of all plugins files via use of autoloading.
-	* Admin refinements and improvements of texts where needed.
-	* Inactive users are now ignored by Failed login policies, to ensure a user cannot be inactive then subsequently locked out.
-	* Overall build process improvements to ensure no extraneous files.
-	* Removal of now obsolete npm code.
-	* Improved Admin area JS to ensure no duplicate values when entering excluded chars.
-	* Better support for Learndash - Failed login attempts are now fully considered and counted when ‘failed login polices’ are enabled.
-	* The "Inactive users check" process is now performed in the background to aid performance on sites with large volumes of users.
-	
+* **Plugin improvements*
+	* Support for the WooCommerce user registration form: add the login and password policies with just a click.
+	* Failed login error messages by the plugin are now displayed correctly on Memberpress powered forms / websites.
+	* The plugin admin notices only appear on appropriate admin pages.
+	* Applied various styling and UX improvements to the admin settings and the plugin's UI.
+	* Improved the integration script so now the PW Strength JS can be triggered via custom JS.
+	* The change the login page URL setting now available in own admin area.
+	* Improved user-facing error messages for both Memberpress and Ultimate Member.
+	* Users restricted from accessing front-end pages on Memberpress + WooCommerce pending a forced password update.
+
 * **Bug fixes**
-	* PHP 8.1 - Fixed possible deprecation warning.
-	* Upgrade link no longer leads to 404.
-	* Email templates - mailto tag no longer shows an ‘http’ protocol.
-	* Fixed bug where users excluded from policies would not be removable from the list.
+	* The strings ‘wp-activate’ and ‘wp-signup’ are no longer blocked in the Custom Login URL settings.
+	* Fixed bug in password history which would cause the initial user password to not be stored.
+	* Exempt users setting no longer accepts duplicate entries.
+	* Fixed: PHP 8.1 deprecation errors.
+	* Fixed: Bulk Actions not working within Inactive Users page.
+	* Fixed: Error causing wrong email to be sent on user unblock due to failed logins.
+	* Fixed an error on multisite networks which could cause some policies to be ignored when logging in via a child site.
+	* Password hints are displayed correctly on Ultimate Member.
+	* Fixed potential Fatal error when password reset requests are blocked on Memberpress.
+	* Fixed JS to ensure PW hide/unhide buttons function as expected on Memberpress forms.
+	* Ensure any password(s) updates adhere to all policies on third party forms.
+	* Fixed JS bug on multisite networks bug which would cause an empty popup to appear when toggling ‘disable password reset’ checkbox.
 
-= 1.0.0 (2023-02-23)
-
-	* Initial release of the Free edition.
-
-Please refer to the [plugin changelog](https://www.wpwhitesecurity.com/support/kb/ppmwp-plugin-changelog/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=MLS&utm_content=plugin+repos+description) for information on what was new, improved and fixed in every update of Melapress Login Security.
+Please refer to the [plugin changelog](https://melapress.com/support/kb/melapress-login-security-plugin-changelog/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) for a complete detailed list of what is new, improved and fixed in every update of Melapress Login Security. For a high level overview / highlights about each version update, please refer to the [plugin release notes](https://melapress.com/wordpress-login-security/releases/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls).

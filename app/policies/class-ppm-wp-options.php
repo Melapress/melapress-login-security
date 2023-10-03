@@ -99,6 +99,72 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'exclude_special_chars' => 'no',
 			),
 			'change_initial_password'        => 'no',
+			'timed_logins'       		     => 'no',
+			'timed_logins_schedule'       	 => array(
+				'monday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'tuesday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'wednesday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'thursday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'friday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'saturday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'sunday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),				
+			),
 			'inactive_users_enabled'         => 'no',
 			'inactive_users_expiry'          => array(
 				'value' => 30,
@@ -115,7 +181,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'disable_self_reset_message'     => '',
 			'deactivated_account_message'    => '',
 			'locked_user_disable_self_reset'         => 'no',
-			'locked_user_disable_self_reset_message' => '',
+			'locked_user_disable_self_reset_message' => ''
 		);
 
 		public static function get_default_account_deactivated_message() {
@@ -165,6 +231,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 						'months',
 						'days',
 						'hours',
+						'seconds',
 					),
 				),
 			),
@@ -199,6 +266,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'unit'  => 'hours',
 			),
 			'enable_wc_pw_reset'         => 'no',
+			'enable_wc_checkout_reg'     => 'no',
 			'enable_bp_register'         => 'no',
 			'enable_bp_pw_update'        => 'no',
 			'enable_ld_register'         => 'no',
@@ -209,6 +277,10 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'enable_mepr_pw_update'      => 'no',
 			'custom_login_url'           => '',
 			'custom_login_redirect'      => '',
+			'send_user_unlocked_email'   => 'yes',
+			'send_user_unblocked_email'  => 'yes',
+			'send_user_pw_reset_email'   => 'yes',
+			'send_user_pw_expired_email' => 'yes',
 		);
 
 		/**
@@ -483,10 +555,10 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			}
 
 			if ( isset( $options['custom_login_url'] ) && $options['custom_login_url'] ) {
-				$options['custom_login_url'] = esc_attr( $options['custom_login_url'] );
+				$options['custom_login_url'] = esc_attr( rtrim( $options['custom_login_url'], '/' ) );
 			}
 			if ( isset( $options['custom_login_redirect'] ) && $options['custom_login_redirect'] ) {
-				$options['custom_login_redirect'] = esc_attr( $options['custom_login_redirect'] );
+				$options['custom_login_redirect'] = esc_attr( rtrim( $options['custom_login_redirect'], '/' ) );
 			}
 
 			$ppm_setting = wp_parse_args( $options, $this->ppm_setting );
@@ -543,7 +615,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				$options['rules']['exclude_special_chars'] = $options['ui_rules']['exclude_special_chars'];
 			}
 			if ( isset( $options['excluded_special_chars'] ) && ! empty( $options['excluded_special_chars'] ) ) {
-				$options['excluded_special_chars'] = htmlentities( $options['excluded_special_chars'], null, 'UTF-8' );
+				$options['excluded_special_chars'] = htmlentities( $options['excluded_special_chars'], 0, 'UTF-8' );
 			}
 
 			return $options;

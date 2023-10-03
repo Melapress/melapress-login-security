@@ -44,7 +44,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 * @return boolean True on success, false if failed
 		 */
 		public static function _push( $user_id, $password_event ) {
-
+		   
 			$ppm = ppm_wp();
 
 			// get the saved history.

@@ -2,16 +2,16 @@
 /**
  * WPassword
  *
- * @copyright Copyright (C) 2013-2023, WP White Security - support@wpwhitesecurity.com
+ * @copyright Copyright (C) 2013-2023, WP White Security - support@melapress.com
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or higher
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     1.1.0
- * Plugin URI:  https://www.wpwhitesecurity.com/wordpress-plugins/password-security/
+ * Version:     1.2.0
+ * Plugin URI:  https://www.melapress.com/wordpress-plugins/password-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      WP White Security
- * Author URI:  https://www.wpwhitesecurity.com/
+ * Author URI:  https://www.melapress.com/
  * Text Domain: ppm-wp
  * Domain Path: /languages/
  * License:     GPL v3
@@ -170,8 +170,17 @@ if ( ! function_exists( $mpls ) ) {
 		/**
 		 * Meta key flag to mark user as blocked.
 		 */
-		define( 'PPMWP_VERSION', '1.1.0' );
+		define( 'PPMWP_VERSION', '1.2.0' );
 	}
+
+	if ( ! defined( 'PPMWP_MENU_SLUG' ) ) {
+		/**
+		 * Meta key flag to mark user as blocked.
+		 */
+		define( 'PPMWP_MENU_SLUG', 'ppm_wp_settings' );
+	}
+
+	
 
 	/*
 	 * Include classes that define and provide policies

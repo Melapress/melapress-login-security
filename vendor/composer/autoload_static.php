@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit0379a80d9b770657c85a517d9b05e89f
+class ComposerStaticInit4f22abb7930d93bead5c3e2fc5e90008
 {
     public static $prefixLengthsPsr4 = array (
         'P' => 
@@ -28,7 +28,9 @@ class ComposerStaticInit0379a80d9b770657c85a517d9b05e89f
         'PPMWP\\Ajax\\AjaxInterface' => __DIR__ . '/../..' . '/app/ajax/class-ajaxinterface.php',
         'PPMWP\\Crons\\CronInterface' => __DIR__ . '/../..' . '/app/crons/class-croninterface.php',
         'PPMWP\\Crons\\SummaryEmail' => __DIR__ . '/../..' . '/app/crons/class-summaryemail.php',
+        'PPMWP\\Helpers\\HideAdminNotices' => __DIR__ . '/../..' . '/app/helpers/class-hide-admin-notices.php',
         'PPMWP\\Helpers\\OptionsHelper' => __DIR__ . '/../..' . '/app/helpers/class-optionshelper.php',
+        'PPMWP\\Helpers\\SettingsImporter' => __DIR__ . '/../..' . '/app/helpers/class-settings-importer.php',
         'PPMWP\\Utilities\\ValidatorFactory' => __DIR__ . '/../..' . '/app/Utilities/class-validatorfactory.php',
         'PPMWP\\Validators\\Validator' => __DIR__ . '/../..' . '/app/Validators/class-validator.php',
         'PPM_Apply_Timestamp_For_Users_Process' => __DIR__ . '/../..' . '/app/helpers/class-ppm-apply-timestamp-for-users-process.php',
@@ -58,9 +60,9 @@ class ComposerStaticInit0379a80d9b770657c85a517d9b05e89f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit0379a80d9b770657c85a517d9b05e89f::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit0379a80d9b770657c85a517d9b05e89f::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit0379a80d9b770657c85a517d9b05e89f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit4f22abb7930d93bead5c3e2fc5e90008::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit4f22abb7930d93bead5c3e2fc5e90008::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit4f22abb7930d93bead5c3e2fc5e90008::$classMap;
 
         }, null, ClassLoader::class);
     }

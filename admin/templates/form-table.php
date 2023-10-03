@@ -264,6 +264,9 @@
 		
 		$failed_login_settings = apply_filters( 'ppm_settings_add_failed_login_settings', '', $this->setting_tab );
 		echo wp_kses( $failed_login_settings, $this->allowed_kses_args() );
+
+		$timed_logins_settings = apply_filters( 'ppm_settings_timed_logins_settings', '', $this->setting_tab );
+		echo wp_kses( $timed_logins_settings, $this->allowed_kses_args() );
 		
 		$additional = apply_filters( 'ppm_settings_additional_settings', '', $this->setting_tab );
 		echo wp_kses( $additional, $this->allowed_kses_args() );
