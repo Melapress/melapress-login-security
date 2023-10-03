@@ -149,7 +149,7 @@ jQuery( document ).ready( function( $ ) {
 		var download_btn = jQuery( '#ppmwp-download-sysinfo' );
 		download_btn.click( function( event ) {
 			event.preventDefault();
-			download( 'ppmwp-system-info.txt', jQuery( '#system-info-textarea' ).val() );
+			download( 'mls-system-info.txt', jQuery( '#system-info-textarea' ).val() );
 		} );
 	} );
 

@@ -67,19 +67,21 @@ class OptionsHelper {
 					break;
 				}
 				$role_options = self::get_role_options( $role );
-				if ( ( isset( $role_options->inherit_policies ) && $role_options->inherit_policies ) || ( isset( $role_options->enforce_password ) && $role_options->enforce_password ) ) {
+
+				if ( ( isset( $role_options->inherit_policies ) && self::string_to_bool( $role_options->inherit_policies ) ) || ( isset( $role_options->enforce_password ) && self::string_to_bool( $role_options->enforce_password ) ) ) {
 					// policy is inherited from master which  didn't activate
 					// this role is excluded from policies so continue.
 					continue;
 				}
 				if (
-					( isset( $role_options->inactive_users_enabled ) && $role_options->inactive_users_enabled ||
-					isset( $role_options->failed_login_policies_enabled ) && $role_options->failed_login_policies_enabled )
+					( isset( $role_options->inactive_users_enabled ) && self::string_to_bool( $role_options->inactive_users_enabled ) ||
+					isset( $role_options->failed_login_policies_enabled ) && self::string_to_bool( $role_options->failed_login_policies_enabled ) )
 				) {
 					$active = true;
 				}
 			}
 		}
+
 		// feature is enabled if this is true, false by default.
 		if ( isset( $ppm->inactive ) ) {
 			$ppm->inactive->set_feature_enabled( $active );
@@ -475,6 +477,11 @@ class OptionsHelper {
 				break;
 			}
 		}
+
+		if ( ! isset( $inactive_expiry_time ) ) {
+			$options = get_site_option( PPMWP_PREFIX . '_options' );
+			$inactive_expiry_time = $options['inactive_users_expiry']['value'] . ' ' . $options['inactive_users_expiry']['unit'];
+		}		
 
 		$inactive_expiry_time = strtotime( $inactive_expiry_time, 0 );
 		return $inactive_expiry_time;

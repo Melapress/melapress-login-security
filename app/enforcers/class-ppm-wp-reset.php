@@ -27,6 +27,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			if ( $ppm->options->ppm_setting->terminate_session_password ) {
 				add_action( 'wp_authenticate', array( $this, 'check_on_login' ), 0, 2 );
 			}
+
 			// Customize password reset key expiry time.
 			add_filter( 'password_reset_expiration', array( $this, 'customize_reset_key_expiry_time' ) );
 
@@ -59,10 +60,33 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			
 			if ( class_exists( 'MeprUtils' ) ) {
 				if ( is_wp_error( $allow ) ) {
-					$login_url           = $mepr_options->login_page_url();
-					$login_delim         = MeprAppCtrl::get_param_delimiter_char($login_url);
+					if ( ! isset( $mepr_options ) ) {
+						$mepr_options = MeprOptions::fetch();
+					}
+					$login_url   = MeprUtils::get_permalink( $mepr_options->login_page_id );
+					$login_delim = MeprAppCtrl::get_param_delimiter_char( $login_url );
 					$forgot_password_url = "{$login_url}{$login_delim}action=forgot_password&error=failed";
-					MeprUtils::wp_redirect( $forgot_password_url );
+
+					// Handle password reset form.
+					if ( isset( $_REQUEST['action'] ) && $_REQUEST['action'] == 'forgot_password' ) {
+						$ppm = ppm_wp();
+						$default_options = PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : array();
+
+						// Get user by ID.
+						$get_userdata = get_user_by( 'ID', $user->ID );
+						$roles        = $get_userdata->roles;
+
+						$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $roles );
+						$roles = reset( $roles );
+
+						$options = get_site_option( PPMWP_PREFIX . '_' . $roles . '_options', $default_options );
+						if ( isset( $options['disable_self_reset'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $options['disable_self_reset'] ) ) {
+							$post[ 'mepr_user_or_email' ] = esc_attr( $options['disable_self_reset_message'] );
+						}
+
+					} else {
+						MeprUtils::wp_redirect( $forgot_password_url );
+					}
 				}				
 			}
 
@@ -125,7 +149,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			$email_sent = get_user_meta( $user_id, PPM_WP_META_EXPIRED_EMAIL_SENT, true );
 
 			if ( $email_sent ) {
-				return;
+				//return;
 			}
 
 			$user_data = get_userdata( $user_id );
@@ -135,6 +159,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			$user_email = $user_data->user_email;
 			$key        = get_password_reset_key( $user_data );
 			$login_page = PPMWP\Helpers\OptionsHelper::get_password_reset_page();
+
 			if ( ! is_wp_error( $key ) ) {
 				if ( 'admin' === $by ) {
 					$by_str = __( 'Your user password was reset by the website administrator. Below are the details:', 'ppm-wp' );
@@ -167,6 +192,13 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', parse_url( network_site_url(), PHP_URL_HOST ) );
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
+
+			// Only send the email if allowed in settings.
+			if ( $is_delayed && isset( $ppm->options->ppm_setting->send_user_pw_reset_email ) && ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->send_user_pw_reset_email ) ) {
+				return;
+			} else if ( ! $is_delayed && isset( $ppm->options->ppm_setting->send_user_pw_expired_email ) && ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->send_user_pw_expired_email ) ) {
+				return;
+			}
 
 			if ( $message && ! wp_mail( $user_email, wp_specialchars_decode( $title ), $message, $headers ) ) {
 				$fail_message = __( 'The email could not be sent.', 'ppm-wp' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'ppm-wp' );
@@ -398,7 +430,7 @@ if ( ! class_exists( 'PPM_WP_Reset' ) ) {
 			}
 
 			// Allow if request is from an admin.
-			if ( isset( $_REQUEST['action'] ) && 'resetpassword' == $_REQUEST['action'] || isset( $_REQUEST['action'] ) && 'ppmwp_unlock_inactive_user' == $_REQUEST['action'] || isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' == $_REQUEST['action'] && 'profile' == $_REQUEST['from'] ) {
+			if ( isset( $_REQUEST['action'] ) && 'resetpassword' == $_REQUEST['action'] || isset( $_REQUEST['action'] ) && 'ppmwp_unlock_inactive_user' == $_REQUEST['action'] || isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' == $_REQUEST['action'] && 'profile' == $_REQUEST['from'] || isset( $_REQUEST['action'] ) && 'unlock' == $_REQUEST['action'] && isset( $_REQUEST['page'] ) && 'ppm-locked-users' == $_REQUEST['page'] ) {
 				$user          = wp_get_current_user();
 				$allowed_roles = array( 'administrator' );
 				if ( array_intersect( $allowed_roles, $user->roles ) ) {

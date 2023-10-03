@@ -16,3 +16,8 @@
   font-size: smaller;
   font-style: italic;
 }
+
+.button.mp-hide-pw {
+  display: block;
+  height: 20px;
+}

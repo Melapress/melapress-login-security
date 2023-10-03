@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security 1.1.1\n"
+"Project-Id-Version: Melapress Login Security 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
-"Last-Translator: WP White Security <info@wpwhitesecurity.com>\n"
+"Last-Translator: WP White Security <info@melapress.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-06-29T12:22:50+00:00\n"
+"POT-Creation-Date: 2023-10-03T10:16:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: ppm-wp\n"
@@ -19,7 +19,7 @@ msgid "Melapress Login Security"
 msgstr ""
 
 #. Plugin URI of the plugin
-msgid "https://www.wpwhitesecurity.com/wordpress-plugins/password-security/"
+msgid "https://www.melapress.com/wordpress-plugins/password-security/"
 msgstr ""
 
 #. Description of the plugin
@@ -31,7 +31,7 @@ msgid "WP White Security"
 msgstr ""
 
 #. Author URI of the plugin
-msgid "https://www.wpwhitesecurity.com/"
+msgid "https://www.melapress.com/"
 msgstr ""
 
 #: admin/templates/admin-default.php:13
@@ -82,6 +82,7 @@ msgstr ""
 
 #: admin/templates/admin-form.php:156
 #: admin/templates/views/settings-forms.php:78
+#: admin/templates/views/settings-hide-login.php:43
 #: admin/templates/views/settings.php:310
 msgid "Save Changes"
 msgstr ""
@@ -212,6 +213,7 @@ msgstr ""
 
 #: admin/templates/help/contact-us.php:15
 #: admin/templates/help/help.php:62
+#: app/helpers/class-settings-importer.php:60
 msgid "Contact Us"
 msgstr ""
 
@@ -271,6 +273,7 @@ msgstr ""
 
 #: admin/templates/help/index.php:13
 #: admin/templates/help/index.php:20
+#: app/helpers/class-settings-importer.php:49
 msgid "Help"
 msgstr ""
 
@@ -286,23 +289,18 @@ msgstr ""
 msgid "Keep a log of users and under the hood site activity."
 msgstr ""
 
-#: admin/templates/help/sidebar.php:36
-#: admin/templates/help/sidebar.php:63
-#: admin/templates/help/sidebar.php:90
-#: admin/templates/help/sidebar.php:117
+#: admin/templates/help/sidebar.php:35
+#: admin/templates/help/sidebar.php:61
+#: admin/templates/help/sidebar.php:87
 msgid "LEARN MORE"
 msgstr ""
 
-#: admin/templates/help/sidebar.php:47
+#: admin/templates/help/sidebar.php:46
 msgid "Add an extra layer of security to your login pages with 2FA & require your users to use it."
 msgstr ""
 
-#: admin/templates/help/sidebar.php:74
+#: admin/templates/help/sidebar.php:72
 msgid "Protect website forms & login pages from spambots & automated attacks."
-msgstr ""
-
-#: admin/templates/help/sidebar.php:101
-msgid "Automatically identify unauthorized file changes on your WordPress site."
 msgstr ""
 
 #: admin/templates/help/system-info.php:15
@@ -331,6 +329,14 @@ msgstr ""
 
 #: admin/templates/views/settings-forms.php:57
 msgid "User profile page"
+msgstr ""
+
+#: admin/templates/views/settings-hide-login.php:24
+msgid "Change the login page URL"
+msgstr ""
+
+#: admin/templates/views/settings-hide-login.php:26
+msgid "The default WordPress login page URL is /wp-admin/ or /wp-login.php. Improve the security of your website by changing the URL of the WordPress login page to anything you want, thus preventing easy access to bots and attackers. To change the URL just specify the new path in the placeholder below. Do not include the trailing slash"
 msgstr ""
 
 #: admin/templates/views/settings.php:23
@@ -464,20 +470,20 @@ msgid "To ensure you use a strong password, you are required to change your pass
 msgstr ""
 
 #. translators: %s: user name
-#: app/enforcers/class-ppm-wp-expire.php:155
+#: app/enforcers/class-ppm-wp-expire.php:157
 msgid "<strong>ERROR</strong>: The password you entered for the username %s is incorrect."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-expire.php:159
+#: app/enforcers/class-ppm-wp-expire.php:161
 msgid "Lost your password?"
 msgstr ""
 
 #. translators: %s: user name
-#: app/enforcers/class-ppm-wp-expire.php:173
+#: app/enforcers/class-ppm-wp-expire.php:175
 msgid "<strong>ERROR</strong>: The password you entered for the username %s has expired."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-expire.php:177
+#: app/enforcers/class-ppm-wp-expire.php:179
 msgid "Get a new password."
 msgstr ""
 
@@ -486,34 +492,34 @@ msgid "Hints for a strong password"
 msgstr ""
 
 #. translators: %s: Current violations for desired password.
-#: app/enforcers/class-ppm-wp-password-check.php:186
+#: app/enforcers/class-ppm-wp-password-check.php:187
 msgid "<strong>ERROR</strong>: New password %s"
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:140
+#: app/enforcers/class-ppm-wp-reset.php:165
 #: app/helpers/class-ppm-emailstrings.php:76
 #: app/helpers/class-ppm-emailstrings.php:85
 msgid "Your user password was reset by the website administrator. Below are the details:"
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:172
-#: app/enforcers/class-ppm-wp-reset.php:213
+#: app/enforcers/class-ppm-wp-reset.php:204
+#: app/enforcers/class-ppm-wp-reset.php:245
 #: app/enforcers/class-user-profile.php:196
 msgid "The email could not be sent."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:172
-#: app/enforcers/class-ppm-wp-reset.php:213
+#: app/enforcers/class-ppm-wp-reset.php:204
+#: app/enforcers/class-ppm-wp-reset.php:245
 #: app/enforcers/class-user-profile.php:196
 msgid "Possible reason: your host may have disabled the mail() function."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-reset.php:191
+#: app/enforcers/class-ppm-wp-reset.php:223
 msgid "All passwords have been reset for:"
 msgstr ""
 
 #. translators: Password reset email subject. 1: Site name
-#: app/enforcers/class-ppm-wp-reset.php:204
+#: app/enforcers/class-ppm-wp-reset.php:236
 msgid "[%s] Global Password Reset Complete"
 msgstr ""
 
@@ -608,31 +614,120 @@ msgstr ""
 msgid "If you have any questions or require assistance contact your website administrator on {admin_email}."
 msgstr ""
 
-#: app/login-page-control/class-login-page-control.php:51
-msgid "Login page"
+#: app/helpers/class-settings-importer.php:44
+msgid "Checking import contents"
 msgstr ""
 
-#: app/login-page-control/class-login-page-control.php:82
-msgid "Change the login page URL"
+#: app/helpers/class-settings-importer.php:45
+msgid "Ready to import"
 msgstr ""
 
-#: app/login-page-control/class-login-page-control.php:84
-msgid "The default WordPress login page URL is /wp-admin/ or /wp-login.php. Improve the security of your website by changing the URL of the WordPress login page to anything you want, thus preventing easy access to bots and attackers."
+#: app/helpers/class-settings-importer.php:46
+msgid "Issues found"
 msgstr ""
 
-#: app/login-page-control/class-login-page-control.php:90
+#: app/helpers/class-settings-importer.php:47
+msgid "Importing settings"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:48
+msgid "Settings imported"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:50
+msgid "The role, user or post type contained in your settings are not currently found in this website. Importing such settings could lead to abnormal behavour. For more information and / or if you require assistance, please"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:51
+msgid "Currently this data is not supported by our export/import wizard."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:52
+msgid "To avoid accidental lock-out, this setting is not imported."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:53
+msgid "Please upload a valid JSON file."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:54
+msgid "Cancel"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:55
+msgid "The settings file has been tested and the configuration is ready to be imported. Would you like to proceed?"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:56
+msgid "The configuration has been successfully imported. Click OK to close this window"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:57
+msgid "Proceed"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:58
+msgid "OK"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:72
+msgid "Settings Import/Export"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:107
+msgid "Export settings"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:111
+msgid "Export"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:114
+msgid "Once the settings are exported a download will automatically start. The settings are exported to a JSON file."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:121
+msgid "Import settings"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:126
+msgid "Validate & Import"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:128
+msgid "Once you choose a JSON settings file, it will be checked prior to being imported to alert you of any issues, if there are any."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:299
+#: app/helpers/class-settings-importer.php:336
+msgid "Nonce Verification Failed."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:367
+msgid "Setting updated"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:367
+msgid "Setting created"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:52
+msgid "Please note: this will affect all sites on the network."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:59
 msgid "Login page URL"
 msgstr ""
 
-#: app/login-page-control/class-login-page-control.php:103
+#: app/login-page-control/class-login-page-control.php:73
 msgid "Old login page URL redirect"
 msgstr ""
 
-#: app/login-page-control/class-login-page-control.php:112
+#: app/login-page-control/class-login-page-control.php:83
 msgid "Redirect anyone who tries to access the default WordPress login page URL to the above configured URL."
 msgstr ""
 
-#: app/login-page-control/class-login-page-control.php:196
+#: app/login-page-control/class-login-page-control.php:167
 msgid "This feature is not enabled."
 msgstr ""
 
@@ -772,10 +867,10 @@ msgstr ""
 msgid "callback must be a function"
 msgstr ""
 
-#: app/policies/class-ppm-wp-options.php:123
+#: app/policies/class-ppm-wp-options.php:189
 msgid "website administrator"
 msgstr ""
 
-#: app/policies/class-ppm-wp-options.php:124
+#: app/policies/class-ppm-wp-options.php:190
 msgid "Your WordPress user has been deactivated. Please contact the %1s to activate back your user."
 msgstr ""

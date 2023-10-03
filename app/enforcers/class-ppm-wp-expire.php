@@ -144,8 +144,10 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			// Get user last password.
 			$user_password = end( $user_password );
 			if ( empty( $user_password ) && is_a( $user, '\WP_User' ) ) {
-				$user_password['password'] = $user->user_pass;
+				$user_password = array();
+				$user_password['password'] = $user->data->user_pass;
 			}
+
 			// the password is not okay.
 			if ( $password && is_a( $user, '\WP_User' ) && ! wp_check_password( $password, $user_password['password'], $user->ID ) ) {
 				return new WP_Error(

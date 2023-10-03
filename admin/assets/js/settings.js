@@ -8,11 +8,17 @@ jQuery( 'document' ).ready( function( $ ) {
 			.attr( 'data-id', id )
 			.append( '<a href="#" class="remove remove-item"></a>' );
 
-		$li_item.prepend( value ).prependTo( "ul#ppm-exempted-list" );
-
 		if ( parseInt( id ) > 0 ) {
+			$existing_val = $( "#ppm-exempted-users" ).val();
+			if ( $existing_val.indexOf( id ) === -1 ) {
+				$li_item.prepend( value ).prependTo( "ul#ppm-exempted-list" )
+			}
 			add_exemption( $li_item, id, 'users' );
 		} else {
+			$existing_val = $( "#ppm-exempted-roles" ).val();
+			if ( $existing_val.indexOf( id ) === -1 ) {
+				$li_item.prepend( value ).prependTo( "ul#ppm-exempted-list" )
+			}
 			add_exemption( $li_item, id, 'roles' );
 		}
 		$( "#ppm-exempted-list" ).scrollTop( 0 );
@@ -22,12 +28,15 @@ jQuery( 'document' ).ready( function( $ ) {
 		var $existing_val;
 		$li_item.addClass( "ppm-exempted-" + $type );
 		$existing_val = $( "#ppm-exempted-" + $type ).val();
+
 		if ( $existing_val === '' ) {
 			$existing_val = [ ];
 		} else {
 			$existing_val = JSON.parse( $existing_val );
 		}
-		$existing_val.push( $id );
+
+		$existing_val.indexOf( $id ) === -1 ? $existing_val.push( $id ) : alert( 'Item already exmpt' );
+
 		$( "#ppm-exempted-" + $type ).val( JSON.stringify( $existing_val ) );
 
 	}
@@ -81,6 +90,15 @@ jQuery( 'document' ).ready( function( $ ) {
 		}
 	} );
 
+	$( '#ppm-custom_login_url, #ppm-custom_login_redirect' ).on( 'keypress', function( e ) {
+		var code = ( e.keyCode ? e.keyCode : e.which );
+		if (e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode == 189 || e.keyCode == 45 || (e.charCode >= 65 && e.charCode <= 90) || (e.charCode >= 97 && e.charCode <= 122) || (e.charCode == 32)) {
+			return true;
+		} else {
+			return false;
+		}
+	} );
+
 	$( "#ppm-exempted-list" ).on( 'click', 'a.remove', function( event ) {
 		event.preventDefault();
 		var $list_item = $( this ).closest( 'li.ppm-exempted-list-item' );
@@ -123,7 +141,7 @@ jQuery( 'document' ).ready( function( $ ) {
 		} else {
 			$existing_val = JSON.parse( $existing_val );
 		}
-		$existing_val.push( $id );
+		$existing_val.indexOf( $id ) === -1 ? $existing_val.push( $id ) : alert( 'Item already exempt' );
 		$( "#ppm-inactive-exempted" ).val( JSON.stringify( $existing_val ) );
 	}
 
@@ -274,6 +292,32 @@ jQuery( 'document' ).ready( function( $ ) {
 		}
 	).change();
 
+	$( '#ppm-inactive-users-reset-on-unlock' ).change(
+		function() {
+			if ( $( '.ppm-settings.disabled' ).length > 0 ) {
+				return;
+			}
+			if ( $( this ).is( ':checked' ) ) {
+				$( '.disabled-deactivated-message-wrapper' ).removeClass( 'disabled' );
+			} else {
+				$( '.disabled-deactivated-message-wrapper' ).addClass( 'disabled' );
+			}
+		}
+	).change();
+
+	$( '#ppm-inactive-users-disable-reset' ).change(
+		function() {
+			if ( $( '.ppm-settings.disabled' ).length > 0 ) {
+				return;
+			}
+			if ( $( this ).is( ':checked' ) ) {
+				$( '.disabled-self-reset-message-wrapper' ).removeClass( 'disabled' );
+			} else {
+				$( '.disabled-self-reset-message-wrapper' ).addClass( 'disabled' );
+			}
+		}
+	).change();
+
 	$( '#disable-self-reset' ).change(
 		function() {
 			if ( $( '.ppm-settings.disabled' ).length > 0 ) {
@@ -390,6 +434,12 @@ jQuery( 'document' ).ready( function( $ ) {
 		disable_enabled_failed_login_options();
 	});
 
+
+	disable_enabled_timed_login_options();
+	$( '#ppm-timed-logins' ).change(function() {
+		disable_enabled_timed_login_options();
+	});
+
 	// Handle multiple role setting.
 	check_multiple_roles_status();
 	$( '#ppm-users-have-multiple-roles' ).change( check_multiple_roles_status ).change();
@@ -404,6 +454,35 @@ jQuery( 'document' ).ready( function( $ ) {
 		},
 	});
 	jQuery( "#roles_sortable" ).disableSelection();
+
+	// Correct times if something bad is entered.
+	jQuery( '.timed-logins-tr [type="number"]' ).change(function( e ) {		
+		var val = parseInt( jQuery( this )[0]['value'] );
+		var minval = parseInt( jQuery( this )[0]['min'] );
+		var maxval = parseInt( jQuery( this )[0]['max'] );
+
+		if ( val >= minval && val <= maxval  ) {
+			if ( val < 10  ) {
+				jQuery( this ).val( '0' + val );
+			}
+			return;
+		} else {
+			if ( val < minval ) {
+				jQuery( this ).val( minval );
+			} else if ( val > maxval ) {				
+				jQuery( this ).val( maxval );
+			}
+		}
+		
+	});
+
+	jQuery( '.timed-logins-tr [type="number"]' ).each(function () {
+		var val = parseInt( jQuery( this )[0]['value'] );
+		if ( val < 10  ) {
+			jQuery( this ).val( '0' + val );
+		}
+	});
+	
 } );
 
 function check_multiple_roles_status() {
@@ -426,6 +505,21 @@ function disable_enabled_failed_login_options() {
 	if ( jQuery( '#ppm-failed-login-policies-enabled' ).prop('checked') ) {
 		jQuery( '.ppmwp-login-block-options' ).removeClass( 'disabled' );
 		jQuery( '.ppmwp-login-block-options :input' ).prop( 'disabled', false );
+	}
+}
+
+function disable_enabled_timed_login_options() {
+	jQuery( '.timed-login-option' ).addClass( 'disabled' );
+	jQuery( '.timed-login-option :input' ).prop( 'disabled', true );
+
+	var inheritPoliciesElm = jQuery( '#inherit_policies' );
+	if ( inheritPoliciesElm.val() == 1 || inheritPoliciesElm.prop('checked') ) {
+		return;
+	}
+
+	if ( jQuery( '#ppm-timed-logins' ).prop('checked') ) {
+		jQuery( '.timed-login-option' ).removeClass( 'disabled' );
+		jQuery( '.timed-login-option :input' ).prop( 'disabled', false );
 	}
 }
 

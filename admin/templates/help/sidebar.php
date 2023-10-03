@@ -14,7 +14,7 @@
 		<li>
 			<div class="plugin-box">
 				<div class="plugin-img">
-					<img src="<?php echo esc_url( PPM_WP_URL . 'assets/images/wp-security-audit-log-img.jpg' ); ?>" alt="">
+					<img src="<?php echo esc_url( PPM_WP_URL . 'assets/images/wp-security-audit-log-img.jpeg' ); ?>" alt="">
 				</div>
 				<div class="plugin-desc">
 					<p><?php esc_html_e( 'Keep a log of users and under the hood site activity.', 'ppm-wp' ); ?></p>
@@ -24,12 +24,11 @@
 						echo esc_url(
 							add_query_arg(
 								array(
-									'utm_source'   => 'plugin',
-									'utm_medium'   => 'referral',
-									'utm_campaign' => 'WSAL',
-									'utm_content'  => 'PPMWP+banner',
+									'utm_source'   => 'plugins', 
+									'utm_medium'   => 'link', 
+									'utm_campaign' => 'mls',
 								),
-								'https://wpactivitylog.com'
+								'https://www.melapress.com/wordpress-activity-log/'
 							)
 						);
 						?>
@@ -41,7 +40,7 @@
 		<li>
 			<div class="plugin-box">
 				<div class="plugin-img">
-					<img src="<?php echo esc_url( PPM_WP_URL . 'assets/images/wp-2fa.jpg' ); ?>" alt="">
+					<img src="<?php echo esc_url( PPM_WP_URL . 'assets/images/wp-2fa.jpeg' ); ?>" alt="">
 				</div>
 				<div class="plugin-desc">
 					<p><?php esc_html_e( 'Add an extra layer of security to your login pages with 2FA & require your users to use it.', 'ppm-wp' ); ?></p>
@@ -51,12 +50,11 @@
 						echo esc_url(
 							add_query_arg(
 								array(
-									'utm_source'   => 'plugin',
-									'utm_medium'   => 'referral',
-									'utm_campaign' => 'WP2FA',
-									'utm_content'  => 'PPMWP+banner',
+									'utm_source'   => 'plugins', 
+									'utm_medium'   => 'link', 
+									'utm_campaign' => 'mls',
 								),
-								'https://wp2fa.io/'
+								'https://www.melapress.com/wordpress-2fa/'
 							)
 						);
 						?>
@@ -78,39 +76,11 @@
 						echo esc_url(
 							add_query_arg(
 								array(
-									'utm_source'   => 'plugin',
-									'utm_medium'   => 'referral',
-									'utm_campaign' => 'WP2FA',
-									'utm_content'  => 'WSAL+banner',
+									'utm_source'   => 'plugins', 
+									'utm_medium'   => 'link', 
+									'utm_campaign' => 'mls',
 								),
-								'https://wpactivitylog.com/wordpress-plugins/captcha-plugin-wordpress/'
-							)
-						);
-						?>
-						" target="_blank"><?php esc_html_e( 'LEARN MORE', 'ppm-wp' ); ?></a>
-					</div>
-				</div>
-			</div>
-		</li>
-		<li>
-			<div class="plugin-box">
-				<div class="plugin-img">
-					<img src="<?php echo esc_url( PPM_WP_URL . 'assets/images/website-file-changes-monitor.jpg' ); ?>" alt="">
-				</div>
-				<div class="plugin-desc">
-					<p><?php esc_html_e( 'Automatically identify unauthorized file changes on your WordPress site.', 'ppm-wp' ); ?></p>
-					<div class="cta-btn">
-						<a href="
-						<?php
-						echo esc_url(
-							add_query_arg(
-								array(
-									'utm_source'   => 'plugin',
-									'utm_medium'   => 'referral',
-									'utm_campaign' => 'WFCM',
-									'utm_content'  => 'PPMWP+banner',
-								),
-								'https://www.wpwhitesecurity.com/wordpress-plugins/website-file-changes-monitor/'
+								'https://www.melapress.com/wordpress-captcha/'
 							)
 						);
 						?>
