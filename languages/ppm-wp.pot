@@ -1,17 +1,17 @@
-# Copyright (C) 2023 WP White Security
+# Copyright (C) 2024 WP White Security
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security 1.2.0\n"
+"Project-Id-Version: Melapress Login Security 1.2.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
 "Last-Translator: WP White Security <info@melapress.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-10-03T10:16:31+00:00\n"
+"POT-Creation-Date: 2024-01-26T11:43:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.7.1\n"
+"X-Generator: WP-CLI 2.8.1\n"
 "X-Domain: ppm-wp\n"
 
 #. Plugin Name of the plugin
