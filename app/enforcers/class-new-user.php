@@ -4,7 +4,7 @@
  *
  * @package WordPress
  * @subpackage wpassword
- * @author WP White Security
+ * @author Melapress
  */
 
 // If check class exists OR not.
