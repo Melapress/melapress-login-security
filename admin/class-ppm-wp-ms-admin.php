@@ -4,7 +4,7 @@
  *
  * @package wordpress
  * @subpackage wpassword
- * @author WP White Security
+ * @author Melapress
  */
 
 namespace PPMWP\Admin;

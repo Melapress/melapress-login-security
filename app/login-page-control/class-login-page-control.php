@@ -4,7 +4,7 @@
  *
  * @package    WordPress
  * @subpackage wpassword
- * @author     WP White Security
+ * @author     Melapress
  */
 
  use \PPMWP\Helpers\OptionsHelper;
