@@ -2,7 +2,7 @@
 /**
  * WPassword
  *
- * @copyright Copyright (C) 2013-2024, WP White Security - support@melapress.com
+ * @copyright Copyright (C) 2013-2024, Melapress - support@melapress.com
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or higher
  *
  * @wordpress-plugin
@@ -10,7 +10,7 @@
  * Version:     1.2.1
  * Plugin URI:  https://www.melapress.com/wordpress-plugins/password-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
- * Author:      WP White Security
+ * Author:      Melapress
  * Author URI:  https://www.melapress.com/
  * Text Domain: ppm-wp
  * Domain Path: /languages/
