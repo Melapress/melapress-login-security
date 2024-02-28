@@ -85,7 +85,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 */
 		private function __construct() {
 
-			new PPM_User_Meta_Upgrade_Process();
 			new PPM_Apply_Timestamp_For_Users_Process();
 			new PPM_Reset_User_PW_Process();
 
@@ -424,14 +423,13 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		public static function activation_timestamp() {
 			update_site_option( PPMWP_PREFIX . '_activation', current_time( 'timestamp' ) );
 			self::ppm_multisite_install_plugin();
-			self::ppm_run_prefix_update();
 		}
 
 		/**
 		 * Deactivate plugin.
 		 */
 		public static function ppm_deactivation() {
-			// Code here.
+			self::cleanup();
 		}
 
 		/**
@@ -602,131 +600,6 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				<?php
 				die( 1 );
 			}
-		}
-
-		/**
-		 * Updater for change of prefix.
-		 *
-		 * @return void
-		 */
-		public static function ppm_run_prefix_update() {
-
-			// Update plugin version stored in db.
-			$plugin_data = get_plugin_data( PPM_WP_FILE, false );
-			$plugin_ver  = get_site_option( 'ppmwp_plugin_version' );
-
-			if ( empty( $plugin_ver ) ) {
-				update_site_option( 'ppmwp_plugin_version', $plugin_data['Version'] );
-			} else {
-				return;
-			}
-
-			// Check if we have already run.
-			$been_updated = get_site_option( 'ppmwp_prefixes_updated' );
-
-			if ( $been_updated ) {
-				return;
-			}
-
-			// Grab old settings.
-			$activation      = get_site_option( '_ppm-wp_activation' );
-			$setting         = get_site_option( '_ppm-wp-setting' );
-			$options         = get_site_option( '_ppm-wp-options' );
-			$reset_timestamp = get_site_option( '_ppm-wp-reset_timestamp' );
-
-			// If nothing is found, its not needed to continue.
-			if ( empty( $options ) ) {
-				return;
-			}
-
-			// Move them to new key.
-			$move_activation      = update_site_option( 'ppmwp_activation', current_time( 'timestamp' ) );
-			$move_setting         = update_site_option( 'ppmwp_setting', $setting );
-			$move_options         = update_site_option( 'ppmwp_options', $options );
-			$move_reset_timestamp = update_site_option( 'ppmwp_reset_timestamp', $reset_timestamp );
-
-			// Clear old settings.
-			if ( $move_activation ) {
-				delete_site_option( '_ppm-wp_activation' );
-			}
-			if ( $move_setting ) {
-				delete_site_option( '_ppm-wp-setting' );
-			}
-			if ( $options ) {
-				delete_site_option( '_ppm-wp-options' );
-			}
-			if ( $move_reset_timestamp ) {
-				delete_site_option( '_ppm-wp-reset_timestamp' );
-			}
-
-			// Now lets handle role specific options.
-			$roles_obj         = new WP_Roles();
-			$roles_names_array = $roles_obj->get_names();
-
-			foreach ( $roles_names_array as $role ) {
-				$role_name          = strtolower( str_replace( ' ', '_', $role ) );
-				$role_settings      = get_site_option( ' _ppm-wp-' . $role_name . '-options' );
-				$move_role_settings = update_site_option( 'ppmwp_' . $role_name . '_options', $role_settings );
-				if ( $move_role_settings ) {
-					delete_site_option( ' _ppm-wp-' . $role_name . '-options' );
-				}
-			}
-
-			// Send users for bg processing later.
-			$total_users = count_users();
-			$batch_size  = 100;
-			$slices      = ceil( $total_users['total_users'] / $batch_size );
-			$users       = array();
-
-			for ( $count = 0; $count < $slices; $count++ ) {
-				$args  = array(
-					'number'     => $batch_size,
-					'offset'     => $count * $batch_size,
-					'fields'     => array( 'ID' ),
-					'meta_query' => array(
-						array(
-							'relation' => 'OR',
-							array(
-								'meta_key'     => '_ppm_wp_password_history',
-								'meta_compare' => 'EXISTS',
-							),
-							array(
-								'meta_key'     => '_ppm_wp_delayed_reset',
-								'meta_compare' => 'EXISTS',
-							),
-							array(
-								'meta_key'     => '_ppm_wp_password_expired',
-								'meta_compare' => 'EXISTS',
-							),
-							array(
-								'meta_key'     => '_ppm_wp_new_user_register',
-								'meta_compare' => 'EXISTS',
-							),
-							array(
-								'meta_key'     => '_ppm_wp_reset_pw_on_login',
-								'meta_compare' => 'EXISTS',
-							),
-							array(
-								'meta_key'     => '_ppm_wp_dormant_user_flag',
-								'meta_compare' => 'EXISTS',
-							),
-						),
-					),
-				);
-				$users = get_users( $args );
-
-				if ( ! empty( $users ) ) {
-					foreach ( $users as $user_id ) {
-						$background_process = new PPM_User_Meta_Upgrade_Process();
-						$background_process->push_to_queue( $user_id );
-					}
-				}
-
-				$background_process->save();
-			}
-
-			// Fire off bg processes.
-			$background_process->dispatch();
 		}
 
 		/**

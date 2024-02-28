@@ -370,3 +370,8 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
     transition: color .1s ease-in-out, background .1s ease-in-out;
     top: 4px;
 }
+
+#import-from-email {
+    min-width: 300px;
+    margin-bottom: 20px;
+}

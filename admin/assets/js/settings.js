@@ -434,6 +434,11 @@ jQuery( 'document' ).ready( function( $ ) {
 		disable_enabled_failed_login_options();
 	});
 
+	
+	disable_enabled_inactive_users_options();
+	$( '#ppm-inactive-users-enabled' ).change(function() {
+		disable_enabled_inactive_users_options();
+	});
 
 	disable_enabled_timed_login_options();
 	$( '#ppm-timed-logins' ).change(function() {
@@ -482,6 +487,44 @@ jQuery( 'document' ).ready( function( $ ) {
 			jQuery( this ).val( '0' + val );
 		}
 	});
+
+	jQuery( '.timed-logins-tr select' ).change(function( e ) {	
+		var ourName = jQuery( this ).attr( 'name' ).toString();
+		var isFromSelect = false
+
+		if( ourName.toLowerCase().includes( 'from_am_or_pm' ) ) {
+			isFromSelect = true;
+		}
+
+		var ourCurrentVal = jQuery( this ).val();
+		var theOtherCurrentVal = jQuery( this ).parent().find( 'select' ).not( this ).val();
+
+		if ( isFromSelect ) {
+			if ( ourCurrentVal == 'pm' && theOtherCurrentVal == 'am' ) {
+				jQuery( this ).val( 'am' );
+			}
+		} else {
+			if ( ourCurrentVal == 'am' && theOtherCurrentVal == 'pm' ) {
+				jQuery( this ).val( 'pm' );
+			}
+		}
+	});
+
+	jQuery( '.timed-login-option input[type="checkbox"]' ).each(function () {
+		if ( jQuery( this ).prop('checked') ) {
+			jQuery( this ).parent().find( 'input, select, span' ).not( this ).removeClass( 'disabled' );
+		} else {
+			jQuery( this ).parent().find( 'input, select, span' ).not( this ).addClass( 'disabled' );
+		}
+	});
+
+	jQuery( '.timed-login-option input[type="checkbox"]' ).change(function() {
+		if ( jQuery( this ).prop('checked') ) {
+			jQuery( this ).parent().find( 'input, select, span' ).not( this ).removeClass( 'disabled' );
+		} else {
+			jQuery( this ).parent().find( 'input, select, span' ).not( this ).addClass( 'disabled' );
+		}
+	});
 	
 } );
 
@@ -505,6 +548,21 @@ function disable_enabled_failed_login_options() {
 	if ( jQuery( '#ppm-failed-login-policies-enabled' ).prop('checked') ) {
 		jQuery( '.ppmwp-login-block-options' ).removeClass( 'disabled' );
 		jQuery( '.ppmwp-login-block-options :input' ).prop( 'disabled', false );
+	}
+}
+
+function disable_enabled_inactive_users_options() {
+	jQuery( '#ppmwp-inactive-setting-reset-pw-row, #ppmwp-inactive-setting-row' ).addClass( 'disabled' );
+	jQuery( '#ppmwp-inactive-setting-reset-pw-row :input,  #ppmwp-inactive-setting-row :input' ).prop( 'disabled', true );
+
+	var inheritPoliciesElm = jQuery( '#inherit_policies' );
+	if ( inheritPoliciesElm.val() == 1 || inheritPoliciesElm.prop('checked') ) {
+		return;
+	}
+
+	if ( jQuery( '#ppm-inactive-users-enabled' ).prop('checked') ) {
+		jQuery( '#ppmwp-inactive-setting-reset-pw-row, #ppmwp-inactive-setting-row' ).removeClass( 'disabled' );
+		jQuery( '#ppmwp-inactive-setting-reset-pw-row :input,  #ppmwp-inactive-setting-row :input' ).prop( 'disabled', false );
 	}
 }
 

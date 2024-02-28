@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitd674b0d3062349c1572a7e9086aacc6c
+class ComposerStaticInited566c0ce193ac4e2cb0e853f2487d69
 {
     public static $prefixLengthsPsr4 = array (
         'P' => 
@@ -39,7 +39,6 @@ class ComposerStaticInitd674b0d3062349c1572a7e9086aacc6c
         'PPM_New_User_Register' => __DIR__ . '/../..' . '/app/enforcers/class-new-user.php',
         'PPM_Reset_User_PW_Process' => __DIR__ . '/../..' . '/app/enforcers/class-ppm-wp-reset-bg-process.php',
         'PPM_Shortcodes' => __DIR__ . '/../..' . '/app/enforcers/class-shortcodes.php',
-        'PPM_User_Meta_Upgrade_Process' => __DIR__ . '/../..' . '/app/helpers/class-ppm-user-meta-upgrade-process.php',
         'PPM_User_Profile' => __DIR__ . '/../..' . '/app/enforcers/class-user-profile.php',
         'PPM_WP' => __DIR__ . '/../..' . '/app/class-ppm-wp.php',
         'PPM_WP_Expire' => __DIR__ . '/../..' . '/app/enforcers/class-ppm-wp-expire.php',
@@ -60,9 +59,9 @@ class ComposerStaticInitd674b0d3062349c1572a7e9086aacc6c
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitd674b0d3062349c1572a7e9086aacc6c::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitd674b0d3062349c1572a7e9086aacc6c::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitd674b0d3062349c1572a7e9086aacc6c::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInited566c0ce193ac4e2cb0e853f2487d69::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInited566c0ce193ac4e2cb0e853f2487d69::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInited566c0ce193ac4e2cb0e853f2487d69::$classMap;
 
         }, null, ClassLoader::class);
     }
