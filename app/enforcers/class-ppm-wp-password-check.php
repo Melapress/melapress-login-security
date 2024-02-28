@@ -73,11 +73,16 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * Sets up WP hooks
 		 */
 		public function hook() {
-			// hook into password reset.
-			add_action( 'validate_password_reset', array( $this, 'validate_reset' ), 0, 2 );
+			$ppm = ppm_wp();
+			if ( isset( $ppm->options->ppm_setting->enable_wp_reset_form ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_reset_form ) ) {
+				// hook into password reset.
+				add_action( 'validate_password_reset', array( $this, 'validate_reset' ), 0, 2 );
+			}
 
-			// hook into user profile edit, new screens.
-			add_action( 'user_profile_update_errors', array( $this, 'edit_user' ), 0, 3 );
+			if ( isset( $ppm->options->ppm_setting->enable_wp_profile_form ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_profile_form ) ) {
+				// hook into user profile edit, new screens.
+				add_action( 'user_profile_update_errors', array( $this, 'edit_user' ), 0, 3 );
+			}
 		}
 
 		/**

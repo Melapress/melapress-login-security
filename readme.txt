@@ -3,7 +3,7 @@ Plugin URI: https://melapress.com/wordpress-login-security/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
-Tested up to: 6.3.1
+Tested up to: 6.4.3
 Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
 Stable tag: 1.2.1
 Requires PHP: 7.2
@@ -103,35 +103,11 @@ You can find more detailed information about WordPress website security, passwor
 
 == Changelog ==
 
-= 1.2.0 (2023-10-02)
-
-* **New features**
-	* User login time restrictions: restrict the time and days users can log in to the website
-	* Settings importer &amp; exporter: export the plugin's settings for backup purposes and / or to import the settings to new plugin installs.
-	* Setting to enable/disable individual emails the plugin sends to users to notify them about changes to their user account.
+= 1.2.1 (2024-02-01)
 	
 * **Plugin improvements*
-	* Support for the WooCommerce user registration form: add the login and password policies with just a click.
-	* Failed login error messages by the plugin are now displayed correctly on Memberpress powered forms / websites.
-	* The plugin admin notices only appear on appropriate admin pages.
-	* Applied various styling and UX improvements to the admin settings and the plugin's UI.
-	* Improved the integration script so now the PW Strength JS can be triggered via custom JS.
-	* The change the login page URL setting now available in own admin area.
-	* Improved user-facing error messages for both Memberpress and Ultimate Member.
-	* Users restricted from accessing front-end pages on Memberpress + WooCommerce pending a forced password update.
-
-* **Bug fixes**
-	* The strings ‘wp-activate’ and ‘wp-signup’ are no longer blocked in the Custom Login URL settings.
-	* Fixed bug in password history which would cause the initial user password to not be stored.
-	* Exempt users setting no longer accepts duplicate entries.
-	* Fixed: PHP 8.1 deprecation errors.
-	* Fixed: Bulk Actions not working within Inactive Users page.
-	* Fixed: Error causing wrong email to be sent on user unblock due to failed logins.
-	* Fixed an error on multisite networks which could cause some policies to be ignored when logging in via a child site.
-	* Password hints are displayed correctly on Ultimate Member.
-	* Fixed potential Fatal error when password reset requests are blocked on Memberpress.
-	* Fixed JS to ensure PW hide/unhide buttons function as expected on Memberpress forms.
-	* Ensure any password(s) updates adhere to all policies on third party forms.
-	* Fixed JS bug on multisite networks bug which would cause an empty popup to appear when toggling ‘disable password reset’ checkbox.
+	* Updated the plugin's branding.
+	* Upgraded the Freemius SDK to 2.6.2 (Premium).
+	* Added support for the upcoming new Premium plans (Premium).
 
 Please refer to the [plugin changelog](https://melapress.com/support/kb/melapress-login-security-plugin-changelog/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) for a complete detailed list of what is new, improved and fixed in every update of Melapress Login Security. For a high level overview / highlights about each version update, please refer to the [plugin release notes](https://melapress.com/wordpress-login-security/releases/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls).

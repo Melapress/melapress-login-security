@@ -180,6 +180,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'disable_self_reset'             => 'no',
 			'disable_self_reset_message'     => '',
 			'deactivated_account_message'    => '',
+			'timed_login_message'            => '',
 			'locked_user_disable_self_reset'         => 'no',
 			'locked_user_disable_self_reset_message' => ''
 		);
@@ -265,6 +266,8 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'value' => 24,
 				'unit'  => 'hours',
 			),
+			'enable_wp_reset_form'         => 'yes',
+			'enable_wp_profile_form'     => 'yes',
 			'enable_wc_pw_reset'         => 'no',
 			'enable_wc_checkout_reg'     => 'no',
 			'enable_bp_register'         => 'no',

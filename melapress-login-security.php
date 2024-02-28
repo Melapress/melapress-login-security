@@ -7,11 +7,11 @@
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     1.2.1
- * Plugin URI:  https://www.melapress.com/wordpress-plugins/password-security/
+ * Version:     1.2.2
+ * Plugin URI:  https://melapress.com/wordpress-login-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      Melapress
- * Author URI:  https://www.melapress.com/
+ * Author URI:  https://melapress.com/
  * Text Domain: ppm-wp
  * Domain Path: /languages/
  * License:     GPL v3
@@ -170,7 +170,7 @@ if ( ! function_exists( $mpls ) ) {
 		/**
 		 * Meta key flag to mark user as blocked.
 		 */
-		define( 'PPMWP_VERSION', '1.2.1' );
+		define( 'PPMWP_VERSION', '1.2.2' );
 	}
 
 	if ( ! defined( 'PPMWP_MENU_SLUG' ) ) {

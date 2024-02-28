@@ -79,16 +79,15 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 
 			// deregister default scripts and register custom
 			// user-edit screen.
-			add_action( 'load-user-edit.php', array( $this, 'user_edit' ) );
-
-			// profile screen.
-			add_action( 'load-profile.php', array( $this, 'load_profile' ) );
+			$ppm = ppm_wp();
+			if ( isset( $ppm->options->ppm_setting->enable_wp_profile_form ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_profile_form ) ) {
+				add_action( 'load-user-edit.php', array( $this, 'user_edit' ) );
+				// profile screen.
+				add_action( 'load-profile.php', array( $this, 'load_profile' ) );
+			}
 
 			// add new user screen.
 			add_action( 'load-user-new.php', array( $this, 'user_new' ) );
-
-			// reset password form.
-			add_action( 'validate_password_reset', array( $this, 'reset_pass' ), 10, 2 );
 
 			// localise js objects.
 			add_action( 'admin_print_styles-user-edit.php', array( $this, 'localise' ) );
@@ -101,7 +100,12 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			add_action( 'admin_print_styles-profile.php', array( $this, 'add_admin_css' ) );
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'add_admin_css' ) );
 			add_action( 'validate_password_reset', array( $this, 'add_frontend_css' ) );
-			add_action( 'resetpass_form', array( $this, 'add_hint_to_reset_form' ) );
+			
+			if ( isset( $ppm->options->ppm_setting->enable_wp_reset_form ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_reset_form ) ) {
+				// reset password form.
+				add_action( 'validate_password_reset', array( $this, 'reset_pass' ), 10, 2 );
+				add_action( 'resetpass_form', array( $this, 'add_hint_to_reset_form' ) );
+			}
 
 			// Remove WC password strength meter.
 			add_action( 'wp_print_scripts', array( $this, 'remove_wc_password_strength' ), 10 );
@@ -244,8 +248,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		 * @param type $user_id - Current user ID.
 		 * @return type
 		 */
-		private function modify_user_scripts( $user_id ) {
-
+		private function modify_user_scripts( $user_id ) {			
 			if ( ppm_is_user_exempted( $user_id ) ) {
 				return;
 			}
