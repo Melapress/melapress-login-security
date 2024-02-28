@@ -34,6 +34,9 @@ class SettingsImporter {
             if ( $hook != 'login-security_page_ppm-settings' ) {
                 return;
             }
+
+            $ppm = ppm_wp();
+
             wp_enqueue_script( 'mls_settings_importexport', PPM_WP_URL . 'admin/assets/js/settings-importexport.js', array( 'ppm-wp-settings' ), PPMWP_VERSION );
 
             wp_localize_script(
@@ -58,6 +61,7 @@ class SettingsImporter {
 					'ok'                    => esc_html__( 'OK', 'ppm-wp' ),
 					'helpPage'              => '',
 					'helpLinkText'          => esc_html__( 'Contact Us', 'ppm-wp' ),
+                    'isUsingCustomEmail'    => ( $ppm->options->ppm_setting->from_email && ! empty( $ppm->options->ppm_setting->from_email ) ) ? $ppm->options->ppm_setting->from_email : false,
 				)
 			);
         }
@@ -360,6 +364,13 @@ class SettingsImporter {
                 if ( 'true' !== $process_import && $failed ) {
                     wp_send_json_error( $message );
                 }
+            }
+
+            if ( 'ppmwp_setting' == $setting_name && isset( $_POST['from_email_to_use'] ) && ! empty( maybe_unserialize( $setting_value ) ) ) {
+                $setting_arr = (array) maybe_unserialize( $setting_value );
+                $setting_arr['from_email'] = \sanitize_text_field( \wp_unslash( $_POST['from_email_to_use'] ) );
+                $setting_value = $setting_arr;
+
             }
 
             // If set to import the data once checked, then do so.

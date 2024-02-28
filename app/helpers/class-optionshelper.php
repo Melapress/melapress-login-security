@@ -33,7 +33,7 @@ class OptionsHelper {
 		$ppm = \ppm_wp();
 
 		// return early if the inactive class already is set active.
-		if ( isset( $ppm->inactive ) && null !== $ppm->inactive->is_feature_enabled() ) {
+		if ( isset( $ppm->inactive ) && ! is_bool( $ppm->inactive ) && null !== $ppm->inactive->is_feature_enabled() ) {
 			return $ppm->inactive->is_feature_enabled();
 		} else {
 			// not already determined to be active so assume false till tested.
@@ -83,7 +83,7 @@ class OptionsHelper {
 		}
 
 		// feature is enabled if this is true, false by default.
-		if ( isset( $ppm->inactive ) ) {
+		if ( isset( $ppm->inactive ) && ! is_bool( $ppm->inactive ) ) {
 			$ppm->inactive->set_feature_enabled( $active );
 		}
 		return $active;

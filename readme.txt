@@ -3,7 +3,7 @@ Plugin URI: https://melapress.com/wordpress-login-security/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
-Tested up to: 6.3.1
+Tested up to: 6.4.3
 Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
 Stable tag: 1.2.1
 Requires PHP: 7.2
@@ -103,35 +103,25 @@ You can find more detailed information about WordPress website security, passwor
 
 == Changelog ==
 
-= 1.2.0 (2023-10-02)
+= 1.2.2 (2024-03-01)
 
-* **New features**
-	* User login time restrictions: restrict the time and days users can log in to the website
-	* Settings importer &amp; exporter: export the plugin's settings for backup purposes and / or to import the settings to new plugin installs.
-	* Setting to enable/disable individual emails the plugin sends to users to notify them about changes to their user account.
-	
 * **Plugin improvements*
-	* Support for the WooCommerce user registration form: add the login and password policies with just a click.
-	* Failed login error messages by the plugin are now displayed correctly on Memberpress powered forms / websites.
-	* The plugin admin notices only appear on appropriate admin pages.
-	* Applied various styling and UX improvements to the admin settings and the plugin's UI.
-	* Improved the integration script so now the PW Strength JS can be triggered via custom JS.
-	* The change the login page URL setting now available in own admin area.
-	* Improved user-facing error messages for both Memberpress and Ultimate Member.
-	* Users restricted from accessing front-end pages on Memberpress + WooCommerce pending a forced password update.
+	* Removed some redundant code inside the plugin for an improved overall: speed and performance
+	* Added logic check and notice for users in regards to the 'From email address' used by the plugin when using the "import settings" feature
+	* Users can now remove default policies over WordPress forms from the 'Forms & Placements' plugin page
+	* Tweaked how the "Run inactive check" button acts when it is manually run by the administrator (Locked Users table)
+	* User login time restrictions - lots of UX improvements in the settings area
+	* User login time restrictions - added input to allow customizable text shown to users during their 'restricted time' on the site.
 
-* **Bug fixes**
-	* The strings ‘wp-activate’ and ‘wp-signup’ are no longer blocked in the Custom Login URL settings.
-	* Fixed bug in password history which would cause the initial user password to not be stored.
-	* Exempt users setting no longer accepts duplicate entries.
-	* Fixed: PHP 8.1 deprecation errors.
-	* Fixed: Bulk Actions not working within Inactive Users page.
-	* Fixed: Error causing wrong email to be sent on user unblock due to failed logins.
-	* Fixed an error on multisite networks which could cause some policies to be ignored when logging in via a child site.
-	* Password hints are displayed correctly on Ultimate Member.
-	* Fixed potential Fatal error when password reset requests are blocked on Memberpress.
-	* Fixed JS to ensure PW hide/unhide buttons function as expected on Memberpress forms.
-	* Ensure any password(s) updates adhere to all policies on third party forms.
-	* Fixed JS bug on multisite networks bug which would cause an empty popup to appear when toggling ‘disable password reset’ checkbox.
+* **Plugin fixes*
+	* Broken/invalid URL of a SVG used inside the plugin
+	* Fixed a potential crash that could occur when the plugin was running on sites running on PHP 7.2
+	* Fixed bug which caused removal of data upon uninstall (if required) within the Free version
+	* Fixed an edge case that could cause a wizard to be prompted inside the plugin dashboard, in regards to missing Email Templates content
+	* A bug inside "Professional" plan users, when in an edge case the 'Remove all plugin data on uninstall" setting, could cause a fatal error once activated.
+
+* **Maintenence*
+	* Fixed a couple of broken or misleading URLs inside the Free version of the plugin
+	* Changed some old text and artwork references of previous branding inside some of the Email Templates
 
 Please refer to the [plugin changelog](https://melapress.com/support/kb/melapress-login-security-plugin-changelog/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) for a complete detailed list of what is new, improved and fixed in every update of Melapress Login Security. For a high level overview / highlights about each version update, please refer to the [plugin release notes](https://melapress.com/wordpress-login-security/releases/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls).

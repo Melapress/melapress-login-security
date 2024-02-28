@@ -12,6 +12,7 @@
  $sidebar_required    = true;
  /* @free:end */
  $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
+ $ppm = ppm_wp();
 ?>
 
 <div class="wrap ppm-wrap">
@@ -44,16 +45,16 @@
 							</th>
 							<td>
 								<fieldset>
-									<label for="ppm-enable_wp_reset_form" class="disabled">
+									<label for="ppm-enable_wp_reset_form">
 										<input name="_ppm_options[enable_wp_reset_form]" type="checkbox" id="ppm-enable_wp_reset_form"
-												value="yes" checked class="disabled"/>
+												value="yes" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_reset_form ) ); ?>/>
 												<?php esc_attr_e( 'This website\'s password reset page', 'ppm-wp' ); ?>
 									</label>
 								</fieldset>
 								<fieldset>
-									<label for="ppm-enable_wp_profile_form" class="disabled">
+									<label for="ppm-enable_wp_profile_form">
 										<input name="_ppm_options[enable_wp_profile_form]" type="checkbox" id="ppm-enable_wp_profile_form"
-												value="yes" checked class="disabled"/>
+												value="yes" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_profile_form ) ); ?>/>
 												<?php esc_attr_e( 'User profile page', 'ppm-wp' ); ?>
 									</label>
 								</fieldset>
