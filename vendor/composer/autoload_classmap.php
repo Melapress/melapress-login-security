@@ -23,7 +23,6 @@ return array(
     'PPM_New_User_Register' => $baseDir . '/app/enforcers/class-new-user.php',
     'PPM_Reset_User_PW_Process' => $baseDir . '/app/enforcers/class-ppm-wp-reset-bg-process.php',
     'PPM_Shortcodes' => $baseDir . '/app/enforcers/class-shortcodes.php',
-    'PPM_User_Meta_Upgrade_Process' => $baseDir . '/app/helpers/class-ppm-user-meta-upgrade-process.php',
     'PPM_User_Profile' => $baseDir . '/app/enforcers/class-user-profile.php',
     'PPM_WP' => $baseDir . '/app/class-ppm-wp.php',
     'PPM_WP_Expire' => $baseDir . '/app/enforcers/class-ppm-wp-expire.php',

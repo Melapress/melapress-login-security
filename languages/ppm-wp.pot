@@ -2,36 +2,41 @@
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security 1.2.1\n"
+"Project-Id-Version: Melapress Login Security 1.2.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
 "Last-Translator: Melapress <info@melapress.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-01-31T10:51:47+00:00\n"
+"POT-Creation-Date: 2024-02-28T14:56:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.8.1\n"
+"X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: ppm-wp\n"
 
 #. Plugin Name of the plugin
+#: melapress-login-security-premium.php
 msgid "Melapress Login Security"
 msgstr ""
 
 #. Plugin URI of the plugin
-msgid "https://www.melapress.com/wordpress-plugins/password-security/"
+#: melapress-login-security-premium.php
+msgid "https://melapress.com/wordpress-login-security/"
 msgstr ""
 
 #. Description of the plugin
+#: melapress-login-security-premium.php
 msgid "Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts."
 msgstr ""
 
 #. Author of the plugin
+#: melapress-login-security-premium.php
 msgid "Melapress"
 msgstr ""
 
 #. Author URI of the plugin
-msgid "https://www.melapress.com/"
+#: melapress-login-security-premium.php
+msgid "https://melapress.com/"
 msgstr ""
 
 #: admin/templates/admin-default.php:13
@@ -81,7 +86,7 @@ msgid "Password Length"
 msgstr ""
 
 #: admin/templates/admin-form.php:156
-#: admin/templates/views/settings-forms.php:78
+#: admin/templates/views/settings-forms.php:79
 #: admin/templates/views/settings-hide-login.php:43
 #: admin/templates/views/settings.php:310
 msgid "Save Changes"
@@ -213,7 +218,7 @@ msgstr ""
 
 #: admin/templates/help/contact-us.php:15
 #: admin/templates/help/help.php:62
-#: app/helpers/class-settings-importer.php:60
+#: app/helpers/class-settings-importer.php:63
 msgid "Contact Us"
 msgstr ""
 
@@ -273,7 +278,7 @@ msgstr ""
 
 #: admin/templates/help/index.php:13
 #: admin/templates/help/index.php:20
-#: app/helpers/class-settings-importer.php:49
+#: app/helpers/class-settings-importer.php:52
 msgid "Help"
 msgstr ""
 
@@ -307,27 +312,27 @@ msgstr ""
 msgid "System information"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:23
+#: admin/templates/views/settings-forms.php:24
 msgid "Forms & Placement"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:24
+#: admin/templates/views/settings-forms.php:25
 msgid "By default, the login and password security policies configured in this plugin can only be enforced on the native WordPress forms. However, the plugin also has out of the box support for third party popular plugins such as WooCommerce and BuddyPress. Use the checkboxes below to select on which forms you'd like to also enforce the configured policies."
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:34
+#: admin/templates/views/settings-forms.php:35
 msgid "Standard forms"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:42
+#: admin/templates/views/settings-forms.php:43
 msgid "Wordpress forms"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:50
+#: admin/templates/views/settings-forms.php:51
 msgid "This website's password reset page"
 msgstr ""
 
-#: admin/templates/views/settings-forms.php:57
+#: admin/templates/views/settings-forms.php:58
 msgid "User profile page"
 msgstr ""
 
@@ -487,12 +492,12 @@ msgstr ""
 msgid "Get a new password."
 msgstr ""
 
-#: app/enforcers/class-ppm-wp-forms.php:351
+#: app/enforcers/class-ppm-wp-forms.php:354
 msgid "Hints for a strong password"
 msgstr ""
 
 #. translators: %s: Current violations for desired password.
-#: app/enforcers/class-ppm-wp-password-check.php:187
+#: app/enforcers/class-ppm-wp-password-check.php:192
 msgid "<strong>ERROR</strong>: New password %s"
 msgstr ""
 
@@ -614,100 +619,100 @@ msgstr ""
 msgid "If you have any questions or require assistance contact your website administrator on {admin_email}."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:44
+#: app/helpers/class-settings-importer.php:47
 msgid "Checking import contents"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:45
+#: app/helpers/class-settings-importer.php:48
 msgid "Ready to import"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:46
+#: app/helpers/class-settings-importer.php:49
 msgid "Issues found"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:47
+#: app/helpers/class-settings-importer.php:50
 msgid "Importing settings"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:48
+#: app/helpers/class-settings-importer.php:51
 msgid "Settings imported"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:50
+#: app/helpers/class-settings-importer.php:53
 msgid "The role, user or post type contained in your settings are not currently found in this website. Importing such settings could lead to abnormal behavour. For more information and / or if you require assistance, please"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:51
+#: app/helpers/class-settings-importer.php:54
 msgid "Currently this data is not supported by our export/import wizard."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:52
+#: app/helpers/class-settings-importer.php:55
 msgid "To avoid accidental lock-out, this setting is not imported."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:53
+#: app/helpers/class-settings-importer.php:56
 msgid "Please upload a valid JSON file."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:54
+#: app/helpers/class-settings-importer.php:57
 msgid "Cancel"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:55
+#: app/helpers/class-settings-importer.php:58
 msgid "The settings file has been tested and the configuration is ready to be imported. Would you like to proceed?"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:56
+#: app/helpers/class-settings-importer.php:59
 msgid "The configuration has been successfully imported. Click OK to close this window"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:57
+#: app/helpers/class-settings-importer.php:60
 msgid "Proceed"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:58
+#: app/helpers/class-settings-importer.php:61
 msgid "OK"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:72
+#: app/helpers/class-settings-importer.php:76
 msgid "Settings Import/Export"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:107
+#: app/helpers/class-settings-importer.php:111
 msgid "Export settings"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:111
+#: app/helpers/class-settings-importer.php:115
 msgid "Export"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:114
+#: app/helpers/class-settings-importer.php:118
 msgid "Once the settings are exported a download will automatically start. The settings are exported to a JSON file."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:121
+#: app/helpers/class-settings-importer.php:125
 msgid "Import settings"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:126
+#: app/helpers/class-settings-importer.php:130
 msgid "Validate & Import"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:128
+#: app/helpers/class-settings-importer.php:132
 msgid "Once you choose a JSON settings file, it will be checked prior to being imported to alert you of any issues, if there are any."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:299
-#: app/helpers/class-settings-importer.php:336
+#: app/helpers/class-settings-importer.php:303
+#: app/helpers/class-settings-importer.php:340
 msgid "Nonce Verification Failed."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:367
+#: app/helpers/class-settings-importer.php:378
 msgid "Setting updated"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:367
+#: app/helpers/class-settings-importer.php:378
 msgid "Setting created"
 msgstr ""
 
@@ -867,10 +872,10 @@ msgstr ""
 msgid "callback must be a function"
 msgstr ""
 
-#: app/policies/class-ppm-wp-options.php:189
+#: app/policies/class-ppm-wp-options.php:190
 msgid "website administrator"
 msgstr ""
 
-#: app/policies/class-ppm-wp-options.php:190
+#: app/policies/class-ppm-wp-options.php:191
 msgid "Your WordPress user has been deactivated. Please contact the %1s to activate back your user."
 msgstr ""

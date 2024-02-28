@@ -76,6 +76,7 @@ jQuery( document ).ready( function() {
 			}
 
 			var nonce     = jQuery( '[data-import-wpws-settings]' ).attr( 'data-nonce' );
+			var fromEmail = ( wpws_import_data.isUsingCustomEmail ) ? jQuery( '#import-from-email' ).val() : false;
 			
 			jQuery.ajax({
 				type: 'POST',
@@ -86,6 +87,7 @@ jQuery( document ).ready( function() {
 					setting_name : option_name,
 					setting_value : option_value,
 					process_import : do_import,
+					from_email_to_use : fromEmail,
 					nonce : nonce,
 				},
 				success: function ( result ) {
@@ -129,6 +131,11 @@ jQuery( document ).ready( function() {
 								jQuery( '#wpws-modal-title' ).text( wpws_import_data.checksPassedMessage );
 								var errorText = 'Proceed';
 							}
+
+							if ( wpws_import_data.isUsingCustomEmail ) {
+								jQuery( '#wpws-settings-file-output' ).append( '<div id="wpws-import-confirm-email" style="display: inline-block;"><p id="ready-text">Importing will override your custom email address, please confirm the address to use </p><input type="text" value="'+ wpws_import_data.isUsingCustomEmail +'" id="import-from-email"></div>' );
+							}
+
 							jQuery( '#wpws-import-read' ).remove();
 							jQuery( '#wpws-settings-file-output' ).append( '<div id="wpws-import-read" style="display: inline-block;"><p id="ready-text">'+ wpws_import_data.readyMessage +'</p><input type="button" id="cancel" class="button-secondary import-settings-modal-close" value="'+ wpws_import_data.cancelMessage +'"> <input style="margin-left: 10px;" type="button" id="proceed" class="button-primary" value="'+ errorText +'"></div>' );
 						}
