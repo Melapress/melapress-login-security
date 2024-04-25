@@ -6,12 +6,14 @@
  * @subpackage wpassword
  */
 
-if ( ! class_exists( 'PPM_WP_Regex' ) ) {
+namespace PPMWP;
+
+if ( ! class_exists( '\PPMWP\PPM_WP_Regex' ) ) {
 
 	/**
 	 * Provides regexes to check password against
 	 */
-	class PPM_WP_Regex implements JsonSerializable {
+	class PPM_WP_Regex implements \JsonSerializable {
 
 		/**
 		 * Patterns.
@@ -66,7 +68,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 
 			// set each property so it can be used conveniently.
 			foreach ( $this->user_options->rules as $key => $rule ) {
-				if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) ) {
+				if ( \PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) ) {
 					// for eg, $this->length.
 					if ( isset( $this->rules[ $key ] ) ) {;
 						$this->{$key} = $this->rules[ $key ];
@@ -75,7 +77,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 
 				// If the rule is not enabled in the policy settings,
 				// remove it from rules.
-				if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) ) {
+				if ( ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) ) {
 					unset( $this->rules[ $key ] );
 				}
 			}
@@ -99,7 +101,7 @@ if ( ! class_exists( 'PPM_WP_Regex' ) ) {
 		private function set_excluded_chars() {
 			// replace $excluded_chars placeholder with actual excluded chars.
 			if ( isset( $this->user_options->ui_rules['exclude_special_chars'] )
-				 && PPMWP\Helpers\OptionsHelper::string_to_bool( $this->user_options->ui_rules['exclude_special_chars'] )
+				 && \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->user_options->ui_rules['exclude_special_chars'] )
 				 && ! empty( $this->user_options->excluded_special_chars )
 			) {
 				$allowed_special_chars = ltrim( rtrim( $this->rules['special_chars'], ']' ), '[' );

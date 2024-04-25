@@ -85,8 +85,8 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 */
 		private function __construct() {
 
-			new PPM_Apply_Timestamp_For_Users_Process();
-			new PPM_Reset_User_PW_Process();
+			new \PPMWP\PPM_Apply_Timestamp_For_Users_Process();
+			new \PPMWP\PPM_Reset_User_PW_Process();
 
 			$this->register_dependencies();
 
@@ -96,11 +96,12 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			// Check if a user is on a trial or has an activated license that enables premium features.
 			if ( $can_continue || $free_plan ) {
 				// initialise options.
-				$this->options = new PPM_WP_Options();;
+				$this->options = new \PPMWP\PPM_WP_Options();
+
 				// initialise rule regexes.
-				$this->regex = new PPM_WP_Regex();
+				$this->regex = new \PPMWP\PPM_WP_Regex();
 				// initialise strings.
-				$this->msgs = new PPM_WP_Msgs();
+				$this->msgs = new \PPMWP\PPM_WP_Msgs();
 
 				// Load plugin's text language files.
 				add_action( 'init', array( $this, 'localise' ) );
@@ -122,9 +123,19 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			add_action( 'wp_login_failed', array( $this, 'update_user_last_activity' ) );
 			add_action( 'wp_loaded', array( $this, 'register_summary_email_cron' ) );
 
-			$login_control = new MLS_Login_Page_Control();
+			$login_control = new \PPMWP\MLS_Login_Page_Control();
 			add_action( 'plugins_loaded', array( $login_control, 'is_login_check' ), 9999 );
 			add_action( 'wp_loaded', array( $login_control, 'redirect_user' ) );
+
+			if ( class_exists( '\PPMWP\PPM_Failed_Logins' ) ) {
+				$failed_logins = new \PPMWP\PPM_Failed_Logins();
+				add_action( 'init', array( $failed_logins, 'init' ) );
+				add_action( 'wp_login_failed', array( $failed_logins, 'failed_login_check' ), 1, 2 );
+				add_action( 'authenticate', array( $failed_logins, 'pre_login_check' ), 20, 3 );
+				if ( ! class_exists( '\PPMWP\InactiveUsers' ) ) {
+					add_action( 'admin_menu', array( $failed_logins, 'add_locked_users_admin_menu' ), 20, 3 );
+				}				
+			}
 
 		}
 
@@ -168,11 +179,11 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			// priority so that users can add new characters.
 			add_filter( 'ppwmp_filter_allowed_special_chars', array( $this, 'remove_excluded_special_chars_from_allowed' ), 15, 1 );
 
-			$this->history = new PPM_WP_History();
+			$this->history = new \PPMWP\PPM_WP_History();
 			add_action( 'user_register', array( $this->history, 'user_register' ) );
 			add_action( 'ppmwp_apply_forced_reset_usermeta', array( $this->history, 'ppm_apply_forced_reset_usermeta' ) );
 
-			$this->new_user = new PPM_New_User_Register();
+			$this->new_user = new \PPMWP\PPM_New_User_Register();
 			add_action( 'wp_login', array( $this->new_user, 'ppm_first_time_login' ), 10, 2 );
 
 			if ( is_admin() ) {
@@ -240,6 +251,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 		 */
 		public function ppm_overwrite_admin_menu() {
 			global $submenu;
+			
 			if ( isset( $submenu['ppm_wp_settings'] ) ) {
 				$menu_index = array_search( 'ppm_wp_settings-pricing', array_column( $submenu['ppm_wp_settings'], 2 ) );
 				if ( $menu_index ) {
@@ -263,9 +275,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				if ( $help ) {
 					if ( ! is_multisite() ) {
 						$help_menu = $submenu['ppm_wp_settings'][ $help ];
-	
+
 						if ( isset( $submenu['ppm_wp_settings'][9] ) && isset( $submenu['ppm_wp_settings'][10] ) ) {
-							$clone = $submenu['ppm_wp_settings'];
+							$clone                          = $submenu['ppm_wp_settings'];
 							$submenu['ppm_wp_settings'][9] = $clone[10]; // phpcs:ignore
 							$submenu['ppm_wp_settings'][10] = $clone[9]; // phpcs:ignore
 						} else {
@@ -276,9 +288,8 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 					} else {
 						if ( isset( $submenu['ppm_wp_settings'][5] ) && isset( $submenu['ppm_wp_settings'][6] ) ) {
 							$help_menu = $submenu['ppm_wp_settings'][ $help ];
-							$clone     = $submenu['ppm_wp_settings'];
-							$submenu['ppm_wp_settings'][6]  = $clone[5]; // phpcs:ignore
-							$submenu['ppm_wp_settings'][5] = $clone[6]; // phpcs:ignore
+							unset( $submenu['ppm_wp_settings'][ $help ] );
+							$submenu['ppm_wp_settings'][] = $help_menu; // phpcs:ignore								
 						}
 					}
 				}
@@ -304,61 +315,62 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 
 			$this->regex->init();
 			// Call password history class.
-			$history = new PPM_WP_History();
+			$history = new \PPMWP\PPM_WP_History();
 			$history->ppm_after_password_reset();
 
 			// Call password expire class.
-			$expire = new PPM_WP_Expire();
+			$expire = new \PPMWP\PPM_WP_Expire();
 			$expire->ppm_authenticate_user();
 
 			// Check change initial password setting is enabled OR not.
-			$new_user = new PPM_New_User_Register();
+			$new_user = new \PPMWP\PPM_New_User_Register();
 			$new_user->init();
 
-			$new_user = new PPM_User_Profile();
+			$new_user = new \PPMWP\PPM_User_Profile();
 			$new_user->init();
 
-			$shortcodes = new PPM_Shortcodes();
+			$shortcodes = new \PPMWP\PPM_Shortcodes();
 			$shortcodes->init();
 
-			$login_control = new MLS_Login_Page_Control();
+			$login_control = new \PPMWP\MLS_Login_Page_Control();
 			$login_control->init();
 
 			$settings_import_export = new PPMWP\Helpers\SettingsImporter();
 			$settings_import_export->init();
+
 
 			do_action( 'mls_extension_init' );
 
 			// call ppm history all hook.
 			$history->hook();
 
-			$options_master_switch    = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->master_switch );
-			$settings_master_switch   = PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->master_switch );
-			$inherit_policies_setting = PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->inherit_policies );
+			$options_master_switch    = \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->master_switch );
+			$settings_master_switch   = \PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->master_switch );
+			$inherit_policies_setting = \PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->inherit_policies );
 
 			$is_needed = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
 
 			// Enable all features only if policy switch is enabled.
 			if ( $is_needed ) {
 
-				if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->enforce_password ) ) {
+				if ( ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->enforce_password ) ) {
 
-					$pwd_check = new PPM_WP_Password_Check();
+					$pwd_check = new \PPMWP\PPM_WP_Password_Check();
 
 					$pwd_check->hook();
 
-					$pwd_gen = new PPM_WP_Password_Gen();
+					$pwd_gen = new \PPMWP\PPM_WP_Password_Gen();
 
 					$pwd_gen->hook();
 
-					$forms = new PPM_WP_Forms();
+					$forms = new \PPMWP\PPM_WP_Forms();
 
 					$forms->hook();
 
 					// call ppm expire all hook.
 					$expire->hook();
 
-					$reset = new PPM_WP_Reset();
+					$reset = new \PPMWP\PPM_WP_Reset();
 
 					$reset->hook();
 				}
@@ -624,7 +636,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				$users = get_users( $args );
 
 				if ( ! empty( $users ) ) {
-					$background_process = new PPM_Apply_Timestamp_For_Users_Process();
+					$background_process = new \PPMWP\PPM_Apply_Timestamp_For_Users_Process();
 					$background_process->push_to_queue( $users );
 				}
 
@@ -645,7 +657,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$user = wp_get_current_user();
 
 			// Get user reset key.
-			$reset            = new PPM_WP_Reset();
+			$reset            = new \PPMWP\PPM_WP_Reset();
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'reset-on-login' );
 
 			// If check reset key exists OR not.
@@ -653,7 +665,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 				$this->handle_user_redirection( $verify_reset_key );
 			}
 		}
-	
+
 
 		/**
 		 * Simple handler to perform redirection where needed.
@@ -715,9 +727,9 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			}
 
 			if ( isset( $user->ID ) ) {
-				if ( method_exists( 'PPMWP\Helpers\OptionsHelper','is_user_inactive' ) ) {
+				if ( method_exists( 'PPMWP\Helpers\OptionsHelper', 'is_user_inactive' ) ) {
 					// Check if user is already handled by our inactivity feature.
-					$is_user_inactive = PPMWP\Helpers\OptionsHelper::is_user_inactive( $user->ID );
+					$is_user_inactive = \PPMWP\Helpers\OptionsHelper::is_user_inactive( $user->ID );
 					if ( ! $is_user_inactive ) {
 						// Apply last active time.
 						update_user_meta( $user->ID, 'ppmwp_last_activity', current_time( 'timestamp' ) );
@@ -869,7 +881,7 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			if ( ! empty( $ppm_options ) ) {
 				foreach ( $ppm_options as $option => $value ) {
 					$sysinfo .= 'Option: ' . $option . "\n";
-					$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n";
+					$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n"; // phpcs:ignore 
 				}
 			}
 
@@ -878,12 +890,12 @@ if ( ! class_exists( 'PPM_WP' ) ) {
 			$roles_obj = wp_roles();
 
 			foreach ( $roles_obj->role_names as $role ) {
-				$role_options = PPMWP\Helpers\OptionsHelper::get_role_options( $role );
+				$role_options = \PPMWP\Helpers\OptionsHelper::get_role_options( $role );
 				$sysinfo     .= "\n" . '-- ' . $role . '  --' . "\n\n";
 				if ( ! empty( $role_options ) ) {
 					foreach ( $role_options as $option => $value ) {
 						$sysinfo .= 'Option: ' . $option . "\n";
-						$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n";
+						$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n"; // phpcs:ignore
 					}
 				}
 			}

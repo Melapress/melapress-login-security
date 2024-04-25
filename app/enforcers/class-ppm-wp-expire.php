@@ -6,7 +6,9 @@
  * @subpackage wpassword
  */
 
-if ( ! class_exists( 'PPM_WP_Expire' ) ) {
+namespace PPMWP;
+
+if ( ! class_exists( '\PPMWP\PPM_WP_Expire' ) ) {
 
 	/**
 	 * Declare PPM_WP_Expire class.
@@ -19,6 +21,11 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 		 */
 		private $options;
 
+		/**
+		 * Desried priority.
+		 *
+		 * @var integer
+		 */
 		private $filter_priority = 0;
 
 		/**
@@ -34,7 +41,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			// Session expired AJAX.
 			add_action( 'wp_ajax_ppm_ajax_session_expired', array( $this, 'ppm_ajax_session_expired' ) );
 
-			$override_needed = apply_filters( 'mls_override_has_expired_priority', false );
+			$override_needed       = apply_filters( 'mls_override_has_expired_priority', false );
 			$this->filter_priority = ( $override_needed && is_int( $override_needed ) ) ? $override_needed : $this->filter_priority;
 		}
 
@@ -67,7 +74,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			}
 
 			// Get terminate setting.
-			$terminate_session_password = PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->ppm_setting->terminate_session_password );
+			$terminate_session_password = \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->ppm_setting->terminate_session_password );
 
 			// Check force terminate setting is enabled.
 			if ( ! $terminate_session_password ) {
@@ -119,7 +126,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			}
 
 			// Ensure we dont check a change as its happening within UM.
-			if ( isset( $_POST['um_account_nonce_password'] ) ) {
+			if ( isset( $_POST['um_account_nonce_password'] ) ) { // phpcs:ignore 
 				return $user;
 			}
 
@@ -127,14 +134,14 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			if ( $password_history ) {
 				// Reset by user.
 				foreach ( $password_history as $history ) {
-					if ( in_array( 'user', $history ) ) {
+					if ( in_array( 'user', $history, true ) ) {
 						$user_password[] = $history;
 					}
 				}
 				// Reset by admin.
 				if ( empty( $user_password ) ) {
 					foreach ( $password_history as $history ) {
-						if ( in_array( 'admin', $history ) ) {
+						if ( in_array( 'admin', $history, true ) ) {
 							$user_password[] = $history;
 						}
 					}
@@ -144,13 +151,13 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			// Get user last password.
 			$user_password = end( $user_password );
 			if ( empty( $user_password ) && is_a( $user, '\WP_User' ) ) {
-				$user_password = array();
+				$user_password             = array();
 				$user_password['password'] = $user->data->user_pass;
 			}
 
 			// the password is not okay.
 			if ( $password && is_a( $user, '\WP_User' ) && ! wp_check_password( $password, $user_password['password'], $user->ID ) ) {
-				return new WP_Error(
+				return new \WP_Error(
 					'incorrect_password',
 					sprintf(
 						/* translators: %s: user name */
@@ -168,7 +175,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			if ( is_a( $user, '\WP_User' ) ) {
 				// check if it password expired flag is existing.
 				if ( get_user_meta( $user->ID, PPM_WP_META_PASSWORD_EXPIRED, true ) ) {
-					return new WP_Error(
+					return new \WP_Error(
 						'password-expired',
 						sprintf(
 							/* translators: %s: user name */
@@ -180,7 +187,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 						'</a>'
 					);
 				}
-			}			
+			}
 			/* @free:end */
 
 			// Always return user object.
@@ -205,7 +212,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			$ppm = ppm_wp();
 
 			// reset the password before wp.
-			$resetter = new PPM_WP_Reset();
+			$resetter = new \PPMWP\PPM_WP_Reset();
 
 			// this will reset the password in the system.
 			// and the cpassword that the user is trying to enter becomes invalid.
@@ -215,7 +222,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			$resetter->reset( $user_id, $current_password, 'system' );
 			// save the last expiry time in an easy to access meta as this is
 			// used/modified by the inactive users feature.
-			$last_expiry = PPMWP\Helpers\OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $user_id );
+			$last_expiry = \PPMWP\Helpers\OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $user_id ); // phpcs:ignore 
 
 		}
 
@@ -250,7 +257,7 @@ if ( ! class_exists( 'PPM_WP_Expire' ) ) {
 			$expiry_string = implode( ' ', $expiry );
 
 			// if the password hasn't expired.
-			if ( current_time( 'timestamp' ) < strtotime( $expiry_string, $last_reset ) ) {
+			if ( current_time( 'timestamp' ) < strtotime( $expiry_string, $last_reset ) ) { // phpcs:ignore 
 				return false;
 			}
 

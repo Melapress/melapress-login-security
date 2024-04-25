@@ -136,9 +136,7 @@
 
 	<tr valign="top">
 		<th scope="row">
-			<label for="ppm-expiry-value">
-				<?php esc_html_e( 'Password Expiration Policy', 'ppm-wp' ); ?>
-			</label>
+			<?php esc_html_e( 'Password Expiration Policy', 'ppm-wp' ); ?>
 		</th>
 		<td>
 
@@ -178,9 +176,7 @@
 
 	<tr valign="top">
 		<th scope="row">
-			<label for="ppm-history">
-				<?php esc_html_e( 'Disallow old passwords on reset', 'ppm-wp' ); ?>
-			</label>
+			<?php esc_html_e( 'Disallow old passwords on reset', 'ppm-wp' ); ?>
 		</th>
 		<td>
 			<fieldset>
@@ -204,9 +200,7 @@
 	</tr>
 	<tr valign="top">
 		<th scope="row">
-			<label for="ppm-initial-password">
-				<?php esc_html_e( 'Reset password on first login', 'ppm-wp' ); ?>
-			</label>
+			<?php esc_html_e( 'Reset password on first login', 'ppm-wp' ); ?>
 		</th>
 		<td>
 			<fieldset>
@@ -229,9 +223,7 @@
 
 	<tr valign="top">
 		<th scope="row">
-			<label for="ppm-disable-self-reset">
-				<?php esc_html_e( 'Disable sending of password reset links', 'ppm-wp' ); ?>
-			</label>
+			<?php esc_html_e( 'Disable sending of password reset links', 'ppm-wp' ); ?>
 		</th>
 		<td>
 			<fieldset>

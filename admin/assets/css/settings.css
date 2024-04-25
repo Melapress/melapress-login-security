@@ -375,3 +375,100 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
     min-width: 300px;
     margin-bottom: 20px;
 }
+.user-import-result {
+    background-color: green;
+    margin-left: 5px;
+    color: #fff;
+    border-radius: 25px;
+    padding: 3px 10px 4px;
+    font-size: 10px;
+    width: auto;
+    min-width: 0 !important;
+    position: relative;
+    bottom: 1px;
+    line-height: 13px;
+    float: right;
+}
+.user-import-result a {
+    color: #fff;
+    margin-left: 10px;
+}
+.user-import-result.error {
+    background-color: red;
+}
+#csv-examples pre {
+    white-space: pre-line !important;
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+}
+
+.mls-modal-main-wrapper {
+    position: fixed;
+    z-index: -9999;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    opacity: 0;
+    display: flex;
+    transition: all 0.2s ease-in-out;
+}
+
+.mls-modal-main-wrapper.show {
+    z-index: 9999;
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+}
+.mls-modal-content {
+    align-self: center;
+    max-width: 600px;
+    background: #fff;
+    margin: 0 auto;
+    padding: 40px;
+}
+
+.mls-modal-content h3 {
+    margin-top: 0;
+}
+
+@media all and (min-width: 1400px) {
+    .mls-modal-content {
+        min-width: 600px;;
+    }  
+}
+.c4wp-buttony-list {
+	display: inline-block;
+	border-width: 1px;
+	border-style: solid;
+	padding: 2px 4px;
+	margin: 2px 0 0 2px;
+	border-radius: 3px;
+	cursor: default;
+	background: #EFE;
+	border-color: #5B5;
+}
+.c4wp-buttony-list span {
+	text-decoration: none;
+	font-size: 12px;
+	font-weight: bold;
+	color: #FFF;
+	margin-left: 2px;
+	background: #BBB;
+	border-radius: 25px;
+	height: 14px;
+	display: inline-block;
+	vertical-align: middle;
+	width: 14px;
+	text-align: center;
+	line-height: 12px;
+}
+
+#ppm-wp-settings textarea {
+    min-height: 120px;
+}
+#reset-role-select {
+    position: relative;
+    top: -1px;
+}

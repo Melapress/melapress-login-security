@@ -7,18 +7,31 @@
  * @author     Melapress
  */
 
+ namespace PPMWP;
+
  use \PPMWP\Helpers\OptionsHelper;
  use \PPMWP\Helpers\PPM_EmailStrings;
 
-if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
+if ( ! class_exists( '\PPMWP\MLS_Login_Page_Control' ) ) {
 
 	/**
 	 * Manipulate Users' Password History
 	 */
 	class MLS_Login_Page_Control {
 
-
+		/**
+		 * Keeps track of login page status.
+		 *
+		 * @var bool
+		 */
 		private $is_login_page;
+
+		/**
+		 * Keeps check of geo blocking status.
+		 *
+		 * @var bool
+		 */
+		private $is_geo_check_required;
 
 		/**
 		 * Init settings hooks.
@@ -39,11 +52,59 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 		}
 
 		/**
+		 * Add link to tabbed area within settings.
+		 *
+		 * @param  string $markup - Currently added content.
+		 * @return string $markup - Appended content.
+		 */
+		public function settings_tab_link( $markup ) {
+			return $markup . '<a href="#integrations" class="nav-tab" data-tab-target=".ppm-integrations">' . esc_attr__( 'Integrations', 'ppm-wp' ) . '</a>';
+		}
+
+		/**
+		 * Add settings tab content to settings area
+		 *
+		 * @param  string $markup - Currently added content.
+		 * @return string $markup - Appended content.
+		 */
+		public function settings_tab( $markup ) {
+			ob_start(); ?>
+			<div class="settings-tab ppm-integrations">
+				<table class="form-table">
+					<tbody>
+						<?php self::render_integration_settings(); ?>
+					</tbody>
+				</table>
+			</div>
+			<?php
+			return $markup . ob_get_clean();
+		}
+
+		/**
 		 * Display settings markup for email tempplates.
 		 *
 		 * @return void
 		 */
-		public static function render_email_template_settings() {
+		public static function render_integration_settings() {
+			$ppm = ppm_wp();
+			?>
+				
+				<tr>
+					<th><label><?php esc_html_e( 'IPLocate API Key:', 'ppm-wp' ); ?></label></th>
+					<td>
+						<p class="description mb-10">IP checking is handled by IPLocate.io, please <a href="https://www.iplocate.io/" target="_blank">click here</a> to get your own key.</p><br>
+						<input type="text" id="iplocate_api_key" class="regular regular-text" name="_ppm_options[iplocate_api_key]" placeholder="" value="<?php echo esc_attr( isset( $ppm->options->ppm_setting->iplocate_api_key ) ? rtrim( $ppm->options->ppm_setting->iplocate_api_key, '/' ) : '' ); ?>" minlength="32">
+					</td>
+				</tr>
+			   <?php
+		}
+
+		/**
+		 * Display settings markup for email tempplates.
+		 *
+		 * @return void
+		 */
+		public static function render_login_page_url_settings() {
 			$ppm = ppm_wp();
 			?>
 				<br>
@@ -55,8 +116,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 
 				<tr valign="top">
 					<th scope="row">
-						<label for="ppm-from-email">
-			<?php esc_html_e( 'Login page URL', 'ppm-wp' ); ?>
+						<?php esc_html_e( 'Login page URL', 'ppm-wp' ); ?>
 					</th>
 					<td>
 						<fieldset>
@@ -69,8 +129,7 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 
 				<tr valign="top">
 					<th scope="row">
-						<label for="ppm-from-email">
-			<?php esc_html_e( 'Old login page URL redirect', 'ppm-wp' ); ?>
+						<?php esc_html_e( 'Old login page URL redirect', 'ppm-wp' ); ?>
 					</th>
 					<td>
 						<fieldset>
@@ -80,12 +139,96 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 							<br>
 							<br>
 							<p class="description">
-			<?php esc_html_e( 'Redirect anyone who tries to access the default WordPress login page URL to the above configured URL.', 'ppm-wp' ); ?>
+								<?php esc_html_e( 'Redirect anyone who tries to access the default WordPress login page URL to the above configured URL.', 'ppm-wp' ); ?>
 							</p>
 						</fieldset>
 					</td>
 				</tr>
 			<?php
+		}
+
+		public static function render_login_geo_settings() {
+			$ppm = ppm_wp();
+			$iplocate_api_key = isset( $ppm->options->ppm_setting->iplocate_api_key ) ? $ppm->options->ppm_setting->iplocate_api_key : false;
+
+			$inactive_users_url = add_query_arg(
+				array(
+					'page' => 'ppm-settings#integrations',
+				),
+				network_admin_url( 'admin.php' )
+			);
+
+			?>
+				<br>
+				<h3><?php esc_html_e( 'Block or allow access to the login page by countries', 'ppm-wp' ); ?></h3>
+				<p class="description" style="max-width: none;">
+					<?php
+						printf(
+							esc_html__( 'Use the below setting to either block access to the login page for IP addresses from certain countries, or to restrict access to the login page to IP addresses from certain countries. To add a country enter its respective %1$1s in the field below. To use this feature you will need to provide an API key via %2$2s.', 'ppm-wp' ),
+							sprintf(
+								'<a target="_blank" href="https://www.iso.org/obp/ui/#search/code/">%s</a>',
+								esc_html__( 'ISO country code', 'ppm-wp' )
+							),
+							sprintf(
+								'<a target="_blank" href="%1$s">%2$s</a>',
+								esc_url( $inactive_users_url ),
+								esc_html__( 'integration settings', 'ppm-wp' )
+							)
+						);
+					?>
+				</p>
+				<br>
+
+				<tr valign="top" <?php if ( empty( $iplocate_api_key ) || ! $iplocate_api_key ) { echo 'class="disabled"'; } ?>>
+					<th scope="row">
+						<?php esc_html_e( 'Country Codes:', 'ppm-wp' ); ?>
+					</th>
+					<td>
+						<input type="text" id="login_geo_countries_input" placeholder="e.g. MT"><a href="#" class="button button-primary" id="add-login_denied-countries">Add Country</a><div id="login_geo_countries-countries-userfacing"></div>
+						<input type="text" id="login_geo_countries" name="_ppm_options[login_geo_countries]" class="hidden" value="<?php echo esc_attr( isset( $ppm->options->ppm_setting->login_geo_countries ) ? rtrim( $ppm->options->ppm_setting->login_geo_countries, '/' ) : '' ); ?>" >
+					</td>
+				</tr>
+
+				<tr valign="top" <?php if ( empty( $iplocate_api_key ) || ! $iplocate_api_key ) { echo 'class="disabled"'; } ?>>
+					<th scope="row">
+						<?php esc_html_e( 'Action:', 'ppm-wp' ); ?>
+					</th>
+					<td>
+						<select id="login_geo_method" class="regular toggleable" name="_ppm_options[login_geo_method]" style="display: inline-block;">
+							<option value="default" <?php selected( 'default', $ppm->options->ppm_setting->login_geo_method, true ); ?>><?php esc_html_e( 'Do nothing', 'ppm-wp' ); ?></option>
+							<option value="allow_only" <?php selected( 'allow_only', $ppm->options->ppm_setting->login_geo_method, true ); ?>><?php esc_html_e( 'Allow access from the above countries only', 'ppm-wp' ); ?></option>
+							<option value="deny_list" <?php selected( 'deny_list', $ppm->options->ppm_setting->login_geo_method, true ); ?>><?php esc_html_e( 'Block access from the above countries', 'ppm-wp' ); ?></option>
+						</select>
+					</td>
+				</tr>
+
+				<h3><?php esc_html_e( 'What should blocked users see?', 'ppm-wp' ); ?></h3>
+
+				<tr valign="top" <?php if ( empty( $iplocate_api_key ) || ! $iplocate_api_key ) { echo 'class="disabled"'; } ?>>
+					<th scope="row">
+						<?php esc_html_e( 'Blocked user handling:', 'ppm-wp' ); ?>
+					</th>
+					<td>
+						<select id="login_geo_action" class="regular toggleable" name="_ppm_options[login_geo_action]" style="display: inline-block;">
+							<option value="deny_to_url" <?php selected( 'deny_to_url', $ppm->options->ppm_setting->login_geo_action, true ); ?>><?php esc_html_e( 'Send blocked users to below URL', 'ppm-wp' ); ?></option>
+							<option value="deny_to_home" <?php selected( 'deny_to_home', $ppm->options->ppm_setting->login_geo_action, true ); ?>><?php esc_html_e( 'Send blocked users to homepage', 'ppm-wp' ); ?></option>
+						</select>
+					</td>
+				</tr>
+
+				<tr valign="top" <?php if ( empty( $iplocate_api_key ) || ! $iplocate_api_key ) { echo 'class="disabled"'; } ?>>
+					<th scope="row">
+						<?php esc_html_e( 'Login Blocked Redirect URL', 'ppm-wp' ); ?>
+					</th>
+					<td>
+						<fieldset>
+							<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo trailingslashit( site_url() ); ?></p>
+							<input type="text" name="_ppm_options[login_geo_redirect_url]" value="<?php echo esc_attr( isset( $ppm->options->ppm_setting->login_geo_redirect_url ) ? rtrim( $ppm->options->ppm_setting->login_geo_redirect_url, '/' ) : '' ); ?>" id="ppm-custom_login_url" style="float: left; display: block; width: 250px;" />
+							<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
+						</fieldset>
+					</td>
+				</tr>
+				<?php
 		}
 
 		/**
@@ -133,9 +276,11 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 		 */
 		private function custom_login_slug() {
 			$ppm_setting = get_site_option( PPMWP_PREFIX . '_setting' );
-			if ( ( $slug = $ppm_setting['custom_login_url'] ) || ( is_multisite() && is_plugin_active_for_network( PPM_WP_BASENAME ) && ( $slug = $ppm_setting['custom_login_url'] ) )
-				|| ( $slug = 'login' )
-			) {
+			$slug        = isset( $ppm_setting['custom_login_url'] ) ? $ppm_setting['custom_login_url'] : '';
+
+			if ( is_multisite() && is_plugin_active_for_network( PPM_WP_BASENAME ) ) {
+				return $slug;
+			} else {
 				return $slug;
 			}
 		}
@@ -160,15 +305,17 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 		 */
 		public function is_login_check() {
 			$ppm_setting = get_site_option( PPMWP_PREFIX . '_setting' );
+			global $pagenow;
+
 			if ( ! empty( $ppm_setting['custom_login_url'] ) ) {
-				global $pagenow;
-				$request = parse_url( rawurldecode( $_SERVER['REQUEST_URI'] ) );
+
+				$request = wp_parse_url( rawurldecode( $_SERVER['REQUEST_URI'] ) );
 				if ( ! is_multisite() && ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-signup.php' ) !== false || strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-activate.php' ) !== false ) ) {
 					wp_die( __( 'This feature is not enabled.', 'ppm-wp' ) );
 				}
 
 				if ( ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-login.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-login', 'relative' ) ) ) && ! is_admin() ) {
-					$this->is_login_page     = true;
+					$this->is_login_page    = true;
 					$_SERVER['REQUEST_URI'] = $this->context_trailingslashit( '/' . str_repeat( '-/', 10 ) );
 					$pagenow                = 'index.php';
 
@@ -176,9 +323,16 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 					$pagenow = 'wp-login.php';
 
 				} elseif ( ( strpos( rawurldecode( $_SERVER['REQUEST_URI'] ), 'wp-register.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-register', 'relative' ) ) ) && ! is_admin() ) {
-					$this->is_login_page     = true;
+					$this->is_login_page    = true;
 					$_SERVER['REQUEST_URI'] = $this->context_trailingslashit( '/' . str_repeat( '-/', 10 ) );
 					$pagenow                = 'index.php';
+				}
+			}
+
+			if ( $pagenow == 'wp-login.php' || $this->is_login_page ) {
+				$this->is_geo_check_required = false;
+				if ( ( isset( $ppm_setting['login_geo_countries'] ) && ! empty( $ppm_setting['login_geo_countries'] ) ) && ( isset( $ppm_setting['login_geo_method'] ) && 'default' !== $ppm_setting['login_geo_method'] ) ) {
+					$this->is_geo_check_required = true;
 				}
 			}
 		}
@@ -191,7 +345,19 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 		public function redirect_user() {
 			global $pagenow;
 			$ppm_setting = get_site_option( PPMWP_PREFIX . '_setting' );
-			$request     = parse_url( rawurldecode( $_SERVER['REQUEST_URI'] ) );
+			$request     = wp_parse_url( rawurldecode( $_SERVER['REQUEST_URI'] ) );
+
+			if ( $this->is_geo_check_required ) {
+				$is_blocked = self::is_blocked_country( true, true, self::sanitize_incoming_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) );
+				if ( $is_blocked ) {
+					if ( 'deny_to_url' == $ppm_setting['login_geo_action'] && ! empty( $ppm_setting['login_geo_redirect_url'] ) ) {
+						wp_safe_redirect( '/' . rtrim( $ppm_setting['login_geo_redirect_url'], '/' ) );
+					} else {
+						wp_safe_redirect( '/' );
+					}
+					die();
+				}
+			}
 
 			if ( ! empty( $ppm_setting['custom_login_url'] ) ) {
 				if ( is_admin() && ! is_user_logged_in() && ! defined( 'DOING_AJAX' ) ) {
@@ -208,13 +374,23 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 					die;
 
 				} elseif ( $this->is_login_page ) {
-					if ( ( $referer = wp_get_referer() ) && strpos( $referer, 'wp-activate.php' ) !== false && ( $referer = parse_url( $referer ) ) && ! empty( $referer['query'] ) ) {
-						parse_str( $referer['query'], $referer );
+					$referer       = wp_get_referer();
+					$referer_parse = wp_parse_url( $referer );
 
-						if ( ! empty( $referer['key'] ) && ( $result = wpmu_activate_signup( $referer['key'] ) ) && is_wp_error( $result ) && ( $result->get_error_code() === 'already_active' || $result->get_error_code() === 'blog_taken' ) ) {
+					if ( $referer && strpos( $referer, 'wp-activate.php' ) !== false && $referer_parse && ! empty( $referer['query'] ) ) {
+						parse_str( $referer['query'], $referer );
+						$result = wpmu_activate_signup( $referer['key'] );
+						if ( ! empty( $referer['key'] ) && is_wp_error( $result ) && ( $result->get_error_code() === 'already_active' || $result->get_error_code() === 'blog_taken' ) ) {
 							wp_safe_redirect( $this->custom_login_url() . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . $_SERVER['QUERY_STRING'] : '' ) );
 							die;
 						}
+					} else {
+						if ( empty( $ppm_setting['custom_login_redirect'] ) || ! $ppm_setting['custom_login_redirect'] ) {
+							wp_safe_redirect( '/' );
+						} else {
+							wp_safe_redirect( '/' . rtrim( $ppm_setting['custom_login_redirect'], '/' ) );
+						}
+						die();
 					}
 
 					$this->load_login_template();
@@ -353,6 +529,151 @@ if ( ! class_exists( 'MLS_Login_Page_Control' ) ) {
 			}
 
 			return $login_url;
+		}
+
+		/**
+		 * Check if submission is from a country we wish to allow/block.
+		 *
+		 * @param bool   $currently_allowed
+		 * @param bool   $current_verify
+		 * @param string $ip
+		 * @return boolean
+		 */
+		public static function is_blocked_country( $currently_allowed, $current_verify, $ip, $context = 'default' ) {
+			$is_spam = false;
+			$ppm     = ppm_wp();
+
+			$method           = $ppm->options->ppm_setting->login_geo_method;
+			$target_countries = $ppm->options->ppm_setting->login_geo_countries;
+			$iplocate_api_key = $ppm->options->ppm_setting->iplocate_api_key;
+
+			if ( empty( $iplocate_api_key ) || ! $iplocate_api_key ) {
+				return false;
+			}
+
+			if ( empty( $method ) || empty( $target_countries ) || 'default' == $method ) {
+				return false;
+			}
+
+			$denied_countries = ! empty( $target_countries ) ? explode( ',', $target_countries ) : array();
+
+			$response = wp_safe_remote_get(
+				esc_url_raw(
+					sprintf(
+						'https://www.iplocate.io/api/lookup/%s?apikey=%s',
+						self::format_incoming_ip( $ip ),
+						$iplocate_api_key
+					),
+					'https'
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				return ( $currently_allowed ) ? false : true;
+			}
+
+			if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
+				return ( $currently_allowed ) ? false : true;
+			}
+
+			$body = (string) wp_remote_retrieve_body( $response );
+
+			$json = json_decode( $body, true );
+
+			// If invalid, pass.
+			if ( ! is_array( $json ) ) {
+				return ( $currently_allowed ) ? false : true;
+			}
+
+			// If empty, country not obtained, pass.
+			if ( empty( $json['country_code'] ) ) {
+				return false;
+			}
+
+			// Uppercase should be passed, but just in case.
+			$country = strtoupper( $json['country_code'] );
+
+			// Check length.
+			if ( empty( $country ) || strlen( $country ) !== 2 ) {
+				return ( $currently_allowed ) ? false : true;
+			}
+
+			if ( 'deny_list' === $method || 'deny_to_home' === $method ) {
+				if ( in_array( $country, $denied_countries, true ) ) {
+					$is_spam = true;
+				}
+			} elseif ( 'allow_only' === $method ) {
+				if ( ! in_array( $country, $denied_countries, true ) ) {
+					$is_spam = true;
+				}
+			}
+
+			return $is_spam;
+		}
+
+		/**
+		 * Prepare ip for check.
+		 *
+		 * @param string  $ip
+		 * @param boolean $cut_end
+		 * @return void
+		 */
+		private static function prepare_ip( $ip, $cut_end = true ) {
+			$separator = ( self::check_ip_format( $ip ) ? '.' : ':' );
+
+			return str_replace(
+				( $cut_end ? strrchr( $ip, $separator ) : strstr( $ip, $separator ) ),
+				'',
+				$ip
+			);
+		}
+
+		/**
+		 * Format incoming IP before check.
+		 *
+		 * @param string $ip
+		 * @return void
+		 */
+		private static function format_incoming_ip( $ip ) {
+			if ( self::check_ip_format( $ip ) ) {
+				return self::prepare_ip( $ip ) . '.0';
+			}
+
+			return self::prepare_ip( $ip, false ) . ':0:0:0:0:0:0:0';
+		}
+
+		/**
+		 * Validate IP.
+		 *
+		 * @param string $ip
+		 * @return void
+		 */
+		private static function check_ip_format( $ip ) {
+			if ( function_exists( 'filter_var' ) ) {
+				return filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) !== false;
+			} else {
+				return preg_match( '/^\d{1,3}(\.\d{1,3}){3}$/', $ip );
+			}
+		}
+
+		public static function sanitize_incoming_ip( $raw_ip ) {
+
+			if ( strpos( $raw_ip, ',' ) !== false ) {
+				$ips    = explode( ',', $raw_ip );
+				$raw_ip = trim( $ips[0] );
+			}
+			if ( function_exists( 'filter_var' ) ) {
+				return (string) filter_var(
+					$raw_ip,
+					FILTER_VALIDATE_IP
+				);
+			}
+
+			return (string) preg_replace(
+				'/[^0-9a-f:. ]/si',
+				'',
+				$raw_ip
+			);
 		}
 	}
 }

@@ -7,9 +7,11 @@
  * @author Melapress
  */
 
+namespace PPMWP;
+
 use \PPMWP\Helpers\OptionsHelper;
 
-if ( ! class_exists( 'PPM_EmailStrings' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_EmailStrings' ) ) {
 
 	/**
 	 * Manipulate Users' Password History
@@ -126,7 +128,7 @@ if ( ! class_exists( 'PPM_EmailStrings' ) ) {
 			}
 
 			// Prepare email details.
-			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
 
 			// These are the strings we are going to search for, as well as there respective replacements.
 			$replacements = array(

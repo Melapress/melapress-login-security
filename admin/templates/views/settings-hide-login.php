@@ -12,7 +12,7 @@
  $sidebar_required    = true;
  /* @free:end */
  $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
- $login_control = new \MLS_Login_Page_Control();
+ $login_control = new \PPMWP\MLS_Login_Page_Control();
 ?>
 
 <div class="wrap ppm-wrap">
@@ -30,9 +30,11 @@
             <div class="settings-tab ppm-login-page-settings">
 				<table class="form-table">
 					<tbody>
-                    <?php echo $login_control::render_email_template_settings(); ?>
+                    	<?php echo $login_control::render_login_page_url_settings(); ?>
                     </tbody>
                 </table>
+				<?php
+				?>
             </div>
 		</div>
 
