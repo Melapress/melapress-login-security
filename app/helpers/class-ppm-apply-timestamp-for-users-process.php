@@ -7,10 +7,12 @@
  * @package WordPress
  */
 
+namespace PPMWP;
+
 /**
  * Apply timestamp in BG.
  */
-class PPM_Apply_Timestamp_For_Users_Process extends WP_Background_Process {
+class PPM_Apply_Timestamp_For_Users_Process extends \WP_Background_Process {
 
 	/**
 	 * Current action.
@@ -39,14 +41,5 @@ class PPM_Apply_Timestamp_For_Users_Process extends WP_Background_Process {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Did complete.
-	 *
-	 * @inheritDoc
-	 */
-	protected function complete() {
-		parent::complete();
 	}
 }

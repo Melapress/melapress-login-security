@@ -5,7 +5,10 @@
  * @package WordPress
  * @subpackage wpassword
  */
-if ( ! class_exists( 'PPM_WP_Msgs' ) ) {
+
+namespace PPMWP;
+
+if ( ! class_exists( '\PPMWP\PPM_WP_Msgs' ) ) {
 
 	/**
 	 * Provides all string messages for forms
@@ -62,7 +65,7 @@ if ( ! class_exists( 'PPM_WP_Msgs' ) ) {
 			 * @since 2.1.0
 			 */
 			$excluded_string = isset( $options->excluded_special_chars ) ? $options->excluded_special_chars : '';
-			if ( ! empty( $excluded_string ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $options->rules['exclude_special_chars'] ) ) {
+			if ( ! empty( $excluded_string ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $options->rules['exclude_special_chars'] ) ) {
 				// decode the characters.
 				$excluded_string = html_entity_decode( $excluded_string );
 
@@ -70,7 +73,7 @@ if ( ! class_exists( 'PPM_WP_Msgs' ) ) {
 				$decoded_special_chars = explode( ' ', html_entity_decode( preg_replace( '/\<(\/)?code\>/', '', $this->special_char_strings ) ) );
 
 				// split the excluded special chars to an array.
-				$excluded_entities = PPM_MB_String_Helper::mb_split_string( $excluded_string );
+				$excluded_entities = \PPMWP\PPM_MB_String_Helper::mb_split_string( $excluded_string );
 
 				// get the difference and reform the string. Limit max items to 4 for tidyness.
 				$this->special_char_strings = '<code>' . implode( ' ', array_slice( array_diff( $decoded_special_chars, $excluded_entities ), 0, 4 ) ) . '</code>';
@@ -86,10 +89,10 @@ if ( ! class_exists( 'PPM_WP_Msgs' ) ) {
 				'history'               => sprintf( __( 'Password cannot be the same as the last %d passwords.', 'ppm-wp' ), $options->password_history ),
 				/* translators: %d: Configured minumum password length */
 				'length'                => sprintf( __( 'Must be at least %d characters long.', 'ppm-wp' ), $options->min_length ),
-				'mix_case'              => PPMWP\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['mix_case'] ) ? __( 'Must contain both UPPERCASE & lowercase characters.', 'ppm-wp' ) : '',
-				'numeric'               => PPMWP\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['numeric'] ) ? __( 'Must contain numbers.', 'ppm-wp' ) : '',
+				'mix_case'              => \PPMWP\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['mix_case'] ) ? __( 'Must contain both UPPERCASE & lowercase characters.', 'ppm-wp' ) : '',
+				'numeric'               => \PPMWP\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['numeric'] ) ? __( 'Must contain numbers.', 'ppm-wp' ) : '',
 				/* translators: %d: Characters which cannot be used in a password */
-				'special_chars'         => PPMWP\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['special_chars'] ) ? sprintf( __( 'Must contain special characters such as %s', 'ppm-wp' ), $this->special_char_strings ) : '',
+				'special_chars'         => \PPMWP\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['special_chars'] ) ? sprintf( __( 'Must contain special characters such as %s', 'ppm-wp' ), $this->special_char_strings ) : '',
 				'exclude_special_chars' => sprintf(
 					/* translators: 1 = list of special characters */
 					__( 'Password cannot contain any of these special characters: %s', 'ppm-wp' ),

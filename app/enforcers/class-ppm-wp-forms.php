@@ -6,9 +6,11 @@
  * @subpackage wpassword
  */
 
-use PPMWP\Helpers\OptionsHelper;
+namespace PPMWP;
 
-if ( ! class_exists( 'PPM_WP_Forms' ) ) {
+use \PPMWP\Helpers\OptionsHelper;
+
+if ( ! class_exists( '\PPMWP\PPM_WP_Forms' ) ) {
 
 	/**
 	 * Modify Forms where Reset Password UI appears
@@ -47,15 +49,10 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		 * Initialise
 		 */
 		public function __construct() {
-
-			$ppm = ppm_wp();
-
-			$this->options = $ppm->options;
-
-			$this->msgs = $ppm->msgs;
-
-			$this->regex = $ppm->regex;
-
+			$ppm                = ppm_wp();
+			$this->options      = $ppm->options;
+			$this->msgs         = $ppm->msgs;
+			$this->regex        = $ppm->regex;
 			$this->role_options = $ppm->options->users_options;
 		}
 
@@ -73,7 +70,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enable_custom_form' ) );
 			}
 
-			if ( null == $this->role_options || ! OptionsHelper::get_plugin_is_enabled() ) {
+			if ( null === $this->role_options || ! OptionsHelper::get_plugin_is_enabled() ) {
 				return;
 			}
 
@@ -100,7 +97,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			add_action( 'admin_print_styles-profile.php', array( $this, 'add_admin_css' ) );
 			add_action( 'admin_print_styles-user-new.php', array( $this, 'add_admin_css' ) );
 			add_action( 'validate_password_reset', array( $this, 'add_frontend_css' ) );
-			
+
 			if ( isset( $ppm->options->ppm_setting->enable_wp_reset_form ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_reset_form ) ) {
 				// reset password form.
 				add_action( 'validate_password_reset', array( $this, 'reset_pass' ), 10, 2 );
@@ -146,7 +143,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				wp_register_script( 'password-strength-meter', PPM_WP_URL . 'assets/js/password-strength-meter.js', array( 'jquery', 'zxcvbn-async' ), PPMWP_VERSION, 1 );
 
 				wp_localize_script( 'password-strength-meter', 'pws_l10n', $this->msgs->pws_l10n );
-				wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ) );
+				wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( \wp_json_encode( $this->regex ), true ) );
 
 				wp_enqueue_script( 'ppm-user-profile', PPM_WP_URL . 'assets/js/custom-form.js', array( 'jquery', 'password-strength-meter', 'wp-util' ), PPMWP_VERSION, 1 );
 
@@ -172,7 +169,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 
 				wp_localize_script( 'ppm-user-profile', 'ppmErrors', $this->msgs->error_strings );
 				wp_localize_script( 'ppm-user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
-				wp_localize_script( 'ppm-user-profile', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ) );
+				wp_localize_script( 'ppm-user-profile', 'ppmPolicyRules', json_decode( \wp_json_encode( $this->regex ), true ) );
 
 				add_filter( 'password_hint', array( $this, 'password_hint' ) );
 
@@ -191,7 +188,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 			// we don't want to overwrite the global if WP doesn't want to set it yet.
 			$userid = $user_id;
 
-			$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid;
+			$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid; // phpcs:ignore 
 
 			$this->modify_user_scripts( $userid );
 		}
@@ -248,7 +245,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 		 * @param type $user_id - Current user ID.
 		 * @return type
 		 */
-		private function modify_user_scripts( $user_id ) {			
+		private function modify_user_scripts( $user_id ) {
 			if ( ppm_is_user_exempted( $user_id ) ) {
 				return;
 			}
@@ -262,7 +259,7 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 
 			wp_localize_script( 'password-strength-meter', 'pws_l10n', $this->msgs->pws_l10n );
 
-			wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( json_encode( $this->regex ), true ) );
+			wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( \wp_json_encode( $this->regex ), true ) );
 
 			wp_add_inline_script( 'password-strength-meter', 'jQuery(document).ready(function() { jQuery(\'.pw-weak\').remove();});' );
 
@@ -356,14 +353,14 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 					<?php
 					unset( $this->msgs->error_strings['history'] );
 
-					$is_needed                   = isset( $this->role_options->rules['exclude_special_chars'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['exclude_special_chars'] );
+					$is_needed                   = isset( $this->role_options->rules['exclude_special_chars'] ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['exclude_special_chars'] );
 					$do_we_have_chars_to_exclude = isset( $this->role_options->excluded_special_chars ) && ! empty( $this->role_options->excluded_special_chars );
 
 					/**
 					 * Edge case when all special characters are excluded in the excluded characters
 					 * can return false positive when new password is set
 					 */
-					if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['special_chars'] ) && isset( $this->msgs->error_strings['special_chars'] ) ) {
+					if ( ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['special_chars'] ) && isset( $this->msgs->error_strings['special_chars'] ) ) {
 						unset( $this->msgs->error_strings['special_chars'] );
 					}
 
@@ -384,20 +381,20 @@ if ( ! class_exists( 'PPM_WP_Forms' ) ) {
 				return ob_get_clean();
 		}
 
-			/**
-			 * Add password hints to reset password form.
-			 */
+		/**
+		 * Add password hints to reset password form.
+		 */
 		public function add_hint_to_reset_form() {
-			if ( isset( $_GET['action'] ) && 'resetpass' === $_GET['action'] ) {
+			if ( isset( $_GET['action'] ) && 'resetpass' === $_GET['action'] ) { // phpcs:ignore 
 				echo wp_kses_post( $this->password_hint() );
 				echo '<style>.indicator-hint { display: none; } #pass1-text { margin-bottom: 0; }</style><br>';
 			}
 		}
 
-			/**
-			 * Remove WCs built in PW meter to avoid conflics -
-			 * see https://github.com/WPWhiteSecurity/password-policy-manager/issues/298.
-			 */
+		/**
+		 * Remove WCs built in PW meter to avoid conflics -
+		 * see https://github.com/WPWhiteSecurity/password-policy-manager/issues/298.
+		 */
 		public function remove_wc_password_strength() {
 			wp_dequeue_script( 'wc-password-strength-meter' );
 		}

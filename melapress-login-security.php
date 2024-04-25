@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     1.2.2
+ * Version:     1.3.0
  * Plugin URI:  https://melapress.com/wordpress-login-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      Melapress
@@ -34,7 +34,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @package wordpress
+ * @package WordPress
  * @subpackage wpassword
  */
 
@@ -170,7 +170,7 @@ if ( ! function_exists( $mpls ) ) {
 		/**
 		 * Meta key flag to mark user as blocked.
 		 */
-		define( 'PPMWP_VERSION', '1.2.2' );
+		define( 'PPMWP_VERSION', '1.3.0' );
 	}
 
 	if ( ! defined( 'PPMWP_MENU_SLUG' ) ) {
@@ -180,7 +180,6 @@ if ( ! function_exists( $mpls ) ) {
 		define( 'PPMWP_MENU_SLUG', 'ppm_wp_settings' );
 	}
 
-	
 
 	/*
 	 * Include classes that define and provide policies
@@ -197,6 +196,12 @@ if ( ! function_exists( $mpls ) ) {
 	 * @return boolean
 	 */
 	if ( ! function_exists( 'ppm_is_user_exempted' ) ) {
+		/**
+		 * Checks if a user is exempted from the policies
+		 *
+		 * @param integer $user_id - ID of user we are checking.
+		 * @return boolean
+		 */
 		function ppm_is_user_exempted( $user_id = false ) {
 			$exempted = PPM_WP::is_user_exempted( $user_id );
 			return $exempted;
@@ -209,6 +214,11 @@ if ( ! function_exists( $mpls ) ) {
 	 * @return object
 	 */
 	if ( ! function_exists( 'ppm_wp' ) ) {
+		/**
+		 * Get an instance of the main class
+		 *
+		 * @return object
+		 */
 		function ppm_wp() {
 
 			/**
@@ -226,11 +236,17 @@ if ( ! function_exists( $mpls ) ) {
 	/* @free:start */
 	// Redirect to settings on activate.
 	add_action( 'admin_init', 'mls_plugin_activate_redirect' );
+
+	/**
+	 * Redirect to settings on plugin activation.
+	 *
+	 * @return void
+	 */
 	function mls_plugin_activate_redirect() {
-		if ( get_site_option( 'mls_redirect_to_settings', false )) {
+		if ( get_site_option( 'mls_redirect_to_settings', false ) ) {
 			delete_site_option( 'mls_redirect_to_settings' );
 			$url = add_query_arg( 'page', 'ppm_wp_settings', network_admin_url( 'admin.php' ) );
-			wp_redirect( $url );
+			wp_safe_redirect( $url );
 		}
 	}
 	/* @free:end */
@@ -241,8 +257,11 @@ if ( ! function_exists( $mpls ) ) {
  *
  * @return void
  */
-add_action( 'before_woocommerce_init', function() {
-	if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
-		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+add_action(
+	'before_woocommerce_init',
+	function() {
+		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+		}
 	}
-} );
+);

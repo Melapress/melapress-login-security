@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 /**
  * PPM New User Register
  *
@@ -7,8 +7,10 @@
  * @author Melapress
  */
 
+namespace PPMWP;
+
 // If check class exists OR not.
-if ( ! class_exists( 'PPM_New_User_Register' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_New_User_Register' ) ) {
 	/**
 	 * Declare PPM_New_User_Register Class
 	 */
@@ -32,7 +34,7 @@ if ( ! class_exists( 'PPM_New_User_Register' ) ) {
 		 * @param object $user User object.
 		 */
 		public function ppm_first_time_login( $user_login, $user ) {
-			$user_profile = new PPM_User_Profile();
+			$user_profile = new \PPMWP\PPM_User_Profile();
 			$user_profile->ppm_handle_login_based_resets( $user_login, $user, 'new-user' );
 		}
 
@@ -47,9 +49,9 @@ if ( ! class_exists( 'PPM_New_User_Register' ) ) {
 		public function override_login_redirects( $redirect_to, $requested_redirect_to, $user ) {
 			if ( ! empty( $redirect_to ) && is_a( $user, '\WP_User' ) ) {
 
-				$reset            = new PPM_WP_Reset();
+				$reset            = new \PPMWP\PPM_WP_Reset();
 				$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
-				$ppm              = PPM_WP::_instance();
+				$ppm              = \PPM_WP::_instance();
 
 				if ( $verify_reset_key && ! $verify_reset_key->errors ) {
 					$ppm->handle_user_redirection( $verify_reset_key, false, true );
@@ -67,11 +69,12 @@ if ( ! class_exists( 'PPM_New_User_Register' ) ) {
 		 */
 		public function ppm_validate_password_reset( $error, $user ) {
 			// Get user reset key.
-			$reset            = new PPM_WP_Reset();
+			$reset            = new \PPMWP\PPM_WP_Reset();
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
 
+			// Ignore nonce check as we are only using this as a flag.
 			// If check reset key exists OR not.
-			if ( ( $verify_reset_key && ! $verify_reset_key->errors ) && ( isset( $_GET['action'] ) && 'rp' === $_GET['action'] ) ) {
+			if ( ( $verify_reset_key && ! $verify_reset_key->errors ) && ( isset( $_GET['action'] ) && 'rp' === $_GET['action'] ) ) { // phpcs:ignore 
 				// Logout current user.
 				wp_logout();
 				// Login notice.
@@ -99,7 +102,8 @@ if ( ! class_exists( 'PPM_New_User_Register' ) ) {
 		 */
 		public function ppm_new_user_errors( $errors, $update, $user ) {
 
-			if ( isset( $_POST['from'] ) && 'profile' === $_POST['from'] ) {
+			// Ignore nonce check as we are only using this as a flag.
+			if ( isset( $_POST['from'] ) && 'profile' === $_POST['from'] ) { // phpcs:ignore 
 				return;
 			}
 
@@ -109,15 +113,15 @@ if ( ! class_exists( 'PPM_New_User_Register' ) ) {
 			$user_settings = $ppm->options->users_options;
 			$role_setting  = $ppm->options->setting_options;
 
-			$options_master_switch    = PPMWP\Helpers\OptionsHelper::string_to_bool( $options->master_switch );
-			$settings_master_switch   = PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->master_switch );
-			$inherit_policies_setting = PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->inherit_policies );
+			$options_master_switch    = \PPMWP\Helpers\OptionsHelper::string_to_bool( $options->master_switch );
+			$settings_master_switch   = \PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->master_switch );
+			$inherit_policies_setting = \PPMWP\Helpers\OptionsHelper::string_to_bool( $user_settings->inherit_policies );
 
 			$is_needed = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
 
 			if ( $is_needed ) {
 
-				$pwd_check          = new PPM_WP_Password_Check();
+				$pwd_check          = new \PPMWP\PPM_WP_Password_Check();
 				$post_array         = filter_input_array( INPUT_POST );
 				$does_violate_rules = $pwd_check->does_violate_rules( $post_array['pass1'] );
 

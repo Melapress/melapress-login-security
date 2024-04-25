@@ -5,7 +5,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Tested up to: 6.4.3
 Tags: login security, password security, password policies, password strength, limit login attempts, login, login protection, one click password reset, login security policies
-Stable tag: 1.2.1
+Stable tag: 1.3.0
 Requires PHP: 7.2
 
 Implement customized WordPress login and password security policies with easy to beef up the security of your users and website.
@@ -103,25 +103,28 @@ You can find more detailed information about WordPress website security, passwor
 
 == Changelog ==
 
-= 1.2.2 (2024-03-01)
+= 1.3.0
 
-* **Plugin improvements*
-	* Removed some redundant code inside the plugin for an improved overall: speed and performance
-	* Added logic check and notice for users in regards to the 'From email address' used by the plugin when using the "import settings" feature
-	* Users can now remove default policies over WordPress forms from the 'Forms & Placements' plugin page
-	* Tweaked how the "Run inactive check" button acts when it is manually run by the administrator (Locked Users table)
-	* User login time restrictions - lots of UX improvements in the settings area
-	* User login time restrictions - added input to allow customizable text shown to users during their 'restricted time' on the site.
+* **New features**
+	* The "Limit Failed Login Attempts" Premium feature is now available in the Free version.
+	* Added a new Premium feature: Geo-blocking for the login page to restrict access from unwanted countries.
+	* Introduced a Premium feature to restrict login based on IP history.
+	* Added a Premium feature to view analytics regarding user passwords and activity via the Reports page.
+	* Implemented a Premium feature to reset passwords based on role, user, or a selective list of users.
+	* Added a Premium feature to import users to the site via a CSV file.
 
-* **Plugin fixes*
-	* Broken/invalid URL of a SVG used inside the plugin
-	* Fixed a potential crash that could occur when the plugin was running on sites running on PHP 7.2
-	* Fixed bug which caused removal of data upon uninstall (if required) within the Free version
-	* Fixed an edge case that could cause a wizard to be prompted inside the plugin dashboard, in regards to missing Email Templates content
-	* A bug inside "Professional" plan users, when in an edge case the 'Remove all plugin data on uninstall" setting, could cause a fatal error once activated.
+* **Improvements**
+	* Made several UX improvements in the "Timed Login Policies" section of the plugin.
+	* Enhanced email deliverability by adjusting the "From" email address used by the plugin.
+	* Improved plugin loading speed and data processing.
+	* Enhanced plugin security by reviewing input sanitization and updating all libraries used by the plugin.
+	* Included support for an outdated Premium plan to prevent potential issues.
+	* Made several minor UX/UI improvements and text updates across the plugin.
 
-* **Maintenence*
-	* Fixed a couple of broken or misleading URLs inside the Free version of the plugin
-	* Changed some old text and artwork references of previous branding inside some of the Email Templates
-
-Please refer to the [plugin changelog](https://melapress.com/support/kb/melapress-login-security-plugin-changelog/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) for a complete detailed list of what is new, improved and fixed in every update of Melapress Login Security. For a high level overview / highlights about each version update, please refer to the [plugin release notes](https://melapress.com/wordpress-login-security/releases/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls).
+* **Bug fixes**
+	* Resolved an error that could occur when resetting passwords for Professional plan users.
+	* Fixed PHP errors and warnings that might appear when logging in with an incorrect password using the Ultimate Member login form.
+	* Addressed a PHP error that could occur on the Ultimate Member login page when using non-existent users for login.
+	* Fixed PHP warnings generated on multisite when the Summary Email was sent.
+	* Resolved a redirection issue when using a custom login URL.
+	* Fixed plugin text overlapping on small devices and resolved several UI/UX issues across the plugin.

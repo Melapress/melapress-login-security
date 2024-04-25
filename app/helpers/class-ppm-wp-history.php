@@ -6,7 +6,9 @@
  * @subpackage wpassword
  */
 
-if ( ! class_exists( 'PPM_WP_History' ) ) {
+namespace PPMWP;
+
+if ( ! class_exists( '\PPMWP\PPM_WP_History' ) ) {
 
 	/**
 	 * Manipulate Users' Password History
@@ -43,8 +45,8 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 * @param  array   $password_event An array of the password and it's timestamp.
 		 * @return boolean True on success, false if failed
 		 */
-		public static function _push( $user_id, $password_event ) {
-		   
+		public static function push( $user_id, $password_event ) {
+
 			$ppm = ppm_wp();
 
 			// get the saved history.
@@ -56,7 +58,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 
 			// Creating dummy event array to find if the password was already set.
 			$dummy_event = array( $password_event );
-			if ( count( array_uintersect( $dummy_event, $password_history, 'PPM_WP_History::compare_passwords' ) ) ) {
+			if ( count( array_uintersect( $dummy_event, $password_history, '\PPMWP\PPM_WP_History::compare_passwords' ) ) ) {
 				// So the password already exists in history, no need to add it again.
 				return true;
 			}
@@ -88,7 +90,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 * Reset password by user also happens after password expiration. User clicks "get new password" link.
 		 * So the same action happens as he reset password after he forgot his password.
 		 *
-		 * @param integer $user The user object,
+		 * @param integer $user The user object.
 		 * @param string  $new_pass The new password in plain text.
 		 */
 		public function reset_by_user( $user, $new_pass ) {
@@ -104,7 +106,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 			);
 
 			// push current password to password history of the user.
-			self::_push( $user->ID, $password_event );
+			self::push( $user->ID, $password_event );
 
 			// Remove password expired flag.
 			delete_user_meta( $user->ID, PPM_WP_META_PASSWORD_EXPIRED, '1' );
@@ -139,7 +141,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 				'pest'      => 'sss',
 			);
 			if ( $push_event ) {
-				self::_push( $user_id, $password_event );
+				self::push( $user_id, $password_event );
 			}
 
 			// Apply last active time.
@@ -216,14 +218,14 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 		 */
 		public function ppm_get_first_login_policy( $user_id = 0, $roles = array() ) {
 			$ppm             = ppm_wp();
-			$default_options = isset( $ppm->options->inherit['master_switch'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : array();
+			$default_options = isset( $ppm->options->inherit['master_switch'] ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->inherit['master_switch'] ) ? $ppm->options->inherit : array();
 			if ( ! is_multisite() || ! doing_action( 'invite_user' ) ) {
 				// Get user by ID.
 				$get_userdata = get_user_by( 'ID', $user_id );
 				$roles        = $get_userdata->roles;
 			}
 
-			$roles = PPMWP\Helpers\OptionsHelper::prioritise_roles( $roles );
+			$roles = \PPMWP\Helpers\OptionsHelper::prioritise_roles( $roles );
 			$roles = reset( $roles );
 
 			// If we reach this point with no default options, stop here.
@@ -234,11 +236,11 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 			// Get option by role name.
 			$options = get_site_option( PPMWP_PREFIX . '_' . $roles . '_options', $default_options );
 
-			if ( ! empty( $options ) && ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $options['enforce_password'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $options['change_initial_password'] ) ) ) {
+			if ( ! empty( $options ) && ( ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $options['enforce_password'] ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $options['change_initial_password'] ) ) ) {
 				return true;
 			}
 			// If we have no role options, lets use the master policy.
-			if ( empty( $options ) && ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $default_options['enforce_password'] ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $default_options['change_initial_password'] ) ) ) {
+			if ( empty( $options ) && ( ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $default_options['enforce_password'] ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $default_options['change_initial_password'] ) ) ) {
 				return true;
 			}
 			// Always return false.
@@ -261,7 +263,7 @@ if ( ! class_exists( 'PPM_WP_History' ) ) {
 				'by'        => 'user',
 				'pest'      => 'sss',
 			);
-			self::_push( $user_id, $password_event );
+			self::push( $user_id, $password_event );
 			// If check current running action `profile_update`.
 			if ( $this->ppm_get_first_login_policy( '', $role ) ) {
 				$key = get_password_reset_key( $userdata );
