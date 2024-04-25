@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 /**
  * WP Pointer class for new installs.
  *
@@ -8,11 +8,13 @@
  * @author Naili Concescu <djanym@gmail.com>
  */
 
+namespace PPMWP;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-if ( ! class_exists( 'PPM_WP_Pointer' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_WP_Pointer' ) ) {
 
 	/**
 	 * Provides pointer popup after installing the plugin
@@ -45,11 +47,11 @@ if ( ! class_exists( 'PPM_WP_Pointer' ) ) {
 					),
 				),
 			);
-			new WP_Admin_Pointer( $pointers );
+			new \PPMWP\WP_Admin_Pointer( $pointers );
 		}
 
 	}
-	new PPM_WP_Pointer();
+	new \PPMWP\PPM_WP_Pointer();
 }
 
 if ( ! class_exists( 'WP_Admin_Pointer' ) ) {
@@ -162,7 +164,7 @@ if ( ! class_exists( 'WP_Admin_Pointer' ) ) {
 			if ( empty( $this->valid ) ) {
 				return;
 			}
-			$pointers = json_encode( $this->valid );
+			$pointers = wp_json_encode( $this->valid );
 			?>
 			<script type="text/javascript">
 				//<![CDATA[

@@ -31,17 +31,13 @@
 					<tbody>
 						<tr class="setting-heading" valign="top">
 							<th scope="row">
-								<label for="ppm-send-summary-email">
-									<h3><?php esc_html_e( 'Standard forms', 'ppm-wp' ); ?></h3>
-								</label>								
+								<h3><?php esc_html_e( 'Standard forms', 'ppm-wp' ); ?></h3>							
 							</th>
 						</tr>
 
 						<tr valign="top">
 							<th scope="row">
-								<label for="ppm-enable_ld_register">
-									<?php esc_attr_e( 'Wordpress forms', 'ppm-wp' ); ?>
-								</label>
+								<?php esc_attr_e( 'Wordpress forms', 'ppm-wp' ); ?>
 							</th>
 							<td>
 								<fieldset>

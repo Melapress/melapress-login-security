@@ -6,9 +6,11 @@
  * @subpackage wpassword
  */
 
+namespace PPMWP;
+
 use \PPMWP\Helpers\OptionsHelper;
 
-if ( ! class_exists( 'PPM_WP_Password_Gen' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_WP_Password_Gen' ) ) {
 
 	/**
 	 * Generates passwords in accordance with policies
@@ -61,10 +63,10 @@ if ( ! class_exists( 'PPM_WP_Password_Gen' ) ) {
 		/**
 		 * Generates a strong password conforming to policies
 		 *
+		 * @param  bool $return - return needed.
 		 * @return string Strong Password
 		 */
-		public function _generate() {
-
+		public function _generate( $return = false ) {
 			// Need to remove the filter as early as possible.
 			if ( doing_filter( 'random_password' ) ) {
 				// remove the filter from wp_generate_password for any other functions.
@@ -121,10 +123,10 @@ if ( ! class_exists( 'PPM_WP_Password_Gen' ) ) {
 				$full_password = $password . self::_random_string( $length - mb_strlen( $password ), $allchars );
 
 				// shuffle the password.
-				$strong_password = PPM_MB_String_Helper::mb_str_shuffle( $full_password );
+				$strong_password = \PPMWP\PPM_MB_String_Helper::mb_str_shuffle( $full_password );
 			}
 			// If doing ajax, then print the result and exit.
-			if ( isset( $_REQUEST['action'] ) && 'ppm_ajax_session_expired' != $_REQUEST['action'] ) {
+			if ( ! $return && isset( $_REQUEST['action'] ) && 'ppm_ajax_session_expired' != $_REQUEST['action'] ) {
 				if ( wp_doing_ajax() ) {
 					wp_send_json_success( $strong_password );
 				}

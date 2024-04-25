@@ -7,7 +7,9 @@
  * @package WordPress
  */
 
-use PPMWP\Validators\Validator;
+namespace PPMWP;
+
+use \PPMWP\Validators\Validator;
 
 /**
  * Handles password checks.
@@ -15,7 +17,7 @@ use PPMWP\Validators\Validator;
  * @package WordPress
  * @subpackage wpassword
  */
-if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_WP_Password_Check' ) ) {
 
 	/**
 	 * Checks given password against policies
@@ -93,7 +95,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * @param WP_Error $errors Errors in policy validation.
 		 * @param WP_User  $user User to check.
 		 */
-		public function validate_reset( WP_Error $errors, WP_User $user ) {
+		public function validate_reset( \WP_Error $errors, \WP_User $user ) {
 			// if the user is exempted, don't validate.
 			if ( ppm_is_user_exempted( $user->ID ) ) {
 				return;
@@ -121,7 +123,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * @param boolean  $update If the password is being updated.
 		 * @param object   $user The user whose password is being updated.
 		 */
-		public function edit_user( WP_Error $errors, $update, $user ) {
+		public function edit_user( \WP_Error $errors, $update, $user ) {
 
 			// While creating user, $user->ID is not set, return early in this case.
 			if ( ! isset( $user->ID ) ) {
@@ -194,7 +196,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 					break;
 			}
 
-			if ( 'reset-form-return' == $context ) {
+			if ( 'reset-form-return' === $context ) {
 				return $this->violations;
 			}
 		}
@@ -219,7 +221,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 				return false;
 			}
 
-			$is_old_password = self::_is_old_password( $password, $user_id );
+			$is_old_password = self::is_old_password( $password, $user_id );
 			// password is ok if no rules are violated.
 			if ( ! $this->does_violate_rules( $password )
 				// and the password is not one from users' history.
@@ -246,13 +248,13 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 */
 		public function does_violate_rules( $password, $return_failures = false ) {
 			// match password with regex rules.
-			$regex_results = $this->_match_rules( $password );
+			$regex_results = $this->match_rules( $password );
 
 			// filter regex results to clean up array and get violations.
-			$successful_regexes = array_filter( $regex_results, array( $this, '_is_violation' ) );
+			$successful_regexes = array_filter( $regex_results, array( $this, 'is_violation' ) );
 
 			if ( ! isset( $this->options->rules ) ) {
-				$ppm_options   = new PPM_WP_Options();
+				$ppm_options   = new \PPMWP\PPM_WP_Options();
 				$policy        = $ppm_options->user_role_policy();
 				$this->options = $policy;
 			}
@@ -264,14 +266,14 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 			// the regexes that the password failed to match against.
 			$failed_regexes = array();
 			foreach ( $this->options->rules as $key => $rule ) {
-				if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) && ! isset( $successful_regexes[ $key ] ) ) {
+				if ( \PPMWP\Helpers\OptionsHelper::string_to_bool( $rule ) && ! isset( $successful_regexes[ $key ] ) ) {
 					$failed_regexes[ $key ] = true;
 				}
 			}
 
 			// since the regex check earlier was skipped then we need to check.
 			// excluded special characters here to ensure we don't have any.
-			if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->rules['exclude_special_chars'] ) && isset( $this->options->excluded_special_chars ) ) {
+			if ( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->rules['exclude_special_chars'] ) && isset( $this->options->excluded_special_chars ) ) {
 				$excluded_chars_array = str_split( html_entity_decode( str_replace( '&pound', '£', $this->options->excluded_special_chars ), null, 'UTF-8' ), 1 );
 				foreach ( $excluded_chars_array as $char ) {
 					// remove any chars from the allowed list.
@@ -287,7 +289,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 			 * Edge case when all special characters are excluded in the excluded characters
 			 * can return false positive when new password is set.
 			 */
-			if ( ! PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->rules['special_chars'] ) && isset( $failed_regexes['special_chars'] ) ) {
+			if ( ! \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->rules['special_chars'] ) && isset( $failed_regexes['special_chars'] ) ) {
 				unset( $failed_regexes['special_chars'] );
 			}
 
@@ -304,7 +306,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 			}
 
 			// length fallback.
-			if ( isset( $failed_regexes['length'] ) && ( isset( $_POST['mepr-confirm-password'] ) || isset( $_POST['mepr_user_password'] ) ) ) {
+			if ( isset( $failed_regexes['length'] ) && ( isset( $_POST['mepr-confirm-password'] ) || isset( $_POST['mepr_user_password'] ) ) ) { // phpcs:ignore 
 				$min = $this->options->min_length;
 				if ( strlen( $password ) < $min ) {
 					$failed_regexes['length'] = true;
@@ -339,7 +341,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * @param array $regex_result - Violations check result.
 		 * @return boolean
 		 */
-		private function _is_violation( $regex_result ) {
+		private function is_violation( $regex_result ) {
 
 			// pattern matching failed, so violation.
 			if ( empty( $regex_result ) ) {
@@ -370,7 +372,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * @param  string $password - PW to check.
 		 * @return array  The result of the pattern matching.
 		 */
-		private function _match_rules( $password ) {
+		private function match_rules( $password ) {
 
 			$result = array();
 
@@ -387,13 +389,13 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 				}
 
 				if ( ! isset( $this->options->rules ) ) {
-					$ppm_options   = new PPM_WP_Options();
+					$ppm_options   = new \PPMWP\PPM_WP_Options();
 					$policy        = $ppm_options->user_role_policy();
 					$this->options = $policy;
 				}
 
 				// only check if the policy is enabled.
-				if ( isset( $this->options->rules ) && PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->rules[ $rule ] ) ) {
+				if ( isset( $this->options->rules ) && \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->options->rules[ $rule ] ) ) {
 
 					$matches = array();
 					// set the result of pattern matching to a new element with the rule namespace as key.
@@ -413,7 +415,7 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 		 * @param int    $user_id User to perform check for.
 		 * @return boolean
 		 */
-		public static function _is_old_password( $new_pass, $user_id ) {
+		public static function is_old_password( $new_pass, $user_id ) {
 
 			// get the saved history.
 			$password_history = get_user_meta( $user_id, PPM_WP_META_KEY, true );
@@ -423,10 +425,10 @@ if ( ! class_exists( 'PPM_WP_Password_Check' ) ) {
 				return false;
 			}
 
-			$ppm = ppm_wp();
+			$ppm                  = ppm_wp();
 			$new_password_history = array_slice( array_reverse( $password_history ), 0, $ppm->options->password_history + 1 );
 
-			foreach ( $new_password_history as $event ) {				
+			foreach ( $new_password_history as $event ) {
 				// check against old password.
 				$match = wp_check_password( $new_pass, $event['password'], $user_id );
 

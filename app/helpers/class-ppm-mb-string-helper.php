@@ -6,11 +6,13 @@
  * @subpackage wpassword
  */
 
+namespace PPMWP;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-if ( ! class_exists( 'PPM_MB_String_Helper' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_MB_String_Helper' ) ) {
 
 	/**
 	 * Helper object for some string manipulations.
@@ -56,16 +58,16 @@ if ( ! class_exists( 'PPM_MB_String_Helper' ) ) {
 		 */
 		public static function mb_split_string( $string, $split_length = 1, $encoding = null ) {
 			if ( null !== $string && ! \is_scalar( $string ) && ! ( \is_object( $string ) && \method_exists( $string, '__toString' ) ) ) {
-				trigger_error( 'mb_str_split(): expects parameter 1 to be string, ' . \esc_html( \gettype( $string ) ) . ' given', E_USER_WARNING );
+				trigger_error( 'mb_str_split(): expects parameter 1 to be string, ' . \esc_html( \gettype( $string ) ) . ' given', E_USER_WARNING );  // phpcs:ignore 
 				return null;
 			}
 			if ( null !== $split_length && ! \is_bool( $split_length ) && ! \is_numeric( $split_length ) ) {
-				trigger_error( 'mb_str_split(): expects parameter 2 to be int, ' . \esc_html( \gettype( $split_length ) ) . ' given', E_USER_WARNING );
+				trigger_error( 'mb_str_split(): expects parameter 2 to be int, ' . \esc_html( \gettype( $split_length ) ) . ' given', E_USER_WARNING );  // phpcs:ignore 
 				return null;
 			}
 			$split_length = (int) $split_length;
 			if ( 1 > $split_length ) {
-				trigger_error( 'mb_str_split(): The length of each segment must be greater than zero', E_USER_WARNING );
+				trigger_error( 'mb_str_split(): The length of each segment must be greater than zero', E_USER_WARNING );  // phpcs:ignore 
 				return false;
 			}
 			if ( null === $encoding ) {
@@ -88,7 +90,7 @@ if ( ! class_exists( 'PPM_MB_String_Helper' ) ) {
 					}
 				}
 				if ( ! in_array( $encoding, $aliases, true ) ) {
-					trigger_error( 'mb_str_split(): Unknown encoding "' . esc_html( $encoding ) . '"', E_USER_WARNING );
+					trigger_error( 'mb_str_split(): Unknown encoding "' . esc_html( $encoding ) . '"', E_USER_WARNING );  // phpcs:ignore 
 					return null;
 				}
 			}

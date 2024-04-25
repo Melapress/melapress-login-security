@@ -44,7 +44,7 @@ class OptionsHelper {
 		$master_policy = self::get_master_policy_options();
 		if ( empty( $master_policy ) || ! isset( $master_policy->inactive_users_enabled ) ) {
 			// If empty, then check DB.
-			$master_policy = ( object )get_site_option( PPMWP_PREFIX . '_options' );
+			$master_policy = (object) get_site_option( PPMWP_PREFIX . '_options' );
 		}
 
 		// check if we are enabled.
@@ -297,14 +297,14 @@ class OptionsHelper {
 		}
 		// if the user is inactive exempt then delete their expiry and bail.
 		if ( self::is_user_inactive_exempted( $user_id ) ) {
-			delete_user_meta( $user_id, PPMWP_PREFIX . '_' . \PPM_WP_History::LAST_EXPIRY_TIME_KEY );
+			delete_user_meta( $user_id, PPMWP_PREFIX . '_' . \PPMWP\PPM_WP_History::LAST_EXPIRY_TIME_KEY );
 			return;
 		}
 		// if time is zero then delete the key otherwise update with new value.
 		if ( 0 === $time ) {
-			delete_user_meta( $user_id, PPMWP_PREFIX . '_' . \PPM_WP_History::LAST_EXPIRY_TIME_KEY );
+			delete_user_meta( $user_id, PPMWP_PREFIX . '_' . \PPMWP\PPM_WP_History::LAST_EXPIRY_TIME_KEY );
 		} else {
-			update_user_meta( $user_id, PPMWP_PREFIX . '_' . \PPM_WP_History::LAST_EXPIRY_TIME_KEY, $time );
+			update_user_meta( $user_id, PPMWP_PREFIX . '_' . \PPMWP\PPM_WP_History::LAST_EXPIRY_TIME_KEY, $time );
 		}
 
 	}
@@ -373,9 +373,12 @@ class OptionsHelper {
 				$roles    = self::prioritise_roles( $userdata->roles );
 			}
 			foreach ( $roles as $role ) {
-				if ( isset( $ppm->inactive ) && $ppm->inactive->is_role_exempt( $role ) ) {
-					$exempt = true;
+				if ( is_object( $ppm->inactive ) ) {
+					if ( isset( $ppm->inactive ) && $ppm->inactive->is_role_exempt( $role ) ) {
+						$exempt = true;
+					}
 				}
+				
 				// exit the loop early if one of the roles is considered exempt.
 				if ( $exempt ) {
 					break;
@@ -479,9 +482,9 @@ class OptionsHelper {
 		}
 
 		if ( ! isset( $inactive_expiry_time ) ) {
-			$options = get_site_option( PPMWP_PREFIX . '_options' );
+			$options              = get_site_option( PPMWP_PREFIX . '_options' );
 			$inactive_expiry_time = $options['inactive_users_expiry']['value'] . ' ' . $options['inactive_users_expiry']['unit'];
-		}		
+		}
 
 		$inactive_expiry_time = strtotime( $inactive_expiry_time, 0 );
 		return $inactive_expiry_time;
@@ -594,8 +597,9 @@ class OptionsHelper {
 	 * in unexpected results when used with data in the wild. See, eg,
 	 * http://core.trac.wordpress.org/ticket/19888
 	 *
-	 * @arg array $a
-	 * @arg array $b
+	 * @param array $a - Array 1.
+	 * @param array $b - Array 2.
+	 * @param array $remove_orphans - remove empties..
 	 * @return array
 	 */
 	public static function recursive_parse_args( &$a, $b, $remove_orphans = false ) {
@@ -608,7 +612,7 @@ class OptionsHelper {
 			// Items which used to exist in $b but dont in the new settings.
 			$orphaned_keys = array_diff_key( $b, $a );
 			if ( ! empty( $orphaned_keys ) ) {
-				foreach( $orphaned_keys as $key => $val ) {
+				foreach ( $orphaned_keys as $key => $val ) {
 					unset( $r[ $key ] );
 				}
 			}
@@ -625,8 +629,6 @@ class OptionsHelper {
 				$r[ $k ] = $v;
 			}
 		}
-
-
 
 		return $r;
 	}

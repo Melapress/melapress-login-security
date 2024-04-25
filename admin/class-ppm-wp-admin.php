@@ -8,10 +8,10 @@
 
 namespace PPMWP\Admin;
 
-use \PPMWP\Utilities\ValidatorFactory as ValidatorFactory;
-use \PPMWP\Helpers\OptionsHelper as OptionsHelper;
+use \PPMWP\Utilities\ValidatorFactory as ValidatorFactory; // phpcs:ignore
+use \PPMWP\Helpers\OptionsHelper as OptionsHelper; // phpcs:ignore
 
-if ( ! class_exists( 'PPM_WP_Admin' ) ) {
+if ( ! class_exists( '\PPMWP\Admin\PPM_WP_Admin' ) ) {
 
 	/**
 	 * Declare PPM_WP_Admin class
@@ -54,20 +54,22 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 * @param array|object $setting_options Get current role option.
 		 */
 		public function __construct( $options, $settings, $setting_options ) {
-
-			$this->options = $options;
-
-			$this->settings = $settings;
-
+			$this->options     = $options;
+			$this->settings    = $settings;
 			$this->setting_tab = $setting_options;
 
 			add_filter( 'plugin_action_links_' . PPM_WP_BASENAME, array( $this, 'plugin_action_links' ), 100, 1 );
-
 			add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 
+			// Ajax.
 			add_action( 'wp_ajax_get_users_roles', array( $this, 'search_users_roles' ) );
-
 			add_action( 'wp_ajax_ppm_wp_send_test_email', array( $this, 'send_test_email' ) );
+			add_action( 'wp_ajax_mls_process_reset', array( '\PPMWP\PPM_WP_Reset', 'process_global_password_reset' ) );
+
+			// Bulk actions.
+			add_filter( 'bulk_actions-users', array( '\PPMWP\PPM_WP_Reset', 'add_bulk_action_link' ), 10, 1 );
+			add_filter( 'handle_bulk_actions-users', array( '\PPMWP\PPM_WP_Reset', 'handle_bulk_action_link' ), 10, 3 );
+			add_filter( 'admin_notices', array( '\PPMWP\PPM_WP_Reset', 'bulk_action_admin_notice' ), 10, 3 );
 
 			// Add dialog box.
 			add_action( 'admin_footer', array( $this, 'admin_footer_session_expired_dialog' ) );
@@ -164,11 +166,11 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 */
 		public function plugin_action_links( $old_links ) {
 			$new_links = array();
-			
+
 			if ( function_exists( 'ppm_freemius' ) ) {
 				if ( ppm_freemius()->can_use_premium_code() && isset( $old_links['upgrade'] ) ) {
 					unset( $old_links['upgrade'] );
-				} else if ( ppm_freemius()->is_free_plan() ) {
+				} elseif ( ppm_freemius()->is_free_plan() ) {
 					unset( $old_links['upgrade'] );
 					$upgrade_link = '<a style="color: #dd7363; font-weight: bold;" class="mls-premium-link" target="_blank" href="https://melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=referral&utm_campaign=mls">' . __( 'Get the Premium!', 'ppm-wp' ) . '</a>';
 					array_push( $new_links, $upgrade_link );
@@ -182,11 +184,13 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			array_push( $new_links, $config_link );
 
 			$docs_link = '<a target="_blank" href="' . add_query_arg(
-				array( 
-					'utm_source'   => 'plugins', 
-					'utm_medium'   => 'link', 
-					'utm_campaign' => 'mls', 
-				), 'https://www.melapress.com/support/kb/' ) . '">' . __( 'Docs', 'ppm-wp' ) . '</a>';
+				array(
+					'utm_source'   => 'plugins',
+					'utm_medium'   => 'link',
+					'utm_campaign' => 'mls',
+				),
+				'https://www.melapress.com/support/kb/'
+			) . '">' . __( 'Docs', 'ppm-wp' ) . '</a>';
 			array_push( $new_links, $docs_link );
 
 			return array_merge( $new_links, $old_links );
@@ -234,8 +238,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			add_action( "load-$settings_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$settings_hook_submenu", array( $this, 'process' ) );
 
-
-			// Add admin submenu page for form placement
+			// Add admin submenu page for form placement.
 			$forms_hook_submenu = add_submenu_page(
 				PPMWP_MENU_SLUG,
 				__( 'Forms & Placement', 'ppm-wp' ),
@@ -252,11 +255,11 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			add_action( "load-$forms_hook_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$forms_hook_submenu", array( $this, 'process_forms' ) );
 
-			// Add admin submenu page for form placement
+			// Add admin submenu page for form placement.
 			$hide_login_submenu = add_submenu_page(
 				PPMWP_MENU_SLUG,
-				__( 'Hide login page', 'ppm-wp' ),
-				__( 'Hide login page', 'ppm-wp' ),
+				__( 'Login page hardening', 'ppm-wp' ),
+				__( 'Login page hardening', 'ppm-wp' ),
 				'manage_options',
 				'ppm-hide-login',
 				array(
@@ -268,6 +271,25 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 
 			add_action( "load-$hide_login_submenu", array( $this, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$hide_login_submenu", array( $this, 'process_hide_login' ) );
+
+			if ( class_exists( '\PPMWP\Reports' ) ) {
+				// Add admin submenu page for form placement.
+				$reports_submenu = add_submenu_page(
+					PPMWP_MENU_SLUG,
+					__( 'Reports', 'ppm-wp' ),
+					__( 'Reports', 'ppm-wp' ),
+					'manage_options',
+					'ppm-reports',
+					array(
+						'\PPMWP\Reports',
+						'admin_page',
+					),
+					2
+				);
+
+				add_action( "load-$reports_submenu", array( $this, 'admin_enqueue_scripts' ) );
+				add_action( "admin_head-$reports_submenu", array( $this, 'process_hide_login' ) );
+			}
 
 			/* @free:start */
 			$hook_upgrade_submenu = add_submenu_page( PPMWP_MENU_SLUG, esc_html__( 'Premium Features ➤', 'ppm-wp' ), esc_html__( 'Premium Features ➤', 'ppm-wp' ), 'manage_options', 'ppm-upgrade', array( $this, 'ppm_display_upgrade_page' ), 3 );
@@ -320,13 +342,15 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			$is_user_action = isset( $_POST[ PPMWP_PREFIX . '_nonce' ] ) ? true : false; // phpcs:ignore
 
 			if ( $is_user_action ) {
-
-				$this->process_reset();
-
 				$this->save();
 			}
 		}
 
+		/**
+		 * Process forms settings.
+		 *
+		 * @return void
+		 */
 		public function process_forms() {
 			// nonce checked later before processing happens.
 			$is_user_action = isset( $_POST[ PPMWP_PREFIX . '_nonce' ] ) ? true : false; // phpcs:ignore
@@ -336,6 +360,11 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			}
 		}
 
+		/**
+		 * Process hide login settings.
+		 *
+		 * @return void
+		 */
 		public function process_hide_login() {
 			// nonce checked later before processing happens.
 			$is_user_action = isset( $_POST[ PPMWP_PREFIX . '_nonce' ] ) ? true : false; // phpcs:ignore
@@ -375,7 +404,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				$this->notice( 'admin_reset_error_notice' );
 			}
 			// Reset all users.
-			$reset = new \PPM_WP_Reset();
+			$reset = new \PPMWP\PPM_WP_Reset();
 			$reset->reset_all();
 			// Update global reset timestamp.
 			$this->update_global_reset_timestamp();
@@ -386,7 +415,8 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		/**
 		 * Save settings values.
 		 *
-		 * @return type
+		 * @param string $settings_type - Thing to save.
+		 * @return void
 		 */
 		public function save( $settings_type = '' ) {
 			// PPM Object.
@@ -415,24 +445,24 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				$this->notice( 'admin_save_success_notice' );
 			}
 
-			$post_array = filter_input_array( INPUT_POST );;
+			$post_array = filter_input_array( INPUT_POST );
 
 			if ( 'forms_and_placement' === $settings_type ) {
 				// Allow empty.
 				$settings = isset( $post_array['_ppm_options'] ) ? $post_array['_ppm_options'] : array();
 
-				$settings['enable_wp_reset_form']       = isset( $settings['enable_wp_reset_form'] );
-				$settings['enable_wp_profile_form']     = isset( $settings['enable_wp_profile_form'] );
-				$settings['enable_wc_pw_reset']         = isset( $settings['enable_wc_pw_reset'] );
-				$settings['enable_wc_checkout_reg']     = isset( $settings['enable_wc_checkout_reg'] );
-				$settings['enable_bp_register']         = isset( $settings['enable_bp_register'] );
-				$settings['enable_bp_pw_update']        = isset( $settings['enable_bp_pw_update'] );
-				$settings['enable_ld_register']         = isset( $settings['enable_ld_register'] );
-				$settings['enable_um_register']         = isset( $settings['enable_um_register'] );
-				$settings['enable_um_pw_update']        = isset( $settings['enable_um_pw_update'] );
-				$settings['enable_bbpress_pw_update']   = isset( $settings['enable_bbpress_pw_update'] );
-				$settings['enable_mepr_register']       = isset( $settings['enable_mepr_register'] );
-				$settings['enable_mepr_pw_update']      = isset( $settings['enable_mepr_pw_update'] );
+				$settings['enable_wp_reset_form']     = isset( $settings['enable_wp_reset_form'] );
+				$settings['enable_wp_profile_form']   = isset( $settings['enable_wp_profile_form'] );
+				$settings['enable_wc_pw_reset']       = isset( $settings['enable_wc_pw_reset'] );
+				$settings['enable_wc_checkout_reg']   = isset( $settings['enable_wc_checkout_reg'] );
+				$settings['enable_bp_register']       = isset( $settings['enable_bp_register'] );
+				$settings['enable_bp_pw_update']      = isset( $settings['enable_bp_pw_update'] );
+				$settings['enable_ld_register']       = isset( $settings['enable_ld_register'] );
+				$settings['enable_um_register']       = isset( $settings['enable_um_register'] );
+				$settings['enable_um_pw_update']      = isset( $settings['enable_um_pw_update'] );
+				$settings['enable_bbpress_pw_update'] = isset( $settings['enable_bbpress_pw_update'] );
+				$settings['enable_mepr_register']     = isset( $settings['enable_mepr_register'] );
+				$settings['enable_mepr_pw_update']    = isset( $settings['enable_mepr_pw_update'] );
 
 				$other_settings = (array) $ppm->options->ppm_setting;
 
@@ -449,8 +479,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				return;
 			}
 
-			
-			$settings   = $post_array['_ppm_options'];
+			$settings = $post_array['_ppm_options'];
 
 			// Save plugin settings.
 			if ( isset( $settings['exempted'] ) ) {
@@ -474,21 +503,21 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				/**
 				 * Validates the input based on the rules defined in the @see PPM_WP_Options::$settings_options_validation_rules
 				 */
-				foreach ( \PPM_WP_Options::$settings_options_validation_rules as $key => $valid_rules ) {
+				foreach ( \PPMWP\PPM_WP_Options::$settings_options_validation_rules as $key => $valid_rules ) {
 
 					if ( is_array( $valid_rules ) && ! isset( $valid_rules['typeRule'] ) ) {
 						foreach ( $valid_rules as $field_name => $rule ) {
-							if ( isset( $_POST['_ppm_options'][ $key ][ $field_name ] ) ) {
-								if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ][ $field_name ] ) ), $rule ) ) {
+							if ( isset( $_POST['_ppm_options'][ $key ][ $field_name ] ) ) { // phpcs:ignore 
+								if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ][ $field_name ] ) ), $rule ) ) { // phpcs:ignore 
 									$this->notice( 'admin_save_error_notice' );
 									$ok_to_save = false;
 								}
 							}
 						}
 					} else {
-						if ( isset( $_POST['_ppm_options'][ $key ] ) ) {
+						if ( isset( $_POST['_ppm_options'][ $key ] ) ) { // phpcs:ignore 
 							$rule = $valid_rules;
-							if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ] ) ), $rule ) ) {
+							if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ] ) ), $rule ) ) { // phpcs:ignore 
 								$this->notice( 'admin_save_error_notice' );
 								$ok_to_save = false;
 							}
@@ -507,8 +536,8 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			}
 
 			if ( 'hide_login' === $settings_type ) {
-				$settings['custom_login_url']         = isset( $settings['custom_login_url'] ) ? preg_replace("/[^-\w,]/", "", $settings['custom_login_url'] ) : $ppm->options->ppm_setting->custom_login_url;
-				$settings['custom_login_redirect']    = isset( $settings['custom_login_redirect'] ) ? preg_replace("/[^-\w,]/", "", $settings['custom_login_redirect'] ) : $ppm->options->ppm_setting->custom_login_redirect;
+				$settings['custom_login_url']      = isset( $settings['custom_login_url'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_url'] ) : $ppm->options->ppm_setting->custom_login_url;
+				$settings['custom_login_redirect'] = isset( $settings['custom_login_redirect'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_redirect'] ) : $ppm->options->ppm_setting->custom_login_redirect;
 
 				$other_settings = (array) $ppm->options->ppm_setting;
 
@@ -523,51 +552,55 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			/**
 			 * Save Tab options
 			 */
-			if ( ! isset( $_POST['_ppm_options']['master_switch'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['master_switch'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['master_switch'] = 0;
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['enforce_password'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['enforce_password'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['enforce_password'] = 0;
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['change_initial_password'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['change_initial_password'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['change_initial_password'] = 0;
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['timed_logins'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['timed_logins'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['timed_logins'] = 0;
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['disable_self_reset'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['restrict_login_ip'] ) ) { // phpcs:ignore 
+				$_POST['_ppm_options']['restrict_login_ip'] = 0;
+			}
+
+			if ( ! isset( $_POST['_ppm_options']['disable_self_reset'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['disable_self_reset'] = 0;
 			}
-		
-			if ( ! isset( $_POST['_ppm_options']['locked_user_disable_self_reset'] ) ) {
+
+			if ( ! isset( $_POST['_ppm_options']['locked_user_disable_self_reset'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['locked_user_disable_self_reset'] = 0;
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['disable_self_reset_message'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['disable_self_reset_message'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'ppm-wp' );
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['locked_user_disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'ppm-wp' );
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['user_unlocked_email_title'] ) || empty( $_POST['_ppm_options']['user_unlocked_email_title'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['user_unlocked_email_title'] ) || empty( $_POST['_ppm_options']['user_unlocked_email_title'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'ppm-wp' );
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['failed_login_policies_enabled'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['failed_login_policies_enabled'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['failed_login_policies_enabled'] = 0;
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['failed_login_reset_on_unblock'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['failed_login_reset_on_unblock'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['failed_login_reset_on_unblock'] = 0;
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['inactive_users_enabled'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['inactive_users_enabled'] ) ) {// phpcs:ignore 
 				$_POST['_ppm_options']['inactive_users_enabled'] = 0;
 			} else {
 				$_POST['_ppm_options']['inactive_users_enabled'] = 1;
@@ -596,55 +629,55 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					);
 				}
 
-				if ( empty( $_POST['_ppm_options']['inactive_users_expiry']['value'] ) ) {
+				if ( empty( $_POST['_ppm_options']['inactive_users_expiry']['value'] ) ) { // phpcs:ignore 
 					$this->notice( 'admin_save_error_required_field_notice' );
 					$ok_to_save = false;
 				} else {
-					$_POST['_ppm_options']['inactive_users_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['_ppm_options']['inactive_users_expiry']['value'] ) );
+					$_POST['_ppm_options']['inactive_users_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['_ppm_options']['inactive_users_expiry']['value'] ) ); // phpcs:ignore 
 				}
 			}
 
-			if ( ! isset( $_POST['_ppm_options']['inactive_users_reset_on_unlock'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['inactive_users_reset_on_unlock'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['inactive_users_reset_on_unlock'] = 0;
 			} else {
 				$_POST['_ppm_options']['inactive_users_reset_on_unlock'] = 1;
 			}
 
 			// Exclude special characters.
-			if ( ! isset( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) ) {
+			if ( ! isset( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['ui_rules']['exclude_special_chars'] = 0;
 			}
 
 			// Check inputs for emptyness.
 			$ok_to_save = true;
-			if ( isset( $_POST['_ppm_options']['min_length'] ) && empty( $_POST['_ppm_options']['min_length'] ) || isset( $_POST['_ppm_options']['password_expiry'] ) && empty( $_POST['_ppm_options']['password_expiry']['value'] ) && intval( $_POST['_ppm_options']['password_expiry']['value'] ) !== 0 || isset( $_POST['_ppm_options']['password_history'] ) && empty( $_POST['_ppm_options']['password_history'] ) ) {
-				$this->notice( 'admin_save_error_required_field_notice' );
+			if ( isset( $_POST['_ppm_options']['min_length'] ) && empty( $_POST['_ppm_options']['min_length'] ) || isset( $_POST['_ppm_options']['password_expiry'] ) && empty( $_POST['_ppm_options']['password_expiry']['value'] ) && intval( $_POST['_ppm_options']['password_expiry']['value'] ) !== 0 || isset( $_POST['_ppm_options']['password_history'] ) && empty( $_POST['_ppm_options']['password_history'] ) ) { // phpcs:ignore 
+				$this->notice( 'admin_save_error_required_field_notice' ); // phpcs:ignore 
 				$ok_to_save = false;
 			}
 
-			if ( isset( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) && intval( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) !== 0 && empty( $_POST['_ppm_options']['excluded_special_chars'] ) ) {
-				$this->notice( 'admin_save_error_required_field_notice' );
+			if ( isset( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) && intval( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) !== 0 && empty( $_POST['_ppm_options']['excluded_special_chars'] ) ) { // phpcs:ignore 
+				$this->notice( 'admin_save_error_required_field_notice' ); // phpcs:ignore 
 				$ok_to_save = false;
 			}
 
 			/**
 			 * Validates the input based on the rules defined in the @see PPM_WP_Options::$default_options_validation_rules
 			 */
-			foreach ( \PPM_WP_Options::$default_options_validation_rules as $key => $valid_rules ) {
+			foreach ( \PPMWP\PPM_WP_Options::$default_options_validation_rules as $key => $valid_rules ) {
 
 				if ( is_array( $valid_rules ) && ! isset( $valid_rules['typeRule'] ) ) {
 					foreach ( $valid_rules as $field_name => $rule ) {
-						if ( isset( $_POST['_ppm_options'][ $key ][ $field_name ] ) ) {
-							if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ][ $field_name ] ) ), $rule ) ) {
+						if ( isset( $_POST['_ppm_options'][ $key ][ $field_name ] ) ) { // phpcs:ignore 
+							if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ][ $field_name ] ) ), $rule ) ) { // phpcs:ignore 
 								$this->notice( 'admin_save_error_notice' );
 								$ok_to_save = false;
 							}
 						}
 					}
 				} else {
-					if ( isset( $_POST['_ppm_options'][ $key ] ) ) {
+					if ( isset( $_POST['_ppm_options'][ $key ] ) ) { // phpcs:ignore 
 						$rule = $valid_rules;
-						if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ] ) ), $rule ) ) {
+						if ( ! ValidatorFactory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ] ) ), $rule ) ) { // phpcs:ignore 
 							$this->notice( 'admin_save_error_notice' );
 							$ok_to_save = false;
 						}
@@ -669,10 +702,10 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			}
 
 			foreach ( $bool_rules as $rule ) {
-				$ppm_options['ui_rules'][ $rule ] = isset( $ppm_options['ui_rules'][ $rule ] ) && ! in_array( $ppm_options['ui_rules'][ $rule ], array( 0, '0', false, '' ) );
+				$ppm_options['ui_rules'][ $rule ] = isset( $ppm_options['ui_rules'][ $rule ] ) && ! in_array( $ppm_options['ui_rules'][ $rule ], array( 0, '0', false, '' ), true );
 			}
 
-			$main_bool_options     = array( 'master_switch', 'enforce_password', 'inherit_policies', 'change_initial_password', 'timed_logins', 'disable_self_reset', 'locked_user_disable_self_reset', 'inactive_users_enabled', 'inactive_users_reset_on_unlock', 'failed_login_policies_enabled', 'failed_login_reset_on_unblock' );
+			$main_bool_options     = array( 'master_switch', 'enforce_password', 'inherit_policies', 'change_initial_password', 'timed_logins', 'restrict_login_ip', 'disable_self_reset', 'locked_user_disable_self_reset', 'inactive_users_enabled', 'inactive_users_reset_on_unlock', 'failed_login_policies_enabled', 'failed_login_reset_on_unblock' );
 			$ui_rules_bool_options = array( 'history', 'username', 'length', 'numeric', 'mix_case', 'special_chars', 'exclude_special_chars' );
 			$pw_rules_bool_options = array( 'length', 'numeric', 'upper_case', 'lower_case', 'special_chars', 'exclude_special_chars' );
 
@@ -697,7 +730,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			// Process reset blocked message.
 			$ppm_options_updated['disable_self_reset_message']             = ( ! empty( $ppm_options['disable_self_reset_message'] ) ) ? sanitize_textarea_field( $ppm_options['disable_self_reset_message'] ) : false;
 			$ppm_options_updated['locked_user_disable_self_reset_message'] = ( ! empty( $ppm_options['locked_user_disable_self_reset_message'] ) ) ? sanitize_textarea_field( $ppm_options['locked_user_disable_self_reset_message'] ) : false;
-			$ppm_options_updated['deactivated_account_message']            = ( isset( $ppm_options['deactivated_account_message'] ) && ! empty( $ppm_options['deactivated_account_message'] ) ) ? wp_kses_post( $ppm_options['deactivated_account_message'] ) : trim( \PPM_WP_Options::get_default_account_deactivated_message() );
+			$ppm_options_updated['deactivated_account_message']            = ( isset( $ppm_options['deactivated_account_message'] ) && ! empty( $ppm_options['deactivated_account_message'] ) ) ? wp_kses_post( $ppm_options['deactivated_account_message'] ) : trim( \PPMWP\PPM_WP_Options::get_default_account_deactivated_message() );
 			$ppm_options_updated['timed_login_message']                    = ( ! empty( $ppm_options['timed_login_message'] ) ) ? sanitize_textarea_field( $ppm_options['timed_login_message'] ) : false;
 
 			$processed_ppm_options = apply_filters( 'mls_pre_option_save_validation', array_merge( $ppm_options, $ppm_options_updated ) );
@@ -724,9 +757,9 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		 * @return string
 		 */
 		public function validate_inactive_exempted( $users_string ) {
-			$users_array = array();
+			$users_array  = array();
 			$users_string = (string) $users_string;
-			$users       = explode( ',', $users_string );
+			$users        = explode( ',', $users_string );
 			foreach ( $users as $username ) {
 				$user = get_user_by( 'login', trim( $username ) );
 				if ( is_a( $user, '\WP_User' ) ) {
@@ -766,8 +799,8 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			wp_enqueue_style( 'wp-jquery-ui-dialog' );
 
 			// enqueue plugin JS.
-			wp_enqueue_style( 'ppm-wp-settings-css', PPM_WP_URL . 'admin/assets/css/settings.css', array(), PPMWP_VERSION );
-			wp_enqueue_script( 'ppm-wp-settings', PPM_WP_URL . 'admin/assets/js/settings.js', array( 'jquery-ui-autocomplete', 'jquery-ui-sortable' ), PPMWP_VERSION );
+			wp_enqueue_style( 'ppm-wp-settings-css', PPM_WP_URL . 'admin/assets/css/settings.css', array(), PPMWP_VERSION ); // phpcs:ignore 
+			wp_enqueue_script( 'ppm-wp-settings', PPM_WP_URL . 'admin/assets/js/settings.js', array( 'jquery-ui-autocomplete', 'jquery-ui-sortable' ), PPMWP_VERSION ); // phpcs:ignore 
 			$session_setting = isset( $ppm->options->ppm_setting->terminate_session_password ) ? $ppm->options->ppm_setting->terminate_session_password : $ppm->options->default_setting->terminate_session_password;
 			wp_localize_script(
 				'ppm-wp-settings',
@@ -778,6 +811,10 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					'settings_nonce'             => wp_create_nonce( 'ppm_wp_settings' ),
 					'terminate_session_password' => OptionsHelper::string_to_bool( $session_setting ),
 					'special_chars_regex'        => ppm_wp()->get_special_chars( true ),
+					'reset_done_title'           => __( 'Reset process complete', 'ppm-wp' ),
+					'csv_error'                  => __( 'CSV contains invalid data, provide user IDs only.', 'ppm-wp' ),
+					'csv_error_length'           => __( 'Please ensure more than 1 ID is provided.', 'ppm-wp' ),
+					'reset_done_text'            => __( 'You may now close this window.', 'ppm-wp' ),
 				)
 			);
 			do_action( 'ppmwp_enqueue_admin_scripts' );
@@ -811,7 +848,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			}
 
 			// Global JS.
-			wp_enqueue_script( 'ppm-wp-global', PPM_WP_URL . 'admin/assets/js/global.js', array( 'jquery' ), PPMWP_VERSION );
+			wp_enqueue_script( 'ppm-wp-global', PPM_WP_URL . 'admin/assets/js/global.js', array( 'jquery' ), PPMWP_VERSION ); // phpcs:ignore 
 			wp_localize_script(
 				'ppm-wp-global',
 				'ppmwpGlobalStrings',
@@ -823,7 +860,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				)
 			);
 			// Check password expired.
-			$should_password_expire = \PPM_WP_Expire::should_password_expire( get_current_user_id() );
+			$should_password_expire = \PPMWP\PPM_WP_Expire::should_password_expire( get_current_user_id() );
 			$session_setting        = isset( $this->options->ppm_setting->terminate_session_password ) ? $this->options->ppm_setting->terminate_session_password : $this->options->default_setting->terminate_session_password;
 			// localize options.
 			wp_localize_script(
@@ -844,9 +881,9 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		public function admin_footer_session_expired_dialog() {
 			?>
 			<div id="ppm-wp-dialog" class="hidden" style="max-width:800px">
-			  <p><?php esc_html_e( 'Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link.', 'ppm-wp' ); ?></p>
-			  <p><?php esc_html_e( 'For more information please contact the WordPress admin on ', 'ppm-wp' ); ?><?php echo esc_url( get_option( 'admin_email' ) ); ?></p>
-			  <a href="javascript:;" class="button-primary reset"><?php esc_html_e( 'Reset password', 'ppm-wp' ); ?></a>
+				<p><?php esc_html_e( 'Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link.', 'ppm-wp' ); ?></p>
+				<p><?php esc_html_e( 'For more information please contact the WordPress admin on ', 'ppm-wp' ); ?><?php echo esc_url( get_option( 'admin_email' ) ); ?></p>
+				<a href="javascript:;" class="button-primary reset"><?php esc_html_e( 'Reset password', 'ppm-wp' ); ?></a>
 			</div>
 			<div id="reset-all-dialog" class="hidden" style="max-width:800px">
 			</div>
@@ -925,7 +962,7 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			// Search by user meta.
 			$meta_args = array(
 				'exclude'    => $exclude_users,
-				'meta_query' => array(
+				'meta_query' => array( // phpcs:ignore 
 					'relation' => 'OR',
 					array(
 						'key'     => 'first_name',
@@ -997,6 +1034,9 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 			<?php
 		}
 
+		/**
+		 * Display custom admin notice on form settings.
+		 */
 		public function admin_at_least_one_form_notice() {
 			?>
 
@@ -1081,7 +1121,8 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 				)
 			);
 
-			$from_email = $this->options->ppm_setting->from_email ? $this->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $this->options->ppm_setting->from_email ? $this->options->ppm_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 			$headers[]  = 'Content-Type: text/html; charset=UTF-8';
@@ -1135,26 +1176,26 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 		/**
 		 * An easy to use array of allowed HTML for use with sanitzation of our admin areas etc.
 		 *
-		 * @return void
+		 * @return array $wp_kses_args - Our args.
 		 */
 		public function allowed_kses_args() {
 			$wp_kses_args = array(
 				'input'    => array(
-					'type'     => array(),
-					'id'       => array(),
-					'name'     => array(),
-					'value'    => array(),
-					'size'     => array(),
-					'class'    => array(),
-					'min'      => array(),
-					'max'      => array(),
-					'required' => array(),
-					'checked'  => array(),
+					'type'      => array(),
+					'id'        => array(),
+					'name'      => array(),
+					'value'     => array(),
+					'size'      => array(),
+					'class'     => array(),
+					'min'       => array(),
+					'max'       => array(),
+					'required'  => array(),
+					'checked'   => array(),
 					'onkeydown' => array(),
 				),
 				'select'   => array(
-					'id'   => array(),
-					'name' => array(),
+					'id'    => array(),
+					'name'  => array(),
 					'class' => array(),
 				),
 				'option'   => array(
@@ -1185,8 +1226,8 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					'class' => array(),
 					'id'    => array(),
 				),
-				'label'   => array(
-					'for' => array(),
+				'label'    => array(
+					'for'   => array(),
 					'class' => array(),
 					'id'    => array(),
 				),
@@ -1195,39 +1236,39 @@ if ( ! class_exists( 'PPM_WP_Admin' ) ) {
 					'id'    => array(),
 					'style' => array(),
 				),
-				'span'        => array(
+				'span'     => array(
 					'class' => array(),
 					'id'    => array(),
-					'style'    => array(),
+					'style' => array(),
 				),
-				'li'        => array(
-					'class' => array(),
-					'id'    => array(),
+				'li'       => array(
+					'class'         => array(),
+					'id'            => array(),
 					'data-role-key' => array(),
 				),
 				'a'        => array(
-					'class' => array(),
-					'id'    => array(),
-					'style'    => array(),
+					'class'           => array(),
+					'id'              => array(),
+					'style'           => array(),
 					'data-tab-target' => array(),
-					'href' => array(),
+					'href'            => array(),
 				),
 				'h3'       => array(
 					'class' => array(),
 				),
 				'br'       => array(),
-				'b'       => array(),
-				'i'       => array(),
-				'div'        => array(
+				'b'        => array(),
+				'i'        => array(),
+				'div'      => array(
 					'style' => array(),
 					'class' => array(),
 					'id'    => array(),
 				),
-				'table'        => array(
+				'table'    => array(
 					'class' => array(),
 					'id'    => array(),
 				),
-				'tbody'        => array(
+				'tbody'    => array(
 					'class' => array(),
 					'id'    => array(),
 				),

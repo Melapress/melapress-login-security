@@ -8,8 +8,8 @@ jQuery( document ).ready( function() {
 			e.preventDefault();
 			var ourButton = jQuery( this );
 			var nonce     = ourButton.attr( 'data-nonce' );
-
 			var key = jQuery( this ).closest( '.logs-management-settings').data( 'key' );
+			
 			jQuery.ajax({
 				type: 'POST',
 				url: ajaxurl,

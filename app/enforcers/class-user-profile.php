@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 /**
  * PPM New User Register
  *
@@ -7,11 +7,13 @@
  * @author Melapress
  */
 
+namespace PPMWP;
+
 use \PPMWP\Helpers\OptionsHelper;
 use \PPMWP\Helpers\PPM_EmailStrings;
 
 // If check class exists OR not.
-if ( ! class_exists( 'PPM_User_Profile' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_User_Profile' ) ) {
 	/**
 	 * Declare PPM_User_Profile Class
 	 */
@@ -131,7 +133,7 @@ if ( ! class_exists( 'PPM_User_Profile' ) ) {
 		 */
 		public function ppm_handle_login_based_resets( $user_login, $user, $reset_type = 'reset-on-login' ) {
 			// Get user reset key.
-			$reset = new PPM_WP_Reset();
+			$reset = new \PPMWP\PPM_WP_Reset();
 			$ppm   = ppm_wp();
 
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, $reset_type );
@@ -180,15 +182,15 @@ if ( ! class_exists( 'PPM_User_Profile' ) ) {
 			$email_content = false;
 
 			if ( 'admin' === $by ) {
-				$content       = isset( $ppm->options->ppm_setting->user_reset_next_login_email_body ) ? $ppm->options->ppm_setting->user_reset_next_login_email_body : \PPM_EmailStrings::default_message_contents( 'reset_next_login' );
-				$email_content = \PPM_EmailStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
+				$content       = isset( $ppm->options->ppm_setting->user_reset_next_login_email_body ) ? $ppm->options->ppm_setting->user_reset_next_login_email_body : \PPMWP\PPM_EmailStrings::default_message_contents( 'reset_next_login' );
+				$email_content = \PPMWP\PPM_EmailStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 			}
 
-			$title = \PPM_EmailStrings::replace_email_strings( isset( $ppm->options->ppm_setting->user_reset_next_login_title ) ? $ppm->options->ppm_setting->user_reset_next_login_title : \PPM_EmailStrings::get_default_string( 'user_reset_next_login_title' ), $user_id );
+			$title = \PPMWP\PPM_EmailStrings::replace_email_strings( isset( $ppm->options->ppm_setting->user_reset_next_login_title ) ? $ppm->options->ppm_setting->user_reset_next_login_title : \PPMWP\PPM_EmailStrings::get_default_string( 'user_reset_next_login_title' ), $user_id );
 
 			$ppm = ppm_wp();
 
-			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $ppm->options->ppm_setting->from_email ? $ppm->options->ppm_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 

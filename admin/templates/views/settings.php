@@ -41,9 +41,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 					<tbody>
 						<tr valign="top">
 							<th scope="row">
-								<label for="ppm-send-summary-email">
-									<?php esc_html_e( 'Weekly Summary', 'ppm-wp' ); ?>
-								</label>
+								<?php esc_html_e( 'Weekly Summary', 'ppm-wp' ); ?>
 							</th>
 							<td>
 								<fieldset>
@@ -66,9 +64,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr>
 							<th>
-								<label for="ppm-exempted">
-									<?php esc_html_e( 'Users exempted from password policies', 'ppm-wp' ); ?>
-								</label>
+								<?php esc_html_e( 'Users exempted from password policies', 'ppm-wp' ); ?>
 							</th>
 							<td>
 								<fieldset>
@@ -105,9 +101,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr valign="top">
 							<th scope="row">
-								<label for="ppm-terminate-session-password">
-									<?php esc_html_e( 'Instantly terminate session on password expire or reset', 'ppm-wp' ); ?>
-								</label>
+								<?php esc_html_e( 'Instantly terminate session on password expire or reset', 'ppm-wp' ); ?>
 							</th>
 							<td>
 								<fieldset>
@@ -130,9 +124,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr valign="top">
 							<th scope="row">
-								<label for="ppm-reset-key-expiry-value">
-									<?php esc_html_e( 'Reset key expiry time', 'ppm-wp' ); ?>
-								</label>
+								<?php esc_html_e( 'Reset key expiry time', 'ppm-wp' ); ?>
 							</th>
 							<td>
 
@@ -167,8 +159,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr valign="top">
 							<th scope="row">
-								<label for="ppm-multi-roles">
-									<?php esc_html_e( 'Policy priority for users with multiple roles', 'ppm-wp' ); ?>
+								<?php esc_html_e( 'Policy priority for users with multiple roles', 'ppm-wp' ); ?>
 							</th>
 							<td>
 								<fieldset>
@@ -231,12 +222,11 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr valign="top">
 							<th scope="row">
-								<label for="ppm-from-email">
-									<?php esc_html_e( 'From email address', 'ppm-wp' ); ?>
+								<?php esc_html_e( 'From email address', 'ppm-wp' ); ?>
 							</th>
 							<td>
 								<fieldset>
-									<input type="text" name="_ppm_options[from_email]" value="<?php echo esc_attr( $this->options->ppm_setting->from_email ? $this->options->ppm_setting->from_email : 'wordpress@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) ) ); ?>" id="ppm-from-email" style="float: left; display: block; width: 250px;" />
+									<input type="text" name="_ppm_options[from_email]" value="<?php echo esc_attr( $this->options->ppm_setting->from_email ? $this->options->ppm_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) ) ); ?>" id="ppm-from-email" style="float: left; display: block; width: 250px;" />
 									<p class="description" style="clear:both;max-width:570px">
 										<?php esc_html_e( 'Specify the from email address the plugin should use to send emails. If you do not specify an email address, the pre-defined default will be used.', 'ppm-wp' ); ?>
 									</p>
@@ -265,9 +255,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr valign="top" style="border: 1px solid red;">
 							<th scope="row" style="padding-left: 15px;">
-								<label for="ppm-clear-history">
-									<?php esc_html_e( 'Delete database data upon uninstall', 'ppm-wp' ); ?>
-								</label>
+								<?php esc_html_e( 'Delete database data upon uninstall', 'ppm-wp' ); ?>
 							</th>
 							<td style="padding-right: 15px;">
 								<fieldset>
@@ -345,6 +333,24 @@ if ( $scripts_required ) {
 	if (window.location.href.indexOf( "#login-page-settings" ) > -1 ) {
 		jQuery( 'body' ).find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
 		jQuery( 'a[href="#login-page-settings"]' ).addClass( 'nav-tab-active' );
+		showTab();		
+	}
+
+	if (window.location.href.indexOf( '#users-export' ) > -1 ) {
+		jQuery( 'body' ).find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
+		jQuery( 'a[href="#users-export"]' ).addClass( 'nav-tab-active' );
+		showTab();		
+	}
+
+	if (window.location.href.indexOf( '#integrations' ) > -1 ) {
+		jQuery( 'body' ).find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
+		jQuery( 'a[href="#integrations"]' ).addClass( 'nav-tab-active' );
+		showTab();		
+	}
+
+	if (window.location.href.indexOf( '#settings-export' ) > -1 ) {
+		jQuery( 'body' ).find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
+		jQuery( 'a[href="#settings-export"]' ).addClass( 'nav-tab-active' );
 		showTab();		
 	}
 

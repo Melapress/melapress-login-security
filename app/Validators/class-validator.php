@@ -100,7 +100,11 @@ class Validator {
 				return false;
 			}
 
-			$user_name = $user->user_login;
+			if ( isset($user->user_login ) ) {
+				$user_name = $user->user_login;
+			} else {
+				return false;
+			}
 		}
 
 		$password = \mb_strtolower( $password );

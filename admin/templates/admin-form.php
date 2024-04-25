@@ -17,7 +17,7 @@ $sidebar_required    = false;
 // Override in free edition.
 $sidebar_required    = true;
 /* @free:end */
-$form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
+$form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 ?>
 <div class="wrap ppm-wrap">
 
@@ -159,6 +159,95 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 		}
 		?>
 	</form>
+
+	<?php
+	global $wp_roles;
+	$roles = $wp_roles->get_names();
+	?>
+
+	<div class="mls-modal-main-wrapper" id="reset-all-modal">
+		<div class="mls-modal-content">
+			<div class="mls-modal-content-wrapper">
+				<h3><?php esc_attr_e( 'Which users would you like to reset?', 'ppm-wp' ); ?></h3>
+				<p class="description"><?php esc_attr_e( 'Here you can choose if you want to reset the passwords for ALL users or just a specific sub set of users based on your desired critera. Simply choose from the available options below and hit proceed when ready.', 'ppm-wp' ); ?></p>
+				<br>
+
+				<fieldset>
+					<p class="description" style="display: inline;"><?php esc_attr_e( 'Choose user group: ', 'ppm-wp' ); ?></p>
+					<span style="display: inline-table; margin-left: 10px">
+						<input type="radio" id="reset-all" name="reset_type" value="reset-all" checked>
+						<label for="reset-all" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Reset all users', 'ppm-wp' ); ?></label><br>
+
+						<input type="radio" id="reset-role" name="reset_type" value="reset-role"" data-active-shows-setting=".reset-role-panel">
+						<label for="reset-role" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Reset by role', 'ppm-wp' ); ?> </label><br>
+
+						<div class="reset-role-panel hidden">
+							<select id="reset-role-select">
+								<?php
+									foreach ( $roles as $key => $value ) {
+										if ( 'subscriber' == strtolower( $value ) ) {
+											echo '<option selected value="' . strtolower( $value ) . '">' . $value . '</option>';
+										} else {
+
+										echo '<option value="' . strtolower( $value ). '">' . $value . '</option>';
+										}
+									}
+								?>
+							</select>
+							<br>
+							<br>
+						</div>
+
+						<input type="radio" id="reset-users" name="reset_type" value="reset-users" data-active-shows-setting=".reset-users-panel">
+						<label for="reset-users" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Reset specific users', 'ppm-wp' ); ?> </label><br>
+						
+						<div class="reset-users-panel hidden">
+							<fieldset>
+								<input type="text" id="ppm-exempted" style="float: left; display: block; width: 250px;">
+								<input type="hidden" id="ppm-exempted-users" name="_ppm_options[exempted][users]" value="<?php echo ! empty( $this->options->ppm_setting->exempted['users'] ) ? esc_attr( htmlentities( wp_json_encode( $this->options->ppm_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
+								<p class="description" style="clear:both;">
+									<?php
+									esc_html_e( 'Users in this list will reset.', 'ppm-wp' );
+									?>
+								</p>
+								<ul id="ppm-exempted-list"></ul>
+							</fieldset>
+						</div>
+
+						<input type="radio" id="reset-csv" name="reset_type" value="reset-csv" data-active-shows-setting=".reset-users-file">
+						<label for="reset-csv" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Upload CSV of User IDs (.csv or .txt only)', 'ppm-wp' ); ?> </label><br>
+						
+						<div class="reset-users-file hidden">
+							<input type="file" id="users-reset-file" name="filename"><br>
+						</div>
+					</span>
+				</fieldset>
+								
+				<br>
+				<fieldset>
+					<input type="checkbox" id="send_reset_email" name="send_email" value="send-email" checked>
+					<label for="send_reset_email"><?php esc_attr_e( 'Send email to users when resetting.', 'ppm-wp' ); ?></label>
+				</fieldset>
+
+				<br>
+				<fieldset>
+					<input type="checkbox" id="include_reset_self" name="reset_self" value="reset-self">
+					<label for="include_reset_self"><?php esc_attr_e( 'Include yourself in password reset', 'ppm-wp' ); ?></label>
+				</fieldset>
+
+				<br>
+				<fieldset>
+					<input type="checkbox" id="terminate_sessions_on_reset" name="reset_self" value="reset-self" checked>
+					<label for="terminate_sessions_on_reset"><?php esc_attr_e( 'Terminate sessions for reset users', 'ppm-wp' ); ?></label>
+				</fieldset>
+
+				<br>	
+			</div>
+			<div>
+				<a href="#modal-cancel" data-modal-close-target="#reset-all-modal" class="button button-secondary"><?php esc_attr_e( 'Cancel', 'ppm-wp' ); ?></a>  <a href="#modal-proceed" data-reset-nonce="<?php echo wp_create_nonce( 'mls_mass_reset' ); ?>" class="button button-primary"><?php esc_attr_e( 'Proceed', 'ppm-wp' ); ?></a> 
+			</div>
+		</div>
+	</div>
 
 	<?php
 	/* @free:start */

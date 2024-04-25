@@ -5,9 +5,11 @@
  * @package WPassword
  */
 
+namespace PPMWP;
+
 use \PPMWP\Helpers\PPM_EmailStrings;
 
-if ( ! class_exists( 'PPM_WP_Options' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_WP_Options' ) ) {
 
 	/**
 	 * Provides options used at run time
@@ -72,16 +74,16 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 		 *       use with any password checks.
 		 */
 		public $default_options = array(
-			'master_switch'                  => 'no',
-			'enforce_password'               => 'no',
-			'min_length'                     => 8,
-			'password_history'               => 1,
-			'inherit_policies'               => 'yes',
-			'password_expiry'                => array(
+			'master_switch'                          => 'no',
+			'enforce_password'                       => 'no',
+			'min_length'                             => 8,
+			'password_history'                       => 1,
+			'inherit_policies'                       => 'yes',
+			'password_expiry'                        => array(
 				'value' => 0,
 				'unit'  => 'months',
 			),
-			'ui_rules'                       => array(
+			'ui_rules'                               => array(
 				'history'               => 'yes',
 				'username'              => 'yes',
 				'length'                => 'yes',
@@ -90,7 +92,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'special_chars'         => 'yes',
 				'exclude_special_chars' => 'no',
 			),
-			'rules'                          => array(
+			'rules'                                  => array(
 				'length'                => 'yes',
 				'numeric'               => 'yes',
 				'upper_case'            => 'yes',
@@ -98,10 +100,10 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'special_chars'         => 'yes',
 				'exclude_special_chars' => 'no',
 			),
-			'change_initial_password'        => 'no',
-			'timed_logins'       		     => 'no',
-			'timed_logins_schedule'       	 => array(
-				'monday' => array(
+			'change_initial_password'                => 'no',
+			'timed_logins'                           => 'no',
+			'timed_logins_schedule'                  => array(
+				'monday'    => array(
 					'enable'        => 'no',
 					'from_hr'       => 00,
 					'from_min'      => 00,
@@ -110,7 +112,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 					'from_am_or_pm' => 'am',
 					'to_am_or_pm'   => 'pm',
 				),
-				'tuesday' => array(
+				'tuesday'   => array(
 					'enable'        => 'no',
 					'from_hr'       => 00,
 					'from_min'      => 00,
@@ -128,7 +130,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 					'from_am_or_pm' => 'am',
 					'to_am_or_pm'   => 'pm',
 				),
-				'thursday' => array(
+				'thursday'  => array(
 					'enable'        => 'no',
 					'from_hr'       => 00,
 					'from_min'      => 00,
@@ -137,7 +139,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 					'from_am_or_pm' => 'am',
 					'to_am_or_pm'   => 'pm',
 				),
-				'friday' => array(
+				'friday'    => array(
 					'enable'        => 'no',
 					'from_hr'       => 00,
 					'from_min'      => 00,
@@ -146,7 +148,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 					'from_am_or_pm' => 'am',
 					'to_am_or_pm'   => 'pm',
 				),
-				'saturday' => array(
+				'saturday'  => array(
 					'enable'        => 'no',
 					'from_hr'       => 00,
 					'from_min'      => 00,
@@ -155,7 +157,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 					'from_am_or_pm' => 'am',
 					'to_am_or_pm'   => 'pm',
 				),
-				'sunday' => array(
+				'sunday'    => array(
 					'enable'        => 'no',
 					'from_hr'       => 00,
 					'from_min'      => 00,
@@ -163,31 +165,34 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 					'to_min'        => 59,
 					'from_am_or_pm' => 'am',
 					'to_am_or_pm'   => 'pm',
-				),				
+				),
 			),
-			'inactive_users_enabled'         => 'no',
-			'inactive_users_expiry'          => array(
+			'inactive_users_enabled'                 => 'no',
+			'inactive_users_expiry'                  => array(
 				'value' => 30,
 				'unit'  => 'days',
 			),
-			'inactive_users_reset_on_unlock' => 'yes',
-			'failed_login_policies_enabled'  => 'no',
-			'failed_login_attempts'          => 5,
-			'failed_login_reset_attempts'    => 1440,
-			'failed_login_unlock_setting'    => 'unlock-by-admin',
-			'failed_login_reset_hours'       => 60, // Mins @since 3.0.0.
-			'failed_login_reset_on_unblock'  => 'yes',
-			'disable_self_reset'             => 'no',
-			'disable_self_reset_message'     => '',
-			'deactivated_account_message'    => '',
-			'timed_login_message'            => '',
+			'inactive_users_reset_on_unlock'         => 'yes',
+			'failed_login_policies_enabled'          => 'no',
+			'failed_login_attempts'                  => 5,
+			'failed_login_reset_attempts'            => 1440,
+			'failed_login_unlock_setting'            => 'unlock-by-admin',
+			'failed_login_reset_hours'               => 60, // Mins @since 3.0.0.
+			'failed_login_reset_on_unblock'          => 'yes',
+			'disable_self_reset'                     => 'no',
+			'disable_self_reset_message'             => '',
+			'deactivated_account_message'            => '',
+			'timed_login_message'                    => '',
 			'locked_user_disable_self_reset'         => 'no',
-			'locked_user_disable_self_reset_message' => ''
+			'locked_user_disable_self_reset_message' => '',
+			'restrict_login_ip'                      => 'no',
+			'restrict_login_ip_count'                => 3,
+			'restrict_login_message'                 => '',
 		);
 
 		public static function get_default_account_deactivated_message() {
 			$admin_email = get_site_option( 'admin_email' );
-			$email_link  = '<a href="mailto:' . sanitize_email( $admin_email ) . '">' . __( 'website administrator', 'ppm-wp' ) . '</a>';			
+			$email_link  = '<a href="mailto:' . sanitize_email( $admin_email ) . '">' . __( 'website administrator', 'ppm-wp' ) . '</a>';
 			return sprintf( __( 'Your WordPress user has been deactivated. Please contact the %1s to activate back your user.', 'ppm-wp' ), $email_link );
 		}
 
@@ -266,7 +271,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				'value' => 24,
 				'unit'  => 'hours',
 			),
-			'enable_wp_reset_form'         => 'yes',
+			'enable_wp_reset_form'       => 'yes',
 			'enable_wp_profile_form'     => 'yes',
 			'enable_wc_pw_reset'         => 'no',
 			'enable_wc_checkout_reg'     => 'no',
@@ -284,6 +289,12 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			'send_user_unblocked_email'  => 'yes',
 			'send_user_pw_reset_email'   => 'yes',
 			'send_user_pw_expired_email' => 'yes',
+			'login_geo_method'           => 'default',
+			'login_geo_action'           => 'deny_to_url',
+			'login_geo_countries'        => '',
+			'login_geo_redirect_url'     => '',
+			'login_geo_blocked_message'  => '',
+			'iplocate_api_key'           => '',
 		);
 
 		/**
@@ -318,6 +329,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 		 * Get options from database and merge with default
 		 */
 		public function init() {
+
 			// Store ppm class object.
 			$this->ppm = ppm_wp();
 			// Default policy.
@@ -371,7 +383,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				// Get included user.
 				$included_user = reset( $user_by_id );
 				// Get user role.
-				$roles     = PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
+				$roles     = \PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
 				$user_role = reset( $roles );
 			} else {
 				// Get userdata by user id.
@@ -380,7 +392,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				$user_role = '';
 				if ( isset( $userdata->roles ) ) {
 					// Get user role.
-					$roles     = PPMWP\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
+					$roles     = \PPMWP\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
 					$user_role = reset( $roles );
 				}
 			}
@@ -499,13 +511,13 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				// Get included user.
 				$included_user = reset( $user_by_id );
 				// Get user role.
-				$roles     = PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
+				$roles     = \PPMWP\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
 				$user_role = reset( $roles );
 			} else {
 				// Get userdata by user id.
 				$userdata = get_userdata( $user_id );
 				// Get user role.
-				$roles     = PPMWP\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
+				$roles     = \PPMWP\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
 				$user_role = ( is_array( $roles ) ) ? reset( $roles ) : array();
 			}
 
@@ -520,7 +532,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 			}
 
 			$settings = get_site_option( PPMWP_PREFIX . $current_role . '_options' );
-			if ( ! empty( $settings ) && 0 == PPMWP\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) || 'user-new.php' === $pagenow ) {
+			if ( ! empty( $settings ) && 0 == \PPMWP\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) || 'user-new.php' === $pagenow ) {
 
 				// Get current user setting.
 				$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
@@ -530,7 +542,7 @@ if ( ! class_exists( 'PPM_WP_Options' ) ) {
 				$settings = get_site_option( PPMWP_PREFIX . '_options' );
 
 				if ( ! empty( $settings ) ) {
-					if ( PPMWP\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) {
+					if ( \PPMWP\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) {
 						// Get current user setting.
 						$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
 					} else {

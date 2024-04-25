@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 /**
  * PPM New User Register
  *
@@ -7,12 +7,14 @@
  * @author Melapress
  */
 
+namespace PPMWP;
+
 use \PPMWP\Helpers\OptionsHelper;
 
 /**
  * Check if this class already exists.
  */
-if ( ! class_exists( 'PPM_Shortcodes' ) ) {
+if ( ! class_exists( '\PPMWP\PPM_Shortcodes' ) ) {
 
 	/**
 	 * Declare PPM_Shortcodes Class
@@ -48,7 +50,7 @@ if ( ! class_exists( 'PPM_Shortcodes' ) ) {
 				'ppmwp-custom-form'
 			);
 
-			$custom_forms = new PPM_WP_Forms();
+			$custom_forms = new \PPMWP\PPM_WP_Forms();
 			$custom_forms->enable_custom_form( $shortcode_attributes );
 		}
 	}
