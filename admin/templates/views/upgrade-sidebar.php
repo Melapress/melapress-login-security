@@ -18,10 +18,12 @@
             <div>
                 <ul class="c4wp-pro-features-ul">
                     <li class="dashicons-before dashicons-yes-alt"> One-click integration with WooCommerce, LearnDash, MemberPress & many others</li>
+                    <li class="dashicons-before dashicons-yes-alt"> Limit user logins by IP addresses</li>
                     <li class="dashicons-before dashicons-yes-alt"> Hide the WordPress login page</li>
-                    <li class="dashicons-before dashicons-yes-alt"> Limit failed login attempts</li>
+                    <li class="dashicons-before dashicons-yes-alt"> Block or allow loging page traffic per countrys</li>
                     <li class="dashicons-before dashicons-yes-alt"> Automatically lock inactive users</li>
                     <li class="dashicons-before dashicons-yes-alt"> Restrict user login times</li>
+                    <li class="dashicons-before dashicons-yes-alt"> Reports for passwords and users activity</li>
                     <li class="dashicons-before dashicons-yes-alt"> Edit the email templates' text so they fit your brand</li>
                     <li class="dashicons-before dashicons-yes-alt"> Receive weekly summary of all password resets, locked users & failed logins</li>
                     <li class="dashicons-before dashicons-yes-alt"> No Ads!</li>
