@@ -104,6 +104,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
 						</td>
 					</tr>
+
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong>Limit Failed Login Attempts</strong>Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks.</span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
 							<p class="c10"><span class="c5"><strong>WooCommerce & Third Party Plugins Ready</strong>Do you use WooCommerce for your eCommerce website? Do you use LearnDash, MemberPress and other popular plugins for Membership and business websites? Enforce login security policies on forms from these plugins with just a mouse click.</span></p>
@@ -126,9 +138,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
 						</td>
 					</tr>
+
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Limit Login Attempts</strong>Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks.</span></p>
+							<p class="c10"><span class="c5"><strong>Limit login page traffic by country</strong>Use Geoblocking to restrict access to the WordPress login page to certain countries only, or to block traffic originating from certain countries.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -137,6 +150,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
 						</td>
 					</tr>
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong>Restrict user logins by IP Addresses</strong>Allow / limit a user's login to an IP address or a number of IP addresses. All the IP addresses and such limitations can be configured for every individual user, allowing you to restrict account sharing but at the same time giving the users the flexibility they need.</span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
 							<p class="c10"><span class="c5"><strong>Restrict user login times</strong>Restrict your users' login times to specific days and hours and enforce your working hours policy, improve website and user account security, and reduce your website's attack surface.</span></p>
@@ -170,9 +195,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
 						</td>
 					</tr>
+
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong>Users activity & passwords reports</strong>Use the reports to easily see the last time users were active, their password age and whose password is expired.</span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
 							<p class="c10"><span class="c5"><strong>Weekly summary email</strong>Get a weekly email with a detailed summary of all password resets and changes, inactivity lockouts, failed logins, and more.</span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong>Bulk user import</strong>Use the plugin's Users import feature to import a list of users via a CSV file. You can also require all imported users to change their password on their first login.</span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
