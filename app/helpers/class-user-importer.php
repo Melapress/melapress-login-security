@@ -22,8 +22,8 @@ class UserImporter {
 		 * @return void
 		 */
 	public function init() {
-		add_filter( 'ppmwp_settings_page_nav_tabs', array( $this, 'settings_tab_link' ), 50, 1 );
-		add_filter( 'ppmwp_settings_page_content_tabs', array( $this, 'settings_tab' ), 50, 1 );
+		add_filter( 'ppmwp_user_management_page_nav_tabs', array( $this, 'settings_tab_link' ), 50, 1 );
+		add_filter( 'ppmwp_user_management_page_content_tabs', array( $this, 'settings_tab' ), 50, 1 );
 		add_filter( 'wp_ajax_mls_export_users', array( $this, 'export_users' ), 10, 1 );
 		add_filter( 'wp_ajax_mls_process_user_import', array( $this, 'process_import' ), 10, 1 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'selectively_enqueue_admin_script' ) );
@@ -36,7 +36,7 @@ class UserImporter {
 	 * @return void
 	 */
 	public function selectively_enqueue_admin_script( $hook ) {
-		if ( 'login-security_page_ppm-settings' !== $hook ) {
+		if ( 'login-security_page_ppm-locked-users' !== $hook ) {
 			return;
 		}
 

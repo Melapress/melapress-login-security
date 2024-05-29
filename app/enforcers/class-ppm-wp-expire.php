@@ -43,6 +43,9 @@ if ( ! class_exists( '\PPMWP\PPM_WP_Expire' ) ) {
 
 			$override_needed       = apply_filters( 'mls_override_has_expired_priority', false );
 			$this->filter_priority = ( $override_needed && is_int( $override_needed ) ) ? $override_needed : $this->filter_priority;
+
+			add_filter( 'admin_notices', array( $this, 'password_about_to_expire_notice' ), 10, 3 );
+			add_action( 'wp_ajax_dismiss_password_expiry_soon_notice', array( $this, 'dismiss_password_expiry_soon_notice' ) );
 		}
 
 		/**
@@ -254,16 +257,112 @@ if ( ! class_exists( '\PPMWP\PPM_WP_Expire' ) ) {
 			}
 
 			// get the expiry into a string.
-			$expiry_string = implode( ' ', $expiry );
+			$expiry_string               = implode( ' ', $expiry );
+			$notify_password_expiry      = $ppm->options->notify_password_expiry;
+			
+			if ( isset( $notify_password_expiry ) && 'yes' === $notify_password_expiry && ! ppm_is_user_exempted( $user_id ) ) {	
+				$expiry_timestamp              = get_user_meta( $user_id, 'ppmwp_pw_expires_soon', true );
+				$allowed_time_in_seconds       = \PPMWP\Helpers\OptionsHelper::get_users_password_history_expiry_time_in_seconds( $user_id );
+				$time_since_last_reset_seconds = current_time( 'timestamp' ) - $last_reset; // The lower the value, the more recently reset.
+				$notify_period_in_seconds      = \PPMWP\Helpers\OptionsHelper::get_users_password_expiry_notice_time_in_seconds( $user_id );
+				$expiry_days_in_secs           = strtotime( $expiry_string, 0 );
+				$grace                         = $expiry_days_in_secs - $notify_period_in_seconds;
+
+				if ( empty( $expiry_timestamp ) ) {	
+					if ( $time_since_last_reset_seconds >= $grace ) {
+						update_user_meta( $user_id, 'ppmwp_pw_expires_soon', $last_reset + $expiry_days_in_secs );
+					}
+				} else {
+					$since_last = $expiry_timestamp - current_time( 'timestamp' );
+					if ( $time_since_last_reset_seconds >= $grace ) {
+						update_user_meta( $user_id, 'ppmwp_pw_expires_soon', $last_reset + $expiry_days_in_secs );
+					} else {
+						delete_user_meta( $user_id, 'ppmwp_pw_expires_soon' );
+					}
+				}
+			}
 
 			// if the password hasn't expired.
 			if ( current_time( 'timestamp' ) < strtotime( $expiry_string, $last_reset ) ) { // phpcs:ignore 
 				return false;
 			}
-
+			
 			return true;
 		}
 
+		/**
+		 * Show notice.
+		 *
+		 * @return void
+		 */
+		public static function password_about_to_expire_notice() {
+			$ppm                    = ppm_wp();
+			$user_id                = get_current_user_id();
+			$expiry_timestamp       = get_user_meta( $user_id, 'ppmwp_pw_expires_soon', true );
+			$notice_dismissed       = get_user_meta( $user_id, 'ppmwp_pw_expires_soon_notice_dismissed', true );
+			$notify_password_expiry = ( 'yes' === $ppm->options->notify_password_expiry ) ? true : false;
+
+			if ( ! empty( $expiry_timestamp ) && ppm_is_user_exempted( $user_id ) ) {
+				// User was marked as expiring but feature has since been disabled.
+				delete_user_meta( $user_id, 'ppmwp_pw_expires_soon' );
+				delete_user_meta( $user_id, 'ppmwp_pw_expires_soon_notice_dismissed' );
+			}
+
+			if ( $notify_password_expiry && ! empty( $expiry_timestamp ) && empty( $notice_dismissed ) ) {
+				$user_link = get_edit_profile_url( $user_id );
+				printf( '<div id="mls_pw_expire_notice" class="notice notice-success is-dismissible"><p>' . esc_html__( 'Your password is going to expire on %s at %s.', 'ppm-wp' ) . '</p><p><a href="%3s" class="button button-primary">' . esc_html__( 'Reset password now', 'ppm-wp' ) . '</a> <a href="#dismiss_pw_notice" class="button button-secondary" data-dismiss-nonce="%4s" data-user-id="%5d">' . esc_html__( 'Dismiss notice', 'ppm-wp' ) . '</a></p></div>', date_i18n( get_option('date_format'), $expiry_timestamp ), wp_date( get_option('time_format'), $expiry_timestamp ), $user_link, wp_create_nonce( 'mls_dismiss_pw_notice_nonce' ), $user_id );
+				?>
+				<script type="text/javascript">
+				//<![CDATA[
+				jQuery(document).ready(function( $ ) {
+					jQuery( 'a[href="#dismiss_pw_notice"], #mls_pw_expire_notice .notice-dismiss' ).on( 'click', function( event ) {
+						var nonce  = jQuery( '#mls_pw_expire_notice [data-dismiss-nonce]' ).attr( 'data-dismiss-nonce' );
+						var userID = jQuery( '#mls_pw_expire_notice [data-user-id]' ).attr( 'data-user-id' );
+						
+						jQuery.ajax({
+							type: 'POST',
+							url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+							async: true,
+							data: {
+								action: 'dismiss_password_expiry_soon_notice',
+								nonce : nonce,
+								user_id: userID,
+							},
+							success: function ( result ) {		
+								jQuery( '#mls_pw_expire_notice' ).slideUp( 300 );
+							}
+						});
+					});
+				});
+				//]]>
+				</script>
+				<?php
+			} elseif ( ! empty( $expiry_timestamp ) ) {
+				// User was marked as expiring but feature has since been disabled.
+				delete_user_meta( $user_id, 'ppmwp_pw_expires_soon' );
+				delete_user_meta( $user_id, 'ppmwp_pw_expires_soon_notice_dismissed' );
+			}
+		}
+
+		/**
+		 * Handle dismissing notice.
+		 *
+		 * @return void
+		 */
+		public static function dismiss_password_expiry_soon_notice() {
+			// Grab POSTed data.
+			$nonce   = isset( $_POST['nonce'] )   ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : false;
+			$user_id = isset( $_POST['user_id'] ) ? sanitize_text_field( wp_unslash( $_POST['user_id'] ) ) : false;
+			
+			// Check nonce.
+			if ( empty( $nonce ) || ! $nonce || ! wp_verify_nonce( $nonce, 'mls_dismiss_pw_notice_nonce' ) ) {
+				wp_send_json_error( esc_html__( 'Nonce Verification Failed.', 'ppm-wp' ) );
+			}
+
+			update_user_meta( $user_id, 'ppmwp_pw_expires_soon_notice_dismissed', true );
+
+			wp_send_json_success( esc_html__( 'complete.', 'ppm-wp' ) );
+		}
 	}
 
 }

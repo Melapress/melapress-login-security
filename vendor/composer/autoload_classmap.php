@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'PPMWP\\Admin\\PPM_WP_Admin' => $baseDir . '/admin/class-ppm-wp-admin.php',
     'PPMWP\\Admin\\PPM_WP_MS_Admin' => $baseDir . '/admin/class-ppm-wp-ms-admin.php',
+    'PPMWP\\Admin\\Upgrade_Notice' => $baseDir . '/admin/classes/class-upgrade-notices.php',
     'PPMWP\\Ajax\\AjaxInterface' => $baseDir . '/app/ajax/class-ajaxinterface.php',
     'PPMWP\\Ajax\\UnlockInactiveUser' => $baseDir . '/app/modules/failed-logins/class-unlock-inactive-user-ajax.php',
     'PPMWP\\Crons\\CronInterface' => $baseDir . '/app/crons/class-croninterface.php',
