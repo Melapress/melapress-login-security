@@ -87,6 +87,81 @@ if ( ! class_exists( '\PPMWP\Admin\PPM_WP_Admin' ) ) {
 				}
 				add_action( 'admin_enqueue_scripts', array( $this, 'global_admin_enqueue_scripts' ) );
 			}
+
+			add_filter( 'admin_notices', array( $this, 'plugin_was_updated_banner' ), 10, 3 );
+			add_action( 'wp_ajax_dismiss_update_notice', array( $this, 'dismiss_update_notice' ) );
+		}
+		
+		/**
+		 * Show notice to recently updated plugin.
+		 *
+		 * @return void
+		 */
+		public static function plugin_was_updated_banner() {
+			$show_update_notice = get_site_option( 'ppmwp_update_notice_needed', false );
+			$screen             = get_current_screen();
+
+			if ( $show_update_notice && $screen->base == 'toplevel_page_ppm_wp_settings'  ) {
+				printf( '<div id="mls_update_notice" class="notice notice-success is-dismissible"><img src="'. esc_url( PPM_WP_URL . 'assets/images/password-policy-manager.png' ) .'"><p><strong>' . esc_html__( 'Thank you for updated Melapress Login Security.', 'ppm-wp' ) . '</strong></p><p>' . esc_html__( 'This is version %s. Check out the release notes to see what is new and improved in this update.', 'ppm-wp' ) . '</p><a href="https://melapress.com/wordpress-login-security/releases/" target="_blank" class="button button-primary dismiss_update_notice" data-dismiss-nonce="%2s">' . esc_html__( 'Release notes', 'ppm-wp' ) . '</a></p></div>', PPMWP_VERSION, wp_create_nonce( 'mls_dismiss_update_notice_nonce' ) );
+				?>
+				
+				<script type="text/javascript">
+				//<![CDATA[
+				jQuery(document).ready(function( $ ) {
+					jQuery( 'body' ).on( 'click', 'a.dismiss_update_notice, #mls_update_notice .notice-dismiss', function ( e ) {
+						var nonce  = jQuery( '#mls_update_notice [data-dismiss-nonce]' ).attr( 'data-dismiss-nonce' );
+						
+						jQuery.ajax({
+							type: 'POST',
+							url: '<?php echo self_admin_url( 'admin-ajax.php' ); ?>',
+							async: true,
+							data: {
+								action: 'dismiss_update_notice',
+								nonce : nonce,
+							},
+							success: function ( result ) {		
+								jQuery( '#mls_update_notice' ).slideUp( 300 );
+							}
+						});
+					});
+				});
+				//]]>
+				</script>
+				<style>
+					#mls_update_notice {
+						border: 2px solid #7a262a;
+					}
+					#mls_update_notice .button-primary {
+						background: #7a262a;
+   						border-color: #7a262a;
+					}
+					#mls_update_notice img {
+						float: left;
+						max-width: 100px;
+						margin: 10px 12px 10px 0;
+					}
+				</style>
+				<?php
+			}
+		}
+		
+		/**
+		 * Handle notice dismissal.
+		 *
+		 * @return void
+		 */
+		public static function dismiss_update_notice() {
+			// Grab POSTed data.
+			$nonce   = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : false;
+			
+			// Check nonce.
+			if ( ! current_user_can( 'manage_options' ) || empty( $nonce ) || ! $nonce || ! wp_verify_nonce( $nonce, 'mls_dismiss_update_notice_nonce' ) ) {
+				wp_send_json_error( esc_html__( 'Nonce Verification Failed.', 'ppm-wp' ) );
+			}
+
+			delete_site_option( 'ppmwp_update_notice_needed' );
+
+			wp_send_json_success( esc_html__( 'Complete.', 'ppm-wp' ) );
 		}
 
 		/**
@@ -538,6 +613,7 @@ if ( ! class_exists( '\PPMWP\Admin\PPM_WP_Admin' ) ) {
 			if ( 'hide_login' === $settings_type ) {
 				$settings['custom_login_url']      = isset( $settings['custom_login_url'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_url'] ) : $ppm->options->ppm_setting->custom_login_url;
 				$settings['custom_login_redirect'] = isset( $settings['custom_login_redirect'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_redirect'] ) : $ppm->options->ppm_setting->custom_login_redirect;
+				$settings['enable_gdpr_banner']    = isset( $settings['enable_gdpr_banner'] );
 
 				$other_settings = (array) $ppm->options->ppm_setting;
 
@@ -570,6 +646,10 @@ if ( ! class_exists( '\PPMWP\Admin\PPM_WP_Admin' ) ) {
 
 			if ( ! isset( $_POST['_ppm_options']['restrict_login_ip'] ) ) { // phpcs:ignore 
 				$_POST['_ppm_options']['restrict_login_ip'] = 0;
+			}
+
+			if ( ! isset( $_POST['_ppm_options']['notify_password_expiry'] ) ) { // phpcs:ignore 
+				$_POST['_ppm_options']['notify_password_expiry'] = 0;
 			}
 
 			if ( ! isset( $_POST['_ppm_options']['disable_self_reset'] ) ) { // phpcs:ignore 
@@ -705,7 +785,7 @@ if ( ! class_exists( '\PPMWP\Admin\PPM_WP_Admin' ) ) {
 				$ppm_options['ui_rules'][ $rule ] = isset( $ppm_options['ui_rules'][ $rule ] ) && ! in_array( $ppm_options['ui_rules'][ $rule ], array( 0, '0', false, '' ), true );
 			}
 
-			$main_bool_options     = array( 'master_switch', 'enforce_password', 'inherit_policies', 'change_initial_password', 'timed_logins', 'restrict_login_ip', 'disable_self_reset', 'locked_user_disable_self_reset', 'inactive_users_enabled', 'inactive_users_reset_on_unlock', 'failed_login_policies_enabled', 'failed_login_reset_on_unblock' );
+			$main_bool_options     = array( 'master_switch', 'enforce_password', 'inherit_policies', 'change_initial_password', 'timed_logins', 'restrict_login_ip', 'disable_self_reset', 'locked_user_disable_self_reset', 'inactive_users_enabled', 'inactive_users_reset_on_unlock', 'failed_login_policies_enabled', 'failed_login_reset_on_unblock', 'notify_password_expiry' );
 			$ui_rules_bool_options = array( 'history', 'username', 'length', 'numeric', 'mix_case', 'special_chars', 'exclude_special_chars' );
 			$pw_rules_bool_options = array( 'length', 'numeric', 'upper_case', 'lower_case', 'special_chars', 'exclude_special_chars' );
 
@@ -725,6 +805,18 @@ if ( ! class_exists( '\PPMWP\Admin\PPM_WP_Admin' ) ) {
 			foreach ( $pw_rules_bool_options as $pw_rules_bool ) {
 				$bool_to_check                                  = ( isset( $ppm_options['rules'][ $pw_rules_bool ] ) ) ? $ppm_options['rules'][ $pw_rules_bool ] : false;
 				$ppm_options_updated['rules'][ $pw_rules_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
+			}
+
+			if ( isset( $_POST['_ppm_options']['notify_password_expiry_days'] ) ) { // phpcs:ignore 
+				if ( intval( $_POST['_ppm_options']['notify_password_expiry_days' ] ) >= intval( $_POST['_ppm_options']['password_expiry']['value'] ) ) {
+					$ppm_options_updated['notify_password_expiry_days'] = intval( $_POST['_ppm_options']['password_expiry']['value'] );
+					if ( $ppm_options_updated['notify_password_expiry_days'] === 0 ) {
+						$ppm_options_updated['notify_password_expiry'] = false;
+					}
+				}
+				if ( $_POST['_ppm_options']['password_expiry']['unit'] == 'hours' && $_POST['_ppm_options']['notify_password_expiry_unit' ] == 'days' ) {
+					$ppm_options_updated['notify_password_expiry_unit'] = 'hours';
+				}
 			}
 
 			// Process reset blocked message.

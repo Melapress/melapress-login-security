@@ -49,6 +49,70 @@ if ( ! class_exists( '\PPMWP\MLS_Login_Page_Control' ) ) {
 				remove_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
 				add_filter( 'login_url', array( $this, 'login_control_login_url' ), 10, 3 );
 			}
+
+			if ( isset( $ppm->options->ppm_setting->enable_gdpr_banner ) && $ppm->options->ppm_setting->enable_gdpr_banner) {
+				add_filter( 'login_footer', array( $this, 'insert_banner_markup' ), 50, 1 );
+				add_shortcode( 'mls-gdpr-banner', array( $this, 'banner_shortcode' ) );
+			}
+		}
+
+		/**
+		 * Insert banner into login footer.
+		 *
+		 * @return void
+		 */
+		public function insert_banner_markup() {
+			echo self::gdpr_banner_markup( true );
+		}
+
+		/**
+		 * Allow banner to be shown via shortcode.
+		 *
+		 * @return void
+		 */
+		public function banner_shortcode() {
+			return self::gdpr_banner_markup();
+		}
+
+		/**
+		 * Banner HTML markup.
+		 *
+		 * @param boolean $style_needed
+		 * @return void
+		 */
+		public static function gdpr_banner_markup( $style_needed = false ) {
+			$ppm = ppm_wp();
+			$current_banner_content = isset( $ppm->options->ppm_setting->gdpr_banner_message ) && ! empty( $ppm->options->ppm_setting->gdpr_banner_message ) ? $ppm->options->ppm_setting->gdpr_banner_message : esc_html__( 'By logging in to this website you are consenting this website to process the IP address and browser information for security purposes.', 'ppm-wp' );
+			$custom_css = apply_filters( 'mls_gdpr_banner_styling', '' );
+			
+			$markup = '<div id="mls_gdpr_banner">' . $current_banner_content . '</div>';
+			$markup .= '<style>';
+
+			if ( $style_needed ) {
+				$markup .= '				
+				#mls_gdpr_banner {
+					position: fixed;
+					bottom: 0;
+					background: #232323;
+					color: #fff;
+					text-align: center;
+					padding: 10px 40px;
+					width: 100vw;
+				}
+				@media all and (max-width: 768px) {
+					#mls_gdpr_banner {
+						position: absolute;
+						padding: 10px 10px;
+						width: calc( 100vw - 20px );
+					}
+				}
+				';
+			}
+			$markup .= $current_banner_content;
+
+			$markup .= '</style>';
+
+			return $markup;
 		}
 
 		/**
@@ -144,6 +208,47 @@ if ( ! class_exists( '\PPMWP\MLS_Login_Page_Control' ) ) {
 						</fieldset>
 					</td>
 				</tr>
+			<?php
+		}
+
+		public static function render_login_gdpr_settings() {
+			$ppm = ppm_wp();
+			$current_banner_content = isset( $ppm->options->ppm_setting->gdpr_banner_message ) && ! empty( $ppm->options->ppm_setting->gdpr_banner_message ) ? $ppm->options->ppm_setting->gdpr_banner_message : esc_html__( 'By logging in to this website you are consenting this website to process the IP address and browser information for security purposes.', 'ppm-wp' );
+			?>
+				<br>
+				<h3><?php esc_html_e( 'Show a consent message on the login page?', 'ppm-wp' ); ?></h3>
+				<p class="description" style="max-width: none;">
+					<?php esc_html_e( 'By enabling this setting the plugin will add a notice to the login page advising them that their IP address will be processed by the plugin, thus making the process GDPR compliance.', 'ppm-wp' ); ?>
+				</p>
+
+				<tr valign="top">
+					<th scope="row">
+						<?php esc_html_e( 'Enable consent message on login page', 'ppm-wp' ); ?>
+					</th>
+					<td>
+						<fieldset>
+							<label for="ppm_enable_gdpr_banner">
+								<input type="checkbox" id="ppm_enable_gdpr_banner" name="_ppm_options[enable_gdpr_banner]"
+										value="1" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_gdpr_banner ) ); ?>>
+							</label>
+						</fieldset>
+					</td>
+				</tr>
+
+				<tr valign="top" id="gdpr-row">
+					<th scope="row">
+						<?php esc_html_e( 'Consent message', 'ppm-wp' ); ?>
+					</th>
+					<td>
+						<fieldset>
+							<textarea id="gdpr_banner_message" name="_ppm_options[gdpr_banner_message]" rows="2" cols="60"><?php echo wp_kses_post( $current_banner_content ); ?></textarea>
+							<p class="description" style="margin-bottom: 10px; display: block;">
+							<?php esc_html_e( 'Use the following shortcode to display this notice text on any page ', 'ppm-wp' ); ?> <code>[mls-gdpr-banner]</code>
+							</p>
+						</fieldset>
+					</td>
+				</tr>
+				
 			<?php
 		}
 

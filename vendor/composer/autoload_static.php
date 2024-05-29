@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit137bd5c4ce84be2739fe3323127ceeaf
+class ComposerStaticInit8c77a077db78a68cfd88de5586bb706a
 {
     public static $prefixLengthsPsr4 = array (
         'P' => 
@@ -24,6 +24,7 @@ class ComposerStaticInit137bd5c4ce84be2739fe3323127ceeaf
     public static $classMap = array (
         'PPMWP\\Admin\\PPM_WP_Admin' => __DIR__ . '/../..' . '/admin/class-ppm-wp-admin.php',
         'PPMWP\\Admin\\PPM_WP_MS_Admin' => __DIR__ . '/../..' . '/admin/class-ppm-wp-ms-admin.php',
+        'PPMWP\\Admin\\Upgrade_Notice' => __DIR__ . '/../..' . '/admin/classes/class-upgrade-notices.php',
         'PPMWP\\Ajax\\AjaxInterface' => __DIR__ . '/../..' . '/app/ajax/class-ajaxinterface.php',
         'PPMWP\\Ajax\\UnlockInactiveUser' => __DIR__ . '/../..' . '/app/modules/failed-logins/class-unlock-inactive-user-ajax.php',
         'PPMWP\\Crons\\CronInterface' => __DIR__ . '/../..' . '/app/crons/class-croninterface.php',
@@ -64,9 +65,9 @@ class ComposerStaticInit137bd5c4ce84be2739fe3323127ceeaf
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit137bd5c4ce84be2739fe3323127ceeaf::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit137bd5c4ce84be2739fe3323127ceeaf::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit137bd5c4ce84be2739fe3323127ceeaf::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8c77a077db78a68cfd88de5586bb706a::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8c77a077db78a68cfd88de5586bb706a::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit8c77a077db78a68cfd88de5586bb706a::$classMap;
 
         }, null, ClassLoader::class);
     }

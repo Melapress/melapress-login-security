@@ -496,6 +496,10 @@ jQuery( 'document' ).ready( function( $ ) {
 		disable_enabled_failed_login_options();
 	});
 
+	disable_enabled_gdpr_options();
+	jQuery( '#ppm_enable_gdpr_banner' ).change(function() {
+		disable_enabled_gdpr_options();
+	});
 	
 	disable_enabled_inactive_users_options();
 	jQuery( '#ppm-inactive-users-enabled' ).change(function() {
@@ -676,6 +680,17 @@ function disable_enabled_failed_login_options() {
 		jQuery( '.ppmwp-login-block-options :input' ).prop( 'disabled', false );
 	}
 }
+
+function disable_enabled_gdpr_options() {
+	jQuery( '#gdpr-row' ).addClass( 'disabled' );
+	jQuery( '#gdpr-row :input' ).prop( 'disabled', true );
+
+	if ( jQuery( '#ppm_enable_gdpr_banner' ).prop('checked') ) {
+		jQuery( '#gdpr-row' ).removeClass( 'disabled' );
+		jQuery( '#gdpr-row :input' ).prop( 'disabled', false );
+	}
+}
+
 
 function disable_enabled_inactive_users_options() {
 	jQuery( '#ppmwp-inactive-setting-reset-pw-row, #ppmwp-inactive-setting-row' ).addClass( 'disabled' );

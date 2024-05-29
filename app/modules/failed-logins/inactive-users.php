@@ -72,11 +72,15 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 		<p>
 			<?php
 			printf(
-				esc_html__( 'In this section you can see a list of inactive WordPress users on your website if you enable the %1$s, or the block failed logins policy', 'ppm-wp' ),
+				esc_html__( 'In this section you can see a list of inactive WordPress users on your website if you enable the %1$s, or the %2$s', 'ppm-wp' ),
 				sprintf(
-					'<a target="_blank"  rel="nofollow" href="https://melapress.com/support/kb/melapress-login-security-inactive-users-policy-wordpress/?utm_source=plugins&utm_medium=link&utm_campaign=mls">%s</a>',
+					'<a target="_blank" rel="nofollow" href="https://melapress.com/support/kb/melapress-login-security-inactive-users-policy-wordpress/?utm_source=plugins&utm_medium=link&utm_campaign=mls">%s</a>',
 					esc_html__( 'Inactive users policy', 'ppm-wp' )
-				)
+				),
+				sprintf(
+					'<a target="_blank" rel="nofollow" href="https://melapress.com/support/kb/melapress-login-security-failed-logins-policy-wordpress/?utm_source=plugins&utm_medium=link&utm_campaign=mls">%s</a>',
+					esc_html__( 'block failed logins policy', 'ppm-wp' )
+				),				
 			);
 			?>
 		</p>

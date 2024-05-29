@@ -153,7 +153,7 @@
 			}
 			?>
 			<input type="number" id="ppm-expiry-value" name="_ppm_options[password_expiry][value]"
-				   value="<?php echo esc_attr( $this->setting_tab->password_expiry['value'] ); ?>" size="4" class="small-text ltr" min="0" required>
+				   value="<?php echo esc_attr( $this->setting_tab->password_expiry['value'] ); ?>" size="4" class="tiny-text ltr" min="0" required>
 			<select id="ppm-expiry-unit" name="_ppm_options[password_expiry][unit]">
 				<?php
 				foreach ( $units as $key => $unit ) {
@@ -174,6 +174,36 @@
 		</td>
 	</tr>
 
+	<tr valign="top">
+		<th scope="row"></th>
+		<td style="padding-top: 0;">
+			<fieldset>
+				<input name="_ppm_options[notify_password_expiry]" type="checkbox" id="ppm-enable-expiry-notify"
+					value="1" <?php ( isset( $this->setting_tab->notify_password_expiry ) ) ? checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $this->setting_tab->notify_password_expiry ) ) : ''; ?>/>
+				<label for="ppm-excluded-special-chars">
+					<?php esc_html_e( 'Advise users that their password is about to expire from', 'ppm-wp' ); ?>
+				</label>
+				<input name="_ppm_options[notify_password_expiry_days]" type="number" id="ppm-history" value="<?php echo esc_attr( $this->setting_tab->notify_password_expiry_days ); ?>" min="1" max="100" size="4" class="tiny-text ltr" required/>
+				<select id="ppm-expiry-notice-unit" name="_ppm_options[notify_password_expiry_unit]">
+					<?php
+					foreach ( $units as $key => $unit ) {
+						if (  $key == 'months' ) {
+							continue;
+						}
+						?>
+						<option value="<?php echo esc_attr( $key ); ?>" <?php selected( esc_attr( $key ), $this->setting_tab->notify_password_expiry_unit, true ); ?>><?php echo esc_html( $unit ); ?></option>
+						<?php
+					}
+					?>
+				</select>
+				<label for="ppm-excluded-special-chars">
+					<?php esc_html_e( ' before', 'ppm-wp' ); ?>
+				</label>
+			</fieldset>
+		</td>
+	</tr>
+
+	
 	<tr valign="top">
 		<th scope="row">
 			<?php esc_html_e( 'Disallow old passwords on reset', 'ppm-wp' ); ?>
