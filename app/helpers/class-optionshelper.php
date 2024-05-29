@@ -189,6 +189,8 @@ class OptionsHelper {
 			return 0;
 		}
 
+		$history_expiry_time = 0;
+
 		$user = get_userdata( $user_id );
 		if ( is_a( $user, '\WP_User' ) ) {
 			$user_roles = self::prioritise_roles( $user->roles );
@@ -199,6 +201,33 @@ class OptionsHelper {
 					continue;
 				}
 				$history_expiry_time = self::get_password_history_expiry_time_in_seconds( $role_options->password_expiry['value'], $role_options->password_expiry['unit'] );
+				// break from loop early if we have an expiry from one of the roles.
+				if ( $history_expiry_time ) {
+					break;
+				}
+			}
+		}
+		return $history_expiry_time;
+
+	}
+
+	public static function get_users_password_expiry_notice_time_in_seconds( $user_id = 0 ) {
+		if ( 0 === $user_id ) {
+			return 0;
+		}
+
+		$history_expiry_time = 0;
+
+		$user = get_userdata( $user_id );
+		if ( is_a( $user, '\WP_User' ) ) {
+			$user_roles = self::prioritise_roles( $user->roles );
+			foreach ( $user_roles as $user_role ) {
+				$role_options = self::get_role_options( $user_role );
+				if ( ! isset( $role_options->notify_password_expiry_days ) || ! isset( $role_options->notify_password_expiry_unit ) ) {
+					// skip this as the policy doesn't have a hostory expiry time.
+					continue;
+				}
+				$history_expiry_time = strtotime( $role_options->notify_password_expiry_days . ' ' . $role_options->notify_password_expiry_unit, 0 );
 				// break from loop early if we have an expiry from one of the roles.
 				if ( $history_expiry_time ) {
 					break;
@@ -433,6 +462,53 @@ class OptionsHelper {
 		return $exempt;
 	}
 
+	/**
+	 * Clears all relevent data about a inactive user.
+	 *
+	 * Removes them from the inactive array, deletes their inactive set time and
+	 * their inactive flag.
+	 *
+	 * @method clear_inactive_data_about_user
+	 * @since  2.1.0
+	 * @param  int $user_id A user id to work with.
+	 */
+	public static function clear_inactive_data_about_user( $user_id = 0 ) {
+		if ( ! $user_id || ! is_int( $user_id ) ) {
+			return;
+		}
+		$inactive_users          = self::get_inactive_users();
+		$inactive_array_modified = false;
+
+		// remove from the inactive users list.
+		// phpcs:disable WordPress.PHP.StrictInArray.MissingTrueStrict -- don't care if type is string or int.
+		if ( isset( $inactive_users ) && in_array( $user_id, $inactive_users ) ) {
+			$keys = array_keys( $inactive_users, $user_id );
+
+			// phpcs:enable
+			// remove this user from the inactive array.
+			if ( ! empty( $keys ) ) {
+				$inactive_array_modified = true;
+				foreach ( $keys as $key ) {
+					unset( $inactive_users[ $key ] );
+				}
+			}
+		}
+
+		if ( $inactive_array_modified ) {
+			self::set_inactive_users_array( $inactive_users );
+		}
+
+		if ( class_exists( 'PPMWP\InactiveUsers' ) ) {
+			// delete the inactive flag and inactive set time.
+			delete_user_meta( $user_id, PPMWP_PREFIX . '_' . InactiveUsers::DORMANT_USER_FLAG_KEY );
+			delete_user_meta( $user_id, PPMWP_PREFIX . '_' . InactiveUsers::DORMANT_SET_TIME );
+		}
+
+		// mark as recently unlocked.
+		update_user_meta( $user_id, PPMWP_PREFIX . '_recently_unlocked', true );
+		update_user_meta( $user_id, PPMWP_PREFIX . '_recently_unlocked_time', current_time( 'timestamp' ) );
+		update_user_meta( $user_id, PPMWP_PREFIX . '_recently_unlocked_reason', 'inactive' );
+	}
 
 	/**
 	 * Adds the initial user that enabled inactive users feature to the list of
@@ -574,6 +650,38 @@ class OptionsHelper {
 		return apply_filters( 'ppmwp_reset_reset_pw_login_page', $standard_page );
 	}
 
+	/**
+	 * Sets the inactive users array.
+	 *
+	 * Array should be a single dimentional array containing user IDs.
+	 *
+	 * @method set_inactive_users_array
+	 * @since  2.1.0
+	 * @param  array $inactive_array an array of `inactive` and `reset` ids.
+	 */
+	public static function set_inactive_users_array( $inactive_array ) {
+		$updated = false;
+		if ( is_array( $inactive_array ) ) {
+			$updated = update_site_option( PPMWP_PREFIX . '_inactive_users', $inactive_array );
+		}
+		return $updated;
+	}
+
+	/**
+	 * Checks if a user is considered inactive.
+	 *
+	 * @method is_user_inactive
+	 * @since  2.1.0
+	 * @param  int $user_id user ID to use.
+	 * @return boolean
+	 */
+	public static function is_user_inactive( $user_id = 0 ) {
+		if ( class_exists( 'PPMWP\InactiveUsers' ) ) {
+			return get_user_meta( $user_id, PPMWP_PREFIX . '_' . InactiveUsers::DORMANT_USER_FLAG_KEY, true );
+		} else {
+			return false;
+		}		
+	}
 
 	/**
 	 * Recursive argument parsing

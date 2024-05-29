@@ -117,6 +117,10 @@ if ( ! class_exists( '\PPMWP\PPM_WP_History' ) ) {
 			// clear the key that remembers the last expiry time.
 			\PPMWP\Helpers\OptionsHelper::set_user_last_expiry_time( 0, $user->ID );
 
+			// Notice.
+			delete_user_meta( $user->ID, 'ppmwp_pw_expires_soon' );
+			delete_user_meta( $user->ID, 'ppmwp_pw_expires_soon_notice_dismissed' );
+
 
 			// Destroy user session.
 			$ppm->ppm_user_session_destroy( $user->ID );

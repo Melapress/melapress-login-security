@@ -188,6 +188,9 @@ if ( ! class_exists( '\PPMWP\PPM_WP_Options' ) ) {
 			'restrict_login_ip'                      => 'no',
 			'restrict_login_ip_count'                => 3,
 			'restrict_login_message'                 => '',
+			'notify_password_expiry'                 => 'no',
+			'notify_password_expiry_days'            => 3,
+			'notify_password_expiry_unit'            => 'days',
 		);
 
 		public static function get_default_account_deactivated_message() {
@@ -295,6 +298,8 @@ if ( ! class_exists( '\PPMWP\PPM_WP_Options' ) ) {
 			'login_geo_redirect_url'     => '',
 			'login_geo_blocked_message'  => '',
 			'iplocate_api_key'           => '',
+			'gdpr_banner_message'        => '',
+			'enable_gdpr_banner'         => 'no',
 		);
 
 		/**

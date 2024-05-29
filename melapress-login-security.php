@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     1.3.0
+ * Version:     1.3.1
  * Plugin URI:  https://melapress.com/wordpress-login-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      Melapress
@@ -52,7 +52,7 @@ if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 	 * Takes care of deactivation of the premium plugin when the free plugin is activated.
 	 */
 	function mls_free_on_plugin_activation() {
-		update_site_option( 'mls_redirect_to_settings', true );
+		update_site_option( 'ppmwp_redirect_to_settings', true );
 		$premium_version_slug = 'melapress-login-security-premium/melapress-login-security-premium.php';
 		if ( is_plugin_active( $premium_version_slug ) ) {
 			deactivate_plugins( $premium_version_slug, true );
@@ -170,7 +170,7 @@ if ( ! function_exists( $mpls ) ) {
 		/**
 		 * Meta key flag to mark user as blocked.
 		 */
-		define( 'PPMWP_VERSION', '1.3.0' );
+		define( 'PPMWP_VERSION', '1.3.1' );
 	}
 
 	if ( ! defined( 'PPMWP_MENU_SLUG' ) ) {
@@ -243,13 +243,48 @@ if ( ! function_exists( $mpls ) ) {
 	 * @return void
 	 */
 	function mls_plugin_activate_redirect() {
-		if ( get_site_option( 'mls_redirect_to_settings', false ) ) {
-			delete_site_option( 'mls_redirect_to_settings' );
+		if ( get_site_option( 'ppmwp_redirect_to_settings', false ) ) {
+			delete_site_option( 'ppmwp_redirect_to_settings' );
 			$url = add_query_arg( 'page', 'ppm_wp_settings', network_admin_url( 'admin.php' ) );
 			wp_safe_redirect( $url );
 		}
 	}
 	/* @free:end */
+
+	add_action( 'admin_init', 'mls_on_plugin_update', 10 );
+
+	/**
+	 * Redirect to settings on plugin update.
+	 *
+	 * @return void
+	 */
+	if ( ! function_exists( 'mls_on_plugin_update' ) ) {
+		function mls_on_plugin_update() {
+			$stored_version    = get_site_option( 'ppmwp_active_version', false );
+			$existing_settings = get_site_option( 'ppmwp_options', false );
+
+			if ( $existing_settings && ! empty( $existing_settings ) ) {
+				if ( ! empty( $stored_version ) && version_compare( $stored_version, PPMWP_VERSION, '<' ) ) {
+					update_site_option( 'ppmwp_active_version', PPMWP_VERSION );
+					update_site_option( 'ppmwp_show_update_notice', true );
+				} elseif ( empty( $stored_version ) ) {
+					update_site_option( 'ppmwp_active_version', PPMWP_VERSION );
+					update_site_option( 'ppmwp_show_update_notice', true );
+				}
+	
+				if ( get_site_option( 'ppmwp_show_update_notice', false ) ) {
+					delete_site_option( 'ppmwp_show_update_notice' );
+					update_site_option( 'ppmwp_update_notice_needed', true );
+					$args = array(
+						'page' => 'ppm_wp_settings'
+					);
+					$url = add_query_arg( $args, network_admin_url( 'admin.php' ) );
+					wp_safe_redirect( $url );
+					exit;
+				}
+			}
+		}
+	}
 }
 
 /**

@@ -28,9 +28,14 @@
 			</div>
 
             <div class="settings-tab ppm-login-page-settings">
-				<table class="form-table">
+			<table class="form-table">
 					<tbody>
                     	<?php echo $login_control::render_login_page_url_settings(); ?>
+                    </tbody>
+                </table>
+				<table class="form-table">
+					<tbody>
+                    	<?php echo $login_control::render_login_gdpr_settings(); ?>
                     </tbody>
                 </table>
 				<?php
