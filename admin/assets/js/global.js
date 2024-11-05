@@ -77,8 +77,6 @@ jQuery( document ).ready( function( $ ) {
 		if ( button_event ) {
 			// Force submit
 			$( '#ppm-min-length' ).addClass( 'force-submit' );
-			// Uncheck checkbox
-			$( '#ppm-mix-case, #ppm-numeric, #ppm-special' ).prop( 'checked', false );
 			// Submit form
 			$( 'input[name="_ppm_save"]' ).trigger( 'click' );
 		} else {

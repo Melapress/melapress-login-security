@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'PPMWP\\' => array($baseDir . '/app', $baseDir . '/admin'),
+    'MLS\\' => array($baseDir . '/app', $baseDir . '/admin'),
 );

@@ -4,17 +4,17 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit8c77a077db78a68cfd88de5586bb706a
+class ComposerStaticInit7421c6551ba5b5671e0d9aa58692c6fa
 {
     public static $prefixLengthsPsr4 = array (
-        'P' => 
+        'M' => 
         array (
-            'PPMWP\\' => 6,
+            'MLS\\' => 4,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'PPMWP\\' => 
+        'MLS\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
             1 => __DIR__ . '/../..' . '/admin',
@@ -22,42 +22,48 @@ class ComposerStaticInit8c77a077db78a68cfd88de5586bb706a
     );
 
     public static $classMap = array (
-        'PPMWP\\Admin\\PPM_WP_Admin' => __DIR__ . '/../..' . '/admin/class-ppm-wp-admin.php',
-        'PPMWP\\Admin\\PPM_WP_MS_Admin' => __DIR__ . '/../..' . '/admin/class-ppm-wp-ms-admin.php',
-        'PPMWP\\Admin\\Upgrade_Notice' => __DIR__ . '/../..' . '/admin/classes/class-upgrade-notices.php',
-        'PPMWP\\Ajax\\AjaxInterface' => __DIR__ . '/../..' . '/app/ajax/class-ajaxinterface.php',
-        'PPMWP\\Ajax\\UnlockInactiveUser' => __DIR__ . '/../..' . '/app/modules/failed-logins/class-unlock-inactive-user-ajax.php',
-        'PPMWP\\Crons\\CronInterface' => __DIR__ . '/../..' . '/app/crons/class-croninterface.php',
-        'PPMWP\\Crons\\SummaryEmail' => __DIR__ . '/../..' . '/app/crons/class-summaryemail.php',
-        'PPMWP\\Helpers\\HideAdminNotices' => __DIR__ . '/../..' . '/app/helpers/class-hide-admin-notices.php',
-        'PPMWP\\Helpers\\OptionsHelper' => __DIR__ . '/../..' . '/app/helpers/class-optionshelper.php',
-        'PPMWP\\Helpers\\SettingsImporter' => __DIR__ . '/../..' . '/app/helpers/class-settings-importer.php',
-        'PPMWP\\Helpers\\UserImporter' => __DIR__ . '/../..' . '/app/helpers/class-user-importer.php',
-        'PPMWP\\MLS_Login_Page_Control' => __DIR__ . '/../..' . '/app/login-page-control/class-login-page-control.php',
-        'PPMWP\\PPM_Apply_Timestamp_For_Users_Process' => __DIR__ . '/../..' . '/app/helpers/class-ppm-apply-timestamp-for-users-process.php',
-        'PPMWP\\PPM_EmailStrings' => __DIR__ . '/../..' . '/app/helpers/class-ppm-emailstrings.php',
-        'PPMWP\\PPM_Failed_Logins' => __DIR__ . '/../..' . '/app/modules/failed-logins/class-ppm-failed-logins.php',
-        'PPMWP\\PPM_MB_String_Helper' => __DIR__ . '/../..' . '/app/helpers/class-ppm-mb-string-helper.php',
-        'PPMWP\\PPM_New_User_Register' => __DIR__ . '/../..' . '/app/enforcers/class-new-user.php',
-        'PPMWP\\PPM_Reset_User_PW_Process' => __DIR__ . '/../..' . '/app/enforcers/class-ppm-wp-reset-bg-process.php',
-        'PPMWP\\PPM_Shortcodes' => __DIR__ . '/../..' . '/app/enforcers/class-shortcodes.php',
-        'PPMWP\\PPM_User_Profile' => __DIR__ . '/../..' . '/app/enforcers/class-user-profile.php',
-        'PPMWP\\PPM_WP_Expire' => __DIR__ . '/../..' . '/app/enforcers/class-ppm-wp-expire.php',
-        'PPMWP\\PPM_WP_Forms' => __DIR__ . '/../..' . '/app/enforcers/class-ppm-wp-forms.php',
-        'PPMWP\\PPM_WP_History' => __DIR__ . '/../..' . '/app/helpers/class-ppm-wp-history.php',
-        'PPMWP\\PPM_WP_Msgs' => __DIR__ . '/../..' . '/app/policies/class-ppm-wp-msgs.php',
-        'PPMWP\\PPM_WP_Options' => __DIR__ . '/../..' . '/app/policies/class-ppm-wp-options.php',
-        'PPMWP\\PPM_WP_Password_Check' => __DIR__ . '/../..' . '/app/enforcers/class-ppm-wp-password-check.php',
-        'PPMWP\\PPM_WP_Password_Gen' => __DIR__ . '/../..' . '/app/helpers/class-ppm-wp-password-gen.php',
-        'PPMWP\\PPM_WP_Pointer' => __DIR__ . '/../..' . '/app/helpers/class-pointer.php',
-        'PPMWP\\PPM_WP_Regex' => __DIR__ . '/../..' . '/app/policies/class-ppm-wp-regex.php',
-        'PPMWP\\PPM_WP_Reset' => __DIR__ . '/../..' . '/app/enforcers/class-ppm-wp-reset.php',
-        'PPMWP\\RestrictLogins' => __DIR__ . '/../..' . '/app/modules/restrict-logins/class-restrict-logins.php',
-        'PPMWP\\Utilities\\ValidatorFactory' => __DIR__ . '/../..' . '/app/Utilities/class-validatorfactory.php',
-        'PPMWP\\Validators\\Validator' => __DIR__ . '/../..' . '/app/Validators/class-validator.php',
-        'PPMWP\\Views\\Tables\\InactiveUsersTable' => __DIR__ . '/../..' . '/app/modules/failed-logins/InactiveUsersTable.php',
-        'PPMWP\\WP_Admin_Pointer' => __DIR__ . '/../..' . '/app/helpers/class-pointer.php',
-        'PPM_WP' => __DIR__ . '/../..' . '/app/class-ppm-wp.php',
+        'MLS\\Admin\\Admin' => __DIR__ . '/../..' . '/admin/class-mls-admin.php',
+        'MLS\\Admin\\Network_Admin' => __DIR__ . '/../..' . '/admin/class-mls-multisite-admin.php',
+        'MLS\\Admin\\Upgrade_Notice' => __DIR__ . '/../..' . '/admin/classes/class-upgrade-notices.php',
+        'MLS\\Admin\\UserLastLoginTime' => __DIR__ . '/../..' . '/admin/classes/class-last-login-time.php',
+        'MLS\\Ajax\\AjaxInterface' => __DIR__ . '/../..' . '/app/ajax/class-ajaxinterface.php',
+        'MLS\\Ajax\\UnlockInactiveUser' => __DIR__ . '/../..' . '/app/modules/failed-logins/class-unlock-inactive-user-ajax.php',
+        'MLS\\Apply_Timestamp_For_Users_Process' => __DIR__ . '/../..' . '/app/helpers/class-apply-timestamp-for-users-process.php',
+        'MLS\\Check_User_Expiry' => __DIR__ . '/../..' . '/app/enforcers/class-check-user-expiry.php',
+        'MLS\\Crons\\CronInterface' => __DIR__ . '/../..' . '/app/crons/class-croninterface.php',
+        'MLS\\Crons\\SummaryEmail' => __DIR__ . '/../..' . '/app/crons/class-summaryemail.php',
+        'MLS\\EmailAndMessageStrings' => __DIR__ . '/../..' . '/app/helpers/class-emailstrings.php',
+        'MLS\\Emailer' => __DIR__ . '/../..' . '/app/helpers/class-emailer.php',
+        'MLS\\Failed_Logins' => __DIR__ . '/../..' . '/app/modules/failed-logins/class-failed-logins.php',
+        'MLS\\Forms' => __DIR__ . '/../..' . '/app/enforcers/class-forms.php',
+        'MLS\\Helpers\\HideAdminNotices' => __DIR__ . '/../..' . '/app/helpers/class-hide-admin-notices.php',
+        'MLS\\Helpers\\OptionsHelper' => __DIR__ . '/../..' . '/app/helpers/class-optionshelper.php',
+        'MLS\\Helpers\\SettingsImporter' => __DIR__ . '/../..' . '/app/helpers/class-settings-importer.php',
+        'MLS\\Helpers\\UserImporter' => __DIR__ . '/../..' . '/app/helpers/class-user-importer.php',
+        'MLS\\Login_Page_Control' => __DIR__ . '/../..' . '/app/login-page-control/class-login-page-control.php',
+        'MLS\\MB_String_Helper' => __DIR__ . '/../..' . '/app/helpers/class-mb-string-helper.php',
+        'MLS\\MLS_Messages' => __DIR__ . '/../..' . '/app/policies/class-mls-messages.php',
+        'MLS\\MLS_Options' => __DIR__ . '/../..' . '/app/policies/class-mls-options.php',
+        'MLS\\MLS_Regex' => __DIR__ . '/../..' . '/app/policies/class-mls-regex.php',
+        'MLS\\MLS_Reset_Passwords' => __DIR__ . '/../..' . '/app/enforcers/class-reset-passwords.php',
+        'MLS\\Migrate_UserMeta_BG_Process' => __DIR__ . '/../..' . '/app/helpers/class-migrate-usermeta-bg-process.php',
+        'MLS\\New_User_Register' => __DIR__ . '/../..' . '/app/enforcers/class-new-user.php',
+        'MLS\\Password_Check' => __DIR__ . '/../..' . '/app/enforcers/class-password-check.php',
+        'MLS\\Password_Gen' => __DIR__ . '/../..' . '/app/helpers/class-wp-password-gen.php',
+        'MLS\\Password_History' => __DIR__ . '/../..' . '/app/helpers/class-password-history.php',
+        'MLS\\Pointer' => __DIR__ . '/../..' . '/app/helpers/class-pointer.php',
+        'MLS\\Reset_User_PW_Process' => __DIR__ . '/../..' . '/app/enforcers/class-wp-reset-bg-process.php',
+        'MLS\\RestrictLogins' => __DIR__ . '/../..' . '/app/modules/restrict-logins/class-restrict-logins.php',
+        'MLS\\Restrict_Login_Credentials' => __DIR__ . '/../..' . '/app/enforcers/class-restrict-login-credentials.php',
+        'MLS\\SecurityPrompt' => __DIR__ . '/../..' . '/app/modules/class-security-prompt.php',
+        'MLS\\Shortcodes' => __DIR__ . '/../..' . '/app/enforcers/class-shortcodes.php',
+        'MLS\\UpdateRoutines' => __DIR__ . '/../..' . '/app/helpers/class-update-routines.php',
+        'MLS\\User_Profile' => __DIR__ . '/../..' . '/app/enforcers/class-user-profile.php',
+        'MLS\\Utilities\\Validator_Factory' => __DIR__ . '/../..' . '/app/Utilities/class-validator-factory.php',
+        'MLS\\Validators\\Validator' => __DIR__ . '/../..' . '/app/Validators/class-validator.php',
+        'MLS\\Views\\Tables\\InactiveUsersTable' => __DIR__ . '/../..' . '/app/modules/failed-logins/InactiveUsersTable.php',
+        'MLS\\WP_Admin_Pointer' => __DIR__ . '/../..' . '/app/helpers/class-wp-admin-pointer.php',
+        'MLS_Core' => __DIR__ . '/../..' . '/app/class-melapress-login-security.php',
         'WP_Async_Request' => __DIR__ . '/..' . '/deliciousbrains/wp-background-processing/classes/wp-async-request.php',
         'WP_Background_Process' => __DIR__ . '/..' . '/deliciousbrains/wp-background-processing/classes/wp-background-process.php',
     );
@@ -65,9 +71,9 @@ class ComposerStaticInit8c77a077db78a68cfd88de5586bb706a
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit8c77a077db78a68cfd88de5586bb706a::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit8c77a077db78a68cfd88de5586bb706a::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit8c77a077db78a68cfd88de5586bb706a::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit7421c6551ba5b5671e0d9aa58692c6fa::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit7421c6551ba5b5671e0d9aa58692c6fa::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit7421c6551ba5b5671e0d9aa58692c6fa::$classMap;
 
         }, null, ClassLoader::class);
     }

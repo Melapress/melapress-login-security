@@ -2,14 +2,14 @@
 /**
  * Blank admin area.
  *
- * @package WordPress
- * @subpackage wpassword
+ * @package MelapressLoginSecurity
+ * @since 2.0.0
  */
 
 ?>
 
 <div class="wrap ppm-wrap">
 	<div class="page-head">
-		<h2><?php esc_html_e( 'Login Security Policies', 'ppm-wp' ); ?></h2>
+		<h2><?php esc_html_e( 'Login Security Policies', 'melapress-login-security' ); ?></h2>
 	</div>
 </div>

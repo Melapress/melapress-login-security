@@ -90,7 +90,7 @@
 	margin-bottom: 30px;
 }
 
-.ppm-help-section {
+.mls-help-section {
 	display: -ms-flexbox;
 	display: flex;
 	-ms-flex-direction: row-reverse;
@@ -120,7 +120,7 @@
 	box-sizing: border-box;
 	background: #ffffff;
 }
-.ppm-help-main {
+.mls-help-main {
     width: 60%;
     padding: 10px 20px;
 }
@@ -158,7 +158,7 @@
  * Media query max-width: 767px
  */
 @media ( max-width: 767px ) {
-	.ppm-help-main {
+	.mls-help-main {
 		width: 100%;
 	}
 	.our-wordpress-plugins.side-bar {
@@ -166,10 +166,10 @@
 		max-width: 100%;
 		margin: 0 auto;
 	}
-	.ppm-help-section.nav-tabs {
+	.mls-help-section.nav-tabs {
 		padding-top: 30px;
 	}
-	.ppm-help-main {
+	.mls-help-main {
 		padding-top: 40px;
 	}
 	.our-wordpress-plugins ul {

@@ -47,3 +47,26 @@ li.policy-fail {
   background-color: #c1e1b9;
   border-bottom: 1px solid #83c373;
 }
+.question {
+  min-width: 350px;
+  display: inline-block;
+}
+
+.question + input {
+  min-width: 250px;
+}
+
+#selected-response {
+  position: relative;
+  top: -2px;
+}
+
+#add-response-wrapper {
+  padding: 20px;
+  background-color: #fefefe;
+  margin-top: 20px;
+}
+
+a[href="#remove-response"] {
+  margin-left: 10px;
+}

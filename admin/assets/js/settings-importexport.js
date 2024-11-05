@@ -83,7 +83,7 @@ jQuery( document ).ready( function() {
 				url: ajaxurl,
 				async: true,
 				data: {
-					action: 'mls_check_setting_pre_import',
+					action: 'mls_check_setting_and_handle_import',
 					setting_name : option_name,
 					setting_value : option_value,
 					process_import : do_import,

@@ -1,28 +1,42 @@
-<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
- * PPM New User Register
+ * Melapress Login Security shortcodes.
  *
- * @package WordPress
- * @subpackage wpassword
- * @author Melapress
+ * @package MelapressLoginSecurity
+ * @since 2.0.0
  */
 
-namespace PPMWP;
+declare(strict_types=1);
 
-use \PPMWP\Helpers\OptionsHelper;
+namespace MLS;
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+use MLS\Helpers\OptionsHelper;
 
 /**
  * Check if this class already exists.
+ *
+ * @since 2.0.0
  */
-if ( ! class_exists( '\PPMWP\PPM_Shortcodes' ) ) {
+if ( ! class_exists( '\MLS\Shortcodes' ) ) {
 
 	/**
-	 * Declare PPM_Shortcodes Class
+	 * Declare Shortcodes Class
+	 *
+	 * @since 2.0.0
 	 */
-	class PPM_Shortcodes {
+	class Shortcodes {
 
 		/**
 		 * Init hooks.
+		 *
+		 * @return void
+		 *
+		 * @since 2.0.0
 		 */
 		public function init() {
 			// Only load further if needed.
@@ -37,7 +51,11 @@ if ( ! class_exists( '\PPMWP\PPM_Shortcodes' ) ) {
 		 * Simple function to add custom form support via a shortcode to avoid
 		 * loading assets on all front-end pages.
 		 *
-		 * @param  array $atts Attributes (css classes, IDs) passed to shortcode.
+		 * @param array $atts Attributes (css classes, IDs) passed to shortcode.
+		 *
+		 * @return void
+		 *
+		 * @since 2.0.0
 		 */
 		public function custom_form_shortcode( $atts ) {
 			$shortcode_attributes = shortcode_atts(
@@ -50,7 +68,7 @@ if ( ! class_exists( '\PPMWP\PPM_Shortcodes' ) ) {
 				'ppmwp-custom-form'
 			);
 
-			$custom_forms = new \PPMWP\PPM_WP_Forms();
+			$custom_forms = new \MLS\Forms();
 			$custom_forms->enable_custom_form( $shortcode_attributes );
 		}
 	}
