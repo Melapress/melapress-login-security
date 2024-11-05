@@ -1,13 +1,18 @@
 <?php
 /**
- * Upfate page content.
+ * Update page content.
  *
- * @package C4WP
+ * @package MelapressLoginSecurity
+ * @since 2.0.0
  */
 
+declare(strict_types=1);
+
+// Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
+	exit;
 }
+
 ?>
 
 <div class="wrap features-wrap">
@@ -15,10 +20,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 		
 		<div class="content-block">
 			<div class="logo-wrap">
-				<img src="<?php echo esc_url( PPM_WP_URL . 'assets/images/password-policy-manager.png' ); ?>" alt="">
+				<img src="<?php echo esc_url( MLS_PLUGIN_URL . 'assets/images/password-policy-manager.png' ); ?>" alt="">
 			</div>
 			<p><?php esc_html_e( 'The security of your WordPress website & WooCommerce store is as strong as the weakest password!', 'c4wp-wpp' ); ?></p>
-			<p><?php esc_html_e( 'Weak passwords should not jeopardize the security of your website. Configure strong password policies with WPassword and ensure your team, customers & subscribers use strong passwords.', 'c4wp-wpp' ); ?></p>
+			<p><?php esc_html_e( 'Weak passwords should not jeopardize the security of your website. Configure strong password policies with Melapress Login Security and ensure your team, customers & subscribers use strong passwords.', 'c4wp-wpp' ); ?></p>
 			<div class="premium-cta">
 			<a href="https://www.melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=link&utm_campaign=mls" target="_blank" rel="noopener">Upgrade to Premium</a>
 			</div>
@@ -32,15 +37,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c10 c4"><span class="c5"></span></p>
 						</td>
 						<td class="c8 row-head" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5">Premium</span></p>
+							<p class="c7"><span class="c5"><?php esc_html_e( 'Premium', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c12 row-head" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5">Free</span></p>
+							<p class="c7"><span class="c5"><?php esc_html_e( 'Free', 'melapress-login-security' ); ?></span></p>
 						</td>
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Email support and forum access</strong>We stand behind all of our products with world-class support and a team of professionals who absolutely care.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Email support and forum access', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'We stand behind all of our products with world-class support and a team of professionals who absolutely care.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -51,7 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Enforce Strong Passwords</strong>Easily enable password policies and enforce the use of strong passwords on your WordPress websites within seconds!</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Enforce Strong Passwords', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Easily enable password policies and enforce the use of strong passwords on your WordPress websites within seconds!', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -62,7 +67,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Configurable Password Policies</strong>All the password policies are configurable. You can configure policies for password length, history, complexity, use of special characters and many others.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Configurable Password Policies', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'All the password policies are configurable. You can configure policies for password length, history, complexity, use of special characters and many others.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -73,7 +78,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Password Policies per User Role</strong>Configure different password policies for different user roles, including custom ones. You can also exclude a specific user, or user role from all the policies..</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Password Policies per User Role', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Configure different password policies for different user roles, including custom ones. You can also exclude a specific user, or user role from all the policies.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -84,7 +89,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Multisite Network Compatible</strong>Enforce strong password policies at network level so no user jeopardizes the security of your multisite network.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Multisite Network Compatible', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Enforce strong password policies at network level so no user jeopardizes the security of your multisite network.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -93,9 +98,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
 						</td>
 					</tr>
+
+
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>1-Click Reset All Passwords</strong>Reset all of the password and terminate all logged in sessions with just 1 click in case of suspicious activity. All users receive clear instructions on how reset their passwords, making this an easy process.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Hide the WordPress login page', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Change the URL of your WordPress login page so it is not accessible to malicious attackers.', 'melapress-login-security' ); ?></span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+					</tr>
+
+					
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( '1-Click Reset All Passwords', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Reset all passwords and terminate all logged in session with 1-click in case of suspicious activity. When you use this feature, all users will receive clear instructions on how to reset their passwords.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -107,7 +127,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Limit Failed Login Attempts</strong>Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Limit Failed Login Attempts', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -116,9 +136,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
 						</td>
 					</tr>
+
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>WooCommerce & Third Party Plugins Ready</strong>Do you use WooCommerce for your eCommerce website? Do you use LearnDash, MemberPress and other popular plugins for Membership and business websites? Enforce login security policies on forms from these plugins with just a mouse click.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Restrict user logins by IP Addresses', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Allow / limit a user\'s login to an IP address or a number of IP addresses. All the IP addresses and such limitations can be configured for every individual user, allowing you to restrict account sharing but at the same time giving the users the flexibility they need.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -127,9 +148,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
 						</td>
 					</tr>
+					
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Hide the WordPress login page</strong>Change the URL of your WordPress login page so it is not accessible to malicious attackers.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'WooCommerce & Third Party Plugins Ready', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Do you use WooCommerce for your eCommerce website? Do you use LearnDash, MemberPress and other popular plugins for Membership and business websites? Enforce login security policies on forms from these plugins with just a mouse click.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -141,7 +163,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Limit login page traffic by country</strong>Use Geoblocking to restrict access to the WordPress login page to certain countries only, or to block traffic originating from certain countries.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Limit login page traffic by country', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Use Geoblocking to restrict access to the WordPress login page to certain countries only, or to block traffic originating from certain countries.', 'melapress-login-security' ); ?></span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+					
+
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Restrict user login times', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Restrict your users\' login times to specific days and hours and enforce your working hours policy, improve website and user account security, and reduce your website\'s attack surface.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -152,7 +187,44 @@ if ( ! defined( 'ABSPATH' ) ) {
 					</tr>
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Restrict user logins by IP Addresses</strong>Allow / limit a user's login to an IP address or a number of IP addresses. All the IP addresses and such limitations can be configured for every individual user, allowing you to restrict account sharing but at the same time giving the users the flexibility they need.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Automatically Lock Inactive Users', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Inactive users are an easy prime target for malicious hackers. Our plugin automatically identifies & locks inactive users to help you protect your website. It also alerts you about them.', 'melapress-login-security' ); ?></span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Get alerted of unrecognized devices', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Keep WordPress users\' accounts secure by by sending them an immediate email alert if they log in from a new browser / device, allowing them to remotely terminate the session and notify the website administrator.', 'melapress-login-security' ); ?></span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+
+
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Add security questions', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Prevent unauthorized user account changes usch as password resets or when unlocking a user account by requiring users to answer preconfigured security questions.', 'melapress-login-security' ); ?></span></p>
+						</td>
+						<td class="c8" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
+						</td>
+						<td class="c12" colspan="1" rowspan="1">
+							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
+						</td>
+					</tr>
+
+
+					<tr class="c2">
+						<td class="c6" colspan="1" rowspan="1">
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Editable email templates & notifications', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Take control of all the emails and user notifications - edit their content with our easy to use settings so all messages fit your business\' branding.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -164,29 +236,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Restrict user login times</strong>Restrict your users' login times to specific days and hours and enforce your working hours policy, improve website and user account security, and reduce your website's attack surface.</span></p>
-						</td>
-						<td class="c8" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-						<td class="c12" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
-						</td>
-					</tr>
-					<tr class="c2">
-						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Automatically Lock Inactive Users</strong>Inactive users are an easy prime target for malicious hackers. Our plugin automatically identifies & locks inactive users to help you protect your website. It also alerts you about them.</span></p>
-						</td>
-						<td class="c8" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-						<td class="c12" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
-						</td>
-					</tr>
-					<tr class="c2">
-						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Configurable Email Templates</strong>Take control of all messages and their content with our easy to use email template settings.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Users activity & passwords reports', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Use the reports to easily see the last time users were active, their password age and whose password is expired.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -198,7 +248,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Users activity & passwords reports</strong>Use the reports to easily see the last time users were active, their password age and whose password is expired.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Weekly summary email', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Get a weekly email with a detailed summary of all password resets and changes, inactivity lockouts, failed logins, and more.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -210,19 +260,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					<tr class="c2">
 						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Weekly summary email</strong>Get a weekly email with a detailed summary of all password resets and changes, inactivity lockouts, failed logins, and more.</span></p>
-						</td>
-						<td class="c8" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
-						</td>
-						<td class="c12" colspan="1" rowspan="1">
-							<p class="c7"><span class="c5"><span class="dashicons dashicons-no"></span></span></p>
-						</td>
-					</tr>
-
-					<tr class="c2">
-						<td class="c6" colspan="1" rowspan="1">
-							<p class="c10"><span class="c5"><strong>Bulk user import</strong>Use the plugin's Users import feature to import a list of users via a CSV file. You can also require all imported users to change their password on their first login.</span></p>
+							<p class="c10"><span class="c5"><strong><?php esc_html_e( 'Bulk user import', 'melapress-login-security' ); ?></strong><?php esc_html_e( 'Use the plugin\'s Users import feature to import a list of users via a CSV file. You can also require all imported users to change their password on their first login.', 'melapress-login-security' ); ?></span></p>
 						</td>
 						<td class="c8" colspan="1" rowspan="1">
 							<p class="c7"><span class="c5"><span class="dashicons dashicons-saved"></span></span></p>
@@ -236,13 +274,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="premium-cta">
-			<a href="https://www.melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=link&utm_campaign=mls target="_blank" rel="noopener">Upgrade to Premium</a>
+			<a href="https://www.melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=link&utm_campaign=mls" target="_blank" rel="noopener"><?php esc_html_e( 'Upgrade to Premium', 'melapress-login-security' ); ?></a>
 		</div>
 
 	</div>
 </div>
 
-<style>
+<style type="text/css">
 	#postbox-container-1 {
 		display: none;
 	}

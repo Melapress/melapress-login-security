@@ -2,27 +2,37 @@
 /**
  * Handles policies admin area.
  *
- * @package WordPress
- * @subpackage wpassword
+ * @package MelapressLoginSecurity
+ * @since 2.0.0
  */
 
- $sidebar_required    = false;
- /* @free:start */
- // Override in free edition.
- $sidebar_required    = true;
- /* @free:end */
- $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
- $ppm = ppm_wp();
+declare(strict_types=1);
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$sidebar_required = false;
+
+/* @free:start */
+
+// Override in free edition.
+$sidebar_required = true;
+/* @free:end */
+
+$form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
+$mls        = melapress_login_security();
 ?>
 
 <div class="wrap ppm-wrap">
-	<form method="post" id="ppm-wp-settings" class="<?php esc_attr_e( $form_class ); ?>">
-		<div class="ppm-settings">
+	<form method="post" id="ppm-wp-settings" class="<?php echo esc_attr( $form_class ); ?>">
+		<div class="mls-settings">
 
 			<!-- getting started -->
 			<div class="page-head" style="padding-right: 0">
-				<h2><?php esc_html_e( 'Forms & Placement', 'ppm-wp' ); ?></h2>
-				<p class="description" style="max-width: none"><?php esc_html_e( 'By default, the login and password security policies configured in this plugin can only be enforced on the native WordPress forms. However, the plugin also has out of the box support for third party popular plugins such as WooCommerce and BuddyPress. Use the checkboxes below to select on which forms you\'d like to also enforce the configured policies.', 'ppm-wp' ); ?></p>
+				<h2><?php esc_html_e( 'Forms & Placement', 'melapress-login-security' ); ?></h2>
+				<p class="description" style="max-width: none"><?php esc_html_e( 'By default, the login and password security policies configured in this plugin are only be enforced on the native WordPress forms. However, the plugin has out-of-the-box support for popular third-party plugins such as WooCommerce and BuddyPress. Use the checkboxes below to select the forms on which you\'d like to enforce the configured policies. The list of plugins is sorted in alphabetical order.', 'melapress-login-security' ); ?></p>
 				<br>
 			</div>
 
@@ -31,27 +41,27 @@
 					<tbody>
 						<tr class="setting-heading" valign="top">
 							<th scope="row">
-								<h3><?php esc_html_e( 'Standard forms', 'ppm-wp' ); ?></h3>							
+								<h3><?php esc_html_e( 'Standard forms', 'melapress-login-security' ); ?></h3>							
 							</th>
 						</tr>
 
 						<tr valign="top">
 							<th scope="row">
-								<?php esc_attr_e( 'Wordpress forms', 'ppm-wp' ); ?>
+								<?php esc_attr_e( 'WordPress forms', 'melapress-login-security' ); ?>
 							</th>
 							<td>
 								<fieldset>
 									<label for="ppm-enable_wp_reset_form">
 										<input name="_ppm_options[enable_wp_reset_form]" type="checkbox" id="ppm-enable_wp_reset_form"
-												value="yes" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_reset_form ) ); ?>/>
-												<?php esc_attr_e( 'This website\'s password reset page', 'ppm-wp' ); ?>
+												value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_reset_form ) ); ?>/>
+												<?php esc_attr_e( 'This website\'s password reset page', 'melapress-login-security' ); ?>
 									</label>
 								</fieldset>
 								<fieldset>
 									<label for="ppm-enable_wp_profile_form">
 										<input name="_ppm_options[enable_wp_profile_form]" type="checkbox" id="ppm-enable_wp_profile_form"
-												value="yes" <?php checked( \PPMWP\Helpers\OptionsHelper::string_to_bool( $ppm->options->ppm_setting->enable_wp_profile_form ) ); ?>/>
-												<?php esc_attr_e( 'User profile page', 'ppm-wp' ); ?>
+												value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_profile_form ) ); ?>/>
+												<?php esc_attr_e( 'User profile page', 'melapress-login-security' ); ?>
 									</label>
 								</fieldset>
 							</td>
@@ -63,22 +73,22 @@
 
 			<?php
 				$scripts_required = false;
-				$additonal_tabs   = apply_filters( 'ppmwp_forms_settings_page_content_tabs', '' );
+				$additional_tabs  = apply_filters( 'mls_forms_settings_page_content_tabs', '' );
 			?>
 
 		</div>
 
-		<?php wp_nonce_field( PPMWP_PREFIX . '_nonce_form', PPMWP_PREFIX . '_nonce' ); ?>
+		<?php wp_nonce_field( MLS_PREFIX . '_nonce_form', MLS_PREFIX . '_nonce' ); ?>
 		
 		<div class="submit">
 			<input type="submit" name="_ppm_save" class="button-primary"
-		value="<?php echo esc_attr( __( 'Save Changes', 'ppm-wp' ) ); ?>" />
+		value="<?php echo esc_attr( __( 'Save Changes', 'melapress-login-security' ) ); ?>" />
 		</div>
 	</form>
 
 	<?php
 	/* @free:start */
-	require_once PPM_WP_PATH . 'admin/templates/views/upgrade-sidebar.php';
+	require_once MLS_PATH . 'admin/templates/views/upgrade-sidebar.php';
 	/* @free:end */
 
 	?>

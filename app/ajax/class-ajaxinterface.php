@@ -2,16 +2,24 @@
 /**
  * Interface for building ajax actions.
  *
- * @since 2.1.0
- *
- * @package WordPress
+ * @package MelapressLoginSecurity
+ * @since 2.0.0
  */
 
-namespace PPMWP\Ajax;
+declare(strict_types=1);
+
+namespace MLS\Ajax;
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * An abstract class to be used when creating ajax actions. This ensures a consistent
  * way of using them and invoking them.
+ *
+ * @since 2.0.0
  */
 interface AjaxInterface {
 
@@ -19,7 +27,8 @@ interface AjaxInterface {
 	 * Register the handler and nonce, this is the entrypoint.
 	 *
 	 * @method register
-	 * @since  2.1.0
+	 *
+	 * @since 2.0.0
 	 */
 	public function register();
 
@@ -30,7 +39,8 @@ interface AjaxInterface {
 	 * method that is used during the registration hook.
 	 *
 	 * @method action
-	 * @since  2.1.0
+	 *
+	 * @since 2.0.0
 	 */
 	public function action();
 
@@ -40,9 +50,10 @@ interface AjaxInterface {
 	 * NOTE: always pass a nonce.
 	 *
 	 * @method check_nonce
-	 * @since  2.1.0
+	 *
 	 * @return bool
+	 *
+	 * @since 2.0.0
 	 */
 	public static function check_nonce();
-
 }

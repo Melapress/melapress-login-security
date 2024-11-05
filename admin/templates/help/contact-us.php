@@ -2,17 +2,24 @@
 /**
  * Contact us wrapper.
  *
- * @package WordPress
- * @subpackage wpassword
+ * @package MelapressLoginSecurity
+ * @since 2.0.0
  */
+
+declare(strict_types=1);
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 // Plugin adverts sidebar.
 require_once 'sidebar.php';
 ?>
-<div class="ppm-help-main">
+<div class="mls-help-main">
 	<!-- getting started -->
 	<div class="title">
-		<h2><?php esc_html_e( 'Contact Us', 'ppm-wp' ); ?></h2>
+		<h2><?php esc_html_e( 'Contact Us', 'melapress-login-security' ); ?></h2>
 	</div>
 	<style type="text/css">
 		.fs-secure-notice {
@@ -25,8 +32,8 @@ require_once 'sidebar.php';
 		}
 	</style>
 	<?php
-	$freemius_id = ppm_freemius()->get_id();
+	$freemius_id = melapress_login_security_freemius()->get_id();
 	$vars        = array( 'id' => $freemius_id );
-	echo fs_get_template( 'contact.php', $vars ); // phpcs:ignore
+	echo fs_get_template( 'contact.php', $vars ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	?>
 </div>

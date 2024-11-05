@@ -1,34 +1,36 @@
-<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Helper class to hide other admin notices.
  *
- * @since 1.2.0
- *
- * @package WordPress
+ * @package MelapressLoginSecurity
+ * @since 2.0.0
  */
 
-namespace PPMWP\Helpers;
+declare(strict_types=1);
+
+namespace MLS\Helpers;
+
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
- *  Helper class to hide other admin notices.
+ * Helper class to hide other admin notices.
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
 class HideAdminNotices {
 
 	/**
 	 * Check whether we are on an admin and plugin page.
 	 *
-	 * @since 1.2.0
-	 *
-	 * @param array|string $slug ID(s) of a plugin page. Possible values: 'general', 'logs', 'about' or array of them.
-	 *
 	 * @return bool
+	 *
+	 * @since 2.0.0
 	 */
-	public static function is_admin_page( $slug = array() ) { // phpcs:ignore Generic.Metrics.NestingLevel.MaxExceeded
-
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$cur_page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : '';
+	public static function is_admin_page() {
+		$cur_page = isset( $_GET['page'] ) ? sanitize_key( $_GET['page'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$check    = 'ppm';
 
 		return \is_admin() && ( false !== strpos( $cur_page, $check ) );
@@ -37,7 +39,9 @@ class HideAdminNotices {
 	/**
 	 * Remove all non MLS plugin notices from our plugin pages.
 	 *
-	 * @since 1.2.0
+	 * @return void
+	 *
+	 * @since 2.0.0
 	 */
 	public static function hide_unrelated_notices() {
 
@@ -55,9 +59,11 @@ class HideAdminNotices {
 	/**
 	 * Remove all non-WP Mail SMTP notices from the our plugin pages based on the provided action hook.
 	 *
-	 * @since 1.2.0
-	 *
 	 * @param string $action The name of the action.
+	 *
+	 * @return void
+	 *
+	 * @since 2.0.0
 	 */
 	private static function remove_unrelated_actions( $action ) {
 

@@ -43,31 +43,40 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 		$passwordWrapper,
 		$pass1Label,
 		$pass1Text,
-		inputEvent;
+		inputEvent,
+		ErrorData;
 
 	function generatePassword() {
-		if ( typeof zxcvbn !== 'function' ) {
-			setTimeout( generatePassword, 50 );
-			return;
-		} else if ( ! $pass1.val() || $passwordWrapper.hasClass( 'is-open' ) ) {
-			// zxcvbn loaded before user entered password, or generating new password.
-			$pass1.val( $pass1.data( 'pw' ) );
-			$pass1.trigger( 'pwupdate' );
-			showOrHideWeakPasswordCheckbox();
-		} else {
-			// zxcvbn loaded after the user entered password, check strength.
-			check_pass_strength();
-			showOrHideWeakPasswordCheckbox();
-		}
+		var isReset = $pass1.closest( 'form' ).attr( 'id' ) == 'resetpassform';
 
-		// Install screen.
-		if ( 1 !== parseInt( $toggleButton.data( 'start-masked' ), 10 ) ) {
-			// Show the password not masked if admin_password hasn't been posted yet.
-			$pass1.attr( 'type', 'text' );
+		if ( isReset && ppmSettings.stop_pw_generate ) {
+			check_pass_strength();
+			$('.wp-generate-pw').attr( 'disabled', true );
+			check_pass_strength();
 		} else {
-			// Otherwise, mask the password.
-			$toggleButton.trigger( 'click' );
-		}
+			if ( typeof zxcvbn !== 'function' ) {
+				setTimeout( generatePassword, 50 );
+				return;
+			} else if ( ! $pass1.val() || $passwordWrapper.hasClass( 'is-open' ) ) {
+				// zxcvbn loaded before user entered password, or generating new password.
+				$pass1.val( $pass1.data( 'pw' ) );
+				$pass1.trigger( 'pwupdate' );
+				showOrHideWeakPasswordCheckbox();
+			} else {
+				// zxcvbn loaded after the user entered password, check strength.
+				check_pass_strength();
+				showOrHideWeakPasswordCheckbox();
+			}
+	
+			// Install screen.
+			if ( 1 !== parseInt( $toggleButton.data( 'start-masked' ), 10 ) ) {
+				// Show the password not masked if admin_password hasn't been posted yet.
+				$pass1.attr( 'type', 'text' );
+			} else {
+				// Otherwise, mask the password.
+				$toggleButton.trigger( 'click' );
+			}
+		}	
 
 		// Once zxcvbn loads, passwords strength is known.
 		$( '#pw-weak-text-label' ).html( user_profile_l10n.warnWeak );
@@ -321,7 +330,10 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 		 * Store the error (policy fails) in an array. Used on the reset screen.
 		 */
 		$.each( wp.passwordStrength.policyFails, function( $namespace, $value ) {
-			ErrorData.push( $value );
+			if ( $namespace != 'strength' ) {
+				ErrorData.push( $value );
+			}
+					
 		} );
 
 		errors = err_pfx + errors + err_sfx;
@@ -334,7 +346,8 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 		 */
 		if ( ErrorData.length == 0 ) {
 			$( '#resetpassform li' ).css('color', '#21760c');
-		} else {
+			$( '.pw-weak' ).prop( 'checked', true );
+		} else {			
 			// val === a 1:1 match for a classname of a policy type.
 			$.each( ErrorData, function( i, val ) {
 				if ( $( '#resetpassform li' ).hasClass( val ) ) {
@@ -345,8 +358,8 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 					$( '#resetpassform li' ).css('color', '#21760c');
 				}
 			} );
+			$( "input[id$='submit'], input#createusersub" ).prop( "disabled", true ).addClass( 'button-disabled' );
 		}
-		$( "input[id$='submit'], input#createusersub" ).prop( "disabled", true ).addClass( 'button-disabled' );
 
 		/*
 		 *  If we have any invalid data then use invalid string or else
@@ -357,8 +370,8 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 			function( el ) {
 				return el === 'exclude_special_chars';
 			}
-		);
-
+		);		
+		
 		if ( invalidCheck ) {
 			$( '#pass-strength-result' ).addClass( 'bad' ).html( '<span class="policy-strength-string">' + pws_l10n.invalid + '</span>' );
 			$( '#pass-strength-result:not(#resetpassform #pass-strength-result)' ).append( ppmwpbuildPolicyListForDisplay( ppmPolicyRules, wp.passwordStrength.policyFails ) );
@@ -376,6 +389,7 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 					break;
 				case 3:
 					$( '#pass-strength-result' ).addClass( 'good' ).html( '<span class="policy-strength-string">' + pws_l10n.good + '</span>' );
+					$( "input[id$='submit'], input#createusersub" ).prop( "disabled", false ).removeClass( 'button-disabled' );
 					$( '#pass-strength-result:not(#resetpassform #pass-strength-result)' ).append( ppmwpbuildPolicyListForDisplay( ppmPolicyRules, wp.passwordStrength.policyFails ) );
 					break;
 				case 4:
@@ -394,10 +408,10 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 			}
 		}
 		if ( ppmPolicyRules.length === 0 ) {
-		 $( "input[id$='submit'], input#createusersub" ).prop( "disabled", false ).removeClass( 'button-disabled' );
-		 $( '#pass-strength-result:not(#resetpassform #pass-strength-result)' ).html( '<p class="hint-msg">' + user_profile_l10n.hintMsgUserNew + '</p><ul style="list-style: none;"><li>' + user_profile_l10n.hintBefore + ' <a target="_blank" href="https://www.melapress.com/guide-wordpress-password-security/">' + user_profile_l10n.hintLink + '</a> ' + user_profile_l10n.hintAfter + '</li></ul>' );
-		 jQuery( '#pass-strength-result' ).css( 'opacity', 1 ).removeClass('strong');
-	 }
+			$( "input[id$='submit'], input#createusersub" ).prop( "disabled", false ).removeClass( 'button-disabled' );
+			$( '#pass-strength-result:not(#resetpassform #pass-strength-result)' ).html( '<p class="hint-msg">' + user_profile_l10n.hintMsgUserNew + '</p><ul style="list-style: none;"><li>' + user_profile_l10n.hintBefore + ' <a target="_blank" href="https://www.melapress.com/guide-wordpress-password-security/">' + user_profile_l10n.hintLink + '</a> ' + user_profile_l10n.hintAfter + '</li></ul>' );
+			jQuery( '#pass-strength-result' ).css( 'opacity', 1 ).removeClass('strong');
+		}	
 	}
 
 	function showOrHideWeakPasswordCheckbox() {
@@ -420,6 +434,14 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 				$weakRow.hide();
 			}
 		}
+
+		var currentFailures = wp.passwordStrength.policyFails;
+
+		delete currentFailures.strength;
+		if ( ! currentFailures.length ) {
+			$( "input[id$='submit'], input#createusersub" ).prop( "disabled", false ).removeClass( 'button-disabled' );
+		}
+		
 	}
 
 	$(document).ready( function() {
@@ -535,6 +557,59 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 
 		bindPasswordForm();
 		bindPasswordRestLink();
+
+
+	});
+
+	$( 'a[href="#add-response"]' ).on( 'click', function( e ) {
+		e.preventDefault();
+		checkUserResponses();
+		$( '#add-response-wrapper' ).slideDown();
+	});
+
+	$( 'a[href="#confirm-response"]' ).on( 'click', function( e ) {
+		e.preventDefault();
+		var choice = $( '#selected-response' ).find( ":selected" ).val();
+		var answer = $( '#selected-response-value' ).val();
+
+		if ( answer ) {
+			$( '#users-responses-wraper' ).find( '#' + choice ).val( answer );
+			checkUserResponses();
+			$( '#selected-response-value' ).val( '' );
+			$( '#add-response-wrapper' ).slideUp();
+		}
+	});
+
+	$( 'a[href="#cancel-response"]' ).on( 'click', function( e ) {
+		e.preventDefault();
+		$( '#selected-response-value' ).val( '' );
+		$( '#add-response-wrapper' ).slideUp();
+	});
+
+	checkUserResponses();
+
+	function checkUserResponses() {
+		jQuery( '#users-responses-wraper input' ).each(function () {
+			var thisInput = $( this );
+			var target = $( thisInput ).attr( 'id' );
+			var label = $( thisInput ).closest( '.user-response-item' ).find( '.question' ).text();
+			if ( $( thisInput ).val() ) {
+				$( '#selected-response [value="' + target + '"]' ).remove();
+				$( thisInput ).closest( '.user-response-item' ).css( 'display', 'block' );
+			} else {
+				if ( ! $( '#selected-response [value="' + target + '"]' ).length ) {
+					$('#selected-response').append('<option value="' + target + '">'+  label +'</option>');
+				}
+				$( thisInput ).closest( '.user-response-item' ).css( 'display', 'none' );
+			}
+		});
+	}
+	
+	$( 'a[href="#remove-response"]' ).on( 'click', function( e ) {
+		e.preventDefault();
+		$( this ).closest( '.user-response-item' ).find( 'input' ).val( '' );
+		$( this ).closest( '.user-response-item' ).slideUp();
+		checkUserResponses();
 	});
 
 	$( '#destroy-sessions' ).on( 'click', function( e ) {
@@ -587,6 +662,7 @@ Array.prototype.find = Array.prototype.find || function(callback) {
  */
 function ppmwpbuildPolicyListForDisplay( policies, fails ) {
 	var htmlString  = '';
+
 	// clone policies before modifying an object maybe used later.
 	var policiesCopy = JSON.parse( JSON.stringify( policies ) );
 	// Check if we are enforcing upper/lowercase letters.
@@ -607,12 +683,18 @@ function ppmwpbuildPolicyListForDisplay( policies, fails ) {
 		policiesCopy,
 		function ( namespace, regex ) {
 			if ( namespace in fails ) {
-				htmlString = htmlString + '<li class="policy-fail">' + ppmJSErrors[namespace] + '</li>';
+				htmlString = htmlString + '<li class="' + namespace + ' policy-fail">' + ppmJSErrors[namespace] + '</li>';
 			} else {
-				htmlString = htmlString + '<li class="policy-pass">' + ppmJSErrors[namespace] + '</li>';
+				htmlString = htmlString + '<li class="' + namespace + ' policy-pass">' + ppmJSErrors[namespace] + '</li>';
 			}
 		}
 	);
+
+	if ( fails.username ) {
+		htmlString = htmlString + '<li class="username policy-fail">' + ppmJSErrors['username'] + '</li>';
+	} else {
+		htmlString = htmlString + '<li class="username policy-pass">' + ppmJSErrors['username'] + '</li>';
+	}
 
 	return ( '<p class="hint-msg">' + user_profile_l10n.hintMsg + '</p><ul>' + htmlString + '</ul>' );
 }

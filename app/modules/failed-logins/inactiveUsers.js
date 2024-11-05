@@ -6,7 +6,7 @@ jQuery( document ).ready( function() {
 			ppmwpResetSingleUser( jQuery( this ).val(), this );
 		}
 	);
-	jQuery( '#ppmwp_inactive_check_now' ).click(
+	jQuery( '#mls_inactive_check_now' ).click(
 		function() {
 			jQuery( this ).attr( 'disabled', true );
 			ppmwpInactiveCheck( this );
@@ -26,7 +26,7 @@ function ppmwpResetSingleUser( id, button ) {
 			dataType : "json",
 			url : ajaxurl,
 			data : {
-				action: 'ppmwp_unlock_inactive_user',
+				action: 'mls_unlock_inactive_user',
 				user: id,
 				unblocking_user: is_user_blocked,
 				_wpnonce: inactiveUsersData.nonce,
@@ -71,7 +71,7 @@ function ppmwpInactiveCheck( button ) {
 			dataType : "json",
 			url : ajaxurl,
 			data : {
-				action: 'ppmwp_inactive_users_check',
+				action: 'mls_inactive_users_check',
 				_wpnonce: jQuery( button ).data( 'nonce' ),
 			},
 			success: function(response) {
