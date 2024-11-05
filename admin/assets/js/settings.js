@@ -1,7 +1,22 @@
 // used to hold data in a higher scope for popup notices.
 var ppmwpNoticeData = {};
 
+var promptInputVal = ''
+
+// Callback function for adding questions.
+function addQuestion( promptInputVal ) {
+	var $id = promptInputVal.replace( /[^A-Za-z0-9]/g, '' ).toLowerCase().substring( 0,30 );
+	var itemMarkup =  '<li class="question-list-item custom"><span class="dashicons dashicons-sort"></span><label>' + promptInputVal + '</label> <input type="checkbox" id="'+ $id +'" name="_ppm_options[enabled_questions]['+ $id +']" value="'+ promptInputVal +'" checked><a href="#remove">Remove</a></li>';
+	jQuery( '#questions-wrapper' ).append( itemMarkup );
+}
+
+
+
 jQuery( 'document' ).ready( function( $ ) {
+	if( jQuery('#notice_modal' ).length > 0 ) {
+		tb_show( jQuery('#notice_modal' ).data( 'windowtitle' ) , '#TB_inline?height=130&width=400&inlineId=notice_modal');
+	}
+
 	function display( value, id ) {
 		var $li_item = jQuery( "<li>" )
 			.addClass( 'ppm-exempted-list-item user-btn button button-secondary' )
@@ -115,6 +130,106 @@ jQuery( 'document' ).ready( function( $ ) {
 
 	} );
 
+	// Toggle areas based on data attr.
+	hideShowToggleables();
+	jQuery( '[data-toggle-target]' ).change(function() {
+		hideShowToggleables();
+	});
+
+	function hideShowToggleables() {
+		if ( jQuery( '[data-toggle-target]' ).length > 0 ) {
+			jQuery( '[data-toggle-target]' ).each( function () {
+				jQuery( jQuery( this ).attr( 'data-toggle-target' ) ).addClass( 'disabled' );
+				if ( this.checked ) {
+					jQuery( jQuery( this ).attr( 'data-toggle-target' ) ).removeClass( 'disabled' );
+				}
+			});
+		}
+	}
+
+	// Custom function for handling prompts and user inputs.
+	function createPrompt( type = 'notice', text, confirmLabel = 'Ok', cancelLabel = 'Cancel', callback ) {
+		if ( type == 'notice' ) {
+			var markup = '<div id="c4wp-prompt-wrapper" class="type-' + type + '"><div id="c4wp-prompt"><p>' + text + '</p><br><a href="#confirm-prompt" class="button button-primary">' + confirmLabel + '</a></div></div>';
+		} else if ( type == 'prompt' ) {
+			var markup = '<div id="c4wp-prompt-wrapper" class="type-' + type + '"><div id="c4wp-prompt"><p>' + text + '</p><input type="text" id="prompt-value"><br><br><a href="#confirm-prompt" class="button button-primary" data-cb="' + callback + '">' + confirmLabel + '</a> <a href="#cancel-prompt" class="button button-secondary">' + cancelLabel + '</a></div></div>';
+		}		
+		jQuery( markup ).appendTo('body');
+	}
+
+	// Handle prompt actions
+	jQuery( document ).on( 'click', '#c4wp-prompt-wrapper a', function( event ) {
+		event.preventDefault();
+		var wrapper       = jQuery( this ).closest( '#c4wp-prompt-wrapper' );
+		var currentButton = jQuery( this );
+		if ( jQuery( wrapper ).hasClass( 'type-notice' ) ) {
+			if ( jQuery( currentButton).attr( 'href' ) == '#confirm-prompt' ) {
+				jQuery( wrapper ).fadeOut( 300 );
+				setTimeout( function() {
+					jQuery( wrapper ).remove();
+				}, 300 );
+			}
+		} else if ( jQuery( wrapper ).hasClass( 'type-prompt' ) ) {
+			if ( jQuery( currentButton ).attr( 'href' ) == '#confirm-prompt' ) {
+				var promptInputVal = jQuery( wrapper ).find( '#prompt-value' ).val();
+				window[ jQuery( currentButton ).attr( 'data-cb' ) ].call( this, promptInputVal );
+				jQuery( wrapper ).fadeOut( 300 );
+				setTimeout( function() {
+					jQuery( wrapper ).remove();
+				}, 300 );
+			} else if ( jQuery( currentButton ).attr( 'href' ) == '#cancel-prompt' ) {
+				jQuery( wrapper ).fadeOut( 300 ).remove();
+			}
+		}
+		updateQuestionMaxCount()
+	});
+
+	jQuery( document ).on( 'click', '#questions-wrapper a[href="#disable"]', function( event ) {
+		event.preventDefault();
+		var ourLink = jQuery( this );
+		var ourCheck = jQuery( ourLink ).parent().find( 'input[type="checkbox"]' );;
+		if ( jQuery( ourCheck  ).is( ':checked' ) ) {
+			jQuery( ourCheck  ).prop( "checked", false );
+			jQuery( ourLink ).text( 'Enable' );
+			jQuery( ourLink ).parent().addClass( 'disabled-question' );
+		} else {
+			jQuery( ourCheck  ).prop( "checked", true );
+			jQuery( ourLink ).text( 'Disable' );
+			jQuery( ourLink ).parent().removeClass( 'disabled-question' );
+		}
+		updateQuestionMaxCount()
+	});
+
+	jQuery( document ).on( 'click', '#questions-wrapper a[href="#remove"]', function( event ) {
+		event.preventDefault();
+		var ourLink = jQuery( this );
+		var ourCheck = jQuery( ourLink ).parent().find( 'input[type="checkbox"]' );;
+		if ( jQuery( ourCheck  ).is( ':checked' ) ) {
+			jQuery( ourCheck  ).prop( "checked", false );
+			//jQuery( ourLink ).text( 'Enable' );
+			//jQuery( ourLink ).parent().addClass( 'disabled-question' );
+			jQuery( ourLink ).parent().slideUp();
+		} else {
+			jQuery( ourCheck  ).prop( "checked", true );
+			jQuery( ourLink ).text( 'Disable' );
+			jQuery( ourLink ).parent().removeClass( 'disabled-question' );
+		}
+		updateQuestionMaxCount()
+	});
+
+
+	
+
+	// Security questions settings.
+	jQuery( "#questions-wrapper" ).sortable({ 
+		opacity: 0.6, 
+		cursor: 'move'  
+	});
+
+	jQuery( document ).on( 'click', 'a[href="#add-question"]', function( event ) {
+		createPrompt( 'prompt', 'Enter your new question and click add to continue.', 'Add question', 'Canel', 'addQuestion' );
+	});
+
 	// Inactive exempted.
 	function display_inactive_exempted( value, id ) {
 		var $li_item = jQuery( "<li>" )
@@ -198,7 +313,7 @@ jQuery( 'document' ).ready( function( $ ) {
 			url: ppm_ajax.ajax_url,
 			dataType: 'json',
 			data: {
-				action: 'ppm_wp_send_test_email',
+				action: 'mls_send_test_email',
 				_wpnonce: ppm_ajax.test_email_nonce
 			},
 			success: function ( data ) {
@@ -219,13 +334,13 @@ jQuery( 'document' ).ready( function( $ ) {
 		if ( jQuery( this ).parents( 'table' ).data( 'id' ) !='' ) {
 			if( jQuery(this).is(':checked') ) {
 				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').attr('disabled', 'disabled');
-				jQuery('.ppm-settings').slideUp( 300 ).addClass('disabled');
+				jQuery('.mls-settings').slideUp( 300 ).addClass('disabled');
 				jQuery(this).val( 1 );
 				jQuery( '#inherit_policies' ).val( 1 );
 			}
 			else {
 				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').removeAttr('disabled');
-				jQuery('.ppm-settings').slideDown( 300 ).removeClass('disabled');
+				jQuery('.mls-settings').slideDown( 300 ).removeClass('disabled');
 				jQuery(this).val( 0 );
 				jQuery( '#inherit_policies' ).val( 0 );
 			}
@@ -233,13 +348,13 @@ jQuery( 'document' ).ready( function( $ ) {
 			if( jQuery(this).is(':checked') ) {
 				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').removeAttr('disabled');
 				jQuery(' .nav-tab-wrapper').fadeIn( 300 ).removeClass('disabled');
-				jQuery('.ppm-settings').slideDown( 300 ).removeClass('disabled');
+				jQuery('.mls-settings').slideDown( 300 ).removeClass('disabled');
 				jQuery(this).val( 1 );
 			}
 			else {
 				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').attr('disabled', 'disabled');
 				jQuery('.nav-tab-wrapper').fadeOut( 300 ).addClass('disabled');
-				jQuery('.ppm-settings').slideUp( 300 ).addClass('disabled');
+				jQuery('.mls-settings').slideUp( 300 ).addClass('disabled');
 				jQuery(this).val( 0 );
 			}
 		}
@@ -258,7 +373,7 @@ jQuery( 'document' ).ready( function( $ ) {
 	jQuery( '#ppm_enforce_password' ).change( function() {
 		if ( jQuery( this ).is( ':checked' ) ) {
 			jQuery( this ).parents( 'form' ).find( 'input, select, button' ).not('input[name=_ppm_save],input[type="hidden"], input#_ppm_reset').not( this ).attr( 'disabled', 'disabled' );
-			jQuery('.ppm-settings, .master-switch').addClass('disabled');
+			jQuery('.mls-settings, .master-switch').addClass('disabled');
 			jQuery( '#inherit_policies' ).val( 0 );
 		} else {
 			if ( jQuery( '#inherit_policies' ).val() == 0 ) {
@@ -270,7 +385,7 @@ jQuery( 'document' ).ready( function( $ ) {
 				} else {
 					jQuery( '#inherit_policies' ).val( 0 );
 					jQuery('input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button','#ppm-wp-settings').removeAttr('disabled');
-					jQuery('.ppm-settings, .master-switch').removeClass('disabled');
+					jQuery('.mls-settings, .master-switch').removeClass('disabled');
 				}
 			}
 		}
@@ -279,7 +394,7 @@ jQuery( 'document' ).ready( function( $ ) {
 	// Exclude Special Characters Input.
 	jQuery( '#ppm-exclude-special' ).change(
 		function() {
-			if ( jQuery( '.ppm-settings.disabled' ).length > 0 ) {
+			if ( jQuery( '.mls-settings.disabled' ).length > 0 ) {
 				return;
 			}
 			if ( jQuery( '#ppm_master_switch' ).is( ':checked' ) && jQuery( this ).is( ':checked' ) ) {
@@ -292,7 +407,7 @@ jQuery( 'document' ).ready( function( $ ) {
 
 	jQuery( '#ppm-inactive-users-reset-on-unlock' ).change(
 		function() {
-			if ( jQuery( '.ppm-settings.disabled' ).length > 0 ) {
+			if ( jQuery( '.mls-settings.disabled' ).length > 0 ) {
 				return;
 			}
 			if ( jQuery( this ).is( ':checked' ) ) {
@@ -305,7 +420,7 @@ jQuery( 'document' ).ready( function( $ ) {
 
 	jQuery( '#ppm-inactive-users-disable-reset' ).change(
 		function() {
-			if ( jQuery( '.ppm-settings.disabled' ).length > 0 ) {
+			if ( jQuery( '.mls-settings.disabled' ).length > 0 ) {
 				return;
 			}
 			if ( jQuery( this ).is( ':checked' ) ) {
@@ -318,7 +433,7 @@ jQuery( 'document' ).ready( function( $ ) {
 
 	jQuery( '#disable-self-reset' ).change(
 		function() {
-			if ( jQuery( '.ppm-settings.disabled' ).length > 0 ) {
+			if ( jQuery( '.mls-settings.disabled' ).length > 0 ) {
 				return;
 			}
 			if ( jQuery( this ).is( ':checked' ) ) {
@@ -349,6 +464,37 @@ jQuery( 'document' ).ready( function( $ ) {
 			var currVal = jQuery( '[name="reset_type"]:checked' ).val();
 			jQuery( jQuery( '[name="reset_type"]:checked' ).attr( 'data-active-shows-setting' ) ).removeClass( 'hidden' );
 		
+		}
+	}	
+
+	setRequiredValue();
+	jQuery( '#ppm-enable-expiry-notify' ).change(function() {
+		setRequiredValue();
+	});
+
+	function setRequiredValue() {
+		var currVal = jQuery( '#ppm-enable-expiry-notify:checked' ).val();
+		if ( ! currVal ) {
+			jQuery( '[name="_ppm_options[notify_password_expiry_days]"]' ).removeAttr( 'required' );
+		} else {
+			jQuery( 'input[name="_ppm_options[notify_password_expiry_days]"]' ).prop( 'required', true ) ;
+		}
+		if ( jQuery( '[name="_ppm_options[notify_password_expiry_days]"]' ).val() == '0' ) {
+			jQuery( '[name="_ppm_options[notify_password_expiry_days]"]' ).val( '3' );
+		}
+	}
+
+	setRestrictLoginOptions();
+	jQuery( 'input[type=radio][name="_ppm_options[restrict_login_credentials]"]' ).change(function() {
+		setRestrictLoginOptions();
+	});
+
+	function setRestrictLoginOptions() {
+		var currVal = jQuery( '[name="_ppm_options[restrict_login_credentials]"]:checked' ).val();
+		if ( 'default' == currVal ) {
+			jQuery( '.restrict-message-field' ).slideUp( 300 );
+		} else {
+			jQuery( '.restrict-message-field' ).slideDown( 300 );
 		}
 	}
 
@@ -384,6 +530,7 @@ jQuery( 'document' ).ready( function( $ ) {
 		var sendResetEmail = jQuery( '#send_reset_email' ).is( ':checked' );
 		var includeSelf    = jQuery( '#include_reset_self' ).is( ':checked' );
 		var killSessions   = jQuery( '#terminate_sessions_on_reset' ).is( ':checked' );
+		var resetWhen      = jQuery( '[name="reset_when"]:checked' ).val();
 		var nonce = jQuery( this ).attr( 'data-reset-nonce' );
 		
 		var role     = false;
@@ -430,6 +577,7 @@ jQuery( 'document' ).ready( function( $ ) {
 							send_reset : sendResetEmail,
 							kill_sessions : killSessions,
 							include_self : includeSelf,
+							reset_when : resetWhen,
 							file_text : fileText,
 						},
 						success: function ( result ) {		
@@ -475,6 +623,7 @@ jQuery( 'document' ).ready( function( $ ) {
 				send_reset : sendResetEmail,
 				kill_sessions : killSessions,
 				include_self : includeSelf,
+				reset_when : resetWhen,
 				file_text : fileText,
 			},
 			success: function ( result ) {		
@@ -514,6 +663,13 @@ jQuery( 'document' ).ready( function( $ ) {
 	disable_enabled_restrict_login_ip_options();
 	jQuery( '#mls-restrict-login-ip' ).change(function() {
 		disable_enabled_restrict_login_ip_options();
+	});
+
+	jQuery( '[data-toggle-other-areas]' ).each(function () {
+		handleToggleArea( jQuery( this ) );
+	});
+	jQuery( '[data-toggle-other-areas]' ).change(function() {
+		handleToggleArea( jQuery( this ) );
 	});
 
 	// Handle multiple role setting.
@@ -596,6 +752,14 @@ jQuery( 'document' ).ready( function( $ ) {
 			jQuery( this ).parent().find( 'input, select, span' ).not( this ).addClass( 'disabled' );
 		}
 	});
+
+	jQuery( '#prompt-counter' ).change(function() {
+		updateQuestionMaxCount();
+	});
+
+	if ( jQuery('.user-login-policies-heading').length && jQuery('.user-login-policies-heading').length > 1 ) {
+		jQuery('.user-login-policies-heading').not(":eq(0)").hide();
+	}	
 	
 	jQuery('body').on('click', 'a#add-login_denied-countries', function(e) {
 		e.preventDefault();
@@ -637,6 +801,59 @@ jQuery( 'document' ).ready( function( $ ) {
 		jQuery('#login_geo_countries_input').val('');
 	});
 
+	jQuery('body').on('click', 'a#add-restrict_login_allowed_ips', function(e) {
+		e.preventDefault();
+		var newIP = jQuery('#restrict_login_allowed_ips_input').val().toUpperCase();
+		var currentVal = jQuery('#restrict_login_allowed_ips').val();
+
+		if ( currentVal.indexOf(newIP) != -1 ) {
+			if (!jQuery('#c4wp-not-found-error').length) {
+				jQuery('<span id="c4wp-not-found-error" style="color: red; margin-left: 10px;">Already added</span>').insertAfter('a#add-restrict_login_allowed_ips');
+				setTimeout(function() {
+					jQuery('#c4wp-not-found-error').fadeOut(300).remove();
+				}, 1000);
+			}
+			return;
+		}
+
+		if ( ! ValidateIPaddress( newIP ) ) {
+			if (!jQuery('#c4wp-not-found-error').length) {
+				jQuery('<span id="c4wp-not-found-error" style="color: red; margin-left: 10px">Invalid</span>').insertAfter('a#add-restrict_login_allowed_ips');
+				setTimeout(function() {
+					jQuery('#c4wp-not-found-error').fadeOut(300).remove();
+				}, 1000);
+			}
+			return;
+		}
+
+		if (newIP.length < 2) {
+			return;
+		}
+
+		if ( ! jQuery('#restrict_login_allowed_ips').val() ) {
+			jQuery('#restrict_login_allowed_ips').val( newIP ).trigger("change");
+		} else {
+			var newVal = jQuery('#restrict_login_allowed_ips').val() + ',' +  newIP;
+			jQuery('#restrict_login_allowed_ips').val( newVal ).trigger("change");
+		}
+		jQuery('#restrict_login_allowed_ips_input').val('');
+	});
+
+	jQuery('body').on('click', 'span#remove-restricted-ip', function(e) {
+		var removingIP = jQuery(this).attr('data-value');
+		var textareaValue = jQuery('#restrict_login_allowed_ips').val();
+
+		if (textareaValue.indexOf(',' + removingIP) > -1) {
+			var newValue = textareaValue.replace(',' + removingIP, '');
+		} else {
+			var newValue = textareaValue.replace(removingIP, '');
+		}
+		newValue = newValue.replace(/^,/, '');
+		
+		jQuery('#restrict_login_allowed_ips').val( newValue ).trigger("change");
+		jQuery(this).parent().remove();
+	});
+
 	jQuery('body').on('click', 'span#remove-denied-country', function(e) {
 		var removingIP = jQuery(this).attr('data-value');
 		var textareaValue = jQuery('#login_geo_countries').val();
@@ -656,6 +873,11 @@ jQuery( 'document' ).ready( function( $ ) {
 		buildDeniedCountries();
 	});
 	buildDeniedCountries();
+
+	jQuery('body').on("change", '#restrict_login_allowed_ips', function(e) {
+		buildIpList();
+	});
+	buildIpList();
 } );
 
 function check_multiple_roles_status() {
@@ -737,6 +959,22 @@ function disable_enabled_restrict_login_ip_options() {
 	}
 }
 
+function handleToggleArea( element ) {
+	var target = element.attr( 'data-toggle-other-areas' );
+	jQuery( target ).addClass( 'disabled' );
+	jQuery( target + ' :input' ).prop( 'disabled', true );
+
+	if ( jQuery( element ).prop('checked') ) {
+		jQuery( target ).removeClass( 'disabled' );
+		jQuery( target + ' :input' ).prop( 'disabled', false );
+	}
+}
+
+function updateQuestionMaxCount() {
+	var count = jQuery( '#questions-wrapper li' ).not( '.disabled-question' ).length;
+	jQuery( '#prompt-counter' ).attr( 'max' , count );
+}
+
 /**
  * Shows confirm dialog after click on checkbox with two types of messages: one for checked stated and one for unchecked state.
  *
@@ -781,11 +1019,11 @@ function admin_lockout_check( event ) {
  * Closes the thickbox or redirects users depending on what type of notice is
  * currently on display.
  *
- * @method ppmwp_close_thickbox
+ * @method mls_close_thickbox
  * @since  2.1.0
  * @param  {string} redirect a url to redirect users to on clicking ok.
  */
-function ppmwp_close_thickbox( redirect ) {
+function mls_close_thickbox( redirect ) {
 	if ( 'undefined' !== typeof redirect && redirect.length > 0 ) {
 		window.location = redirect;
 	} else {
@@ -1069,3 +1307,20 @@ function buildDeniedCountries() {
 		}).join('') + '</ul>');
 	}
 }
+
+function buildIpList() {
+	if ( jQuery('#restrict_login_allowed_ips').val() ) {
+		var text = jQuery('#restrict_login_allowed_ips').val();
+		var output = text.split(',');
+		jQuery( '#restrict_login_allowed_ips-userfacing').html('<ul>' + jQuery.map(output, function(v) {
+			return '<li class="c4wp-buttony-list">' + v + ' <span id="remove-restricted-ip" class="dashicons dashicons-no-alt" data-value="' + v + '"></span></li>';
+		}).join('') + '</ul>');
+	}
+}
+
+function ValidateIPaddress(ipaddress) {  
+	if (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress)) {  
+	  return (true)  
+	}  
+	return (false)  
+  } 

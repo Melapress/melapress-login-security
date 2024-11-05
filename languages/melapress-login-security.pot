@@ -1,0 +1,2358 @@
+# Copyright (C) 2024 Melapress
+# This file is distributed under the GPL v3.
+msgid ""
+msgstr ""
+"Project-Id-Version: Melapress Login Security 2.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
+"Last-Translator: Melapress <info@melapress.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2024-11-05T14:54:31+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.10.0\n"
+"X-Domain: melapress-login-security\n"
+
+#. Plugin Name of the plugin
+#. translators: %s: By email address.
+#: melapress-login-security-premium.php
+#: app/helpers/class-emailer.php:157
+msgid "Melapress Login Security"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: melapress-login-security-premium.php
+msgid "https://melapress.com/wordpress-login-security/"
+msgstr ""
+
+#. Description of the plugin
+#: melapress-login-security-premium.php
+msgid "Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts."
+msgstr ""
+
+#. Author of the plugin
+#: melapress-login-security-premium.php
+msgid "Melapress"
+msgstr ""
+
+#. Author URI of the plugin
+#: melapress-login-security-premium.php
+msgid "https://melapress.com/"
+msgstr ""
+
+#: admin/class-mls-admin.php:163
+msgid "Melapress Login Security has been updated to version"
+msgstr ""
+
+#: admin/class-mls-admin.php:165
+msgid "You are now running the latest version of Melapress Login Security. To see what's been included in this update, refer to the plugin's release notes and change log where we list all new features, updates, and bug fixes."
+msgstr ""
+
+#: admin/class-mls-admin.php:167
+msgid "Read the release notes"
+msgstr ""
+
+#: admin/class-mls-admin.php:202
+msgid "Important data migration required"
+msgstr ""
+
+#: admin/class-mls-admin.php:204
+msgid "This update made some required changes to where our plugin data is stored and requires updating to avoid issues in future. Click below to begin the process, which will happen automatically."
+msgstr ""
+
+#: admin/class-mls-admin.php:206
+msgid "Begin migration process"
+msgstr ""
+
+#: admin/class-mls-admin.php:445
+#: admin/class-mls-admin.php:462
+#: admin/class-mls-admin.php:485
+#: app/enforcers/class-check-user-expiry.php:432
+#: app/enforcers/class-reset-passwords.php:112
+#: app/helpers/class-settings-importer.php:336
+#: app/helpers/class-settings-importer.php:377
+#: app/helpers/class-user-importer.php:417
+#: app/helpers/class-user-importer.php:450
+msgid "Nonce Verification Failed."
+msgstr ""
+
+#: admin/class-mls-admin.php:450
+msgid "Started"
+msgstr ""
+
+#: admin/class-mls-admin.php:469
+msgid "Process starting"
+msgstr ""
+
+#: admin/class-mls-admin.php:490
+msgid "Complete."
+msgstr ""
+
+#: admin/class-mls-admin.php:555
+msgid "To ensure you dont lock yourself out of your own dashboard, be sure to exclude your own admin account from password policies when enabling this feature."
+msgstr ""
+
+#: admin/class-mls-admin.php:557
+msgid "Acknowledge"
+msgstr ""
+
+#: admin/class-mls-admin.php:581
+#: admin/class-mls-admin.php:585
+msgid "Get the Premium!"
+msgstr ""
+
+#: admin/class-mls-admin.php:589
+msgid "Configure policies"
+msgstr ""
+
+#: admin/class-mls-admin.php:599
+msgid "Docs"
+msgstr ""
+
+#: admin/class-mls-admin.php:617
+#: admin/class-mls-admin.php:629
+#: admin/class-mls-multisite-admin.php:90
+#: admin/class-mls-multisite-admin.php:95
+#: admin/templates/admin-default.php:13
+#: admin/templates/admin-form.php:38
+msgid "Login Security Policies"
+msgstr ""
+
+#: admin/class-mls-admin.php:618
+#: admin/class-mls-multisite-admin.php:90
+msgid "Login Security"
+msgstr ""
+
+#: admin/class-mls-admin.php:634
+#: admin/class-mls-admin.php:635
+#: admin/class-mls-multisite-admin.php:100
+#: admin/class-mls-multisite-admin.php:101
+msgid "Help & Contact Us"
+msgstr ""
+
+#: admin/class-mls-admin.php:649
+#: admin/class-mls-admin.php:650
+#: admin/class-mls-multisite-admin.php:114
+#: admin/class-mls-multisite-admin.php:115
+msgid "Settings"
+msgstr ""
+
+#: admin/class-mls-admin.php:665
+#: admin/class-mls-admin.php:666
+#: admin/class-mls-multisite-admin.php:130
+#: admin/class-mls-multisite-admin.php:131
+#: admin/templates/views/settings-forms.php:34
+msgid "Forms & Placement"
+msgstr ""
+
+#: admin/class-mls-admin.php:682
+#: admin/class-mls-admin.php:683
+#: admin/class-mls-multisite-admin.php:147
+#: admin/class-mls-multisite-admin.php:148
+msgid "Login page hardening"
+msgstr ""
+
+#: admin/class-mls-admin.php:698
+#: admin/class-mls-multisite-admin.php:163
+msgid "Premium Features ➤"
+msgstr ""
+
+#: admin/class-mls-admin.php:1000
+#: admin/class-mls-admin.php:1004
+#: admin/class-mls-admin.php:1008
+msgid "You are not allowed to reset your password. Please contact the website administrator."
+msgstr ""
+
+#: admin/class-mls-admin.php:1025
+#: admin/class-mls-admin.php:1197
+msgid "User Added to Exempt List"
+msgstr ""
+
+#: admin/class-mls-admin.php:1026
+#: admin/class-mls-admin.php:1198
+msgid "Your user has been exempted from the all policies since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
+msgstr ""
+
+#: admin/class-mls-admin.php:1036
+#: admin/class-mls-admin.php:1208
+msgid "View settings"
+msgstr ""
+
+#: admin/class-mls-admin.php:1315
+msgid "Reset process complete"
+msgstr ""
+
+#: admin/class-mls-admin.php:1316
+msgid "CSV contains invalid data, provide user IDs only."
+msgstr ""
+
+#: admin/class-mls-admin.php:1317
+msgid "Please ensure more than 1 ID is provided."
+msgstr ""
+
+#: admin/class-mls-admin.php:1318
+msgid "You may now close this window."
+msgstr ""
+
+#: admin/class-mls-admin.php:1326
+msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
+msgstr ""
+
+#: admin/class-mls-admin.php:1327
+msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
+msgstr ""
+
+#: admin/class-mls-admin.php:1328
+msgid "Should the plugin reset your password as well?"
+msgstr ""
+
+#: admin/class-mls-admin.php:1361
+msgid "Please check your email for instructions on how to reset your password."
+msgstr ""
+
+#: admin/class-mls-admin.php:1362
+msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
+msgstr ""
+
+#: admin/class-mls-admin.php:1363
+#: app/helpers/class-settings-importer.php:77
+#: app/helpers/class-user-importer.php:78
+msgid "OK"
+msgstr ""
+
+#: admin/class-mls-admin.php:1364
+msgid "No"
+msgstr ""
+
+#: admin/class-mls-admin.php:1393
+msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
+msgstr ""
+
+#: admin/class-mls-admin.php:1394
+msgid "For more information please contact the WordPress admin on "
+msgstr ""
+
+#: admin/class-mls-admin.php:1395
+#: app/enforcers/class-reset-passwords.php:56
+msgid "Reset password"
+msgstr ""
+
+#: admin/class-mls-admin.php:1544
+msgid "Policies updated successfully."
+msgstr ""
+
+#: admin/class-mls-admin.php:1561
+msgid "Policies update failed. Please try again."
+msgstr ""
+
+#: admin/class-mls-admin.php:1580
+msgid "This setting is mandatory. Please specify a value."
+msgstr ""
+
+#: admin/class-mls-admin.php:1597
+msgid "Please ensure you have the minimum number of questions configured."
+msgstr ""
+
+#: admin/class-mls-admin.php:1619
+msgid "No user logged in."
+msgstr ""
+
+#: admin/class-mls-admin.php:1622
+msgid "Current user has no email address defined"
+msgstr ""
+
+#: admin/class-mls-admin.php:1627
+msgid "{site_name} - Melapress Login Security plugin test email"
+msgstr ""
+
+#: admin/class-mls-admin.php:1631
+msgid ""
+"<p>Hooray!</p>\n"
+"\n"
+"<p>If you are reading this email it means that your website’s email setup is working. You can now enable the password and other login security policies on {site_name} using Melapress Login Security.</p>\n"
+"<p>If you need help getting started, refer to our <a href=\"https://melapress.com/support/kb/melapress-login-security-getting-started/?utm_source=plugins&utm_medium=link&utm_campaign=mls\">getting started guide</a>.</p>\n"
+"<p>Stay secure!</p>"
+msgstr ""
+
+#. translators: %s: Users email address.
+#: admin/class-mls-admin.php:1656
+msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
+msgstr ""
+
+#: admin/class-mls-admin.php:1658
+msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
+msgstr ""
+
+#: admin/class-mls-admin.php:1677
+msgid "Mail was not sent due to some unknown error"
+msgstr ""
+
+#: admin/class-mls-admin.php:1704
+msgid "User notification templates"
+msgstr ""
+
+#: admin/class-mls-admin.php:1742
+msgid "The following tags are available for use in all email template fields."
+msgstr ""
+
+#: admin/class-mls-admin.php:1743
+msgid "Available tags:"
+msgstr ""
+
+#: admin/class-mls-admin.php:1744
+msgid "- Site URL"
+msgstr ""
+
+#: admin/class-mls-admin.php:1745
+msgid "- Site Name"
+msgstr ""
+
+#: admin/class-mls-admin.php:1746
+msgid "- User Login Name"
+msgstr ""
+
+#: admin/class-mls-admin.php:1747
+msgid "- User First Name"
+msgstr ""
+
+#: admin/class-mls-admin.php:1748
+msgid "- User Last Name"
+msgstr ""
+
+#: admin/class-mls-admin.php:1749
+msgid "- User Display Name"
+msgstr ""
+
+#: admin/class-mls-admin.php:1750
+msgid "- From email address / site admin email"
+msgstr ""
+
+#: admin/class-mls-admin.php:1756
+msgid "User messages template"
+msgstr ""
+
+#: admin/class-mls-admin.php:1757
+msgid "On this page you can edit all of the user messages and prompts used by the plugin"
+msgstr ""
+
+#: admin/class-mls-admin.php:1768
+msgid "User requests password reset when the feature is disabled"
+msgstr ""
+
+#: admin/class-mls-admin.php:1769
+msgid "This warning is shown when a user requests a password reset but an active Login Security Policy prohibits it."
+msgstr ""
+
+#: admin/class-mls-admin.php:1774
+#: app/enforcers/class-restrict-login-credentials.php:61
+#: app/modules/class-security-prompt.php:108
+#: app/modules/restrict-logins/class-restrict-logins.php:114
+msgid "Message"
+msgstr ""
+
+#: admin/classes/class-last-login-time.php:59
+msgid "Last login time"
+msgstr ""
+
+#: admin/classes/class-last-login-time.php:82
+msgid "Show users with last login time by role"
+msgstr ""
+
+#: admin/classes/class-last-login-time.php:91
+msgid "Apply"
+msgstr ""
+
+#: admin/classes/class-last-login-time.php:168
+msgid "No data to display"
+msgstr ""
+
+#: admin/templates/admin-form.php:24
+msgid "Inherit login security policies"
+msgstr ""
+
+#: admin/templates/admin-form.php:24
+msgid "Enable login security policies"
+msgstr ""
+
+#: admin/templates/admin-form.php:47
+msgid "Reset All Passwords was never used"
+msgstr ""
+
+#: admin/templates/admin-form.php:49
+msgid "Last reset was on"
+msgstr ""
+
+#: admin/templates/admin-form.php:56
+msgid "Reset All Users' Passwords"
+msgstr ""
+
+#: admin/templates/admin-form.php:61
+msgid "The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role's tab."
+msgstr ""
+
+#: admin/templates/admin-form.php:64
+msgid "Site-wide policies"
+msgstr ""
+
+#: admin/templates/admin-form.php:70
+msgid "Role-based policies"
+msgstr ""
+
+#: admin/templates/admin-form.php:109
+msgid "Do not enforce password & login policies for this role"
+msgstr ""
+
+#: admin/templates/admin-form.php:129
+#: admin/templates/form-table.php:45
+msgid "Password Length"
+msgstr ""
+
+#: admin/templates/admin-form.php:169
+#: admin/templates/views/settings-forms.php:85
+#: admin/templates/views/settings-hide-login.php:64
+#: admin/templates/views/settings.php:361
+msgid "Save Changes"
+msgstr ""
+
+#: admin/templates/admin-form.php:184
+msgid "Which users would you like to reset?"
+msgstr ""
+
+#: admin/templates/admin-form.php:185
+msgid "Here you can choose if you want to reset the passwords for ALL users or just a specific sub set of users based on your desired criteria. Simply choose from the available options below and hit proceed when ready."
+msgstr ""
+
+#: admin/templates/admin-form.php:189
+msgid "Choose user group: "
+msgstr ""
+
+#: admin/templates/admin-form.php:192
+msgid "Reset all users"
+msgstr ""
+
+#: admin/templates/admin-form.php:195
+msgid "Reset by role"
+msgstr ""
+
+#: admin/templates/admin-form.php:215
+msgid "Reset specific users"
+msgstr ""
+
+#: admin/templates/admin-form.php:223
+msgid "Users in this list will reset."
+msgstr ""
+
+#: admin/templates/admin-form.php:231
+msgid "Upload CSV of User IDs (.csv or .txt only)"
+msgstr ""
+
+#: admin/templates/admin-form.php:242
+msgid "Send email to users when resetting."
+msgstr ""
+
+#: admin/templates/admin-form.php:248
+msgid "Include yourself in password reset"
+msgstr ""
+
+#: admin/templates/admin-form.php:254
+msgid "Terminate sessions for reset users"
+msgstr ""
+
+#: admin/templates/admin-form.php:260
+msgid "Select reset processing: "
+msgstr ""
+
+#: admin/templates/admin-form.php:263
+msgid "Reset passwords immediately"
+msgstr ""
+
+#: admin/templates/admin-form.php:266
+msgid "Reset passwords on next login"
+msgstr ""
+
+#: admin/templates/admin-form.php:272
+#: app/helpers/class-settings-importer.php:73
+#: app/helpers/class-user-importer.php:74
+#: app/modules/class-security-prompt.php:313
+msgid "Cancel"
+msgstr ""
+
+#: admin/templates/admin-form.php:272
+#: app/helpers/class-settings-importer.php:76
+#: app/helpers/class-user-importer.php:77
+msgid "Proceed"
+msgstr ""
+
+#: admin/templates/form-table.php:21
+msgid "Password policies"
+msgstr ""
+
+#: admin/templates/form-table.php:26
+msgid "Password Policies"
+msgstr ""
+
+#: admin/templates/form-table.php:30
+msgid "Activate password policies"
+msgstr ""
+
+#: admin/templates/form-table.php:33
+msgid "Use the settings below to setup your specific password requirements"
+msgstr ""
+
+#. translators: %s: Configured miniumum password length.
+#: admin/templates/form-table.php:58
+msgid "Passwords must be %s characters minimum."
+msgstr ""
+
+#: admin/templates/form-table.php:65
+msgid "Mixed Case"
+msgstr ""
+
+#: admin/templates/form-table.php:71
+msgid "Password must contain at least one uppercase and one lowercase character."
+msgstr ""
+
+#: admin/templates/form-table.php:77
+#: app/helpers/class-user-importer.php:200
+msgid "Numbers"
+msgstr ""
+
+#. translators: 1 - example of numeral
+#: admin/templates/form-table.php:86
+msgid "Password must contain at least one numeric character (%1$s)."
+msgstr ""
+
+#: admin/templates/form-table.php:95
+msgid "Special Characters"
+msgstr ""
+
+#: admin/templates/form-table.php:101
+msgid "Password must contain at least one special character, i.e., a character that is not a letter or a number, such as ( , ? € ! @ # * etc."
+msgstr ""
+
+#: admin/templates/form-table.php:108
+msgid "Do not allow these special characters in passwords:"
+msgstr ""
+
+#: admin/templates/form-table.php:120
+msgid "To enter multiple special characters simply type them in one next to the other."
+msgstr ""
+
+#: admin/templates/form-table.php:129
+msgid "Password Expiration Policy"
+msgstr ""
+
+#: admin/templates/form-table.php:134
+msgid "Activate password expiration policies"
+msgstr ""
+
+#: admin/templates/form-table.php:138
+msgid "Set to 0 to disable automatic expiration."
+msgstr ""
+
+#: admin/templates/form-table.php:147
+#: admin/templates/views/settings.php:151
+#: app/modules/class-security-prompt.php:143
+msgid "hours"
+msgstr ""
+
+#: admin/templates/form-table.php:148
+#: admin/templates/views/settings.php:150
+#: app/modules/class-security-prompt.php:144
+msgid "days"
+msgstr ""
+
+#: admin/templates/form-table.php:149
+#: app/modules/class-security-prompt.php:145
+msgid "months"
+msgstr ""
+
+#: admin/templates/form-table.php:152
+#: app/modules/class-security-prompt.php:148
+msgid "seconds"
+msgstr ""
+
+#. translators: %s: Configured password expiry period.
+#: admin/templates/form-table.php:169
+msgid "Passwords should automatically expire in %s"
+msgstr ""
+
+#: admin/templates/form-table.php:182
+msgid "Advise users that their password is about to expire from"
+msgstr ""
+
+#: admin/templates/form-table.php:198
+msgid " before"
+msgstr ""
+
+#: admin/templates/form-table.php:211
+msgid "Once dismissed, show notice to users again upon next login."
+msgstr ""
+
+#: admin/templates/form-table.php:220
+msgid "Disallow old passwords on reset"
+msgstr ""
+
+#: admin/templates/form-table.php:224
+msgid "Activate password recycle policies"
+msgstr ""
+
+#: admin/templates/form-table.php:228
+msgid "You can configure the plugin to remember up to 100 previously used passwords that users cannot use. It will remember the last 1 password by default (minimum value: 1)."
+msgstr ""
+
+#. translators: %s: Configured number of old password to check for duplication.
+#: admin/templates/form-table.php:242
+msgid "Don't allow users to use the last %s passwords when they reset their password."
+msgstr ""
+
+#: admin/templates/form-table.php:250
+#: admin/templates/form-table.php:262
+msgid "Reset password on first login"
+msgstr ""
+
+#: admin/templates/form-table.php:256
+#: admin/templates/views/settings.php:321
+#: admin/templates/views/settings.php:327
+#: admin/templates/views/settings.php:333
+msgid "Delete database data upon uninstall"
+msgstr ""
+
+#: admin/templates/form-table.php:264
+msgid "Enable this setting to force new users to reset their password the first time they login."
+msgstr ""
+
+#: admin/templates/form-table.php:273
+#: admin/templates/form-table.php:279
+msgid "Disable sending of password reset links"
+msgstr ""
+
+#: admin/templates/form-table.php:285
+msgid "Do not send password reset links"
+msgstr ""
+
+#: admin/templates/form-table.php:287
+msgid "By default users who forget their password can request a password reset link that is sent to their email address. Enable this setting to stop WordPress sending these links, so users have to contact the website administrator if they forgot their password and need to reset it."
+msgstr ""
+
+#: admin/templates/form-table.php:296
+msgid "To customize the notification displayed to users, please visit the %s plugin settings."
+msgstr ""
+
+#: admin/templates/help/contact-us.php:22
+#: admin/templates/help/help.php:69
+#: app/helpers/class-settings-importer.php:79
+#: app/helpers/class-user-importer.php:80
+msgid "Contact Us"
+msgstr ""
+
+#: admin/templates/help/help.php:22
+#: admin/templates/help/help.php:32
+msgid "Getting Started"
+msgstr ""
+
+#: admin/templates/help/help.php:26
+msgid "Getting started with MelaPress Login Security"
+msgstr ""
+
+#: admin/templates/help/help.php:27
+msgid "Configure different password policies for different user roles"
+msgstr ""
+
+#: admin/templates/help/help.php:28
+msgid "How to exclude users or roles from the password policies"
+msgstr ""
+
+#: admin/templates/help/help.php:38
+#: admin/templates/help/help.php:64
+msgid "Plugin Support"
+msgstr ""
+
+#: admin/templates/help/help.php:40
+msgid "You can post your question on our support forum or send us an email for 1 to 1 support. Email support is provided to both free and premium plugin users."
+msgstr ""
+
+#: admin/templates/help/help.php:42
+msgid "Free support forum"
+msgstr ""
+
+#: admin/templates/help/help.php:43
+msgid "Free email support"
+msgstr ""
+
+#: admin/templates/help/help.php:53
+msgid "Plugin Documentation"
+msgstr ""
+
+#: admin/templates/help/help.php:55
+msgid "For more technical information about the MelaPress Login Security plugin please visit the plugin’s knowledge base."
+msgstr ""
+
+#: admin/templates/help/help.php:57
+msgid "Knowledge Base"
+msgstr ""
+
+#: admin/templates/help/help.php:66
+msgid "Have you encountered or noticed any issues while using the MelaPress Login Security plugin? Or do you want to report something to us?"
+msgstr ""
+
+#: admin/templates/help/help.php:68
+msgid "Open support ticket"
+msgstr ""
+
+#: admin/templates/help/index.php:20
+#: admin/templates/help/index.php:32
+#: app/helpers/class-settings-importer.php:68
+#: app/helpers/class-user-importer.php:69
+msgid "Help"
+msgstr ""
+
+#: admin/templates/help/index.php:35
+msgid "System Info"
+msgstr ""
+
+#: admin/templates/help/sidebar.php:19
+msgid "Our WordPress Plugins"
+msgstr ""
+
+#: admin/templates/help/sidebar.php:27
+msgid "Keep a log of users and under the hood site activity."
+msgstr ""
+
+#: admin/templates/help/sidebar.php:42
+#: admin/templates/help/sidebar.php:68
+#: admin/templates/help/sidebar.php:94
+msgid "LEARN MORE"
+msgstr ""
+
+#: admin/templates/help/sidebar.php:53
+msgid "Add an extra layer of security to your login pages with 2FA & require your users to use it."
+msgstr ""
+
+#: admin/templates/help/sidebar.php:79
+msgid "Protect website forms & login pages from spambots & automated attacks."
+msgstr ""
+
+#: admin/templates/help/system-info.php:22
+msgid "System information"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:40
+msgid "Premium"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:43
+msgid "Free"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:48
+msgid "Email support and forum access"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:48
+msgid "We stand behind all of our products with world-class support and a team of professionals who absolutely care."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:59
+msgid "Enforce Strong Passwords"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:59
+msgid "Easily enable password policies and enforce the use of strong passwords on your WordPress websites within seconds!"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:70
+msgid "Configurable Password Policies"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:70
+msgid "All the password policies are configurable. You can configure policies for password length, history, complexity, use of special characters and many others."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:81
+msgid "Password Policies per User Role"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:81
+msgid "Configure different password policies for different user roles, including custom ones. You can also exclude a specific user, or user role from all the policies."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:92
+msgid "Multisite Network Compatible"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:92
+msgid "Enforce strong password policies at network level so no user jeopardizes the security of your multisite network."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:105
+#: admin/templates/views/upgrade-sidebar.php:28
+msgid "Hide the WordPress login page"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:105
+msgid "Change the URL of your WordPress login page so it is not accessible to malicious attackers."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:118
+msgid "1-Click Reset All Passwords"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:118
+msgid "Reset all passwords and terminate all logged in session with 1-click in case of suspicious activity. When you use this feature, all users will receive clear instructions on how to reset their passwords."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:130
+msgid "Limit Failed Login Attempts"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:130
+msgid "Automatically block users with too many failed login attempts to protect your website & users from successful password and dictionary attacks."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:142
+msgid "Restrict user logins by IP Addresses"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:142
+msgid "Allow / limit a user's login to an IP address or a number of IP addresses. All the IP addresses and such limitations can be configured for every individual user, allowing you to restrict account sharing but at the same time giving the users the flexibility they need."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:154
+msgid "WooCommerce & Third Party Plugins Ready"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:154
+msgid "Do you use WooCommerce for your eCommerce website? Do you use LearnDash, MemberPress and other popular plugins for Membership and business websites? Enforce login security policies on forms from these plugins with just a mouse click."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:166
+msgid "Limit login page traffic by country"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:166
+msgid "Use Geoblocking to restrict access to the WordPress login page to certain countries only, or to block traffic originating from certain countries."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:179
+msgid "Restrict user login times"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:179
+msgid "Restrict your users' login times to specific days and hours and enforce your working hours policy, improve website and user account security, and reduce your website's attack surface."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:190
+msgid "Automatically Lock Inactive Users"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:190
+msgid "Inactive users are an easy prime target for malicious hackers. Our plugin automatically identifies & locks inactive users to help you protect your website. It also alerts you about them."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:201
+msgid "Get alerted of unrecognized devices"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:201
+msgid "Keep WordPress users' accounts secure by by sending them an immediate email alert if they log in from a new browser / device, allowing them to remotely terminate the session and notify the website administrator."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:214
+msgid "Add security questions"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:214
+msgid "Prevent unauthorized user account changes usch as password resets or when unlocking a user account by requiring users to answer preconfigured security questions."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:227
+msgid "Editable email templates & notifications"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:227
+msgid "Take control of all the emails and user notifications - edit their content with our easy to use settings so all messages fit your business' branding."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:239
+msgid "Users activity & passwords reports"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:239
+msgid "Use the reports to easily see the last time users were active, their password age and whose password is expired."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:251
+msgid "Weekly summary email"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:251
+msgid "Get a weekly email with a detailed summary of all password resets and changes, inactivity lockouts, failed logins, and more."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:263
+msgid "Bulk user import"
+msgstr ""
+
+#: admin/templates/help/upgrade.php:263
+msgid "Use the plugin's Users import feature to import a list of users via a CSV file. You can also require all imported users to change their password on their first login."
+msgstr ""
+
+#: admin/templates/help/upgrade.php:277
+#: admin/templates/views/upgrade-sidebar.php:38
+msgid "Upgrade to Premium"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:35
+msgid "By default, the login and password security policies configured in this plugin are only be enforced on the native WordPress forms. However, the plugin has out-of-the-box support for popular third-party plugins such as WooCommerce and BuddyPress. Use the checkboxes below to select the forms on which you'd like to enforce the configured policies. The list of plugins is sorted in alphabetical order."
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:44
+msgid "Standard forms"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:50
+msgid "WordPress forms"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:57
+msgid "This website's password reset page"
+msgstr ""
+
+#: admin/templates/views/settings-forms.php:64
+msgid "User profile page"
+msgstr ""
+
+#: admin/templates/views/settings-hide-login.php:34
+msgid "Login Page Hardening"
+msgstr ""
+
+#: admin/templates/views/settings-hide-login.php:39
+msgid "Change the login page URL"
+msgstr ""
+
+#: admin/templates/views/settings-hide-login.php:41
+msgid "The default WordPress login page URL is /wp-admin/ or /wp-login.php. Improve the security of your website by changing the URL of the WordPress login page to anything you want, thus preventing easy access to bots and attackers. To change the URL just specify the new path in the placeholder below. Do not include the trailing slash."
+msgstr ""
+
+#: admin/templates/views/settings.php:34
+msgid "Plugin settings"
+msgstr ""
+
+#: admin/templates/views/settings.php:43
+msgid "General settings"
+msgstr ""
+
+#: admin/templates/views/settings.php:56
+msgid "General Settings"
+msgstr ""
+
+#: admin/templates/views/settings.php:57
+msgid "On this page you can edit and manage the plugin's general settings."
+msgstr ""
+
+#: admin/templates/views/settings.php:63
+msgid "Weekly Summary"
+msgstr ""
+
+#: admin/templates/views/settings.php:69
+msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week."
+msgstr ""
+
+#: admin/templates/views/settings.php:75
+msgid "Enable weekly summary emails."
+msgstr ""
+
+#: admin/templates/views/settings.php:77
+msgid "Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week. Uses from/default address set below."
+msgstr ""
+
+#: admin/templates/views/settings.php:86
+msgid "Users exempted from all password policies"
+msgstr ""
+
+#: admin/templates/views/settings.php:94
+msgid "Users in this list will be exempted from all the policies."
+msgstr ""
+
+#: admin/templates/views/settings.php:120
+#: admin/templates/views/settings.php:126
+msgid "Instantly terminate session on password expire or reset"
+msgstr ""
+
+#: admin/templates/views/settings.php:132
+msgid "Terminate session on password expire"
+msgstr ""
+
+#: admin/templates/views/settings.php:134
+msgid "By default when a user's password expires or is reset, their current session is not terminated, and they are asked to reset their password once they log out and log back in. Enable this option to instantly terminate the users' sessions once the password expires or is reset."
+msgstr ""
+
+#: admin/templates/views/settings.php:143
+msgid "Reset key expiry time"
+msgstr ""
+
+#. translators: %s: Configured password expiry period.
+#: admin/templates/views/settings.php:168
+msgid "Passwords’ reset keys should automatically expire in %s"
+msgstr ""
+
+#: admin/templates/views/settings.php:171
+msgid "By default when a user requests a password reset, the reset key will expire with 24 hours. Use this option to control this expiry time."
+msgstr ""
+
+#: admin/templates/views/settings.php:178
+msgid "Reset password generation"
+msgstr ""
+
+#: admin/templates/views/settings.php:184
+#: admin/templates/views/settings.php:190
+msgid "Do not auto-generate a new password on the password reset screen"
+msgstr ""
+
+#: admin/templates/views/settings.php:192
+msgid "By default, when a user resets their password, a new password is generated automatically when configuring a new password. Use the above setting to disable this feature."
+msgstr ""
+
+#: admin/templates/views/settings.php:201
+msgid "Policy priority for users with multiple roles"
+msgstr ""
+
+#: admin/templates/views/settings.php:208
+msgid "Configure User role priority for password and login policies enforcement"
+msgstr ""
+
+#: admin/templates/views/settings.php:210
+msgid "By default our plugin will apply the policy based on the 1st role found for a user, if your users are able to have multiple roles the correct policies may not be applied. To control this, sort the roles below into order priority (the higher the role means policies for this role will override subsequent policies which may also be applicable to a user)."
+msgstr ""
+
+#: admin/templates/views/settings.php:253
+msgid "Higher roles will superceed lower roles, meaning if a user has the role \"subscriber\" and also \"author\", to ensure \"author\" policies apply place it above \"subscriber\" to give these policies priority."
+msgstr ""
+
+#: admin/templates/views/settings.php:264
+msgid "From email address"
+msgstr ""
+
+#: admin/templates/views/settings.php:267
+msgid "By default the plugin sends email notifications from \"mls@yourdomain.com\" where \"yourdomain.com\" is the domain name of the WordPress website. This is done to ensure optimal email deliverability. However, you can change the email address notifications are sent from using the settings below."
+msgstr ""
+
+#: admin/templates/views/settings.php:279
+msgid "Use the default email address"
+msgstr ""
+
+#: admin/templates/views/settings.php:284
+msgid "Use another email address"
+msgstr ""
+
+#: admin/templates/views/settings.php:288
+msgid "Email Address"
+msgstr ""
+
+#: admin/templates/views/settings.php:293
+msgid "Display Name"
+msgstr ""
+
+#: admin/templates/views/settings.php:302
+msgid "Email Test"
+msgstr ""
+
+#: admin/templates/views/settings.php:305
+msgid "Send Test Email"
+msgstr ""
+
+#: admin/templates/views/settings.php:309
+msgid ""
+"The plugin uses emails to alert users that their password has expired.\n"
+"\t\t\t\t\t\t\t\t\tUse the test button below to send a test email to my email address and confirm email functionality."
+msgstr ""
+
+#: admin/templates/views/settings.php:335
+msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:22
+msgid "Upgrade to Premium to benefit from"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:27
+msgid "One-click integration with WooCommerce, LearnDash & many other plugins"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:29
+msgid "Block or allow login page traffic per country"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:30
+msgid "Lock inactive user accounts"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:31
+msgid "Control the days and times when users can log in"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:32
+msgid "Security questions for password resets etc"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:33
+msgid "Edit all the email templates and users' notifications to fit your business' branding"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:34
+msgid "Receive weekly summary of all password resets, locked users & failed logins"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:35
+msgid "Reports that give you an overview of the latest user activity, password resets & more"
+msgstr ""
+
+#: admin/templates/views/upgrade-sidebar.php:36
+msgid "No adverts!"
+msgstr ""
+
+#: app/class-melapress-login-security.php:732
+msgid "The Melapress Login Security plugin is a multisite network tool. Please activate it from the network dashboard."
+msgstr ""
+
+#: app/class-melapress-login-security.php:734
+msgid "Redirect me to the network dashboard"
+msgstr ""
+
+#. translators: Password reset email subject. 1: Site name, 2: Week number
+#: app/crons/class-summaryemail.php:170
+msgid "%1$1s Week %2$2s - {site_name} password resets summary"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:191
+msgid "Below is the list of all the password resets that took place on the website {site_name} during week %1s of the year %2s."
+msgstr ""
+
+#: app/crons/class-summaryemail.php:195
+msgid "Hello website administrator,"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:206
+msgid "Users who exceeded failed login attempts:"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:207
+#: app/crons/class-summaryemail.php:217
+#: app/crons/class-summaryemail.php:229
+msgid "Login name"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:207
+#: app/crons/class-summaryemail.php:217
+#: app/crons/class-summaryemail.php:229
+msgid "Role"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:207
+msgid "Blocked since"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:216
+msgid "Users blocked due to failed logins and unblocked:"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:217
+msgid "Inactive since"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:228
+msgid "Recent users with password resets:"
+msgstr ""
+
+#: app/crons/class-summaryemail.php:229
+msgid "Last reset"
+msgstr ""
+
+#. translators: %s: user name
+#: app/enforcers/class-check-user-expiry.php:213
+msgid "<strong>ERROR</strong>: The password you entered for the username %s is incorrect."
+msgstr ""
+
+#: app/enforcers/class-check-user-expiry.php:217
+msgid "Lost your password?"
+msgstr ""
+
+#. translators: %s: user name
+#: app/enforcers/class-check-user-expiry.php:231
+msgid "<strong>ERROR</strong>: The password you entered for the username %s has expired."
+msgstr ""
+
+#: app/enforcers/class-check-user-expiry.php:235
+msgid "Get a new password."
+msgstr ""
+
+#. translators: %1s: day %2s: time
+#: app/enforcers/class-check-user-expiry.php:379
+msgid "Your password is going to expire on %1$s at %2$s."
+msgstr ""
+
+#: app/enforcers/class-check-user-expiry.php:383
+msgid "Reset password now"
+msgstr ""
+
+#: app/enforcers/class-check-user-expiry.php:383
+msgid "Dismiss notice"
+msgstr ""
+
+#: app/enforcers/class-check-user-expiry.php:437
+msgid "complete."
+msgstr ""
+
+#: app/enforcers/class-forms.php:445
+msgid "Hints for a strong password"
+msgstr ""
+
+#: app/enforcers/class-new-user.php:115
+msgid "To ensure you use a strong password, you are required to change your password before you login for the first time."
+msgstr ""
+
+#. translators: %s: Current violations for desired password.
+#: app/enforcers/class-password-check.php:227
+msgid "<strong>ERROR</strong>: New password %s"
+msgstr ""
+
+#. translators: %s: User count.
+#: app/enforcers/class-reset-passwords.php:95
+msgid "Reset %d users."
+msgstr ""
+
+#: app/enforcers/class-reset-passwords.php:163
+msgid "No valid reset type given"
+msgstr ""
+
+#: app/enforcers/class-reset-passwords.php:166
+msgid "Reset complete."
+msgstr ""
+
+#: app/enforcers/class-reset-passwords.php:395
+#: app/enforcers/class-reset-passwords.php:438
+#: app/enforcers/class-user-profile.php:255
+msgid "The email could not be sent."
+msgstr ""
+
+#: app/enforcers/class-reset-passwords.php:395
+#: app/enforcers/class-reset-passwords.php:438
+#: app/enforcers/class-user-profile.php:255
+msgid "Possible reason: your host may have disabled the mail() function."
+msgstr ""
+
+#: app/enforcers/class-reset-passwords.php:416
+msgid "All passwords have been reset for:"
+msgstr ""
+
+#. translators: Password reset email subject. 1: Site name
+#: app/enforcers/class-reset-passwords.php:429
+msgid "[%s] Global Password Reset Complete"
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:55
+msgid "User attempts to log in using restricted credentials"
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:56
+msgid "This warning is shown when a user attempts to log in with credentials restricted by an active Login Security Policy."
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:159
+msgid "User login policies"
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:165
+msgid "Restrict username/email address login"
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:169
+msgid "Use this setting to specify what the users can use to log in. Available options include either their username or email address, username only, or email address only."
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:172
+msgid "Users can log in with either their username or email address"
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:174
+msgid "Users can log in with their email address only"
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:176
+msgid "Users can log in with their username only"
+msgstr ""
+
+#. translators: %s: link to settings.
+#: app/enforcers/class-restrict-login-credentials.php:188
+msgid "To customize the notification displayed to users should they fail the above check, please visit the %s plugin settings."
+msgstr ""
+
+#: app/enforcers/class-user-profile.php:59
+msgid "Melapress Login Security user profile settings"
+msgstr ""
+
+#: app/enforcers/class-user-profile.php:95
+msgid "Change password on next login"
+msgstr ""
+
+#. translators: %s: By email address.
+#: app/helpers/class-emailer.php:157
+msgid "This email was sent by %s - boost WordPress security with login & password policies."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:36
+msgid "{site_name} - your password has been reset"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:37
+msgid "{site_name} - you need to change your password"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:38
+msgid "{site_name} - your password has expired"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:39
+#: app/helpers/class-emailstrings.php:40
+msgid "{site_name} - your user has been unlocked"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:41
+#: app/helpers/class-emailstrings.php:42
+msgid "Welcome to {site_name}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:43
+msgid "[{blogname}] Account Unlocked"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:44
+#: app/helpers/class-emailstrings.php:47
+msgid "Please visit the following URL to reset your password:"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:45
+#: app/helpers/class-emailstrings.php:48
+msgid "You may continue to login as normal"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:46
+msgid "[{blogname}] Account logins unblocked"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:49
+msgid "[{blogname}] Password Reset"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:50
+#: app/helpers/class-emailstrings.php:51
+msgid "[{blogname}] Password Expired"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:52
+#: app/helpers/class-emailstrings.php:53
+msgid "Welcome"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:93
+#: app/helpers/class-emailstrings.php:118
+#: app/helpers/class-emailstrings.php:125
+#: app/helpers/class-emailstrings.php:131
+#: app/helpers/class-emailstrings.php:146
+#: app/helpers/class-emailstrings.php:151
+msgid "Hello,"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:94
+#: app/helpers/class-emailstrings.php:152
+msgid "The user with the email {user_email} on the website {site_name} has been unlocked. Below are the details:"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:95
+#: app/helpers/class-emailstrings.php:104
+msgid "Website: "
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:96
+#: app/helpers/class-emailstrings.php:97
+#: app/helpers/class-emailstrings.php:105
+msgid "Username: "
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:98
+msgid "You can proceed to log in as usual. "
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:99
+#: app/helpers/class-emailstrings.php:116
+#: app/helpers/class-emailstrings.php:123
+#: app/helpers/class-emailstrings.php:128
+#: app/helpers/class-emailstrings.php:136
+#: app/helpers/class-emailstrings.php:144
+#: app/helpers/class-emailstrings.php:149
+#: app/helpers/class-emailstrings.php:156
+msgid "If you have any questions or require assistance please contact the website administrator on {admin_email}."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:102
+#: app/helpers/class-emailstrings.php:111
+#: app/helpers/class-emailstrings.php:138
+msgid "Hello"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:103
+msgid "Your user account has been unblocked from further login attempts by the website administrator. Below are the details:"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:107
+msgid "If you have any questions or require assistance contact your website administrator on "
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:108
+msgid "Thank you. "
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:112
+#: app/helpers/class-emailstrings.php:119
+msgid "The administrator of the website {site_name} requires you to change your password on the next login. This means that the next time you try to log in to {site_name} you will be asked to change your password. Below are the details:"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:113
+#: app/helpers/class-emailstrings.php:120
+#: app/helpers/class-emailstrings.php:133
+msgid "Website name: {site_name}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:114
+#: app/helpers/class-emailstrings.php:121
+#: app/helpers/class-emailstrings.php:134
+msgid "Website URL: {site_url}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:115
+#: app/helpers/class-emailstrings.php:122
+#: app/helpers/class-emailstrings.php:135
+#: app/helpers/class-emailstrings.php:141
+msgid "Username: {user_login_name}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:126
+msgid "Your password for the user {user_login_name} on the website {site_name} has expired. The website’s URL is {site_url}.."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:127
+msgid "Please visit the following URL to reset your password: {reset_url}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:132
+msgid "Your user password on the website {site_name} has been reset by the website administrator. Therefore the next time you will try to log in to the website you will need to specify a new password. Below are the details:"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:139
+#: app/helpers/class-emailstrings.php:147
+msgid "The user {user_login_name} with the email address {user_email} has been created on the website {home_url}."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:140
+msgid "You may log in with the following credentials:"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:142
+msgid "Password: {user_password}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:143
+msgid "It is highly recommended to change your password once you log in."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:148
+msgid "Please visit the following URL to reset your password so you can log in to the website: {reset_url}."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:153
+msgid "Website: {home_url}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:154
+msgid "Username: {user_login_name}."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:155
+msgid "To log back into the website, you are required to reset your password. You can do so from the following URL: {reset_url}"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:158
+msgid "Your WordPress user has been locked. Please contact the website administrator ( {admin_email} ) to unlock your user account."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:160
+#: app/helpers/class-emailstrings.php:162
+msgid "Password resets via emails have been disabled. Please contact the website administrator."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:164
+msgid "The password you entered for the username {user_login_name} has expired."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:166
+msgid "Please check the credentials and try again."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:168
+msgid "Login is not allowed at this time."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:170
+msgid "Logins from this IP address are not allowed. Please contact the website administrator ( {admin_email} ) for further information."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:172
+msgid "Your user account has surpassed the maximum allowed number of failed login attempts and it has been locked."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:174
+#: app/helpers/class-emailstrings.php:176
+msgid "Incorrect answer provided"
+msgstr ""
+
+#: app/helpers/class-pointer.php:51
+msgid "Configure the password policies"
+msgstr ""
+
+#: app/helpers/class-pointer.php:52
+msgid "By default the password policies are disabled."
+msgstr ""
+
+#: app/helpers/class-pointer.php:52
+msgid "Click here"
+msgstr ""
+
+#: app/helpers/class-pointer.php:52
+msgid "to configure the policies in the site's settings."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:63
+#: app/helpers/class-user-importer.php:64
+msgid "Checking import contents"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:64
+#: app/helpers/class-user-importer.php:65
+msgid "Ready to import"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:65
+#: app/helpers/class-user-importer.php:66
+msgid "Issues found"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:66
+#: app/helpers/class-user-importer.php:67
+msgid "Importing settings"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:67
+#: app/helpers/class-user-importer.php:68
+msgid "Settings imported"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:69
+#: app/helpers/class-user-importer.php:70
+msgid "The role, user or post type contained in your settings are not currently found in this website. Importing such settings could lead to abnormal behavour. For more information and / or if you require assistance, please"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:70
+#: app/helpers/class-user-importer.php:71
+msgid "Currently this data is not supported by our export/import wizard."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:71
+#: app/helpers/class-user-importer.php:72
+msgid "To avoid accidental lock-out, this setting is not imported."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:72
+#: app/helpers/class-user-importer.php:73
+msgid "Please upload a valid JSON file."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:74
+#: app/helpers/class-user-importer.php:75
+msgid "The settings file has been tested and the configuration is ready to be imported. Would you like to proceed?"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:75
+#: app/helpers/class-user-importer.php:76
+msgid "The configuration has been successfully imported. Click OK to close this window"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:95
+#: app/helpers/class-settings-importer.php:135
+msgid "Settings Import/Export"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:136
+msgid "On this page you can import and export your plugins settings."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:141
+msgid "Export settings"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:145
+#: app/helpers/class-user-importer.php:143
+msgid "Export"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:148
+msgid "Once the settings are exported a download will automatically start. The settings are exported to a JSON file."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:155
+msgid "Import settings"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:160
+#: app/helpers/class-user-importer.php:183
+msgid "Validate & Import"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:162
+msgid "Once you choose a JSON settings file, it will be checked prior to being imported to alert you of any issues, if there are any."
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:415
+msgid "Setting updated"
+msgstr ""
+
+#: app/helpers/class-settings-importer.php:415
+msgid "Setting created"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:96
+msgid "User Import/Export"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:139
+msgid "Export users"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:146
+msgid "Once the users are exported a download will automatically start. The users are exported to a CSV text file."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:153
+#: app/helpers/class-user-importer.php:191
+msgid "Import users to WordPress"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:157
+msgid "Here you can import users by providing a CSV of usernames and email addresses."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:163
+msgid "Click here to view an example txt file."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:185
+msgid "Once you choose a CSV file it will be checked prior to being imported."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:193
+msgid "Below are the usernames and (if applicable) email addresses detected from your CSV file. If you wish to enable a forced password reset on users' first login, tick the checkbox below."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:205
+msgid "Force newly created users to reset their password on their first login."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:207
+msgid "IMPORTANT:"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:207
+msgid "If you don't tick the above option but this setting is enforced through the plugin's settings, the users will still need to change their password on their first login."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:212
+msgid "By default, imported users are assigned the Subscriber role. However, you can choose a different role from the drop-down menu. Once you have made your selections, you can click Proceed to begin importing the users. The window will update once the process is completed."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:214
+msgid "Assign the following role to imported users"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:469
+msgid "No email address provided for the user."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:574
+msgid "The list of users has been imported. The imported users can now log in."
+msgstr ""
+
+#: app/helpers/class-user-importer.php:580
+#: app/helpers/class-user-importer.php:632
+msgid "Do not send this email"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:591
+#: app/helpers/class-user-importer.php:643
+msgid "Email subject"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:602
+#: app/helpers/class-user-importer.php:654
+msgid "Email template"
+msgstr ""
+
+#: app/helpers/class-user-importer.php:626
+msgid "User has been imported and must reset password"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:111
+#: app/login-page-control/class-login-page-control.php:370
+msgid "By logging in to this website you are consenting this website to process the IP address and browser information for security purposes."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:156
+#: app/login-page-control/class-login-page-control.php:194
+msgid "Integrations"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:195
+msgid "On this page you can manage the plugin’s integrations with other services and plugins."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:200
+msgid "IPLocate API Key:"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:204
+msgid "click here"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:205
+msgid "IP checking is handled by IPLocate.io, please %s to get your own key."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:227
+msgid "Please note: this will affect all sites on the network."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:232
+msgid "Login page URL"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:245
+msgid "Redirect old login page URL to"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:255
+msgid "Redirect anyone who tries to access the default WordPress login page URL to the above configured URL."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:288
+msgid "Limit login page access by IP address(es)"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:290
+msgid "Use the below setting to limit access to the login page to an IP address or a number of IP addresses. All the other settings in this section are optional."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:295
+msgid "Restrict login page access by IP address(es)"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:308
+msgid "IP address(es)"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:313
+msgid "Please specify an IP address and click Add IP to add it to the list. Wildcards and IP address ranges are not supported. Only individual IP addresses."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:325
+msgid "Redirect restricted IP address to"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:335
+msgid "By default when someone tries to access the login page from a non allowed IP address the web server responds with HTTP 403 (Resource is forbidden) status code. If you specify a URL above, the visitor will be redirected to this URL instead."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:343
+msgid "Bypass IP restriction URL"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:353
+msgid "This is an optional fallback setting. You can specify a URL here and when this URL is accessed you will access the login page, even if it is from a restricted IP address listed above."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:373
+msgid "Show a consent message on the login page"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:375
+msgid "Enable this setting to add a login page notice advising users that their IP address will be processed by the plugin, thus making the process GDPR compliant."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:380
+msgid "Enable consent message on login page"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:394
+msgid "Consent message"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:400
+msgid "Use the following shortcode to display this notice text on a page "
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:429
+msgid "Block or allow access to the login page by countries"
+msgstr ""
+
+#. translators: %s: link to notes.
+#: app/login-page-control/class-login-page-control.php:434
+msgid "Use the below setting to either block access to the login page for IP addresses from certain countries, or to restrict access to the login page to IP addresses from certain countries. To add a country enter its respective %1$1s in the field below. To use this feature you will need to provide an API key via %2$2s."
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:437
+msgid "ISO country code"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:442
+msgid "integration settings"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:458
+msgid "Country Codes:"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:473
+msgid "Action:"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:477
+msgid "Do nothing"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:478
+msgid "Allow access from the above countries only"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:479
+msgid "Block access from the above countries"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:487
+msgid "What should blocked users see?"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:499
+msgid "Blocked user handling:"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:503
+msgid "Send blocked users to below URL"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:504
+msgid "Send blocked users to homepage"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:516
+msgid "Redirect requests to default login page to"
+msgstr ""
+
+#: app/login-page-control/class-login-page-control.php:644
+msgid "This feature is not enabled."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:102
+msgid "Security prompt question response failure"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:103
+msgid "This notification is shown on the password reset page if a user fails to provide the correct response to the security question."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:155
+#: app/modules/class-security-prompt.php:273
+msgid "Security questions"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:160
+msgid "Activate Security questions"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:162
+msgid "Activate this setting to require users to answer a pre-provided question to proceed with certain actions, such as, to reset a password."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:171
+msgid "Require security question to initiate a password reset"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:177
+msgid "Require security question to enable a disabled account"
+msgstr ""
+
+#. translators: %s: Configured number of old password to check for duplication.
+#: app/modules/class-security-prompt.php:188
+msgid "Users must have at least %s pre-saved questions and answers."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:192
+msgid "Configure the security questions:"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:197
+msgid "Below you can configure the default list of questions available for the users."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:226
+msgid "Add question"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:235
+msgid "To customize the notification displayed to users should they fail a prompt, please visit the %s plugin settings."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:276
+msgid "Available questions"
+msgstr ""
+
+#. translators: %s: Configured number of old password to check for duplication.
+#: app/modules/class-security-prompt.php:284
+msgid "User has provided a total of %s answers currently."
+msgstr ""
+
+#. translators: %s: Configured number of old password to check for duplication.
+#: app/modules/class-security-prompt.php:294
+msgid "To improve the security of your account, please provide answers to at least %s of security questions. Click the \"Add response\" button to start. One of these questions will be used to verify your identity if you request a password reset or need to unlock your account after it has been locked."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:297
+msgid "Add response"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:301
+msgid "Select a question:"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:302
+msgid "Please note, your provided answer will be case sensitive."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:325
+msgid "Remove"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:369
+msgid "Notice:"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:370
+msgid "You are required to provide an answer to a number of security questions to better protect your account."
+msgstr ""
+
+#: app/modules/class-security-prompt.php:371
+msgid "Visit your profile page"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:540
+msgid "What was your childhood nickname?"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:541
+msgid "What was your place of birth?"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:542
+msgid "In which city did you meet your spouse / partner?"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:543
+msgid "What was the name of your childhood pet?"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:544
+msgid "Where did you go for holiday as a child?"
+msgstr ""
+
+#: app/modules/class-security-prompt.php:684
+msgid "Account unlocked, you may now login normally."
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:172
+#: app/modules/failed-logins/class-failed-logins.php:249
+msgid "Your account has surpassed the allowed number of login attempts and can no longer log in."
+msgstr ""
+
+#. translators: %d: Number of attempts remaining
+#: app/modules/failed-logins/class-failed-logins.php:279
+msgid "You have %d attempt remaining."
+msgid_plural "You have %d attempts remaining."
+msgstr[0] ""
+msgstr[1] ""
+
+#: app/modules/failed-logins/class-failed-logins.php:531
+msgid "Failed login policies"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:536
+msgid "Activate failed login policies"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:539
+msgid "Use this setting to specify how long should the plugin keep a count of failed logins. Once this time passes, the failed login count is reset to 0."
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:547
+msgid "Number of failed login attempts before the User account is locked"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:551
+msgid "Number of failed login attempts before the User account is locked:"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:557
+msgid "Time required to reset failed logins count to 0:"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:560
+msgid " minutes"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:565
+msgid "When a user is locked: "
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:568
+msgid "it can be only unlocked by the administrator"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:570
+msgid "unlock it after"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:570
+msgid "minutes"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:577
+msgid "Require blocked users to reset password on unblock."
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:580
+msgid "By ticking this checkbox, unblocked users will be required to configure a new password before logging in."
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:610
+#: app/modules/failed-logins/class-failed-logins.php:611
+#: app/modules/failed-logins/class-failed-logins.php:635
+#: app/modules/failed-logins/locked-users-view.php:32
+msgid "Locked Users"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:676
+msgid "Resetting..."
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:677
+msgid "User Reset"
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:678
+#: app/modules/failed-logins/InactiveUsersTable.php:65
+msgid "Currently there are no locked users."
+msgstr ""
+
+#: app/modules/failed-logins/class-failed-logins.php:679
+msgid "Reloading..."
+msgstr ""
+
+#. translators: %s: link to policies.
+#: app/modules/failed-logins/inactive-users.php:42
+msgid "In this section you can see a list of locked users. Users can be locked if they have had too many failed login attempts. More information on the %1$s"
+msgstr ""
+
+#: app/modules/failed-logins/inactive-users.php:45
+msgid "Failed logins policy"
+msgstr ""
+
+#. translators: %s: link to policies.
+#: app/modules/failed-logins/inactive-users.php:63
+msgid "In this section you can see a list of locked users. Users can be locked if they have been inactive for a long time, or they have had too many failed login attempts. More information on the %1$s"
+msgstr ""
+
+#: app/modules/failed-logins/inactive-users.php:66
+#: app/modules/failed-logins/inactive-users.php:87
+msgid "Inactive users policy"
+msgstr ""
+
+#. translators: %s: link to policies.
+#: app/modules/failed-logins/inactive-users.php:84
+msgid "In this section you can see a list of inactive WordPress users on your website if you enable the %1$s, or the %2$s"
+msgstr ""
+
+#: app/modules/failed-logins/inactive-users.php:91
+msgid "block failed logins policy"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:48
+msgid "Inactive User"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:49
+msgid "Inactive Users"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:80
+msgid "User"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:81
+msgid "Roles"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:82
+msgid "Locked because of"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:83
+msgid "Inactive Since"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:84
+msgid "Actions"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:99
+#: app/modules/failed-logins/InactiveUsersTable.php:401
+msgid "Unlock"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:116
+msgid "Run Inactive Check Now"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:120
+msgid "Total blocked users:"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:125
+msgid "Page"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:125
+msgid "of"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:310
+#: app/modules/failed-logins/InactiveUsersTable.php:376
+msgid "No data to display..."
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:362
+msgid "failed logins"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:362
+msgid "inactivty"
+msgstr ""
+
+#: app/modules/failed-logins/locked-users-view.php:23
+msgid "User Management"
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:45
+msgid "Limit the IP addresses users can log in from"
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:51
+#: app/modules/restrict-logins/class-restrict-logins.php:56
+msgid "Activate IP addresses restrictions"
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:59
+msgid "Use the below setting to specify the number of different IP addresses a user can log in from. If a user does not have any recorded IP addresses, the plugin will start keeping a log of the different IP addresses the user logs in from. Logins will be limited to the first number of recorded IP addresses based on the below-configured limit. You can always remove or edit IP addresses from the users' profile page."
+msgstr ""
+
+#. translators: %s: Configured number of old password to check for duplication.
+#: app/modules/restrict-logins/class-restrict-logins.php:71
+msgid "Allow users to log in from %s different IP addresses."
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:80
+msgid "To customize the notification displayed to users when a login is blocked due to restrictions, please visit the %s plugin settings."
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:108
+msgid "User attempts login from a restricted location"
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:109
+msgid "This warning is shown when user tries to log in using an IP originating from a location that is on the geo-blocked list."
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:143
+#: app/policies/class-mls-options.php:427
+msgid "website administrator"
+msgstr ""
+
+#. translators: %s: Admin email.
+#: app/modules/restrict-logins/class-restrict-logins.php:145
+msgid "Your are unable to login from this IP. Please contact the %1s for further information."
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:181
+msgid "User login IP address restrictions"
+msgstr ""
+
+#: app/modules/restrict-logins/class-restrict-logins.php:184
+msgid "Below is the list of the currently stored IP address(es) for this user. You can delete or edit any any of the below IP addresses. Changes will be saved when you click the Update Profile button to save the user profile changes."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:114
+msgid "Should not use known words."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:115
+#: app/policies/class-mls-messages.php:138
+msgid "Cannot contain the username."
+msgstr ""
+
+#. translators: %d: Number of passwords the current password cannot be the same as
+#. translators: %d = number of passwords
+#: app/policies/class-mls-messages.php:117
+#: app/policies/class-mls-messages.php:141
+msgid "Password cannot be the same as the last %d passwords."
+msgstr ""
+
+#. translators: %d: Configured minumum password length
+#. translators: %d = min pw length
+#: app/policies/class-mls-messages.php:119
+#: app/policies/class-mls-messages.php:146
+msgid "Must be at least %d characters long."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:120
+#: app/policies/class-mls-messages.php:149
+msgid "Must contain both UPPERCASE & lowercase characters."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:121
+#: app/policies/class-mls-messages.php:150
+msgid "Must contain numbers."
+msgstr ""
+
+#. translators: %d: Characters which cannot be used in a password
+#. translators: %s = special chars
+#: app/policies/class-mls-messages.php:123
+#: app/policies/class-mls-messages.php:153
+msgid "Must contain special characters such as %s."
+msgstr ""
+
+#. translators: 1 = list of special characters
+#: app/policies/class-mls-messages.php:126
+#: app/policies/class-mls-messages.php:158
+msgid "Password cannot contain any of these special characters: %s"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:133
+#: app/policies/class-mls-messages.php:134
+msgid "is very easy to guess. Please avoid using known words in the password."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:135
+msgid "is relatively easy to guess. Please avoid using known words in the password."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:136
+msgid "is not strong enough. Please avoid using known words in the password."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:164
+msgid "Password strength unknown"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:165
+msgid "Too short"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:166
+#: app/policies/class-mls-messages.php:167
+msgid "Insecure:"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:168
+msgid "Strong &amp; Secure"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:169
+msgid "Mismatch"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:170
+msgid "Invalid"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:176
+msgid "Your new password has not been saved."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:177
+msgid "Confirm use of weak password."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:178
+msgid "Show"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:179
+msgid "Hide"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:181
+msgid "Show password"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:182
+msgid "Hide password"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:183
+msgid "Hints for a strong password:"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:184
+msgid "Password tip:"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:185
+msgid "Use a strong password that consists at least of 8 characters, lower and upper case letters, numbers and symbols. Refer to the"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:186
+msgid "strong password guidelines"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:187
+msgid "for more information."
+msgstr ""
+
+#: app/policies/class-mls-messages.php:189
+msgid "Array.prototype.find called on null or undefined"
+msgstr ""
+
+#: app/policies/class-mls-messages.php:190
+msgid "callback must be a function"
+msgstr ""
+
+#. translators: %s: link to admin email.
+#: app/policies/class-mls-options.php:429
+msgid "Your WordPress user has been deactivated. Please contact the %1s to activate back your user."
+msgstr ""

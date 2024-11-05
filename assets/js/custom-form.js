@@ -29,8 +29,50 @@
 		}, 50);
 	}
 
-	jQuery( document ).ready( function() {
+	if ( jQuery( '.mp-hide-pw' ).length ) {
+		jQuery( '.mp-hide-pw' ).css({'height': 'auto'});
+	}
 
+	if ( jQuery( '#bbp-user-body .pw-weak' ).length ) {
+		jQuery( '#bbp-user-body .pw-weak' ).remove();
+	}
+
+	// PMP.
+	if ( jQuery( '.pmpro-login .pmpro_error' ).length ) {
+		setTimeout(() => {
+			if ( window.location.href.indexOf( 'error=password_reset_empty&') > -1) {
+				var isIt = window.location.href.split("error=password_reset_empty&");
+				var isItReally = isIt[1].split('&')[0];
+				var errorArray = isItReally.split(',');
+				jQuery( '.pmpro-login .pmpro_error' ).html( '' );
+				jQuery.each( errorArray, function ( index, value ) {
+					var errText = jQuery( '.pass-strength-result .' + jQuery.trim( value ) ).text();
+					if ( 'undefined' !== typeof errText ) {
+						jQuery( '.pmpro-login .pmpro_error' ).append( errText + '<br>' );					
+					}
+				});	
+			}
+		}, 50);
+	}	
+
+	if ( jQuery( '.profilepress-myaccount-change-password' ).length ) {
+		setTimeout(() => {
+			if ( window.location.href.indexOf( 'error=mls_error&') > -1 ) {
+				var isIt = window.location.href.split("error=mls_error&");
+				var isItReally = isIt[1].split('&')[0];
+				var errorArray = isItReally.split(',');
+				jQuery( '.profilepress-myaccount-change-password' ).prepend( '<div class="profilepress-myaccount-alert pp-alert-danger" role="alert"></div>' );
+				jQuery.each( errorArray, function ( index, value ) {
+					var errText = jQuery( '.pass-strength-result .' + jQuery.trim( value ) ).text();
+					if ( 'undefined' !== typeof errText ) {
+						jQuery( '.profilepress-myaccount-alert' ).append( errText + '<br>' );					
+					}
+				});	
+			}
+		}, 50);
+	}
+
+	jQuery( document ).ready( function() {
 		if ( PPM_Custom_Form.element.length > 0 ) {
 			jQuery( PPM_Custom_Form.policy ).insertAfter( PPM_Custom_Form.element );
 			jQuery( PPM_Custom_Form.element ).val( '' ).on( inputEvent + ' pwupdate', function (e) {
@@ -57,7 +99,7 @@
 } )( jQuery );
 
 function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
-
+	
 	var policy = PPM_Custom_Form.policy;
 	var PPM_Custom_Form = customForm;
 	PPM_Custom_Form.element = customForm.form_selector + ' ' + customForm.pw_field_selector;
@@ -70,7 +112,11 @@ function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 		inputEvent = 'keyup';
 	}
 
-	jQuery( policy ).insertAfter( PPM_Custom_Form.element );
+	if ( jQuery( PPM_Custom_Form.element ).hasClass( 'pmpro_form_input-password' ) ) {
+		jQuery( policy ).insertAfter( jQuery( PPM_Custom_Form.element ).parent().parent() );
+	} else {
+		jQuery( policy ).insertAfter( PPM_Custom_Form.element );
+	}	
 
 	jQuery( PPM_Custom_Form.element ).val( '' ).on( inputEvent + ' pwupdate', function (e) {
 		check_pass_strength( PPM_Custom_Form, true );
@@ -86,7 +132,6 @@ function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 }
 
 function check_pass_strength( form, is_known_single = false ) {
-
 	// Empty vars we will fill later.
 	var strength;
 	var pass1;
@@ -154,10 +199,10 @@ function check_pass_strength( form, is_known_single = false ) {
 		} );
 	}
 	if ( ErrorData.length <= 1 ) {
-		jQuery( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).prop( "disabled", false ).removeClass( 'button-disabled' );
+		jQuery( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).not( '.gform_show_password' ).prop( "disabled", false ).removeClass( 'button-disabled' );
 		jQuery( selectPrefix + form.button_class ).prop( "disabled", false ).removeClass( 'button-disabled' );
 	} else {
-		jQuery( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).prop( "disabled", true ).addClass( 'button-disabled' );
+		jQuery( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).not( '.gform_show_password' ).prop( "disabled", true ).addClass( 'button-disabled' );
 		jQuery( selectPrefix + form.button_class ).prop( "disabled", true ).addClass( 'button-disabled' );
 	}
 }
@@ -171,3 +216,16 @@ jQuery( document ).on( 'click', '.button.mp-hide-pw', function ( event ) {
 	jQuery( '#mepr_user_password1' ).attr( 'type', jQuery( '.pass-strength-result' ).attr( 'type' ) );
 } );
 
+// EDD reg fix.
+if ( jQuery( '.edd-blocks__checkout-register' ).length ) {
+	jQuery( document ).on( 'click', '.edd-blocks__checkout-register', function ( event ) {
+		setTimeout(() => {
+			if ( PPM_Custom_Form.custom_forms_arr.length > 0 ) {
+				var basePpmForm = PPM_Custom_Form;
+				jQuery.each( PPM_Custom_Form.custom_forms_arr, function (e, customForm ) {
+					setup_custom_forms_arr( customForm, basePpmForm );
+				});
+			}
+		}, 500);
+	});
+}

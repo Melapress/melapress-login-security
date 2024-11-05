@@ -99,20 +99,21 @@ div#reset-container input#_ppm_reset {
     padding: 0 22px;
 }
 
-.ppm-settings{
+.mls-settings{
     display: inline-block;
 }
 
-.ppm-settings p.description{
+.mls-settings p.description{
     clear:both;
     max-width:570px;
+    margin-top: 10px;
 }
 
-.ppm-settings.disabled,
+.mls-settings.disabled,
 .disabled th,
 .disabled p.description,
-.disabled label, .ppm-settings.disabled *,
-.ppm-settings .disabled {
+.disabled label, .mls-settings.disabled *,
+.mls-settings .disabled {
 	color: #bbbbbb;
 }
 
@@ -120,7 +121,7 @@ div#reset-container input#_ppm_reset {
 	opacity: 0.5;
 }
 
-.ppm-settings .disabled {
+.mls-settings .disabled {
 	opacity: 0.5;
     pointer-events: none;
 }
@@ -132,7 +133,7 @@ div#reset-container input#_ppm_reset {
 }
 
 /* HIDE/DISPLAY SETTINGS */
-.ppm-settings.disabled {
+.mls-settings.disabled {
     height: 0;
     overflow: hidden;
 }
@@ -160,7 +161,7 @@ div#reset-container input#_ppm_reset {
 /**
  * InactiveUsersTable styles
  */
-.tablenav.top #ppmwp_inactive_check_now:not(:first-child) {
+.tablenav.top #mls_inactive_check_now:not(:first-child) {
 	margin-left: -10px;
 }
 
@@ -442,27 +443,34 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
 	display: inline-block;
 	border-width: 1px;
 	border-style: solid;
-	padding: 2px 4px;
+	padding: 0 10px;
 	margin: 2px 0 0 2px;
 	border-radius: 3px;
 	cursor: default;
-	background: #EFE;
-	border-color: #5B5;
+	color: #2271b1;
+    border-color: #2271b1;
+    background: #f6f7f7;
+    position: relative;
+    font-size: 13px;
+    line-height: 2.15384615 !important;
+    min-height: 30px;
+}
+.c4wp-buttony-list + .c4wp-buttony-list {
+    margin-left: 15px;
 }
 .c4wp-buttony-list span {
-	text-decoration: none;
-	font-size: 12px;
-	font-weight: bold;
-	color: #FFF;
-	margin-left: 2px;
-	background: #BBB;
-	border-radius: 25px;
-	height: 14px;
-	display: inline-block;
-	vertical-align: middle;
-	width: 14px;
-	text-align: center;
-	line-height: 12px;
+    background: red;
+    height: 14px;
+    width: 14px;
+    position: absolute;
+    color: #fff;
+    border-radius: 7px;
+    line-height: 14px;
+    text-align: center;
+    font-size: 14px;
+    display: block;
+    right: -7px;
+    top: -5px;
 }
 
 #ppm-wp-settings textarea {
@@ -471,4 +479,88 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
 #reset-role-select {
     position: relative;
     top: -1px;
+}
+.question-list-item {
+    display: flex;
+    background: #fefefe;
+    padding: 8px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    color: #646970;
+}
+
+.question-list-item span {
+    font-size: 17px;
+    margin: 1px;
+}
+
+.question-list-item a {
+    margin: 3px;
+}
+
+.form-table td fieldset .question-list-item label {
+    flex: auto;
+    margin: 3px 0 0 6px !important;
+}
+
+.question-list-item.disabled-question {
+    background: rgba(254, 254, 254, 0.64);
+    color: #898d93;
+}
+
+.question-list-item [type="checkbox"] {
+    display: none;
+}
+
+#c4wp-prompt-wrapper {
+    position: fixed;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.3);
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#c4wp-prompt {
+    background-color: #fff;
+    min-width: 400px;
+    padding: 20px;
+}
+
+#c4wp-prompt input[type="text"] {
+    width: 100%;
+}
+.timed-login-option {
+    margin-bottom: 10px;
+}
+
+.has-sticky-bar {
+    max-width: 780px;
+}
+
+.neaten-tr th, .neaten-tr td {
+    padding-bottom: 0;
+}
+
+.neaten-tr .col-indented {
+    padding-left: 30px;
+}
+
+#ppm-expiry-notice-unit {
+    position: relative;
+    top: -1px;
+}
+
+.no-items .colspanchange {
+    display: inline-block;
+    clear: both;
+    width: 330px;
+    margin: 0 auto;
+    background: #fff;
 }

@@ -70,7 +70,7 @@ window.wp = window.wp || {};
 
 			delete( wp.passwordStrength.policyFails['username'] );
 
-			var getName  = $( '#user_login' ).val() || '';
+			var getName  = $( '#user_login' ).val() || ppmUserDetails.current_user_login;
 			var username = getName.toLowerCase();
 
 			// checks if the password contains the username = easy to guess.
@@ -127,7 +127,6 @@ window.wp = window.wp || {};
 		 * @return {string[]} The array of words to be disallowed.
 		 */
 		userInputBlacklist : function() {
-			// window.console.log(
 			// 	sprintf(
 			// 		/* translators: 1: Deprecated function name, 2: Version number, 3: Alternative function name. */
 			// 		__( '%1$s is deprecated since version %2$s! Use %3$s instead. Please consider writing more inclusive code.' ),
