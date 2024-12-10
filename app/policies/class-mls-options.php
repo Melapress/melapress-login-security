@@ -255,6 +255,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'restrict_login_ip_login_blocked_message'   => '',
 			'failed_logins_login_blocked_message'       => '',
 			'security_prompt_response_failure_message'  => '',
+			'timed_logins_auto_logout'           	    => 'no',
 		);
 
 		/**
@@ -724,6 +725,11 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			$tab_role = ! empty( $this->options['ppm-user-role'] ) ? '_' . $this->options['ppm-user-role'] : '';
 
 			$this->setting_options = $this->options;
+
+			/**
+			 * Fire of action for others to observe.
+			 */
+			do_action( 'mls_policies_updated', $this->options, get_site_option( MLS_PREFIX . $tab_role . '_options', false  ) );
 
 			return update_site_option( MLS_PREFIX . $tab_role . '_options', $this->options );
 		}

@@ -41,23 +41,6 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 	<form method="post" id="ppm-wp-settings" class="<?php echo esc_attr( $form_class ); ?>">
 		<input type="hidden" id="ppm-exempted-role" value="<?php echo $current_tab ? esc_attr( $current_tab ) : ''; ?>" name="_ppm_options[ppm-user-role]">
 
-		<div class="action mls-reset-all-wrapper">
-			<?php
-			if ( 0 === self::get_global_reset_timestamp() ) {
-				$reset_string = __( 'Reset All Passwords was never used', 'melapress-login-security' );
-			} else {
-				$reset_string = __( 'Last reset was on', 'melapress-login-security' ) . ' ' . get_date_from_gmt( date( 'Y-m-d H:i:s', (int) self::get_global_reset_timestamp() ), get_site_option( 'date_format', get_option( 'date_format' ) ) . ' ' . get_site_option( 'time_format', get_option( 'time_format' ) ) ); // phpcs:ignore.
-			}
-			?>
-			<div id="reset-container">
-				<input id="_ppm_reset" type="submit"
-						name="_ppm_reset"
-						class="button-secondary"
-						value="<?php esc_attr_e( "Reset All Users' Passwords", 'melapress-login-security' ); ?>"/>
-				<p class="description"><?php echo esc_html( $reset_string ); ?></p>
-			</div>
-		</div>
-
 		<p class="short-message"><?php esc_html_e( 'The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role\'s tab.', 'melapress-login-security' ); ?></p>
 
 		<div class="nav-tab-wrapper">
@@ -98,6 +81,27 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 				</div>
 				<span class="dashicons dashicons-arrow-down"></span>
 			</div>
+
+			<?php
+				if ( 0 === self::get_global_reset_timestamp() ) {
+					$reset_string = __( 'Reset All Passwords was never used', 'melapress-login-security' );
+				} else {
+					$reset_string = __( 'Last reset was on', 'melapress-login-security' ) . ' ' . get_date_from_gmt( date( 'Y-m-d H:i:s', (int) self::get_global_reset_timestamp() ), get_site_option( 'date_format', get_option( 'date_format' ) ) . ' ' . get_site_option( 'time_format', get_option( 'time_format' ) ) ); // phpcs:ignore.
+				}
+			?>
+
+			<div class="action mls-reset-all-wrapper">
+				<span class="mls-last-global-reset-time"><?php echo esc_html( $reset_string ); ?></span>
+
+				<div id="reset-container">
+					<input id="_mls_global_reset_button" type="submit"
+							name="_mls_global_reset_button"
+							class="button-secondary"
+							value="<?php esc_attr_e( "Reset All Users' Passwords", 'melapress-login-security' ); ?>"/>
+					<p class="description"></p>
+				</div>
+			</div>
+
 		</div>
 		<?php if ( ! isset( $_REQUEST['tab'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 		<div>

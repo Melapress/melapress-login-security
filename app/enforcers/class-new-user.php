@@ -140,13 +140,13 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 			$options_master_switch    = \MLS\Helpers\OptionsHelper::string_to_bool( $options->master_switch );
 			$settings_master_switch   = \MLS\Helpers\OptionsHelper::string_to_bool( $user_settings->master_switch );
 			$inherit_policies_setting = \MLS\Helpers\OptionsHelper::string_to_bool( $user_settings->inherit_policies );
+			$post_array               = filter_input_array( INPUT_POST );
 
-			$is_needed = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
+			$is_needed  = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
+			$post_array = filter_input_array( INPUT_POST );
 
-			if ( $is_needed ) {
-
+			if ( $is_needed && isset( $post_array['pass1'] ) && ! empty( $post_array['pass1'] ) ) {
 				$pwd_check          = new \MLS\Password_Check();
-				$post_array         = filter_input_array( INPUT_POST );
 				$does_violate_rules = $pwd_check->does_violate_rules( $post_array['pass1'] );
 
 				if ( $does_violate_rules ) {

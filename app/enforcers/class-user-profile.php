@@ -124,9 +124,17 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 			if ( isset( $_POST['reset_password_on_next_login'] ) ) {
 				$reset = get_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
 				if ( empty( $reset ) ) {
+					/**
+					 * Fire of action for others to observe.
+					 */
+					do_action( 'mls_user_required_to_reset_password_on_next_login', $user_id );
 					self::generate_new_reset_key( $user_id );
 				}
 			} else {
+				/**
+				 * Fire of action for others to observe.
+				 */
+				do_action( 'mls_user_no_longer_required_to_reset_password_on_next_login', $user_id );
 				// Remove any reset on login keys if admin has disabled it for this user.
 				delete_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY );
 			}

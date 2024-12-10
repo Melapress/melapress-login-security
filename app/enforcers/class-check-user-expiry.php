@@ -274,6 +274,11 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			$user_data        = get_userdata( $user_id );
 			$current_password = $user_data->user_pass;
 
+			/**
+			 * Fire of action for others to observe.
+			 */
+			do_action( 'mls_user_password_has_expired', $user_id );
+
 			// Reset user by User ID.
 			\MLS\MLS_Reset_Passwords::reset_by_id( $user_id, $current_password, 'system' );
 			// save the last expiry time in an easy to access meta as this is

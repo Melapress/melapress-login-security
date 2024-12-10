@@ -46,6 +46,10 @@ Strong passwords are your first line of defense against bad actors looking to ga
 
 Easily deploy security-by-obscurity tactics and change your WordPress login page URL using a plugin! Hiding the default login page from hackers makes it more difficult to find, potentially reducing brute force attacks and other unauthorized access attempts. After you change the default wp-admin URL, you can set a 404 for the old login page or redirect it to any page of your choosing.
 
+### Limit login page access by IP address(es)
+
+Limit access to the WordPress login page by IP address(es) for additional security.
+
 ### GDPR login page consent notice
 
 Easily meet GDPR requirements by adding a GDPR consent notice to the login page. This is required for GDPR and PCI DSS compliance, thus ensuring your WordPress site login page is in compliance.
@@ -61,13 +65,18 @@ The premium edition of Melapress Login Security comes bundled with even more fea
 ### Premium features list
 
 - Everything in the free version
+- Add an additional security layer with security questions users must answer when performing actions such as password reset and account unlock
+- Automatically send users an email whenever there's a login with their username from an unrecognized device with an option to terminate the session remotely
+- Extend or shorten session durations for better balance between security and user convinience
 - One-click integration with third-party plugins such as WooCommerce, LearnDash, Memberpress, and many others
 - Automatically [disable inactive WordPress users](https://melapress.com/inactive-users-wordpress/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) after a set time
 - Add Geo-blocking rules to restrict login page traffic to specific countries, or block traffic from specific countries
 - [Restrict users' login to a specific IP address](https://melapress.com/support/kb/melapress-login-security-limit-login-ips/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), or a configurable number of IP addresses
 - [Restrict WordPress users' login time by day and/or hours](https://melapress.com/support/kb/restrict-users-log-in-time-wordpress-website/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)
+- Restrict login credentials to email, username, or both
+- Add a GDPR consent notice to the login page
 - See reports of when users were last active, what’s their password age, and whose password is expired
-- Receive detailed weekly summary reports over email of password resets and changes, user account lockouts, and more
+- Receive detailed weekly summary reports over email of password resets and changes, user account lockouts, and more!
 
 | [UPGRADE TO PREMIUM](https://melapress.com/wordpress-login-security/pricing/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) |
 
@@ -188,8 +197,26 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
-= 2.0.0 (2024-11-05) =
+= 2.0.1 (2024-12-10) =
 
+Version 2.0.1 (2024-12-10) Maintenance update
+
+* **New features**
+	 * Timed Logins: Users login token can now expire as close of business (optional)
+
+ * **Plugin improvements**
+	 * Various UI improvements to policies / reset all passwords area
+	 * WP 2FA + Unrecognised Device policies now operate in harmony, enforcing only after 2FA has been passed
+
+ * **Bug fixes**
+	 * Fixed bug which caused expired user logins to count as a failure.
+	 * Fixed potential error caused on specific custom password-less registration methods.
+	 * Fixed bug which stopped multiple users from being unlocked at once
+	 * Fixed formatting of email templates
+	 * Summary email: fixed ‘random’ readout of year
+	 * Fixed some small PHP deprecation warnings.
+
+= 2.0.0 (2024-11-05) =
 
  * **New features**
 	 * Security questions: require users to configure security questions that can be used to verify users when resetting passwords and unlocking user accounts, thus the website administrator does not need to be involved.

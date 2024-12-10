@@ -141,7 +141,7 @@ if ( ! defined( 'MLS_VERSION' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_VERSION', '2.0.0' );
+	define( 'MLS_VERSION', '2.0.1' );
 }
 
 if ( ! defined( 'MLS_MENU_SLUG' ) ) {

@@ -94,7 +94,6 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				$message .= __( 'The user with the email {user_email} on the website {site_name} has been unlocked. Below are the details:', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'Website: ', 'melapress-login-security' ) . '{home_url}' . "\n";
 				$message .= __( 'Username: ', 'melapress-login-security' ) . '{user_login_name}' . "\n";
-				$message .= __( 'Username: ', 'melapress-login-security' ) . '{user_login_name}' . "\n";
 				$message .= __( 'You can proceed to log in as usual. ', 'melapress-login-security' ) . '{admin_email}' . "\n\n";
 				$message .= __( 'If you have any questions or require assistance please contact the website administrator on {admin_email}.', 'melapress-login-security' ) . "\n";
 
@@ -162,6 +161,7 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				$message = __( 'Password resets via emails have been disabled. Please contact the website administrator.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'password_expired_message' === $template ) {
 				$message = __( 'The password you entered for the username {user_login_name} has expired.', 'melapress-login-security' ) . "\n\n";
+				$message .= __( 'You will recieve an email with next steps you can take to regain access.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'restrict_logins_prompt_failure_message' === $template ) {
 				$message = __( 'Please check the credentials and try again.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'timed_logins_login_blocked_message' === $template ) {
@@ -210,7 +210,7 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 					'{reset_url}'           => ( ! empty( $args ) && isset( $args['reset_url'] ) ) ? sanitize_text_field( $args['reset_url'] ) : '',
 					'{password}'            => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
 					'{device_ip}'           => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
-					'{clear_sessions_link}' => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? sanitize_text_field( $args['clear_sessions_link'] ) : '',
+					'{clear_sessions_link}' => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
 				);
 
 				$final_output = str_replace( array_keys( $replacements ), array_values( $replacements ), $input );
@@ -234,11 +234,22 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				'{password}'            => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
 				'{user_password}'       => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
 				'{device_ip}'           => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
-				'{clear_sessions_link}' => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? sanitize_text_field( $args['clear_sessions_link'] ) : '',
+				'{clear_sessions_link}' => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
 			);
 
 			$final_output = str_replace( array_keys( $replacements ), array_values( $replacements ), $input );
 			return $final_output;
+		}
+
+		/**
+		 * Returns a clickable link.
+		 *
+		 * @return string - Link to linkify.
+		 *
+		 * @since 2.0.1
+		 */
+		public static function linkify_link( $link ) {
+			return '<a href="' . esc_url( $link ) . '" target="_blank">' . $link . '</a>';
 		}
 
 		/**

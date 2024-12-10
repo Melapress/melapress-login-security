@@ -266,13 +266,13 @@ class InactiveUsersTable extends \WP_List_Table {
 
 					if ( in_array( $user_id, $blocked_users, true ) ) {
 						$reset_password = OptionsHelper::string_to_bool( $role_options->failed_login_reset_on_unblock );
-						$failed_logins->send_logins_unblocked_notification_email_to_user( $user_id, $reset_password );
+						$failed_logins->send_logins_unblocked_notification_email_to_user( $userdata->ID, $reset_password );
 					} else {
 						$reset_password = OptionsHelper::string_to_bool( $role_options->inactive_users_reset_on_unlock );
 					}
 
 					if ( ! \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->disable_user_unlocked_email ) ) {
-						$failed_logins->send_logins_unblocked_notification_email_to_user( $user_id, $reset_password );
+						$failed_logins->send_logins_unblocked_notification_email_to_user( $userdata->ID, $reset_password );
 					}
 					++$count;
 				}

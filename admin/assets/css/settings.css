@@ -86,17 +86,23 @@ li.ppm-exempted-list-item a.remove:hover::before{
 
 div#reset-container {
     display: inline-block;
-    top: 20px;
-    vertical-align: top;
+    margin-bottom: -6px;
 }
 
-div#reset-container input#_ppm_reset {
-    background: #cc6600;
-    border-color: #c00000;
+.mls-last-global-reset-time {
+    position: relative;
+    top: 6px;
+    right: 5px;
+}
+
+div#reset-container input#_mls_global_reset_button {
+    background: #2271b1;
+    border-color: #2271b1;
+    font-size: 14px;
+    height: 30px;
+    padding: 0 12px;
+    line-height: 28px;
     color: #fff;
-    font-size: larger;
-    height: 36px;
-    padding: 0 22px;
 }
 
 .mls-settings{
@@ -260,8 +266,9 @@ div#reset-container input#_ppm_reset {
 }
 
 .sidebar-present {
-    width: calc( 100% - 280px );
+    width: calc( 100% - 295px );
     float: left;
+    padding-right: 15px;
 }
 
 .premium-link {
@@ -272,7 +279,7 @@ div#reset-container input#_ppm_reset {
     text-decoration: none;
     border-radius: 5px;
     margin-top: 15px;
-    display: inline-block;
+    display: inline-block;¢
 }
 
 .c4wp-pro-features-ul li {
@@ -289,9 +296,7 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
 }
 
 .mls-reset-all-wrapper {
-    position: absolute;
-    right: 0;
-    top: 0;
+    float: right;
 }
 
 @media all and (max-width: 900px) {
