@@ -123,6 +123,11 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			$kill_sessions = isset( $_POST['kill_sessions'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['kill_sessions'] ) ) ? true : false;
 			$reset_when    = isset( $_POST['reset_when'] ) ? sanitize_text_field( wp_unslash( $_POST['reset_when'] ) ) : false;
 
+			/**
+			 * Fire of action for others to observe.
+			 */
+			do_action( 'mls_global_password_change_triggered', $reset_type, $role, $users, $include_self, $send_reset, $kill_sessions, $reset_when );
+
 			if ( 'reset-all' === $reset_type ) {
 				if ( ! $include_self ) {
 					self::reset_all( false, $kill_sessions, $send_reset, true, $reset_when );
@@ -289,6 +294,11 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 
 			// push current password to password history of the user.
 			\MLS\Password_History::push( $user_id, $password_event );
+
+			/**
+			 * Fire of action for others to observe.
+			 */
+			do_action( 'mls_user_password_reset_by_id', $user_id, $by, $is_delayed, $kill_sessions, $is_global_reset );
 
 			if ( in_array( $by, array( 'admin', 'system' ), true ) ) {
 				if ( $is_global_reset ) {
@@ -681,9 +691,15 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			// Check if user is currently considered to be 'locked'.
 			$is_user_blocked = get_user_meta( $user_id, MLS_USER_BLOCK_FURTHER_LOGINS_META_KEY, true );
 
+			$options = get_site_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
+
 
 			// Get option by role name.
 			if ( isset( $options['disable_self_reset'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['disable_self_reset'] ) ) {
+				/**
+				 * Fire of action for others to observe.
+				 */
+				do_action( 'mls_user_reset_request_blocked', $get_userdata->ID );
 				return new \WP_Error( 'reset_disabled', \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'password_reset_request_disabled_message' ), $get_userdata->ID ) );
 			}
 

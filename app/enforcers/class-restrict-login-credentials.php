@@ -110,11 +110,19 @@ class Restrict_Login_Credentials {
 			if ( 'username-only' === $type ) {
 				$result = \wp_authenticate_username_password( $error_message, $username, $password );
 				if ( is_wp_error( $result ) ) {
+					/**
+					 * Fire of action for others to observe.
+					 */
+					do_action( 'mls_user_login_blocked_due_to_wrong_credentials', $user->ID, $type );
 					return $error_message;
 				}
 			} elseif ( 'email-only' === $type ) {
 				$result = \wp_authenticate_email_password( $error_message, $username, $password );
 				if ( is_wp_error( $result ) ) {
+					/**
+					 * Fire of action for others to observe.
+					 */
+					do_action( 'mls_user_login_blocked_due_to_wrong_credentials', $user->ID, $type );
 					return $error_message;
 				}
 			}

@@ -108,10 +108,14 @@ class UnlockInactiveUser implements AjaxInterface {
 		$currently_unlocking_user_logins = ( isset( $_POST['unblocking_user'] ) && 'true' === $_POST['unblocking_user'] ) ? true : false;
 
 		if ( $currently_unlocking_user_logins ) {
+			/**
+			 * Fire of action for others to observe.
+			 */
+			do_action( 'mls_user_locked_due_to_failed_logins_unlocked', $userdata->ID );
 			$failed_logins           = new \MLS\Failed_Logins();
-			$clear_failed_login_data = $failed_logins->clear_failed_login_data( $id, false );
+			$clear_failed_login_data = $failed_logins->clear_failed_login_data( $userdata->ID, false );
 			$reset_password          = OptionsHelper::string_to_bool( $role_options->failed_login_reset_on_unblock );
-			$failed_logins->send_logins_unblocked_notification_email_to_user( $id, $reset_password );
+			$failed_logins->send_logins_unblocked_notification_email_to_user( $userdata->ID, $reset_password );
 			// Now we can bailed, firing off a success beacon to anything watching.
 			wp_send_json_success(
 				array(
@@ -121,18 +125,23 @@ class UnlockInactiveUser implements AjaxInterface {
 			);
 		}
 
+		/**
+		 * Fire of action for others to observe.
+		*/
+		do_action( 'mls_user_locked_due_to_inactivity_unlocked', $userdata->ID );
+
 		// remove user from inactive list.
-		OptionsHelper::clear_inactive_data_about_user( $id, true );
+		OptionsHelper::clear_inactive_data_about_user( $userdata->ID, true );
 
 		// remember this reset time.
-		OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $id ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+		OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $userdata->ID ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 
 		$reset_password = OptionsHelper::string_to_bool( $role_options->inactive_users_reset_on_unlock );
-		$this->send_unlocked_notification_email_to_user( $id, $reset_password );
+		$this->send_unlocked_notification_email_to_user( $userdata->ID, $reset_password );
 
 		wp_send_json_success(
 			array(
-				'user_id'    => $id,
+				'user_id'    => $userdata->ID,
 				'reset_time' => gmdate( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $reset_time ),
 			)
 		);

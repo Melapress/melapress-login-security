@@ -352,6 +352,11 @@ class SettingsImporter {
 			);
 		}
 
+		/**
+		 * Fire of action for others to observe.
+		 */
+		do_action( 'mls_settings_exported' );
+
 		$results = $wpdb->get_results( $prepared_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		wp_send_json_success( wp_json_encode( $results ) );
@@ -412,6 +417,11 @@ class SettingsImporter {
 
 		// If set to import the data once checked, then do so.
 		if ( 'true' === $process_import && ! isset( $message['failure_reason'] ) ) {
+			/**
+			 * Fire of action for others to observe.
+			 */
+			do_action( 'mls_settings_imported' );
+
 			$updated                        = ( ! update_site_option( $setting_name, maybe_unserialize( $setting_value ) ) ) ? esc_html__( 'Setting updated', 'melapress-login-security' ) : esc_html__( 'Setting created', 'melapress-login-security' );
 			$message['import_confirmation'] = $updated;
 			wp_send_json_success( $message );

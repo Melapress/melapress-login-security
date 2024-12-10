@@ -354,6 +354,10 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 				$error_string = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'restrict_login_ip_login_blocked_message' ), $user_id );
 
 				if ( ! $user_addr ) {
+					/**
+					 * Fire of action for others to observe.
+					 */
+					do_action( 'mls_user_login_blocked_due_to_ip_restrictions', $user_id );
 					return new \WP_Error(
 						'login_not_allowed',
 						$error_string
@@ -368,6 +372,11 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 					// Is allowed?
 					$is_login_allowed = self::is_ip_allowed( $user_id, $user_addr );
 					if ( ! $is_login_allowed || ! $add_ip ) {
+						/**
+						 * Fire of action for others to observe.
+						 */
+						do_action( 'mls_user_login_blocked_due_to_ip_restrictions', $user_id );
+
 						// UM error handling.
 						if ( class_exists( '\UM_Functions' ) ) {
 							\UM()->form()->add_error( 'ppmwp_login_attempts_blocked', $error_string );

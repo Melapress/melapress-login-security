@@ -151,8 +151,8 @@ class SummaryEmail implements CronInterface {
 			$current_timestamp = current_datetime();
 		}
 
-		$weeknumber = date( 'W', (int) strtotime( (string) $current_timestamp ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested, WordPress.DateTime.RestrictedFunctions.date_date
-		$year       = date( 'Y', (int) strtotime( (string) $current_timestamp ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested, WordPress.DateTime.RestrictedFunctions.date_date
+		$weeknumber = date( 'W' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested, WordPress.DateTime.RestrictedFunctions.date_date
+		$year       = date( 'Y' );
 
 		if ( is_multisite() ) {
 			$blogname = get_network()->site_name;
