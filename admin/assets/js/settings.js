@@ -333,26 +333,26 @@ jQuery( 'document' ).ready( function( $ ) {
 	jQuery('#ppm_master_switch').change(function() {
 		if ( jQuery( this ).parents( 'table' ).data( 'id' ) !='' ) {
 			if( jQuery(this).is(':checked') ) {
-				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').attr('disabled', 'disabled');
+				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_mls_global_reset_button], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').attr('disabled', 'disabled');
 				jQuery('.mls-settings').slideUp( 300 ).addClass('disabled');
 				jQuery(this).val( 1 );
 				jQuery( '#inherit_policies' ).val( 1 );
 			}
 			else {
-				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').removeAttr('disabled');
+				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_mls_global_reset_button], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').removeAttr('disabled');
 				jQuery('.mls-settings').slideDown( 300 ).removeClass('disabled');
 				jQuery(this).val( 0 );
 				jQuery( '#inherit_policies' ).val( 0 );
 			}
 		} else {
 			if( jQuery(this).is(':checked') ) {
-				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').removeAttr('disabled');
+				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_mls_global_reset_button], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').removeAttr('disabled');
 				jQuery(' .nav-tab-wrapper').fadeIn( 300 ).removeClass('disabled');
 				jQuery('.mls-settings').slideDown( 300 ).removeClass('disabled');
 				jQuery(this).val( 1 );
 			}
 			else {
-				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').attr('disabled', 'disabled');
+				jQuery('input[id!=ppm_master_switch]input[id!=ppm_enforce_password][name!=_ppm_save][name!=_mls_global_reset_button], select, button, #ppm-excluded-special-chars','#ppm-wp-settings').attr('disabled', 'disabled');
 				jQuery('.nav-tab-wrapper').fadeOut( 300 ).addClass('disabled');
 				jQuery('.mls-settings').slideUp( 300 ).addClass('disabled');
 				jQuery(this).val( 0 );
@@ -372,7 +372,7 @@ jQuery( 'document' ).ready( function( $ ) {
 	// enforce password
 	jQuery( '#ppm_enforce_password' ).change( function() {
 		if ( jQuery( this ).is( ':checked' ) ) {
-			jQuery( this ).parents( 'form' ).find( 'input, select, button' ).not('input[name=_ppm_save],input[type="hidden"], input#_ppm_reset').not( this ).attr( 'disabled', 'disabled' );
+			jQuery( this ).parents( 'form' ).find( 'input, select, button' ).not('input[name=_ppm_save],input[type="hidden"], input#_mls_global_reset_button').not( this ).attr( 'disabled', 'disabled' );
 			jQuery('.mls-settings, .master-switch').addClass('disabled');
 			jQuery( '#inherit_policies' ).val( 0 );
 		} else {
@@ -384,7 +384,7 @@ jQuery( 'document' ).ready( function( $ ) {
 					jQuery('.master-switch').removeClass('disabled');
 				} else {
 					jQuery( '#inherit_policies' ).val( 0 );
-					jQuery('input[id!=ppm_enforce_password][name!=_ppm_save][name!=_ppm_reset], select, button','#ppm-wp-settings').removeAttr('disabled');
+					jQuery('input[id!=ppm_enforce_password][name!=_ppm_save][name!=_mls_global_reset_button], select, button','#ppm-wp-settings').removeAttr('disabled');
 					jQuery('.mls-settings, .master-switch').removeClass('disabled');
 				}
 			}
@@ -499,7 +499,7 @@ jQuery( 'document' ).ready( function( $ ) {
 	}
 
 	// Mass reset.
-	jQuery( 'input#_ppm_reset' ).on( 'click', function( event ) {
+	jQuery( 'input#_mls_global_reset_button' ).on( 'click', function( event ) {
 		event.preventDefault;
 		hideShowResetSettings();
 

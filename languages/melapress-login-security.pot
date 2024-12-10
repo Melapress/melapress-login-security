@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security 2.0.0\n"
+"Project-Id-Version: Melapress Login Security 2.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
 "Last-Translator: Melapress <info@melapress.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-05T14:54:31+00:00\n"
+"POT-Creation-Date: 2024-12-10T16:18:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.10.0\n"
 "X-Domain: melapress-login-security\n"
@@ -68,10 +68,10 @@ msgstr ""
 #: admin/class-mls-admin.php:445
 #: admin/class-mls-admin.php:462
 #: admin/class-mls-admin.php:485
-#: app/enforcers/class-check-user-expiry.php:432
+#: app/enforcers/class-check-user-expiry.php:437
 #: app/enforcers/class-reset-passwords.php:112
 #: app/helpers/class-settings-importer.php:336
-#: app/helpers/class-settings-importer.php:377
+#: app/helpers/class-settings-importer.php:382
 #: app/helpers/class-user-importer.php:417
 #: app/helpers/class-user-importer.php:450
 msgid "Nonce Verification Failed."
@@ -179,94 +179,94 @@ msgstr ""
 msgid "View settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:1315
+#: admin/class-mls-admin.php:1318
 msgid "Reset process complete"
 msgstr ""
 
-#: admin/class-mls-admin.php:1316
+#: admin/class-mls-admin.php:1319
 msgid "CSV contains invalid data, provide user IDs only."
 msgstr ""
 
-#: admin/class-mls-admin.php:1317
+#: admin/class-mls-admin.php:1320
 msgid "Please ensure more than 1 ID is provided."
 msgstr ""
 
-#: admin/class-mls-admin.php:1318
+#: admin/class-mls-admin.php:1321
 msgid "You may now close this window."
 msgstr ""
 
-#: admin/class-mls-admin.php:1326
+#: admin/class-mls-admin.php:1329
 msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1327
+#: admin/class-mls-admin.php:1330
 msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1328
+#: admin/class-mls-admin.php:1331
 msgid "Should the plugin reset your password as well?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1361
+#: admin/class-mls-admin.php:1364
 msgid "Please check your email for instructions on how to reset your password."
 msgstr ""
 
-#: admin/class-mls-admin.php:1362
+#: admin/class-mls-admin.php:1365
 msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1363
+#: admin/class-mls-admin.php:1366
 #: app/helpers/class-settings-importer.php:77
 #: app/helpers/class-user-importer.php:78
 msgid "OK"
 msgstr ""
 
-#: admin/class-mls-admin.php:1364
+#: admin/class-mls-admin.php:1367
 msgid "No"
 msgstr ""
 
-#: admin/class-mls-admin.php:1393
+#: admin/class-mls-admin.php:1396
 msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
 msgstr ""
 
-#: admin/class-mls-admin.php:1394
+#: admin/class-mls-admin.php:1397
 msgid "For more information please contact the WordPress admin on "
 msgstr ""
 
-#: admin/class-mls-admin.php:1395
+#: admin/class-mls-admin.php:1398
 #: app/enforcers/class-reset-passwords.php:56
 msgid "Reset password"
 msgstr ""
 
-#: admin/class-mls-admin.php:1544
+#: admin/class-mls-admin.php:1547
 msgid "Policies updated successfully."
 msgstr ""
 
-#: admin/class-mls-admin.php:1561
+#: admin/class-mls-admin.php:1564
 msgid "Policies update failed. Please try again."
 msgstr ""
 
-#: admin/class-mls-admin.php:1580
+#: admin/class-mls-admin.php:1583
 msgid "This setting is mandatory. Please specify a value."
 msgstr ""
 
-#: admin/class-mls-admin.php:1597
+#: admin/class-mls-admin.php:1600
 msgid "Please ensure you have the minimum number of questions configured."
 msgstr ""
 
-#: admin/class-mls-admin.php:1619
+#: admin/class-mls-admin.php:1622
 msgid "No user logged in."
 msgstr ""
 
-#: admin/class-mls-admin.php:1622
+#: admin/class-mls-admin.php:1625
 msgid "Current user has no email address defined"
 msgstr ""
 
-#: admin/class-mls-admin.php:1627
+#: admin/class-mls-admin.php:1630
 msgid "{site_name} - Melapress Login Security plugin test email"
 msgstr ""
 
-#: admin/class-mls-admin.php:1631
+#: admin/class-mls-admin.php:1634
 msgid ""
 "<p>Hooray!</p>\n"
 "\n"
@@ -276,75 +276,75 @@ msgid ""
 msgstr ""
 
 #. translators: %s: Users email address.
-#: admin/class-mls-admin.php:1656
+#: admin/class-mls-admin.php:1659
 msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
 msgstr ""
 
-#: admin/class-mls-admin.php:1658
+#: admin/class-mls-admin.php:1661
 msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:1677
+#: admin/class-mls-admin.php:1680
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
-#: admin/class-mls-admin.php:1704
+#: admin/class-mls-admin.php:1707
 msgid "User notification templates"
 msgstr ""
 
-#: admin/class-mls-admin.php:1742
+#: admin/class-mls-admin.php:1745
 msgid "The following tags are available for use in all email template fields."
 msgstr ""
 
-#: admin/class-mls-admin.php:1743
+#: admin/class-mls-admin.php:1746
 msgid "Available tags:"
 msgstr ""
 
-#: admin/class-mls-admin.php:1744
+#: admin/class-mls-admin.php:1747
 msgid "- Site URL"
 msgstr ""
 
-#: admin/class-mls-admin.php:1745
+#: admin/class-mls-admin.php:1748
 msgid "- Site Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:1746
+#: admin/class-mls-admin.php:1749
 msgid "- User Login Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:1747
+#: admin/class-mls-admin.php:1750
 msgid "- User First Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:1748
+#: admin/class-mls-admin.php:1751
 msgid "- User Last Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:1749
+#: admin/class-mls-admin.php:1752
 msgid "- User Display Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:1750
+#: admin/class-mls-admin.php:1753
 msgid "- From email address / site admin email"
 msgstr ""
 
-#: admin/class-mls-admin.php:1756
+#: admin/class-mls-admin.php:1759
 msgid "User messages template"
 msgstr ""
 
-#: admin/class-mls-admin.php:1757
+#: admin/class-mls-admin.php:1760
 msgid "On this page you can edit all of the user messages and prompts used by the plugin"
 msgstr ""
 
-#: admin/class-mls-admin.php:1768
+#: admin/class-mls-admin.php:1771
 msgid "User requests password reset when the feature is disabled"
 msgstr ""
 
-#: admin/class-mls-admin.php:1769
+#: admin/class-mls-admin.php:1772
 msgid "This warning is shown when a user requests a password reset but an active Login Security Policy prohibits it."
 msgstr ""
 
-#: admin/class-mls-admin.php:1774
+#: admin/class-mls-admin.php:1777
 #: app/enforcers/class-restrict-login-credentials.php:61
 #: app/modules/class-security-prompt.php:108
 #: app/modules/restrict-logins/class-restrict-logins.php:114
@@ -375,110 +375,110 @@ msgstr ""
 msgid "Enable login security policies"
 msgstr ""
 
-#: admin/templates/admin-form.php:47
-msgid "Reset All Passwords was never used"
-msgstr ""
-
-#: admin/templates/admin-form.php:49
-msgid "Last reset was on"
-msgstr ""
-
-#: admin/templates/admin-form.php:56
-msgid "Reset All Users' Passwords"
-msgstr ""
-
-#: admin/templates/admin-form.php:61
+#: admin/templates/admin-form.php:44
 msgid "The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role's tab."
 msgstr ""
 
-#: admin/templates/admin-form.php:64
+#: admin/templates/admin-form.php:47
 msgid "Site-wide policies"
 msgstr ""
 
-#: admin/templates/admin-form.php:70
+#: admin/templates/admin-form.php:53
 msgid "Role-based policies"
 msgstr ""
 
-#: admin/templates/admin-form.php:109
+#: admin/templates/admin-form.php:87
+msgid "Reset All Passwords was never used"
+msgstr ""
+
+#: admin/templates/admin-form.php:89
+msgid "Last reset was on"
+msgstr ""
+
+#: admin/templates/admin-form.php:100
+msgid "Reset All Users' Passwords"
+msgstr ""
+
+#: admin/templates/admin-form.php:113
 msgid "Do not enforce password & login policies for this role"
 msgstr ""
 
-#: admin/templates/admin-form.php:129
+#: admin/templates/admin-form.php:133
 #: admin/templates/form-table.php:45
 msgid "Password Length"
 msgstr ""
 
-#: admin/templates/admin-form.php:169
+#: admin/templates/admin-form.php:173
 #: admin/templates/views/settings-forms.php:85
 #: admin/templates/views/settings-hide-login.php:64
 #: admin/templates/views/settings.php:361
 msgid "Save Changes"
 msgstr ""
 
-#: admin/templates/admin-form.php:184
+#: admin/templates/admin-form.php:188
 msgid "Which users would you like to reset?"
 msgstr ""
 
-#: admin/templates/admin-form.php:185
+#: admin/templates/admin-form.php:189
 msgid "Here you can choose if you want to reset the passwords for ALL users or just a specific sub set of users based on your desired criteria. Simply choose from the available options below and hit proceed when ready."
 msgstr ""
 
-#: admin/templates/admin-form.php:189
+#: admin/templates/admin-form.php:193
 msgid "Choose user group: "
 msgstr ""
 
-#: admin/templates/admin-form.php:192
+#: admin/templates/admin-form.php:196
 msgid "Reset all users"
 msgstr ""
 
-#: admin/templates/admin-form.php:195
+#: admin/templates/admin-form.php:199
 msgid "Reset by role"
 msgstr ""
 
-#: admin/templates/admin-form.php:215
+#: admin/templates/admin-form.php:219
 msgid "Reset specific users"
 msgstr ""
 
-#: admin/templates/admin-form.php:223
+#: admin/templates/admin-form.php:227
 msgid "Users in this list will reset."
 msgstr ""
 
-#: admin/templates/admin-form.php:231
+#: admin/templates/admin-form.php:235
 msgid "Upload CSV of User IDs (.csv or .txt only)"
 msgstr ""
 
-#: admin/templates/admin-form.php:242
+#: admin/templates/admin-form.php:246
 msgid "Send email to users when resetting."
 msgstr ""
 
-#: admin/templates/admin-form.php:248
+#: admin/templates/admin-form.php:252
 msgid "Include yourself in password reset"
 msgstr ""
 
-#: admin/templates/admin-form.php:254
+#: admin/templates/admin-form.php:258
 msgid "Terminate sessions for reset users"
 msgstr ""
 
-#: admin/templates/admin-form.php:260
+#: admin/templates/admin-form.php:264
 msgid "Select reset processing: "
 msgstr ""
 
-#: admin/templates/admin-form.php:263
+#: admin/templates/admin-form.php:267
 msgid "Reset passwords immediately"
 msgstr ""
 
-#: admin/templates/admin-form.php:266
+#: admin/templates/admin-form.php:270
 msgid "Reset passwords on next login"
 msgstr ""
 
-#: admin/templates/admin-form.php:272
+#: admin/templates/admin-form.php:276
 #: app/helpers/class-settings-importer.php:73
 #: app/helpers/class-user-importer.php:74
 #: app/modules/class-security-prompt.php:313
 msgid "Cancel"
 msgstr ""
 
-#: admin/templates/admin-form.php:272
+#: admin/templates/admin-form.php:276
 #: app/helpers/class-settings-importer.php:76
 #: app/helpers/class-user-importer.php:77
 msgid "Proceed"
@@ -1189,19 +1189,19 @@ msgid "Get a new password."
 msgstr ""
 
 #. translators: %1s: day %2s: time
-#: app/enforcers/class-check-user-expiry.php:379
+#: app/enforcers/class-check-user-expiry.php:384
 msgid "Your password is going to expire on %1$s at %2$s."
 msgstr ""
 
-#: app/enforcers/class-check-user-expiry.php:383
+#: app/enforcers/class-check-user-expiry.php:388
 msgid "Reset password now"
 msgstr ""
 
-#: app/enforcers/class-check-user-expiry.php:383
+#: app/enforcers/class-check-user-expiry.php:388
 msgid "Dismiss notice"
 msgstr ""
 
-#: app/enforcers/class-check-user-expiry.php:437
+#: app/enforcers/class-check-user-expiry.php:442
 msgid "complete."
 msgstr ""
 
@@ -1223,32 +1223,32 @@ msgstr ""
 msgid "Reset %d users."
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:163
+#: app/enforcers/class-reset-passwords.php:168
 msgid "No valid reset type given"
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:166
+#: app/enforcers/class-reset-passwords.php:171
 msgid "Reset complete."
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:395
-#: app/enforcers/class-reset-passwords.php:438
-#: app/enforcers/class-user-profile.php:255
+#: app/enforcers/class-reset-passwords.php:405
+#: app/enforcers/class-reset-passwords.php:448
+#: app/enforcers/class-user-profile.php:263
 msgid "The email could not be sent."
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:395
-#: app/enforcers/class-reset-passwords.php:438
-#: app/enforcers/class-user-profile.php:255
+#: app/enforcers/class-reset-passwords.php:405
+#: app/enforcers/class-reset-passwords.php:448
+#: app/enforcers/class-user-profile.php:263
 msgid "Possible reason: your host may have disabled the mail() function."
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:416
+#: app/enforcers/class-reset-passwords.php:426
 msgid "All passwords have been reset for:"
 msgstr ""
 
 #. translators: Password reset email subject. 1: Site name
-#: app/enforcers/class-reset-passwords.php:429
+#: app/enforcers/class-reset-passwords.php:439
 msgid "[%s] Global Password Reset Complete"
 msgstr ""
 
@@ -1260,32 +1260,32 @@ msgstr ""
 msgid "This warning is shown when a user attempts to log in with credentials restricted by an active Login Security Policy."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:159
+#: app/enforcers/class-restrict-login-credentials.php:167
 msgid "User login policies"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:165
+#: app/enforcers/class-restrict-login-credentials.php:173
 msgid "Restrict username/email address login"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:169
+#: app/enforcers/class-restrict-login-credentials.php:177
 msgid "Use this setting to specify what the users can use to log in. Available options include either their username or email address, username only, or email address only."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:172
+#: app/enforcers/class-restrict-login-credentials.php:180
 msgid "Users can log in with either their username or email address"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:174
+#: app/enforcers/class-restrict-login-credentials.php:182
 msgid "Users can log in with their email address only"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:176
+#: app/enforcers/class-restrict-login-credentials.php:184
 msgid "Users can log in with their username only"
 msgstr ""
 
 #. translators: %s: link to settings.
-#: app/enforcers/class-restrict-login-credentials.php:188
+#: app/enforcers/class-restrict-login-credentials.php:196
 msgid "To customize the notification displayed to users should they fail the above check, please visit the %s plugin settings."
 msgstr ""
 
@@ -1357,143 +1357,146 @@ msgid "Welcome"
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:93
-#: app/helpers/class-emailstrings.php:118
-#: app/helpers/class-emailstrings.php:125
-#: app/helpers/class-emailstrings.php:131
-#: app/helpers/class-emailstrings.php:146
-#: app/helpers/class-emailstrings.php:151
+#: app/helpers/class-emailstrings.php:117
+#: app/helpers/class-emailstrings.php:124
+#: app/helpers/class-emailstrings.php:130
+#: app/helpers/class-emailstrings.php:145
+#: app/helpers/class-emailstrings.php:150
 msgid "Hello,"
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:94
-#: app/helpers/class-emailstrings.php:152
+#: app/helpers/class-emailstrings.php:151
 msgid "The user with the email {user_email} on the website {site_name} has been unlocked. Below are the details:"
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:95
-#: app/helpers/class-emailstrings.php:104
+#: app/helpers/class-emailstrings.php:103
 msgid "Website: "
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:96
-#: app/helpers/class-emailstrings.php:97
-#: app/helpers/class-emailstrings.php:105
+#: app/helpers/class-emailstrings.php:104
 msgid "Username: "
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:98
+#: app/helpers/class-emailstrings.php:97
 msgid "You can proceed to log in as usual. "
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:99
-#: app/helpers/class-emailstrings.php:116
-#: app/helpers/class-emailstrings.php:123
-#: app/helpers/class-emailstrings.php:128
-#: app/helpers/class-emailstrings.php:136
-#: app/helpers/class-emailstrings.php:144
-#: app/helpers/class-emailstrings.php:149
-#: app/helpers/class-emailstrings.php:156
+#: app/helpers/class-emailstrings.php:98
+#: app/helpers/class-emailstrings.php:115
+#: app/helpers/class-emailstrings.php:122
+#: app/helpers/class-emailstrings.php:127
+#: app/helpers/class-emailstrings.php:135
+#: app/helpers/class-emailstrings.php:143
+#: app/helpers/class-emailstrings.php:148
+#: app/helpers/class-emailstrings.php:155
 msgid "If you have any questions or require assistance please contact the website administrator on {admin_email}."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:102
-#: app/helpers/class-emailstrings.php:111
-#: app/helpers/class-emailstrings.php:138
+#: app/helpers/class-emailstrings.php:101
+#: app/helpers/class-emailstrings.php:110
+#: app/helpers/class-emailstrings.php:137
 msgid "Hello"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:103
+#: app/helpers/class-emailstrings.php:102
 msgid "Your user account has been unblocked from further login attempts by the website administrator. Below are the details:"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:107
+#: app/helpers/class-emailstrings.php:106
 msgid "If you have any questions or require assistance contact your website administrator on "
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:108
+#: app/helpers/class-emailstrings.php:107
 msgid "Thank you. "
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:111
+#: app/helpers/class-emailstrings.php:118
+msgid "The administrator of the website {site_name} requires you to change your password on the next login. This means that the next time you try to log in to {site_name} you will be asked to change your password. Below are the details:"
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:112
 #: app/helpers/class-emailstrings.php:119
-msgid "The administrator of the website {site_name} requires you to change your password on the next login. This means that the next time you try to log in to {site_name} you will be asked to change your password. Below are the details:"
+#: app/helpers/class-emailstrings.php:132
+msgid "Website name: {site_name}"
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:113
 #: app/helpers/class-emailstrings.php:120
 #: app/helpers/class-emailstrings.php:133
-msgid "Website name: {site_name}"
+msgid "Website URL: {site_url}"
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:114
 #: app/helpers/class-emailstrings.php:121
 #: app/helpers/class-emailstrings.php:134
-msgid "Website URL: {site_url}"
-msgstr ""
-
-#: app/helpers/class-emailstrings.php:115
-#: app/helpers/class-emailstrings.php:122
-#: app/helpers/class-emailstrings.php:135
-#: app/helpers/class-emailstrings.php:141
+#: app/helpers/class-emailstrings.php:140
 msgid "Username: {user_login_name}"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:126
+#: app/helpers/class-emailstrings.php:125
 msgid "Your password for the user {user_login_name} on the website {site_name} has expired. The website’s URL is {site_url}.."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:127
+#: app/helpers/class-emailstrings.php:126
 msgid "Please visit the following URL to reset your password: {reset_url}"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:132
+#: app/helpers/class-emailstrings.php:131
 msgid "Your user password on the website {site_name} has been reset by the website administrator. Therefore the next time you will try to log in to the website you will need to specify a new password. Below are the details:"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:139
-#: app/helpers/class-emailstrings.php:147
+#: app/helpers/class-emailstrings.php:138
+#: app/helpers/class-emailstrings.php:146
 msgid "The user {user_login_name} with the email address {user_email} has been created on the website {home_url}."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:140
+#: app/helpers/class-emailstrings.php:139
 msgid "You may log in with the following credentials:"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:142
+#: app/helpers/class-emailstrings.php:141
 msgid "Password: {user_password}"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:143
+#: app/helpers/class-emailstrings.php:142
 msgid "It is highly recommended to change your password once you log in."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:148
+#: app/helpers/class-emailstrings.php:147
 msgid "Please visit the following URL to reset your password so you can log in to the website: {reset_url}."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:153
+#: app/helpers/class-emailstrings.php:152
 msgid "Website: {home_url}"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:154
+#: app/helpers/class-emailstrings.php:153
 msgid "Username: {user_login_name}."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:155
+#: app/helpers/class-emailstrings.php:154
 msgid "To log back into the website, you are required to reset your password. You can do so from the following URL: {reset_url}"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:158
+#: app/helpers/class-emailstrings.php:157
 msgid "Your WordPress user has been locked. Please contact the website administrator ( {admin_email} ) to unlock your user account."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:160
-#: app/helpers/class-emailstrings.php:162
+#: app/helpers/class-emailstrings.php:159
+#: app/helpers/class-emailstrings.php:161
 msgid "Password resets via emails have been disabled. Please contact the website administrator."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:164
+#: app/helpers/class-emailstrings.php:163
 msgid "The password you entered for the username {user_login_name} has expired."
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:164
+msgid "You will recieve an email with next steps you can take to regain access."
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:166
@@ -1623,11 +1626,11 @@ msgstr ""
 msgid "Once you choose a JSON settings file, it will be checked prior to being imported to alert you of any issues, if there are any."
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:415
+#: app/helpers/class-settings-importer.php:425
 msgid "Setting updated"
 msgstr ""
 
-#: app/helpers/class-settings-importer.php:415
+#: app/helpers/class-settings-importer.php:425
 msgid "Setting created"
 msgstr ""
 
@@ -1987,90 +1990,90 @@ msgid "Account unlocked, you may now login normally."
 msgstr ""
 
 #: app/modules/failed-logins/class-failed-logins.php:172
-#: app/modules/failed-logins/class-failed-logins.php:249
+#: app/modules/failed-logins/class-failed-logins.php:254
 msgid "Your account has surpassed the allowed number of login attempts and can no longer log in."
 msgstr ""
 
 #. translators: %d: Number of attempts remaining
-#: app/modules/failed-logins/class-failed-logins.php:279
+#: app/modules/failed-logins/class-failed-logins.php:284
 msgid "You have %d attempt remaining."
 msgid_plural "You have %d attempts remaining."
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/modules/failed-logins/class-failed-logins.php:531
+#: app/modules/failed-logins/class-failed-logins.php:541
 msgid "Failed login policies"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:536
+#: app/modules/failed-logins/class-failed-logins.php:546
 msgid "Activate failed login policies"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:539
+#: app/modules/failed-logins/class-failed-logins.php:549
 msgid "Use this setting to specify how long should the plugin keep a count of failed logins. Once this time passes, the failed login count is reset to 0."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:547
+#: app/modules/failed-logins/class-failed-logins.php:557
 msgid "Number of failed login attempts before the User account is locked"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:551
+#: app/modules/failed-logins/class-failed-logins.php:561
 msgid "Number of failed login attempts before the User account is locked:"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:557
+#: app/modules/failed-logins/class-failed-logins.php:567
 msgid "Time required to reset failed logins count to 0:"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:560
+#: app/modules/failed-logins/class-failed-logins.php:570
 msgid " minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:565
+#: app/modules/failed-logins/class-failed-logins.php:575
 msgid "When a user is locked: "
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:568
+#: app/modules/failed-logins/class-failed-logins.php:578
 msgid "it can be only unlocked by the administrator"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:570
+#: app/modules/failed-logins/class-failed-logins.php:580
 msgid "unlock it after"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:570
+#: app/modules/failed-logins/class-failed-logins.php:580
 msgid "minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:577
+#: app/modules/failed-logins/class-failed-logins.php:587
 msgid "Require blocked users to reset password on unblock."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:580
+#: app/modules/failed-logins/class-failed-logins.php:590
 msgid "By ticking this checkbox, unblocked users will be required to configure a new password before logging in."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:610
-#: app/modules/failed-logins/class-failed-logins.php:611
-#: app/modules/failed-logins/class-failed-logins.php:635
+#: app/modules/failed-logins/class-failed-logins.php:620
+#: app/modules/failed-logins/class-failed-logins.php:621
+#: app/modules/failed-logins/class-failed-logins.php:645
 #: app/modules/failed-logins/locked-users-view.php:32
 msgid "Locked Users"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:676
+#: app/modules/failed-logins/class-failed-logins.php:686
 msgid "Resetting..."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:677
+#: app/modules/failed-logins/class-failed-logins.php:687
 msgid "User Reset"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:678
+#: app/modules/failed-logins/class-failed-logins.php:688
 #: app/modules/failed-logins/InactiveUsersTable.php:65
 msgid "Currently there are no locked users."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:679
+#: app/modules/failed-logins/class-failed-logins.php:689
 msgid "Reloading..."
 msgstr ""
 
@@ -2199,7 +2202,7 @@ msgid "This warning is shown when user tries to log in using an IP originating f
 msgstr ""
 
 #: app/modules/restrict-logins/class-restrict-logins.php:143
-#: app/policies/class-mls-options.php:427
+#: app/policies/class-mls-options.php:428
 msgid "website administrator"
 msgstr ""
 
@@ -2353,6 +2356,6 @@ msgid "callback must be a function"
 msgstr ""
 
 #. translators: %s: link to admin email.
-#: app/policies/class-mls-options.php:429
+#: app/policies/class-mls-options.php:430
 msgid "Your WordPress user has been deactivated. Please contact the %1s to activate back your user."
 msgstr ""

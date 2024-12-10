@@ -1071,7 +1071,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				$_POST['_ppm_options']['inactive_users_reset_on_unlock'] = 0;
 			} else {
 				$_POST['_ppm_options']['inactive_users_reset_on_unlock'] = 1;
-			}
+			}			
 
 			// Exclude special characters.
 			if ( ! isset( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -1222,7 +1222,10 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$mls_options_updated['enable_sessions_policies']               = ( isset( $mls_options['enable_sessions_policies'] ) ) ? true : false;
 			$mls_options_updated['enable_device_policies']                 = ( isset( $mls_options['enable_device_policies'] ) ) ? true : false;
 			$mls_options_updated['enable_security_questions']              = ( isset( $mls_options['enable_security_questions'] ) ) ? true : false;
-			$mls_options_updated['notify_password_reset_on_login']         = ( isset( $mls_options['notify_password_reset_on_login'] ) ) ? true : false;
+			$mls_options_updated['notify_password_reset_on_login']         = ( isset( $mls_options['notify_password_reset_on_login'] ) ) ? true : false;	
+			$mls_options_updated['timed_logins_auto_logout']               = ( isset( $mls_options['timed_logins_auto_logout'] ) ) ? true : false;	
+			
+			
 
 			$processed_ppm_options = apply_filters( 'mls_pre_option_save_validation', array_merge( $mls_options, $mls_options_updated ) );
 

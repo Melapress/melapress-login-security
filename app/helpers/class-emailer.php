@@ -59,7 +59,7 @@ class Emailer {
 		\add_filter( 'wp_mail_from_name', array( __CLASS__, 'custom_wp_mail_from_name' ) );
 
 		$subject = apply_filters( 'mls_emailer_subject_filter', $subject );
-		$content = apply_filters( 'mls_emailer_content_filter', $content );
+		$content = apply_filters( 'mls_emailer_content_filter', wpautop( $content ) );
 
 		$result = \wp_mail( $email_address, $subject, $content, $headers, $attachments );
 

@@ -160,7 +160,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 					$time_difference = ( ! empty( $login_attempts_transient ) ) ? $current_time - $login_attempts_transient < $role_options->failed_login_reset_hours * 60 : false;
 
 					// Enough time has passed and the user is allowed to reset.
-					if ( ! $time_difference ) {
+					if ( ! $time_difference ) {						
 						$this->clear_failed_login_data( $userdata->user_login, $userdata );
 					}
 				}
@@ -202,7 +202,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			// We dont want to count the error returned when we block the login ourselves.
-			if ( isset( $error->errors['login_not_allowed'] ) ) {
+			if ( isset( $error->errors['login_not_allowed'] ) || isset( $error->errors['password_expired'] ) ) {
 				return;
 			}
 
@@ -245,6 +245,11 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 					update_user_meta( $userdata->ID, MLS_USER_BLOCK_FURTHER_LOGINS_TIMESTAMP_META_KEY, current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 
 					if ( is_wp_error( $error ) ) {
+						/**
+						 * Fire of action for others to observe.
+						 */
+						do_action( 'mls_user_exceeded_max_failed_logins_allowed', $userdata->ID );
+
 						if ( ! isset( $error->errors[ MLS_PREFIX . '_login_attempts_exceeded' ] ) ) {
 							$error_string = __( 'Your account has surpassed the allowed number of login attempts and can no longer log in.', 'melapress-login-security' );
 							$error->add( MLS_PREFIX . '_login_attempts_exceeded', '<br>' . $error_string );
@@ -342,7 +347,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 				$user_id = ( isset( $user->ID ) ) ? $user->ID : $this->get_user_id_from_login_name( $username );
 			}
 
-			if ( $user_id ) {
+			if ( $user_id ) {				
 				$login_attempts_transient_name = MLS_PREFIX . '_user_' . $user_id . '_failed_login_attempts';
 				$delete_transient              = delete_transient( $login_attempts_transient_name );
 				$unblock_user                  = delete_user_meta( $user_id, MLS_USER_BLOCK_FURTHER_LOGINS_META_KEY );
@@ -465,6 +470,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			$user_login = $user_data->user_login;
 			$user_email = $user_data->user_email;
 			$args       = array();
+			$key        = false;
 
 			// Only reset the password if the role has this option enabled.
 			if ( $reset_password ) {
@@ -492,8 +498,12 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			if ( $reset_password ) {
-				$login_page                = OptionsHelper::get_password_reset_page();
-				$args['reset_or_continue'] = esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) . "\n";
+				$login_page = OptionsHelper::get_password_reset_page();
+				if ( $key && ! is_wp_error( $key ) ) {
+					$args['reset_or_continue'] = esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) . "\n";
+				} else {
+					$args['reset_or_continue'] = esc_url_raw( network_site_url( $login_page ) ) . "\n";
+				}			
 			}
 
 			if ( $reset_password ) {
