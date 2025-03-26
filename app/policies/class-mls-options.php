@@ -15,6 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MLS\Helpers\OptionsHelper;
+
 if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 	/**
@@ -247,6 +249,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'device_policies_admin_alert_email_subject' => '',
 			'min_answered_needed_count'                 => 3,
 			'password_reset_request_disabled_message'   => '',
+			'user_exceeded_failed_logins_count_message' => '',
 			'password_expired_message'                  => '',
 			'inactive_user_account_locked_message'      => '',
 			'inactive_user_account_locked_reset_disabled_message' => '',
@@ -255,7 +258,12 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'restrict_login_ip_login_blocked_message'   => '',
 			'failed_logins_login_blocked_message'       => '',
 			'security_prompt_response_failure_message'  => '',
-			'timed_logins_auto_logout'           	    => 'no',
+			'timed_logins_auto_logout'                  => 'no',
+			'login_failed_account_not_known'            => '',
+			'login_failed_username_not_known'           => '',
+			'login_failed_password_incorrect'           => '',
+			'currently_editing_role'                    => '',
+			'excluded_special_chars'                    => '',
 		);
 
 		/**
@@ -324,6 +332,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 */
 		public $default_setting = array(
 			'send_summary_email'                         => 'yes',
+			'send_summary_email_day'                     => 'Sunday',
 			'exempted'                                   => array(
 				'users' => array(),
 			),
@@ -391,6 +400,158 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'user_unlocked_email_body'                   => '',
 			'user_unblocked_email_body'                  => '',
 			'user_reset_next_login_email_body'           => '',
+			'send_plain_text_emails'                     => 'no',
+			'enable_failure_message_overrides'           => 'no',
+		);
+
+		/**
+		 * Array of text boolean policy settings.
+		 *
+		 * @var array
+		 *
+		 * @since 2.1.0
+		 */
+		public static $policy_boolean_options = array(
+			'master_switch',
+			'enforce_password',
+			'change_initial_password',
+			'timed_logins',
+			'restrict_login_ip',
+			'notify_password_expiry',
+			'disable_self_reset',
+			'locked_user_disable_self_reset',
+			'failed_login_policies_enabled',
+			'failed_login_reset_on_unblock',
+			'inactive_users_reset_on_unlock',
+			'inherit_policies',
+			'inactive_users_enabled',
+			'activate_password_policies',
+			'activate_password_recycle_policies',
+			'enable_sessions_policies',
+			'enable_device_policies',
+			'enable_security_questions',
+			'notify_password_reset_on_login',
+			'timed_logins_auto_logout',
+			'activate_password_expiration_policies',
+			'enable_device_policies_admin_alerts',
+		);
+
+		/**
+		 * Array of text boolean based settings.
+		 *
+		 * @var array
+		 *
+		 * @since 2.1.0
+		 */
+		public static $settings_boolean_options = array(
+			'send_summary_email',
+			'terminate_session_password',
+			'stop_pw_generate',
+			'users_have_multiple_roles',
+			'clear_history',
+			'enable_wp_reset_form',
+			'enable_wp_profile_form',
+			'enable_wc_pw_reset',
+			'enable_wc_checkout_reg',
+			'enable_bp_register',
+			'enable_bp_pw_update',
+			'enable_ld_register',
+			'enable_um_register',
+			'enable_um_pw_update',
+			'enable_bbpress_pw_update',
+			'enable_mepr_register',
+			'enable_mepr_pw_update',
+			'enable_edd_register',
+			'enable_edd_pw_update',
+			'enable_pmp_register',
+			'enable_pmp_pw_update',
+			'enable_pmp_pw_reset',
+			'enable_profilepress_register',
+			'enable_profilepress_pw_update',
+			'enable_profilepress_pw_reset',
+			'enable_login_allowed_ips',
+			'send_user_unlocked_email',
+			'send_user_unblocked_email',
+			'send_user_pw_reset_email',
+			'send_user_pw_expired_email',
+			'enable_gdpr_banner',
+			'disable_user_password_reset_email',
+			'disable_user_delayed_password_reset_email',
+			'disable_user_pw_expired_email',
+			'disable_user_unlocked_reset_needed_email',
+			'disable_device_policies_prompt_email',
+			'disable_device_policies_prompt_admin_email',
+			'disable_user_imported_email',
+			'disable_user_imported_forced_reset_email',
+			'disable_user_unlocked_email',
+			'enable_failure_message_overrides',
+			'send_plain_text_emails',
+		);
+
+		/**
+		 * Array of text area based settings.
+		 *
+		 * @var array
+		 *
+		 * @since 2.1.0
+		 */
+		public static $textarea_settings = array(
+			'disable_self_reset_message',
+			'deactivated_account_message',
+			'timed_login_message',
+			'locked_user_disable_self_reset_message',
+			'restrict_login_message',
+			'restrict_login_credentials_message',
+			'device_policies_prompt_email_content',
+			'device_policies_admin_alert_email_content',
+			'device_policies_prompt_email_subject',
+			'device_policies_admin_alert_email_subject',
+			'password_reset_request_disabled_message',
+			'user_exceeded_failed_logins_count_message',
+			'password_expired_message',
+			'inactive_user_account_locked_message',
+			'inactive_user_account_locked_reset_disabled_message',
+			'restrict_logins_prompt_failure_message',
+			'timed_logins_login_blocked_message',
+			'restrict_login_ip_login_blocked_message',
+			'failed_logins_login_blocked_message',
+			'security_prompt_response_failure_message',
+			'login_failed_account_not_known',
+			'login_failed_username_not_known',
+			'login_failed_password_incorrect',
+		);
+
+		/**
+		 * Array of Password UI boolean based settings.
+		 *
+		 * @var array
+		 *
+		 * @since 2.1.0
+		 */
+		public static $password_ui_boolean_options = array(
+			'history',
+			'username',
+			'length',
+			'numeric',
+			'mix_case',
+			'special_chars',
+			'exclude_special_chars',
+		);
+
+		/**
+		 * Array of Passwird rules boolean based settings.
+		 *
+		 * @var array
+		 *
+		 * @since 2.1.0
+		 */
+		public static $password_rules_boolean_options = array(
+			'length',
+			'numeric',
+			'upper_case',
+			'lower_case',
+			'special_chars',
+			'exclude_special_chars',
 		);
 
 		/**
@@ -461,6 +622,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 			$settings_tab          = get_site_option( MLS_PREFIX . $tab_role . '_options', $mls_default_policy );
 			$this->setting_options = (object) wp_parse_args( $settings_tab, $mls_default_policy );
+			$user_role             = '';
 
 			/**
 			 * Get user ID Default 0.
@@ -479,30 +641,34 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				$user_id = get_current_user_id();
 			}
 
-			// If check multisite installed OR not.
-			if ( is_multisite() ) {
-				// Get user by ID.
-				$blog_id    = $this->mls->ppm_mu_get_blog_by_user_id( $user_id );
-				$user_by_id = $this->mls->ppm_mu_user_by_blog_id(
-					$blog_id,
-					array(
-						'include' => $user_id,
-					)
-				);
-				// Get included user.
-				$included_user = reset( $user_by_id );
-				// Get user role.
-				$roles     = \MLS\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
-				$user_role = reset( $roles );
-			} else {
-				// Get userdata by user id.
-				$userdata = get_userdata( $user_id );
+			if ( $user_id ) {
+				// If check multisite installed OR not.
+				if ( is_multisite() ) {
+					// Get user by ID.
+					$blog_id = $this->mls->ppm_mu_get_blog_by_user_id( $user_id );
+					// Passing an include will limit the User_Query.
+					$user_by_id = ( ! wp_doing_cron() ) ? $this->mls->ppm_mu_user_by_blog_id(
+						$blog_id,
+						array(
+							'include' => $user_id,
+						)
+					) : false;
 
-				$user_role = '';
-				if ( isset( $userdata->roles ) ) {
 					// Get user role.
-					$roles     = \MLS\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
-					$user_role = reset( $roles );
+					$roles = isset( $user_by_id[0] ) ? \MLS\Helpers\OptionsHelper::prioritise_roles( $user_by_id[0]->roles ) : false;
+					if ( ! $roles ) {
+						$user_role = false;
+					} else {
+						$user_role = reset( $roles );
+					}
+				} else {
+					// Get userdata by user id.
+					$userdata = get_userdata( $user_id );
+					if ( isset( $userdata->roles ) ) {
+						// Get user role.
+						$roles     = \MLS\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
+						$user_role = reset( $roles );
+					}
 				}
 			}
 
@@ -605,7 +771,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			}
 
 			// If check user ID.
-			if ( ! $user_id ) {
+			if ( ! $user_id || wp_doing_cron() ) {
 				// If we have no ID, grab the default settings.
 				$this->users_options = (object) get_site_option( MLS_PREFIX . '_options', $this->default_options );
 				return $this->users_options;
@@ -624,8 +790,12 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				// Get included user.
 				$included_user = reset( $user_by_id );
 				// Get user role.
-				$roles     = \MLS\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
-				$user_role = reset( $roles );
+				$roles = \MLS\Helpers\OptionsHelper::prioritise_roles( $included_user->roles );
+				if ( ! $roles ) {
+					$user_role = false;
+				} else {
+					$user_role = reset( $roles );
+				}
 			} else {
 				// Get userdata by user id.
 				$userdata = get_userdata( $user_id );
@@ -729,7 +899,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			/**
 			 * Fire of action for others to observe.
 			 */
-			do_action( 'mls_policies_updated', $this->options, get_site_option( MLS_PREFIX . $tab_role . '_options', false  ) );
+			do_action( 'mls_policies_updated', $this->options, get_site_option( MLS_PREFIX . $tab_role . '_options', false ) );
 
 			return update_site_option( MLS_PREFIX . $tab_role . '_options', $this->options );
 		}

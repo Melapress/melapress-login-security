@@ -2,12 +2,12 @@
 /**
  * Melapress Login Security
  *
- * @copyright Copyright (C) 2013-2024, Melapress - support@melapress.com
+ * @copyright Copyright (C) 2013-2025, Melapress - support@melapress.com
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or higher
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     2.0.1
+ * Version:     2.1.0
  * Plugin URI:  https://melapress.com/wordpress-login-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      Melapress
@@ -173,7 +173,7 @@ if ( ! function_exists( $melapress_login_security ) ) {
 			if ( ! $stored_version ) {
 				update_site_option( MLS_PREFIX . '_active_version', MLS_VERSION );
 			}
-			
+
 			if ( get_site_option( MLS_PREFIX . '_show_update_notice', false ) ) {
 				delete_site_option( MLS_PREFIX . '_show_update_notice' );
 				update_site_option( MLS_PREFIX . '_update_notice_needed', true );

@@ -202,10 +202,10 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 						<p class="description mb-10">
 							<?php
 							$link = '<a href="https://www.iplocate.io/" target="_blank">' . esc_html__( 'click here', 'melapress-login-security' ) . '</a>';
-							echo wp_sprintf( __( 'IP checking is handled by IPLocate.io, please %s to get your own key.', 'melapress-login-security' ), $link );
+							echo wp_kses_post( /* translators: %s: Link to PLocate.io. */ wp_sprintf( __( 'IP checking is handled by IPLocate.io, please %s to get your own key.', 'melapress-login-security' ), $link ) );
 							?>
 						</p><br>
-						<input type="text" id="iplocate_api_key" class="regular regular-text" name="_ppm_options[iplocate_api_key]" placeholder="" value="<?php echo esc_attr( isset( $mls->options->mls_setting->iplocate_api_key ) ? rtrim( $mls->options->mls_setting->iplocate_api_key, '/' ) : '' ); ?>" minlength="32">
+						<input type="text" id="iplocate_api_key" class="regular regular-text" name="mls_options[iplocate_api_key]" placeholder="" value="<?php echo esc_attr( isset( $mls->options->mls_setting->iplocate_api_key ) ? rtrim( $mls->options->mls_setting->iplocate_api_key, '/' ) : '' ); ?>" minlength="32">
 					</td>
 				</tr>
 				<?php
@@ -234,7 +234,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							<td>
 								<fieldset>
 									<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo esc_url( trailingslashit( site_url() ) ); ?></p>
-									<input type="text" name="_ppm_options[custom_login_url]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->custom_login_url ) ? rtrim( $mls->options->mls_setting->custom_login_url, '/' ) : '' ); ?>" id="ppm-custom_login_url" style="float: left; display: block; width: 250px;" />
+									<input type="text" name="mls_options[custom_login_url]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->custom_login_url ) ? rtrim( $mls->options->mls_setting->custom_login_url, '/' ) : '' ); ?>" id="ppm-custom_login_url" style="float: left; display: block; width: 250px;" />
 									<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
 								</fieldset>
 							</td>
@@ -247,7 +247,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							<td>
 								<fieldset>
 									<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo esc_url( trailingslashit( site_url() ) ); ?></p>
-									<input type="text" name="_ppm_options[custom_login_redirect]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->custom_login_redirect ) ? rtrim( $mls->options->mls_setting->custom_login_redirect, '/' ) : '' ); ?>" id="ppm-custom_login_redirect" style="float: left; display: block; width: 250px;" />
+									<input type="text" name="mls_options[custom_login_redirect]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->custom_login_redirect ) ? rtrim( $mls->options->mls_setting->custom_login_redirect, '/' ) : '' ); ?>" id="ppm-custom_login_redirect" style="float: left; display: block; width: 250px;" />
 									<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
 									<br>
 									<br>
@@ -297,7 +297,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							<td>
 								<fieldset>
 									<label for="ppm_enable_login_allowed_ips">
-										<input type="checkbox" id="ppm_enable_login_allowed_ips" name="_ppm_options[enable_login_allowed_ips]" data-toggle-target=".limit-ip-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_login_allowed_ips ) ); ?>>
+										<input type="checkbox" id="ppm_enable_login_allowed_ips" name="mls_options[enable_login_allowed_ips]" data-toggle-target=".limit-ip-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_login_allowed_ips ) ); ?>>
 									</label>
 								</fieldset>
 							</td>
@@ -314,7 +314,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 									</p>
 									<br>
 									<input type="text" id="restrict_login_allowed_ips_input" placeholder="e.g. 192.168.1.26"><a href="#" class="button button-primary" id="add-restrict_login_allowed_ips">Add IP</a><div id="restrict_login_allowed_ips-userfacing"></div>
-									<input type="text" id="restrict_login_allowed_ips" name="_ppm_options[restrict_login_allowed_ips]" class="hidden" value="<?php echo esc_attr( isset( $mls->options->mls_setting->restrict_login_allowed_ips ) ? rtrim( $mls->options->mls_setting->restrict_login_allowed_ips, '/' ) : '' ); ?>" >
+									<input type="text" id="restrict_login_allowed_ips" name="mls_options[restrict_login_allowed_ips]" class="hidden" value="<?php echo esc_attr( isset( $mls->options->mls_setting->restrict_login_allowed_ips ) ? rtrim( $mls->options->mls_setting->restrict_login_allowed_ips, '/' ) : '' ); ?>" >
 									
 								</fieldset>
 							</td>
@@ -327,7 +327,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							<td>
 								<fieldset>
 									<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo esc_url( trailingslashit( site_url() ) ); ?></p>
-									<input type="text" name="_ppm_options[restrict_login_redirect_url]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->restrict_login_redirect_url ) ? rtrim( $mls->options->mls_setting->restrict_login_redirect_url, '/' ) : '' ); ?>" id="ppm-restrict_login_redirect_url" style="float: left; display: block; width: 250px;" />
+									<input type="text" name="mls_options[restrict_login_redirect_url]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->restrict_login_redirect_url ) ? rtrim( $mls->options->mls_setting->restrict_login_redirect_url, '/' ) : '' ); ?>" id="ppm-restrict_login_redirect_url" style="float: left; display: block; width: 250px;" />
 									<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
 									<br>
 									<br>
@@ -345,7 +345,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							<td>
 								<fieldset>
 									<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo esc_url( trailingslashit( site_url() ) ); ?></p>
-									<input type="text" name="_ppm_options[restrict_login_bypass_slug]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->restrict_login_bypass_slug ) ? rtrim( $mls->options->mls_setting->restrict_login_bypass_slug, '/' ) : '' ); ?>" id="ppm-restrict_login_bypass_slug" style="float: left; display: block; width: 250px;" />
+									<input type="text" name="mls_options[restrict_login_bypass_slug]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->restrict_login_bypass_slug ) ? rtrim( $mls->options->mls_setting->restrict_login_bypass_slug, '/' ) : '' ); ?>" id="ppm-restrict_login_bypass_slug" style="float: left; display: block; width: 250px;" />
 									<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
 									<br>
 									<br>
@@ -382,7 +382,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 					<td>
 						<fieldset>
 							<label for="ppm_enable_gdpr_banner">
-								<input type="checkbox" id="ppm_enable_gdpr_banner" name="_ppm_options[enable_gdpr_banner]"
+								<input type="checkbox" id="ppm_enable_gdpr_banner" name="mls_options[enable_gdpr_banner]"
 										value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_gdpr_banner ) ); ?>>
 							</label>
 						</fieldset>
@@ -395,7 +395,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 					</th>
 					<td>
 						<fieldset>
-							<textarea id="gdpr_banner_message" name="_ppm_options[gdpr_banner_message]" rows="2" cols="60"><?php echo wp_kses_post( $current_banner_content ); ?></textarea>
+							<textarea id="gdpr_banner_message" name="mls_options[gdpr_banner_message]" rows="2" cols="60"><?php echo wp_kses_post( $current_banner_content ); ?></textarea>
 							<p class="description" style="margin-bottom: 10px; display: block;">
 							<?php esc_html_e( 'Use the following shortcode to display this notice text on a page ', 'melapress-login-security' ); ?> <code style="text-wrap: nowrap;">[mls-gdpr-banner]</code>
 							</p>
@@ -403,6 +403,46 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 					</td>
 				</tr>
 				
+			<?php
+		}
+
+		/**
+		 * Add settings markup.
+		 *
+		 * @return void
+		 *
+		 * @since 2.1.0
+		 */
+		public static function render_login_failure_message_settings() {
+			$mls                    = melapress_login_security();
+			$current_banner_content = isset( $mls->options->mls_setting->gdpr_banner_message ) && ! empty( $mls->options->mls_setting->gdpr_banner_message ) ? $mls->options->mls_setting->gdpr_banner_message : esc_html__( 'By logging in to this website you are consenting this website to process the IP address and browser information for security purposes.', 'melapress-login-security' );
+
+			$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-upgrade', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'Upgrading to premium', 'ppw-wp' ) . '</a>';
+			$desc              = wp_sprintf( esc_html__( 'To customize the notification displayed to users should they fail a prompt and a lot more, why not consider %s today.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) );
+
+			?>
+				<br>
+				<h3><?php esc_html_e( 'Failed login notification', 'melapress-login-security' ); ?></h3>
+				<p class="description" style="max-width: none;">
+					<?php esc_html_e( 'When you enable this feature it will override all other custom user login notifications on the login page, such as those from the failed login polices and locked users.', 'melapress-login-security' ); ?>
+				</p>
+
+				<tr valign="top">
+					<th scope="row">
+						<?php esc_html_e( 'Change the failed login notification on the login page', 'melapress-login-security' ); ?>
+					</th>
+					<td>
+						<fieldset>
+							<label for="enable_failure_message_overrides">
+								<input type="checkbox" id="enable_failure_message_overrides" name="mls_options[enable_failure_message_overrides]"
+										value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_failure_message_overrides ) ); ?>>
+							</label>
+							<p class="description" style="margin-bottom: 10px; display: block;">
+								<?php echo wp_kses_post( $desc ); ?>
+							</p>
+						</fieldset>
+					</td>
+				</tr>				
 			<?php
 		}
 
@@ -459,7 +499,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							</th>
 							<td>
 								<input type="text" id="login_geo_countries_input" placeholder="e.g. MT"><a href="#" class="button button-primary" id="add-login_denied-countries">Add Country</a><div id="login_geo_countries-countries-userfacing"></div>
-								<input type="text" id="login_geo_countries" name="_ppm_options[login_geo_countries]" class="hidden" value="<?php echo esc_attr( isset( $mls->options->mls_setting->login_geo_countries ) ? rtrim( $mls->options->mls_setting->login_geo_countries, '/' ) : '' ); ?>" >
+								<input type="text" id="login_geo_countries" name="mls_options[login_geo_countries]" class="hidden" value="<?php echo esc_attr( isset( $mls->options->mls_setting->login_geo_countries ) ? rtrim( $mls->options->mls_setting->login_geo_countries, '/' ) : '' ); ?>" >
 							</td>
 						</tr>
 
@@ -473,7 +513,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 								<?php esc_html_e( 'Action:', 'melapress-login-security' ); ?>
 							</th>
 							<td>
-								<select id="login_geo_method" class="regular toggleable" name="_ppm_options[login_geo_method]" style="display: inline-block;">
+								<select id="login_geo_method" class="regular toggleable" name="mls_options[login_geo_method]" style="display: inline-block;">
 									<option value="default" <?php selected( 'default', $mls->options->mls_setting->login_geo_method, true ); ?>><?php esc_html_e( 'Do nothing', 'melapress-login-security' ); ?></option>
 									<option value="allow_only" <?php selected( 'allow_only', $mls->options->mls_setting->login_geo_method, true ); ?>><?php esc_html_e( 'Allow access from the above countries only', 'melapress-login-security' ); ?></option>
 									<option value="deny_list" <?php selected( 'deny_list', $mls->options->mls_setting->login_geo_method, true ); ?>><?php esc_html_e( 'Block access from the above countries', 'melapress-login-security' ); ?></option>
@@ -499,7 +539,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 								<?php esc_html_e( 'Blocked user handling:', 'melapress-login-security' ); ?>
 							</th>
 							<td>
-								<select id="login_geo_action" class="regular toggleable" name="_ppm_options[login_geo_action]" style="display: inline-block;">
+								<select id="login_geo_action" class="regular toggleable" name="mls_options[login_geo_action]" style="display: inline-block;">
 									<option value="deny_to_url" <?php selected( 'deny_to_url', $mls->options->mls_setting->login_geo_action, true ); ?>><?php esc_html_e( 'Send blocked users to below URL', 'melapress-login-security' ); ?></option>
 									<option value="deny_to_home" <?php selected( 'deny_to_home', $mls->options->mls_setting->login_geo_action, true ); ?>><?php esc_html_e( 'Send blocked users to homepage', 'melapress-login-security' ); ?></option>
 								</select>
@@ -518,7 +558,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							<td>
 								<fieldset>
 									<p style="display: inline-block; float: left; margin-right: 6px;"><?php echo esc_url( trailingslashit( site_url() ) ); ?></p>
-									<input type="text" name="_ppm_options[login_geo_redirect_url]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->login_geo_redirect_url ) ? rtrim( $mls->options->mls_setting->login_geo_redirect_url, '/' ) : '' ); ?>" id="ppm-custom_login_url" style="float: left; display: block; width: 250px;" />
+									<input type="text" name="mls_options[login_geo_redirect_url]" value="<?php echo esc_attr( isset( $mls->options->mls_setting->login_geo_redirect_url ) ? rtrim( $mls->options->mls_setting->login_geo_redirect_url, '/' ) : '' ); ?>" id="ppm-custom_login_url" style="float: left; display: block; width: 250px;" />
 									<p style="display: inline-block; float: left; margin-right: 6px; margin-left: 6px;">/</p>
 								</fieldset>
 							</td>
@@ -709,7 +749,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				if ( $is_ip_blocked && ! isset( $_REQUEST['wp-submit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					if ( ( ! empty( $this->restrict_login_bypass_slug() ) && ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === home_url( $this->restrict_login_bypass_slug(), 'relative' ) ) ) || ( ! get_option( 'permalink_structure' ) && isset( $_GET[ $this->restrict_login_bypass_slug() ] ) && empty( $_GET[ $this->restrict_login_bypass_slug() ] ) ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 						global $error, $interim_login, $action, $user_login;
-						@include_once ABSPATH . 'wp-login.php';
+						@include_once ABSPATH . 'wp-login.php'; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 						die;
 					} else {
 						if ( isset( $_REQUEST['action'] ) && 'logout' === $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -764,7 +804,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 
 				} elseif ( 'wp-login.php' === $pagenow ) {
 					global $error, $interim_login, $action, $user_login;
-					@include_once ABSPATH . 'wp-login.php';
+					@include_once ABSPATH . 'wp-login.php'; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 					die;
 				}
 			}
@@ -782,7 +822,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function login_control_site_url( $url, $path, $scheme, $blog_id ) {
+		public function login_control_site_url( $url, $path, $scheme, $blog_id ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			return $this->login_control_login_url_filter( $url, $scheme );
 		}
 
@@ -811,7 +851,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function login_control_wp_redirect( $location, $status ) {
+		public function login_control_wp_redirect( $location, $status ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			return $this->login_control_login_url_filter( $location );
 		}
 
@@ -931,7 +971,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public static function is_blocked_country( $currently_allowed, $current_verify, $ip, $context = 'default' ) {
+		public static function is_blocked_country( $currently_allowed, $current_verify, $ip, $context = 'default' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			$is_spam = false;
 			$mls     = melapress_login_security();
 

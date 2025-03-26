@@ -36,10 +36,29 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 
 	<div class="page-head">
 		<h2><?php esc_html_e( 'Login Security Policies', 'melapress-login-security' ); ?></h2>
+
+		<div class="action mls-reset-all-wrapper">
+			<?php
+			if ( 0 === self::get_global_reset_timestamp() ) {
+				$reset_string = __( 'Reset All Passwords was never used', 'melapress-login-security' );
+			} else {
+				$reset_string = __( 'Last reset was on', 'melapress-login-security' ) . ' ' . get_date_from_gmt( date( 'Y-m-d H:i:s', (int) self::get_global_reset_timestamp() ), get_site_option( 'date_format', get_option( 'date_format' ) ) . ' ' . get_site_option( 'time_format', get_option( 'time_format' ) ) ); // phpcs:ignore.
+			}
+			?>
+			<span class="mls-last-global-reset-time"><?php echo esc_html( $reset_string ); ?></span>
+
+			<div id="reset-container">
+				<input id="_mls_global_reset_button" type="submit"
+						name="_mls_global_reset_button"
+						class="button-secondary"
+						value="<?php esc_attr_e( "Reset All Users' Passwords", 'melapress-login-security' ); ?>"/>
+				<p class="description"></p>
+			</div>
+		</div>
 	</div>
 
 	<form method="post" id="ppm-wp-settings" class="<?php echo esc_attr( $form_class ); ?>">
-		<input type="hidden" id="ppm-exempted-role" value="<?php echo $current_tab ? esc_attr( $current_tab ) : ''; ?>" name="_ppm_options[ppm-user-role]">
+		<input type="hidden" id="ppm-exempted-role" value="<?php echo $current_tab ? esc_attr( $current_tab ) : ''; ?>" name="mls_options[ppm-user-role]">
 
 		<p class="short-message"><?php esc_html_e( 'The password policies configured in the All tab apply to all roles. To override the default policies and configure policies for a specific role disable the option Inherit policies in the role\'s tab.', 'melapress-login-security' ); ?></p>
 
@@ -82,26 +101,6 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 				<span class="dashicons dashicons-arrow-down"></span>
 			</div>
 
-			<?php
-				if ( 0 === self::get_global_reset_timestamp() ) {
-					$reset_string = __( 'Reset All Passwords was never used', 'melapress-login-security' );
-				} else {
-					$reset_string = __( 'Last reset was on', 'melapress-login-security' ) . ' ' . get_date_from_gmt( date( 'Y-m-d H:i:s', (int) self::get_global_reset_timestamp() ), get_site_option( 'date_format', get_option( 'date_format' ) ) . ' ' . get_site_option( 'time_format', get_option( 'time_format' ) ) ); // phpcs:ignore.
-				}
-			?>
-
-			<div class="action mls-reset-all-wrapper">
-				<span class="mls-last-global-reset-time"><?php echo esc_html( $reset_string ); ?></span>
-
-				<div id="reset-container">
-					<input id="_mls_global_reset_button" type="submit"
-							name="_mls_global_reset_button"
-							class="button-secondary"
-							value="<?php esc_attr_e( "Reset All Users' Passwords", 'melapress-login-security' ); ?>"/>
-					<p class="description"></p>
-				</div>
-			</div>
-
 		</div>
 		<?php if ( ! isset( $_REQUEST['tab'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 		<div>
@@ -115,7 +114,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 						<td>
 							<fieldset>
 								<label for="ppm_enforce_password">
-									<input type="checkbox" id="ppm_enforce_password" name="_ppm_options[enforce_password]"
+									<input type="checkbox" id="ppm_enforce_password" name="mls_options[enforce_password]"
 											value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$setting_tab->enforce_password ) ); ?>>
 								</label>
 							</fieldset>
@@ -141,10 +140,10 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 										$master_key = self::$setting_tab->master_switch;
 									}
 									?>
-									<input type="checkbox" id="ppm_master_switch" name="_ppm_options[master_switch]"
+									<input type="checkbox" id="ppm_master_switch" name="mls_options[master_switch]"
 											value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $master_key ) ); ?>>
 									<?php if ( isset( $_GET['role'] ) && in_array( wp_unslash( $_GET['role'] ), array_keys( $roles ), true ) ) :  // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-									<input type="hidden" name="_ppm_options[inherit_policies]" value="<?php echo esc_attr( self::$setting_tab->inherit_policies ); ?>" id="inherit_policies">
+									<input type="hidden" name="mls_options[inherit_policies]" value="<?php echo esc_attr( self::$setting_tab->inherit_policies ); ?>" id="inherit_policies">
 									<?php endif; ?>
 								</label>
 							</fieldset>
@@ -190,12 +189,12 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 				<br>
 
 				<fieldset>
-					<p class="description" style="display: inline-block; min-width: 150px;"><?php esc_attr_e( 'Choose user group: ', 'melapress-login-security' ); ?></p>
+					<p class="description" style="display: inline-block; min-width: 150px; position: relative; top: -3px;"><?php esc_attr_e( 'Choose user group: ', 'melapress-login-security' ); ?></p>
 					<span style="display: inline-table; margin-left: 10px">
 						<input type="radio" id="reset-all" name="reset_type" value="reset-all" checked>
 						<label for="reset-all" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Reset all users', 'melapress-login-security' ); ?></label><br>
 
-						<input type="radio" id="reset-role" name="reset_type" value="reset-role"" data-active-shows-setting=".reset-role-panel">
+						<input type="radio" id="reset-role" name="reset_type" value="reset-role" data-active-shows-setting=".reset-role-panel">
 						<label for="reset-role" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Reset by role', 'melapress-login-security' ); ?> </label><br>
 
 						<div class="reset-role-panel hidden">
@@ -220,14 +219,14 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 						
 						<div class="reset-users-panel hidden">
 							<fieldset>
-								<input type="text" id="ppm-exempted" style="float: left; display: block; width: 250px;">
-								<input type="hidden" id="ppm-exempted-users" name="_ppm_options[exempted][users]" value="<?php echo ! empty( self::$options->mls_setting->exempted['users'] ) ? esc_attr( htmlentities( wp_json_encode( self::$options->mls_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
+								<input type="text" id="ppm-exempted" class="reset-user-search" style="float: left; display: block; width: 250px;">
+								<input type="hidden" id="ppm-exempted-users" name="mls_options[exempted][users]" value="<?php echo ! empty( self::$options->mls_setting->exempted['users'] ) ? esc_attr( htmlentities( wp_json_encode( self::$options->mls_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
 								<p class="description" style="clear:both;">
 									<?php
 									esc_html_e( 'Users in this list will reset.', 'melapress-login-security' );
 									?>
 								</p>
-								<ul id="ppm-exempted-list"></ul>
+								<ul id="ppm-exempted-list" class="reset-user-list"></ul>
 							</fieldset>
 						</div>
 
@@ -239,37 +238,48 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 						</div>
 					</span>
 				</fieldset>
-								
-				<br>
-				<fieldset>
-					<input type="checkbox" id="send_reset_email" name="send_email" value="send-email" checked>
-					<label for="send_reset_email"><?php esc_attr_e( 'Send email to users when resetting.', 'melapress-login-security' ); ?></label>
-				</fieldset>
 
 				<br>
 				<fieldset>
-					<input type="checkbox" id="include_reset_self" name="reset_self" value="reset-self">
-					<label for="include_reset_self"><?php esc_attr_e( 'Include yourself in password reset', 'melapress-login-security' ); ?></label>
-				</fieldset>
-
-				<br>
-				<fieldset>
-					<input type="checkbox" id="terminate_sessions_on_reset" name="reset_self" value="reset-self" checked>
-					<label for="terminate_sessions_on_reset"><?php esc_attr_e( 'Terminate sessions for reset users', 'melapress-login-security' ); ?></label>
-				</fieldset>
-				
-				<br>
-				<br>
-				<fieldset>
-				<p class="description" style="display: inline-block; min-width: 150px;"><?php esc_attr_e( 'Select reset processing: ', 'melapress-login-security' ); ?></p>
-					<span style="display: inline-table; margin-left: 10px">
-						<input type="radio" id="reset-now" name="reset_when" value="reset-now" checked>
+				<p class="description" style="display: inline-block; min-width: 150px; position: relative; top: -3px;"><?php esc_attr_e( 'Select reset processing: ', 'melapress-login-security' ); ?></p>
+					<span style="display: inline-table; margin-left: 10px; max-width: 70%;">
+						<input type="radio" id="reset-now" name="reset_when" value="reset-now" data-toggle-other-areas=".reset-now-blurb" checked>
 						<label for="reset-now" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Reset passwords immediately', 'melapress-login-security' ); ?></label><br>
-
-						<input type="radio" id="reset-login" name="reset_when" value="reset-login">
+							<p class="reset-now-blurb" style="font-size: 12px;"><?php esc_attr_e( 'All passwords will reset right away and users will not be able to login untill a new password has been created.', 'melapress-login-security' ); ?></p>
+						<input type="radio" id="reset-login" name="reset_when" value="reset-login" data-toggle-other-areas=".reset-later-blurb">
 						<label for="reset-login" style="margin-bottom: 10px; display: inline-grid; margin-top: 6px; font-size: 12px;"><?php esc_attr_e( 'Reset passwords on next login', 'melapress-login-security' ); ?> </label><br>
+						<p class="reset-later-blurb" style="font-size: 12px;"><?php esc_attr_e( 'Users will be able to login with their existing passwords, however they will be required to change there password upon login.', 'melapress-login-security' ); ?></p>
 					</span>
 				</fieldset>
+
+				<br>
+				<fieldset>
+					<p class="description" style="display: inline-block; min-width: 150px; position: relative; top: -3px;"><?php esc_attr_e( 'Additional options: ', 'melapress-login-security' ); ?></p>
+					<span style="display: inline-table; margin-left: 10px; max-width: 70%;">
+						<input type="checkbox" id="send_reset_email" name="send_email" value="send-email" checked>
+						<label for="send_reset_email"><?php esc_attr_e( 'Send email to users when resetting.', 'melapress-login-security' ); ?></label><br>
+						<p class="reset-now-blurb" style="font-size: 12px;"><?php esc_attr_e( 'Check this will send an email notification to each user either explaining that the password has been reset, or thay they will need to reset when they next login, depending on your chosen \'reset processing\' selection.', 'melapress-login-security' ); ?></p>
+
+						<input type="checkbox" id="terminate_sessions_on_reset" name="reset_self" value="reset-self" checked>
+						<label for="terminate_sessions_on_reset"><?php esc_attr_e( 'Terminate sessions for reset users', 'melapress-login-security' ); ?></label><br>
+						<p class="reset-now-blurb" style="font-size: 12px;"><?php esc_attr_e( 'Any currently logged in users will have their sessions terminated right away.', 'melapress-login-security' ); ?></p>
+
+						<input type="checkbox" id="include_reset_self" name="reset_self" value="reset-self">
+						<label for="include_reset_self"><?php esc_attr_e( 'Include yourself in password reset', 'melapress-login-security' ); ?></label><br>
+
+					</span>
+				</fieldset>
+
+				<br>
+				<fieldset>
+				
+				</fieldset>
+
+				<br>
+				<fieldset>
+				</fieldset>
+				
+				
 				<br>	
 			</div>
 			<div>

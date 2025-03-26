@@ -40,7 +40,7 @@ require_once 'sidebar.php';
 	<p><?php esc_html_e( 'You can post your question on our support forum or send us an email for 1 to 1 support. Email support is provided to both free and premium plugin users.', 'melapress-login-security' ); ?></p>
 	<div class="btn">
 		<a href="<?php echo esc_url( 'https://wordpress.org/support/plugin/melapress-login-security/' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Free support forum', 'melapress-login-security' ); ?></a>
-		<a href="<?php echo esc_url( 'https://www.melapress.com/support/submit-ticket/?utm_source=plugins&utm_medium=link&utm_campaign=mls' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Free email support', 'melapress-login-security' ); ?></a>
+		<a href="<?php echo esc_url( 'https://melapress.com/support/submit-ticket/?utm_source=plugins&utm_medium=link&utm_campaign=mls' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Free email support', 'melapress-login-security' ); ?></a>
 	</div>
 	<br>
 	<!-- End -->
@@ -65,7 +65,7 @@ require_once 'sidebar.php';
 	</div>
 	<p><?php esc_html_e( 'Have you encountered or noticed any issues while using the MelaPress Login Security plugin? Or do you want to report something to us?', 'melapress-login-security' ); ?></p>
 	<div class="btn">
-		<a href="<?php echo esc_url( 'https://www.melapress.com/support/submit-ticket/?utm_source=plugins&utm_medium=link&utm_campaign=mlse' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Open support ticket', 'melapress-login-security' ); ?></a>
+		<a href="<?php echo esc_url( 'https://melapress.com/support/submit-ticket/?utm_source=plugins&utm_medium=link&utm_campaign=mlse' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Open support ticket', 'melapress-login-security' ); ?></a>
 		<a href="<?php echo esc_url( 'https://melapress.com/contact/?utm_source=plugins&utm_medium=link&utm_campaign=mls' ); ?>" class="button" target="_blank"><?php esc_html_e( 'Contact Us', 'melapress-login-security' ); ?></a>
 	</div>
 	<!-- End -->

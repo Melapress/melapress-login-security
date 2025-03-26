@@ -39,21 +39,6 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		}
 
 		/**
-		 * Redirect user after successful.
-		 *
-		 * @param object $user_login Current user login.
-		 * @param object $user User object.
-		 *
-		 * @return void
-		 *
-		 * @since 2.0.0
-		 */
-		public function ppm_first_time_login( $user_login, $user ) {
-			$user_profile = new \MLS\User_Profile();
-			$user_profile->ppm_handle_login_based_resets( $user_login, $user, 'new-user' );
-		}
-
-		/**
 		 * Override login_redirect to ensure we are not taken to a custom page.
 		 *
 		 * @param  string  $redirect_to - Current redirect.
@@ -66,12 +51,22 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		 */
 		public function override_login_redirects( $redirect_to, $requested_redirect_to, $user ) {
 			if ( ! empty( $redirect_to ) && is_a( $user, '\WP_User' ) ) {
+				if ( get_user_meta( $user->ID, 'mls_temp_user', true ) ) {
+					return $redirect_to;
+				}
 
 				$reset            = new \MLS\MLS_Reset_Passwords();
 				$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
 				$mls              = \MLS_Core::get_instance();
 
-				if ( $verify_reset_key && ! $verify_reset_key->errors ) {
+				if ( $verify_reset_key ) {
+					if ( isset( $verify_reset_key->errors['invalid_key'] ) ) {
+						$reset_key                    = \MLS\User_Profile::generate_new_reset_key( $user->ID );
+						$verify_reset_key             = check_password_reset_key( $reset_key, $user->user_login );
+						$verify_reset_key->reset_key  = $reset_key;
+						$verify_reset_key->user_login = $user->user_login;
+					}
+
 					$mls->handle_user_redirection( $verify_reset_key, false, true );
 				}
 			}

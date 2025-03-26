@@ -70,12 +70,43 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 										</span>
 									</legend>
 									<label for="ppm-send-summary-email">
-										<input name="_ppm_options[send_summary_email]" type="checkbox" id="ppm-send-summary-email"
+										<input name="mls_options[send_summary_email]" type="checkbox" id="ppm-send-summary-email"
 												value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$options->mls_setting->send_summary_email ) ); ?>/>
 												<?php esc_html_e( 'Enable weekly summary emails.', 'melapress-login-security' ); ?>
 												<p class="description">
 													<?php esc_html_e( 'Send me a weekly summary of newly inactive and blocked users, and those whom have reset their password in the last week. Uses from/default address set below.', 'melapress-login-security' ); ?>
 												</p>
+									</label>
+								</fieldset>
+							</td>
+						</tr>
+
+						<tr valign="top">
+							<th scope="row">
+								<?php esc_html_e( 'Weekly Summary day', 'melapress-login-security' ); ?>
+							</th>
+							<td>
+								<fieldset>
+									<label for="ppm-send-summary-email-day">
+									<select id="reset-role-select" name="mls_options[send_summary_email_day]">
+										<?php
+										$days = array(
+											'Sunday',
+											'Monday',
+											'Tuesday',
+											'Wednesday',
+											'Thursday',
+											'Friday',
+											'Saturday',
+										);
+										foreach ( $days as $day ) {
+											echo '<option value="' . esc_attr( strtolower( $day ) ) . '" ' . selected( strtolower( $day ), self::$options->mls_setting->send_summary_email_day, false ) . '>' . wp_kses_post( $day ) . '</option>';
+										}
+										?>
+									</select>
+										<p class="description">
+											<?php esc_html_e( 'Select which day the summary should send.', 'melapress-login-security' ); ?>
+										</p>
 									</label>
 								</fieldset>
 							</td>
@@ -88,7 +119,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 							<td>
 								<fieldset>
 									<input type="text" id="ppm-exempted" style="float: left; display: block; width: 250px;">
-									<input type="hidden" id="ppm-exempted-users" name="_ppm_options[exempted][users]" value="<?php echo ! empty( self::$options->mls_setting->exempted['users'] ) ? esc_attr( htmlentities( wp_json_encode( self::$options->mls_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
+									<input type="hidden" id="ppm-exempted-users" name="mls_options[exempted][users]" value="<?php echo ! empty( self::$options->mls_setting->exempted['users'] ) ? esc_attr( htmlentities( wp_json_encode( self::$options->mls_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
 									<p class="description" style="clear:both;">
 										<?php
 										esc_html_e( 'Users in this list will be exempted from all the policies.', 'melapress-login-security' );
@@ -127,7 +158,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 										</span>
 									</legend>
 									<label for="ppm-terminate-session-password">
-										<input name="_ppm_options[terminate_session_password]" type="checkbox" id="ppm-terminate-session-password"
+										<input name="mls_options[terminate_session_password]" type="checkbox" id="ppm-terminate-session-password"
 											value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$options->mls_setting->terminate_session_password ) ); ?>/>
 											<?php esc_html_e( 'Terminate session on password expire', 'melapress-login-security' ); ?>
 										<p class="description">
@@ -151,9 +182,9 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 									'hours' => __( 'hours', 'melapress-login-security' ),
 								);
 								?>
-								<input type="number" id="ppm-reset-key-expiry-value" name="_ppm_options[password_reset_key_expiry][value]"
+								<input type="number" id="ppm-reset-key-expiry-value" name="mls_options[password_reset_key_expiry][value]"
 											value="<?php echo esc_attr( self::$options->mls_setting->password_reset_key_expiry['value'] ); ?>" size="4" class="small-text ltr" min="1" required>
-								<select id="ppm-reset-key-expiry-unit" name="_ppm_options[password_reset_key_expiry][unit]">
+								<select id="ppm-reset-key-expiry-unit" name="mls_options[password_reset_key_expiry][unit]">
 									<?php
 									foreach ( $units as $key => $unit ) {
 										?>
@@ -184,8 +215,8 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 											<?php esc_html_e( 'Do not auto-generate a new password on the password reset screen', 'melapress-login-security' ); ?>
 										</span>
 									</legend>
-									<label for="ppm-terminate-session-password">
-										<input name="_ppm_options[stop_pw_generate]" type="checkbox" id="ppm-stop_pw_generate"
+									<label for="ppm-stop_pw_generate">
+										<input name="mls_options[stop_pw_generate]" type="checkbox" id="ppm-stop_pw_generate"
 											value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$options->mls_setting->stop_pw_generate ) ); ?>/>
 											<?php esc_html_e( 'Do not auto-generate a new password on the password reset screen', 'melapress-login-security' ); ?>
 										<p class="description">
@@ -202,8 +233,8 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 							</th>
 							<td>
 								<fieldset>
-									<label for="ppm-multiple-roles-preference">
-										<input name="_ppm_options[users_have_multiple_roles]" type="checkbox" id="ppm-users-have-multiple-roles"
+									<label for="ppm-users-have-multiple-roles">
+										<input name="mls_options[users_have_multiple_roles]" type="checkbox" id="ppm-users-have-multiple-roles"
 												value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$options->mls_setting->users_have_multiple_roles ) ); ?>/>
 										<?php esc_html_e( 'Configure User role priority for password and login policies enforcement', 'melapress-login-security' ); ?>
 										<p class="description">
@@ -254,7 +285,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 										</p>
 									</div>
 
-									<input type="hidden" id="multiple-role-order" name="_ppm_options[multiple_role_order]" value='<?php echo esc_html( $value_string ); ?>' />
+									<input type="hidden" id="multiple-role-order" name="mls_options[multiple_role_order]" value='<?php echo esc_html( $value_string ); ?>' />
 								</fieldset>
 							</td>
 						</tr>
@@ -275,23 +306,23 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 								<fieldset>
 									<?php $use_email = self::$options->mls_setting->use_custom_from_email; ?>
 									<label for="default_email">
-										<input type="radio" name="_ppm_options[use_custom_from_email]" id="default_email" value="default_email" <?php checked( $use_email, 'default_email' ); ?> />
-										<?php esc_html_e( 'Use the default email address', 'melapress-login-security' ); ?> <?php echo \MLS\Emailer::get_default_email_address(); ?>
+										<input type="radio" name="mls_options[use_custom_from_email]" id="default_email" value="default_email" <?php checked( $use_email, 'default_email' ); ?> />
+										<?php esc_html_e( 'Use the default email address', 'melapress-login-security' ); ?> <?php echo wp_kses_post( \MLS\Emailer::get_default_email_address() ); ?>
 									</label>
 									<br>
 									<label for="custom_email">
-										<input type="radio" name="_ppm_options[use_custom_from_email]" id="custom_email" value="custom_email" <?php checked( $use_email, 'custom_email' ); ?> />
+										<input type="radio" name="mls_options[use_custom_from_email]" id="custom_email" value="custom_email" <?php checked( $use_email, 'custom_email' ); ?> />
 										<?php esc_html_e( 'Use another email address', 'melapress-login-security' ); ?>
 									</label>
 									<br>
 									<label for="from-email">
 										<?php esc_html_e( 'Email Address', 'melapress-login-security' ); ?>
-										<input type="email" id="from-email" name="_ppm_options[from_email]" value="<?php echo esc_attr( $from_address ); ?>" />
+										<input type="email" id="from-email" name="mls_options[from_email]" value="<?php echo esc_attr( $from_address ); ?>" />
 									</label>
 									<br>
 									<label for="from-display-name">
 										<?php esc_html_e( 'Display Name', 'melapress-login-security' ); ?>&nbsp;
-										<input type="text" id="from-display-name" name="_ppm_options[from_display_name]" value="<?php echo esc_attr( $from_name ); ?>" />
+										<input type="text" id="from-display-name" name="mls_options[from_display_name]" value="<?php echo esc_attr( $from_name ); ?>" />
 									</label>
 								</fieldset>
 							</td>
@@ -328,7 +359,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 										</span>
 									</legend>
 									<label for="ppm-clear-history">
-										<input name="_ppm_options[clear_history]" type="checkbox" id="ppm-clear-history"
+										<input name="mls_options[clear_history]" type="checkbox" id="ppm-clear-history"
 											value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$options->mls_setting->clear_history ) ); ?>/>
 											<?php esc_html_e( 'Delete database data upon uninstall', 'melapress-login-security' ); ?>
 										<p class="description">

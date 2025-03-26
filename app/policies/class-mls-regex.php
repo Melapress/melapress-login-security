@@ -191,7 +191,7 @@ if ( ! class_exists( '\MLS\MLS_Regex' ) ) {
 					unset( $this->rules['special_chars'] );
 				}
 
-				$excluded_chars                       = ( preg_quote( $this->user_options->excluded_special_chars ) );
+				$excluded_chars                       = ( preg_quote( $this->user_options->excluded_special_chars ) ); // phpcs:ignore WordPress.PHP.PregQuoteDelimiter.Missing
 				$this->rules['exclude_special_chars'] = preg_replace( '/{excluded_chars}/', $excluded_chars, $this->rules['exclude_special_chars'] );
 			} else {
 				unset( $this->rules['exclude_special_chars'] );

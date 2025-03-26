@@ -41,6 +41,8 @@ return array(
     'MLS\\Restrict_Login_Credentials' => $baseDir . '/app/enforcers/class-restrict-login-credentials.php',
     'MLS\\SecurityPrompt' => $baseDir . '/app/modules/class-security-prompt.php',
     'MLS\\Shortcodes' => $baseDir . '/app/enforcers/class-shortcodes.php',
+    'MLS\\TemporaryLogins' => $baseDir . '/app/modules/temporary-logins/class-temporary-logins.php',
+    'MLS\\TemporaryLogins\\Temporary_Logins_Table' => $baseDir . '/app/modules/temporary-logins/class-temporary-logins-table.php',
     'MLS\\UpdateRoutines' => $baseDir . '/app/helpers/class-update-routines.php',
     'MLS\\User_Profile' => $baseDir . '/app/enforcers/class-user-profile.php',
     'MLS\\Utilities\\Validator_Factory' => $baseDir . '/app/Utilities/class-validator-factory.php',

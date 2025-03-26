@@ -43,7 +43,7 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 				add_action( 'personal_options_update', array( $this, 'save_profile_fields' ) );
 				add_action( 'edit_user_profile_update', array( $this, 'save_profile_fields' ) );
 			}
-			add_action( 'wp_login', array( $this, 'ppm_reset_pw_on_login' ), 10, 2 );
+			add_action( 'wp_login', array( $this, 'ppm_reset_pw_on_login' ), 21, 2 );
 		}
 
 		/**
@@ -191,8 +191,19 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, $reset_type );
 
-			// If check reset key exists OR not.
-			if ( $verify_reset_key && ! $verify_reset_key->errors && 'reset-on-login' !== $reset_type ) {
+			if ( ! $verify_reset_key || get_user_meta( $user->ID, 'mls_temp_user', true ) ) {
+				return;
+			}
+
+			if ( ( $verify_reset_key && ! \is_wp_error( $verify_reset_key ) && 'new-user' === $reset_type ) || ( isset( $verify_reset_key->errors['invalid_key'] ) && ! empty( $verify_reset_key->errors['invalid_key'] ) && 'reset-on-login' === $reset_type ) || ( $verify_reset_key && ! $verify_reset_key->errors && 'reset-on-login' === $reset_type ) ) {
+				$reset_key                    = self::generate_new_reset_key( $user->ID );
+				$verify_reset_key             = check_password_reset_key( $reset_key, $user_login );
+				$verify_reset_key->reset_key  = $reset_key;
+				$verify_reset_key->user_login = $user_login;
+
+				$mls->handle_user_redirection( $verify_reset_key );
+
+			} elseif ( $verify_reset_key && ! $verify_reset_key->errors && 'reset-on-login' !== $reset_type ) {
 				// Handle users directly registered using Restrict Content.
 				if ( isset( $_REQUEST['action'] ) && 'rc_process_registration_form' === $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$mls->handle_user_redirection( $verify_reset_key, true );
@@ -210,16 +221,6 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 					// Update user with new key information.
 					$update = update_user_meta( $user->ID, MLS_NEW_USER_META_KEY, $key );
 				}
-				$mls->handle_user_redirection( $verify_reset_key );
-			} elseif ( ( isset( $verify_reset_key->errors['invalid_key'] ) && ! empty( $verify_reset_key->errors['invalid_key'] ) && 'reset-on-login' === $reset_type ) || ( $verify_reset_key && ! $verify_reset_key->errors && 'reset-on-login' === $reset_type ) ) {
-				// If a user has reached this point, they have a valid key in the correct place,
-				// but they have taken too long to reset, so we reset the key and send them back to login.
-
-				$reset_key                    = self::generate_new_reset_key( $user->ID );
-				$verify_reset_key             = check_password_reset_key( $reset_key, $user_login );
-				$verify_reset_key->reset_key  = $reset_key;
-				$verify_reset_key->user_login = $user_login;
-
 				$mls->handle_user_redirection( $verify_reset_key );
 			}
 		}

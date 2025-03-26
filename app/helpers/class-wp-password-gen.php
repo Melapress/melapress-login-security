@@ -83,7 +83,7 @@ if ( ! class_exists( '\MLS\Password_Gen' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function _generate( $should_return = false ) {
+		public function _generate( $should_return = false ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 			// Need to remove the filter as early as possible.
 			if ( doing_filter( 'random_password' ) ) {
 				// remove the filter from wp_generate_password for any other functions.
@@ -162,7 +162,7 @@ if ( ! class_exists( '\MLS\Password_Gen' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public static function _random_string( $length, $chars ) {
+		public static function _random_string( $length, $chars ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 
 			$part_password = '';
 			$chars_count   = mb_strlen( $chars );

@@ -207,7 +207,7 @@ class UnlockInactiveUser implements AjaxInterface {
 				return;
 			}
 			$title = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_unlocked_email_subject' );
-		}			
+		}
 
 		if ( $reset_password ) {
 			$login_page                = OptionsHelper::get_password_reset_page();
@@ -224,7 +224,7 @@ class UnlockInactiveUser implements AjaxInterface {
 		$email_content = \MLS\EmailAndMessageStrings::replace_email_strings( $content, $user_id, $args );
 
 		// Only send the email if applicable.
-		if ( ! isset( $mls->options->mls_setting->disable_user_unlocked_email ) || isset( $mls->options->mls_setting->disable_user_unlocked_email ) && ! \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->disable_user_unlocked_email ) ) {
+		if ( ( ! isset( $mls->options->mls_setting->disable_user_unlocked_email ) ) || ( isset( $mls->options->mls_setting->disable_user_unlocked_email ) && ! \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->disable_user_unlocked_email ) ) ) {
 			// Fire off the mail.
 			\MLS\Emailer::send_email( $user_email, wp_specialchars_decode( $title ), $email_content, $headers );
 		}

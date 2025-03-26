@@ -104,7 +104,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function learndash_login_error_check( $location, $status, $context ) {
+		public function learndash_login_error_check( $location, $status, $context ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			$found = strpos( $location, 'login=failed#login' );
 			if ( false !== $found ) {
 				$username = isset( $_POST['log'] ) ? wp_unslash( $_POST['log'] ) : ''; // phpcs:ignore  WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -125,7 +125,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function pre_login_check( $user, $username, $password ) {
+		public function pre_login_check( $user, $username, $password ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
 			// If WP has already created an error at this point, pass it back and bail.
 			if ( is_wp_error( $user ) ) {
@@ -141,7 +141,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			// Return if this user is exempt.
-			if ( \MLS_Core::is_user_exempted( $user_id ) ) {
+			if ( \MLS_Core::is_user_exempted( $user_id ) || get_user_meta( $user_id, 'mls_reset_pw_on_login', true ) ) {
 				return $user;
 			}
 
@@ -160,7 +160,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 					$time_difference = ( ! empty( $login_attempts_transient ) ) ? $current_time - $login_attempts_transient < $role_options->failed_login_reset_hours * 60 : false;
 
 					// Enough time has passed and the user is allowed to reset.
-					if ( ! $time_difference ) {						
+					if ( ! $time_difference ) {
 						$this->clear_failed_login_data( $userdata->user_login, $userdata );
 					}
 				}
@@ -207,7 +207,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			// Return if this user is exempt.
-			if ( \MLS_Core::is_user_exempted( $userdata->ID ) ) {
+			if ( \MLS_Core::is_user_exempted( $userdata->ID ) || get_user_meta( $userdata->ID, 'mls_reset_pw_on_login', true ) ) {
 				return;
 			}
 
@@ -251,7 +251,25 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 						do_action( 'mls_user_exceeded_max_failed_logins_allowed', $userdata->ID );
 
 						if ( ! isset( $error->errors[ MLS_PREFIX . '_login_attempts_exceeded' ] ) ) {
-							$error_string = __( 'Your account has surpassed the allowed number of login attempts and can no longer log in.', 'melapress-login-security' );
+							if ( 'timed' === $role_options->failed_login_unlock_setting ) {
+								$login_attempts_transient = $this->get_users_stored_transient_data( $user_id, false );
+
+								if ( empty( $login_attempts_transient ) ) {
+									$login_attempts_transient = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+								} else {
+									$login_attempts_transient = $login_attempts_transient[0];
+								}
+
+								$current_time           = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+								$time_difference        = $current_time - $login_attempts_transient;
+								$time_difference        = $role_options->failed_login_reset_hours - round( $time_difference / 60 );
+								$args                   = array();
+								$args['remaining_time'] = $time_difference . ' ' . __( 'minutes', 'melapress-login-security' );
+
+								$error_string = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_exceeded_failed_logins_count_message' ), $userdata->ID, $args );
+							} else {
+								$error_string = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_exceeded_failed_logins_count_message' ), $userdata->ID );
+							}
 							$error->add( MLS_PREFIX . '_login_attempts_exceeded', '<br>' . $error_string );
 							if ( function_exists( 'wc_add_notice' ) ) {
 								\wc_add_notice( $error_string, 'notice' );
@@ -273,8 +291,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 							}
 						}
 					}
-				}
-
+				} // phpcs:ignore Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace
 				// This user has a number of attempts remaining, so lets let them know before they lock themselves out.
 				else {
 					$attempts_left = $max_login_attempts - count( $current_failed_login_attempts );
@@ -347,7 +364,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 				$user_id = ( isset( $user->ID ) ) ? $user->ID : $this->get_user_id_from_login_name( $username );
 			}
 
-			if ( $user_id ) {				
+			if ( $user_id ) {
 				$login_attempts_transient_name = MLS_PREFIX . '_user_' . $user_id . '_failed_login_attempts';
 				$delete_transient              = delete_transient( $login_attempts_transient_name );
 				$unblock_user                  = delete_user_meta( $user_id, MLS_USER_BLOCK_FURTHER_LOGINS_META_KEY );
@@ -503,7 +520,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 					$args['reset_or_continue'] = esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) . "\n";
 				} else {
 					$args['reset_or_continue'] = esc_url_raw( network_site_url( $login_page ) ) . "\n";
-				}			
+				}
 			}
 
 			if ( $reset_password ) {
@@ -542,7 +559,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 					</th>
 					<td>
 						<fieldset>
-							<input name="_ppm_options[failed_login_policies_enabled]" type="checkbox" id="ppm-failed-login-policies-enabled" data-toggle-other-areas=".ppmwp-login-block-options" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->failed_login_policies_enabled ) ); ?>>
+							<input name="mls_options[failed_login_policies_enabled]" type="checkbox" id="ppm-failed-login-policies-enabled" data-toggle-other-areas=".ppmwp-login-block-options" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->failed_login_policies_enabled ) ); ?>>
 							<?php esc_attr_e( 'Activate failed login policies', 'melapress-login-security' ); ?>
 
 							<p class="description">
@@ -559,13 +576,13 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 							</legend>
 							<label for="ppm-failed-login-attempts">
 								<?php esc_attr_e( 'Number of failed login attempts before the User account is locked:', 'melapress-login-security' ); ?>
-								<input type="number" id="ppm-failed-login-attempts" name="_ppm_options[failed_login_attempts]"
+								<input type="number" id="ppm-failed-login-attempts" name="mls_options[failed_login_attempts]"
 											value="<?php echo esc_attr( $settings_tab->failed_login_attempts ); ?>" size="4" class="tiny-text ltr" min="1" required>
 							</label>
 							<br>
 							<label for="ppm-failed-login-reset-attempts">
 								<?php esc_attr_e( 'Time required to reset failed logins count to 0:', 'melapress-login-security' ); ?>
-								<input style="width: 54px;" type="text" id="ppm-failed-login-reset-attempts" name="_ppm_options[failed_login_reset_attempts]"
+								<input style="width: 54px;" type="text" id="ppm-failed-login-reset-attempts" name="mls_options[failed_login_reset_attempts]"
 											value="<?php echo esc_attr( $settings_tab->failed_login_reset_attempts ); ?>" size="6" class="tiny-text ltr" min="60" required>
 											<?php esc_attr_e( ' minutes', 'melapress-login-security' ); ?>
 							</label>
@@ -574,20 +591,27 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 						<fieldset class="ppmwp-login-block-options">
 							<p class="description" style="display: inline;"><?php esc_attr_e( 'When a user is locked: ', 'melapress-login-security' ); ?></p>
 							<span style="display: inline-table;">
-								<input type="radio" id="unlock-by-admin" name="_ppm_options[failed_login_unlock_setting]" value="unlock-by-admin" <?php checked( $settings_tab->failed_login_unlock_setting, 'unlock-by-admin' ); ?>>
+								<input type="radio" id="unlock-by-admin" name="mls_options[failed_login_unlock_setting]" value="unlock-by-admin" <?php checked( $settings_tab->failed_login_unlock_setting, 'unlock-by-admin' ); ?>>
 								<label for="unlock-by-admin"><?php esc_attr_e( 'it can be only unlocked by the administrator', 'melapress-login-security' ); ?></label><br>
-								<input type="radio" id="timed" name="_ppm_options[failed_login_unlock_setting]" value="timed" <?php checked( $settings_tab->failed_login_unlock_setting, 'timed' ); ?>>
-								<label for="timed"><?php esc_attr_e( 'unlock it after', 'melapress-login-security' ); ?> <input type="number" id="ppm-failed-login-reset-hours" name="_ppm_options[failed_login_reset_hours]" value="<?php echo esc_attr( $settings_tab->failed_login_reset_hours ); ?>" size="4" class="tiny-text ltr" min="5" required> <?php esc_attr_e( 'minutes', 'melapress-login-security' ); ?></label>
+								<input type="radio" id="timed" name="mls_options[failed_login_unlock_setting]" value="timed" <?php checked( $settings_tab->failed_login_unlock_setting, 'timed' ); ?>>
+								<label for="timed"><?php esc_attr_e( 'unlock it after', 'melapress-login-security' ); ?> <input type="number" id="ppm-failed-login-reset-hours" name="mls_options[failed_login_reset_hours]" value="<?php echo esc_attr( $settings_tab->failed_login_reset_hours ); ?>" size="4" class="tiny-text ltr" min="5" required> <?php esc_attr_e( 'minutes', 'melapress-login-security' ); ?></label>
 							</span>
 						</fieldset>
 
 						<fieldset class="ppmwp-login-block-options">
 							<label for="ppm-failed-login-reset-on-unblock">
-								<input name="_ppm_options[failed_login_reset_on_unblock]" type="checkbox" id="ppm-failed-login-reset-on-unblock" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->failed_login_reset_on_unblock ) ); ?>>
+								<input name="mls_options[failed_login_reset_on_unblock]" type="checkbox" id="ppm-failed-login-reset-on-unblock" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->failed_login_reset_on_unblock ) ); ?>>
 								<?php esc_html_e( 'Require blocked users to reset password on unblock.', 'melapress-login-security' ); ?>
 							</label>
 							<p class="description">
 								<?php esc_html_e( 'By ticking this checkbox, unblocked users will be required to configure a new password before logging in.', 'melapress-login-security' ); ?>
+							</p>
+							<br>
+							<p class="description">
+								<?php
+									$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notification templates', 'ppw-wp' ) . '</a>';
+								?>
+								<?php echo wp_kses_post( wp_sprintf( /* translators: %s: Link to settings. */ __( 'To customize the notification displayed to users should they fail a prompt, please visit the %s plugin settings.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) ) ); ?>
 							</p>
 						</fieldset>
 					</td>

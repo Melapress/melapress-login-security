@@ -50,13 +50,6 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	protected $cron_interval_identifier;
 
 	/**
-	 * Restrict object instantiation when using unserialize.
-	 *
-	 * @var bool|array
-	 */
-	protected $allowed_batch_data_classes = true;
-
-	/**
 	 * The status set when process is cancelling.
 	 *
 	 * @var int
@@ -72,25 +65,9 @@ abstract class WP_Background_Process extends WP_Async_Request {
 
 	/**
 	 * Initiate new background process.
-	 *
-	 * @param bool|array $allowed_batch_data_classes Optional. Array of class names that can be unserialized. Default true (any class).
 	 */
-	public function __construct( $allowed_batch_data_classes = true ) {
+	public function __construct() {
 		parent::__construct();
-
-		if ( empty( $allowed_batch_data_classes ) && false !== $allowed_batch_data_classes ) {
-			$allowed_batch_data_classes = true;
-		}
-
-		if ( ! is_bool( $allowed_batch_data_classes ) && ! is_array( $allowed_batch_data_classes ) ) {
-			$allowed_batch_data_classes = true;
-		}
-
-		// If allowed_batch_data_classes property set in subclass,
-		// only apply override if not allowing any class.
-		if ( true === $this->allowed_batch_data_classes || true !== $allowed_batch_data_classes ) {
-			$this->allowed_batch_data_classes = $allowed_batch_data_classes;
-		}
 
 		$this->cron_hook_identifier     = $this->identifier . '_cron';
 		$this->cron_interval_identifier = $this->identifier . '_cron_interval';
@@ -213,7 +190,11 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	public function is_cancelled() {
 		$status = get_site_option( $this->get_status_key(), 0 );
 
-		return absint( $status ) === self::STATUS_CANCELLED;
+		if ( absint( $status ) === self::STATUS_CANCELLED ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -238,7 +219,11 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	public function is_paused() {
 		$status = get_site_option( $this->get_status_key(), 0 );
 
-		return absint( $status ) === self::STATUS_PAUSED;
+		if ( absint( $status ) === self::STATUS_PAUSED ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -427,7 +412,7 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	protected function get_batch() {
 		return array_reduce(
 			$this->get_batches( 1 ),
-			static function ( $carry, $batch ) {
+			function ( $carry, $batch ) {
 				return $batch;
 			},
 			array()
@@ -482,13 +467,11 @@ abstract class WP_Background_Process extends WP_Async_Request {
 		$batches = array();
 
 		if ( ! empty( $items ) ) {
-			$allowed_classes = $this->allowed_batch_data_classes;
-
 			$batches = array_map(
-				static function ( $item ) use ( $column, $value_column, $allowed_classes ) {
+				function ( $item ) use ( $column, $value_column ) {
 					$batch       = new stdClass();
 					$batch->key  = $item->{$column};
-					$batch->data = static::maybe_unserialize( $item->{$value_column}, $allowed_classes );
+					$batch->data = maybe_unserialize( $item->{$value_column} );
 
 					return $batch;
 				},
@@ -544,8 +527,8 @@ abstract class WP_Background_Process extends WP_Async_Request {
 				// Let the server breathe a little.
 				sleep( $throttle_seconds );
 
-				// Batch limits reached, or pause or cancel request.
-				if ( $this->time_exceeded() || $this->memory_exceeded() || $this->is_paused() || $this->is_cancelled() ) {
+				if ( $this->time_exceeded() || $this->memory_exceeded() ) {
+					// Batch limits reached.
 					break;
 				}
 			}
@@ -554,7 +537,7 @@ abstract class WP_Background_Process extends WP_Async_Request {
 			if ( empty( $batch->data ) ) {
 				$this->delete( $batch->key );
 			}
-		} while ( ! $this->time_exceeded() && ! $this->memory_exceeded() && ! $this->is_queue_empty() && ! $this->is_paused() && ! $this->is_cancelled() );
+		} while ( ! $this->time_exceeded() && ! $this->memory_exceeded() && ! $this->is_queue_empty() );
 
 		$this->unlock_process();
 
@@ -651,25 +634,6 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	}
 
 	/**
-	 * Get the cron healthcheck interval in minutes.
-	 *
-	 * Default is 5 minutes, minimum is 1 minute.
-	 *
-	 * @return int
-	 */
-	public function get_cron_interval() {
-		$interval = 5;
-
-		if ( property_exists( $this, 'cron_interval' ) ) {
-			$interval = $this->cron_interval;
-		}
-
-		$interval = apply_filters( $this->cron_interval_identifier, $interval );
-
-		return is_int( $interval ) && 0 < $interval ? $interval : 5;
-	}
-
-	/**
 	 * Schedule the cron healthcheck job.
 	 *
 	 * @access public
@@ -679,7 +643,11 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	 * @return mixed
 	 */
 	public function schedule_cron_healthcheck( $schedules ) {
-		$interval = $this->get_cron_interval();
+		$interval = apply_filters( $this->cron_interval_identifier, 5 );
+
+		if ( property_exists( $this, 'cron_interval' ) ) {
+			$interval = apply_filters( $this->cron_interval_identifier, $this->cron_interval );
+		}
 
 		if ( 1 === $interval ) {
 			$display = __( 'Every Minute' );
@@ -722,7 +690,7 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	 */
 	protected function schedule_event() {
 		if ( ! wp_next_scheduled( $this->cron_hook_identifier ) ) {
-			wp_schedule_event( time() + ( $this->get_cron_interval() * MINUTE_IN_SECONDS ), $this->cron_interval_identifier, $this->cron_hook_identifier );
+			wp_schedule_event( time(), $this->cron_interval_identifier, $this->cron_hook_identifier );
 		}
 	}
 
@@ -762,25 +730,4 @@ abstract class WP_Background_Process extends WP_Async_Request {
 	 * @return mixed
 	 */
 	abstract protected function task( $item );
-
-	/**
-	 * Maybe unserialize data, but not if an object.
-	 *
-	 * @param mixed      $data            Data to be unserialized.
-	 * @param bool|array $allowed_classes Array of class names that can be unserialized.
-	 *
-	 * @return mixed
-	 */
-	protected static function maybe_unserialize( $data, $allowed_classes ) {
-		if ( is_serialized( $data ) ) {
-			$options = array();
-			if ( is_bool( $allowed_classes ) || is_array( $allowed_classes ) ) {
-				$options['allowed_classes'] = $allowed_classes;
-			}
-
-			return @unserialize( $data, $options ); // @phpcs:ignore
-		}
-
-		return $data;
-	}
 }
