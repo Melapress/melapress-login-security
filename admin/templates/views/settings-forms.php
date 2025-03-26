@@ -52,14 +52,14 @@ $mls        = melapress_login_security();
 							<td>
 								<fieldset>
 									<label for="ppm-enable_wp_reset_form">
-										<input name="_ppm_options[enable_wp_reset_form]" type="checkbox" id="ppm-enable_wp_reset_form"
+										<input name="mls_options[enable_wp_reset_form]" type="checkbox" id="ppm-enable_wp_reset_form"
 												value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_reset_form ) ); ?>/>
 												<?php esc_attr_e( 'This website\'s password reset page', 'melapress-login-security' ); ?>
 									</label>
 								</fieldset>
 								<fieldset>
 									<label for="ppm-enable_wp_profile_form">
-										<input name="_ppm_options[enable_wp_profile_form]" type="checkbox" id="ppm-enable_wp_profile_form"
+										<input name="mls_options[enable_wp_profile_form]" type="checkbox" id="ppm-enable_wp_profile_form"
 												value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_profile_form ) ); ?>/>
 												<?php esc_attr_e( 'User profile page', 'melapress-login-security' ); ?>
 									</label>

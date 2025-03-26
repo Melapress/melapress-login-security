@@ -595,7 +595,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					'utm_medium'   => 'link',
 					'utm_campaign' => 'mls',
 				),
-				'https://www.melapress.com/support/kb/'
+				'https://melapress.com/support/kb/'
 			) . '">' . __( 'Docs', 'melapress-login-security' ) . '</a>';
 			array_push( $new_links, $docs_link );
 
@@ -674,7 +674,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			);
 
 			add_action( "load-$forms_hook_submenu", array( __CLASS__, 'admin_enqueue_scripts' ) );
-			add_action( "admin_head-$forms_hook_submenu", array( __CLASS__, 'process_forms' ) );
+			add_action( "admin_head-$forms_hook_submenu", array( __CLASS__, 'process' ) );
 
 			// Add admin submenu page for form placement.
 			$hide_login_submenu = add_submenu_page(
@@ -691,13 +691,26 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			);
 
 			add_action( "load-$hide_login_submenu", array( __CLASS__, 'admin_enqueue_scripts' ) );
-			add_action( "admin_head-$hide_login_submenu", array( __CLASS__, 'process_hide_login' ) );
+			add_action( "admin_head-$hide_login_submenu", array( __CLASS__, 'process' ) );
 
 
 			/* @free:start */
 			$hook_upgrade_submenu = add_submenu_page( MLS_MENU_SLUG, esc_html__( 'Premium Features ➤', 'melapress-login-security' ), esc_html__( 'Premium Features ➤', 'melapress-login-security' ), 'manage_options', 'mls-upgrade', array( __CLASS__, 'ppm_display_upgrade_page' ), 3 );
 			add_action( "load-$hook_upgrade_submenu", array( __CLASS__, 'help_page_enqueue_scripts' ) );
 			/* @free:end */
+
+			if ( ! is_multisite() ) {
+				// Add admin submenu page for temp logins.
+				$temp_logins_submenu = add_submenu_page(
+					MLS_MENU_SLUG,
+					__( 'Temporary Logins', 'melapress-login-security' ),
+					__( 'Temporary Logins', 'melapress-login-security' ),
+					'manage_options',
+					'mls-temp-logins',
+					'',
+					5
+				);
+			}
 		}
 
 		/**
@@ -774,38 +787,6 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		}
 
 		/**
-		 * Process forms settings.
-		 *
-		 * @return void
-		 *
-		 * @since 2.0.0
-		 */
-		public static function process_forms() {
-			// nonce checked later before processing happens.
-			$is_user_action = isset( $_POST[ MLS_PREFIX . '_nonce' ] ) ? true : false; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-			if ( $is_user_action ) {
-				self::save( 'forms_and_placement' );
-			}
-		}
-
-		/**
-		 * Process hide login settings.
-		 *
-		 * @return void
-		 *
-		 * @since 2.0.0
-		 */
-		public static function process_hide_login() {
-			// nonce checked later before processing happens.
-			$is_user_action = isset( $_POST[ MLS_PREFIX . '_nonce' ] ) ? true : false; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-			if ( $is_user_action ) {
-				self::save( 'hide_login' );
-			}
-		}
-
-		/**
 		 * Render PPM dashboard screen
 		 *
 		 * @return void
@@ -836,9 +817,21 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public static function save( $settings_type = '' ) {
-			// PPM Object.
-			$mls = melapress_login_security();
+		public static function save( $settings_type = '' ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
+			$known_contexts = array(
+				'mls-settings',
+				'mls-policies',
+				'mls-forms',
+				'mls-reports',
+				'mls-locked-users',
+				'mls-hide-login',
+			);
+
+			$current_context = isset( $_REQUEST['page'] ) ? sanitize_key( wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			if ( ! $current_context || ! in_array( $current_context, $known_contexts, true ) ) {
+				return;
+			}
 
 			// Validate the nonce.
 			if ( ! self::validate() ) {
@@ -846,14 +839,16 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				return;
 			}
 
+			$mls = melapress_login_security();
+
 			// If check policies inherit or not.
-			if ( isset( $_POST['_ppm_options']['inherit_policies'] ) && sanitize_text_field( wp_unslash( $_POST['_ppm_options']['inherit_policies'] ) ) === 1 ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $_POST['mls_options']['inherit_policies'] ) && sanitize_text_field( wp_unslash( $_POST['mls_options']['inherit_policies'] ) ) === 1 ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				// Get user role.
-				$setting_option = ( isset( $_POST['_ppm_options']['ppm-user-role'] ) && ! empty( $_POST['_ppm_options']['ppm-user-role'] ) ) ? '_' . sanitize_text_field( wp_unslash( $_POST['_ppm_options']['ppm-user-role'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$setting_option = ( isset( $_POST['mls_options']['ppm-user-role'] ) && ! empty( $_POST['mls_options']['ppm-user-role'] ) ) ? '_' . sanitize_text_field( wp_unslash( $_POST['mls_options']['ppm-user-role'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				// Delete site option.
 				delete_site_option( MLS_PREFIX . $setting_option . '_options' );
 				// unset settings.
-				unset( $_POST['_ppm_options'] );
+				unset( $_POST['mls_options'] );
 				// Reassign setting open.
 				self::$setting_tab = (object) $mls->options->inherit;
 				// Success notice.
@@ -861,11 +856,10 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			}
 
 			$post_array = filter_input_array( INPUT_POST );
+			$settings   = isset( $post_array['mls_options'] ) ? $post_array['mls_options'] : array();
 
-			if ( 'forms_and_placement' === $settings_type ) {
-				// Allow empty.
-				$settings = isset( $post_array['_ppm_options'] ) ? $post_array['_ppm_options'] : array();
-
+			// Forms admin area.
+			if ( 'mls-forms' === $current_context ) {
 				$settings['enable_wp_reset_form']          = isset( $settings['enable_wp_reset_form'] );
 				$settings['enable_wp_profile_form']        = isset( $settings['enable_wp_profile_form'] );
 				$settings['enable_wc_pw_reset']            = isset( $settings['enable_wc_pw_reset'] );
@@ -896,14 +890,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				return;
 			}
 
-			if ( ! isset( $_POST['_ppm_options'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				return;
-			}
-
-			$settings = $post_array['_ppm_options'];
-
-			// Save plugin settings.
-			if ( isset( $settings['exempted'] ) ) {
+			// Settings area.
+			if ( 'mls-settings' === $current_context ) {
 				$settings['exempted']['users']                          = self::decode_js_var( $settings['exempted']['users'] );
 				$settings['terminate_session_password']                 = isset( $settings['terminate_session_password'] );
 				$settings['send_summary_email']                         = isset( $settings['send_summary_email'] );
@@ -917,6 +905,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				$settings['disable_user_imported_email']                = isset( $settings['disable_user_imported_email'] );
 				$settings['disable_user_imported_forced_reset_email']   = isset( $settings['disable_user_imported_forced_reset_email'] );
 				$settings['disable_user_unlocked_email']                = isset( $settings['disable_user_unlocked_email'] );
+				$settings['send_plain_text_emails']                     = isset( $settings['send_plain_text_emails'] );
 
 				if ( ! isset( $settings['clear_history'] ) ) {
 					$settings['clear_history'] = 0;
@@ -931,16 +920,16 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 					if ( is_array( $valid_rules ) && ! isset( $valid_rules['typeRule'] ) ) {
 						foreach ( $valid_rules as $field_name => $rule ) {
-							if ( isset( $_POST['_ppm_options'][ $key ][ $field_name ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-								if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ][ $field_name ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+							if ( isset( $_POST['mls_options'][ $key ][ $field_name ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['mls_options'][ $key ][ $field_name ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 									self::notice( 'admin_save_error_notice' );
 									$ok_to_save = false;
 								}
 							}
 						}
-					} elseif ( isset( $_POST['_ppm_options'][ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					} elseif ( isset( $_POST['mls_options'][ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 							$rule = $valid_rules;
-						if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+						if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['mls_options'][ $key ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 							self::notice( 'admin_save_error_notice' );
 							$ok_to_save = false;
 						}
@@ -957,11 +946,13 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				return;
 			}
 
-			if ( 'hide_login' === $settings_type ) {
-				$settings['custom_login_url']         = isset( $settings['custom_login_url'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_url'] ) : $mls->options->mls_setting->custom_login_url;
-				$settings['custom_login_redirect']    = isset( $settings['custom_login_redirect'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_redirect'] ) : $mls->options->mls_setting->custom_login_redirect;
-				$settings['enable_gdpr_banner']       = isset( $settings['enable_gdpr_banner'] );
-				$settings['enable_login_allowed_ips'] = isset( $settings['enable_login_allowed_ips'] );
+			// Login hardening.
+			if ( 'mls-hide-login' === $current_context ) {
+				$settings['custom_login_url']                 = isset( $settings['custom_login_url'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_url'] ) : $mls->options->mls_setting->custom_login_url;
+				$settings['custom_login_redirect']            = isset( $settings['custom_login_redirect'] ) ? preg_replace( '/[^-\w,]/', '', $settings['custom_login_redirect'] ) : $mls->options->mls_setting->custom_login_redirect;
+				$settings['enable_gdpr_banner']               = isset( $settings['enable_gdpr_banner'] );
+				$settings['enable_login_allowed_ips']         = isset( $settings['enable_login_allowed_ips'] );
+				$settings['enable_failure_message_overrides'] = isset( $settings['enable_failure_message_overrides'] );
 
 				$mls_setting = OptionsHelper::recursive_parse_args( $settings, $mls->options->mls_setting );
 
@@ -971,268 +962,211 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				return;
 			}
 
-			/**
-			 * Boolean type setting keys we can loop.
-			 */
-			$boolean_setting_keys = array(
-				'master_switch',
-				'enforce_password',
-				'change_initial_password',
-				'timed_logins',
-				'restrict_login_ip',
-				'notify_password_expiry',
-				'disable_self_reset',
-				'locked_user_disable_self_reset',
-				'failed_login_policies_enabled',
-				'failed_login_reset_on_unblock',
-			);
+			// Policies area.
+			if ( 'mls-policies' === $current_context ) {
 
-			/**
-			 * Save Tab options
-			 */
-			foreach ( $boolean_setting_keys as $setting_key ) {
-				if ( ! isset( $_POST['_ppm_options'][ $setting_key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$_POST['_ppm_options'][ $setting_key ] = 0;
+				if ( ! isset( $_POST['mls_options']['disable_self_reset_message'] ) || empty( $_POST['mls_options']['disable_self_reset_message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$_POST['mls_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'melapress-login-security' );
 				}
-			}
 
-			if ( ! isset( $_POST['_ppm_options']['disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['disable_self_reset_message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'melapress-login-security' );
-			}
+				if ( ! isset( $_POST['mls_options']['locked_user_disable_self_reset_message'] ) || empty( $_POST['mls_options']['locked_user_disable_self_reset_message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$_POST['mls_options']['locked_user_disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'melapress-login-security' );
+				}
 
-			if ( ! isset( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) || empty( $_POST['_ppm_options']['locked_user_disable_self_reset_message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['locked_user_disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'melapress-login-security' );
-			}
+				if ( ! isset( $_POST['mls_options']['user_unlocked_email_title'] ) || empty( $_POST['mls_options']['user_unlocked_email_title'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$_POST['mls_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'melapress-login-security' );
+				}
 
-			if ( ! isset( $_POST['_ppm_options']['user_unlocked_email_title'] ) || empty( $_POST['_ppm_options']['user_unlocked_email_title'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['disable_self_reset_message'] = __( 'You are not allowed to reset your password. Please contact the website administrator.', 'melapress-login-security' );
-			}
-
-			if ( ! isset( $_POST['_ppm_options']['inactive_users_enabled'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['inactive_users_enabled'] = 0;
-			} else {
-				$_POST['_ppm_options']['inactive_users_enabled'] = 1;
-				// add the current user to the inactive exempt list if that list
-				// is empty.
-				$added = OptionsHelper::add_initial_user_to_exempt_list( wp_get_current_user() );
-				if ( $added ) {
-					$args = array(
-						'page' => 'mls-settings',
-					);
-					$url  = add_query_arg( $args, network_admin_url( 'admin.php' ) );
-					// add details to output for the modal popup.
-					self::$extra_notice_details[] = array(
-						'title'    => __( 'User Added to Exempt List', 'melapress-login-security' ),
-						'message'  => __( 'Your user has been exempted from the all policies since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin\'s settings.', 'melapress-login-security' ),
-						'redirect' => add_query_arg(
-							array(
-								'page' => 'mls-settings',
-								'tab'  => 'setting',
+				if ( ! isset( $_POST['mls_options']['inactive_users_enabled'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$_POST['mls_options']['inactive_users_enabled'] = 0;
+				} else {
+					$_POST['mls_options']['inactive_users_enabled'] = 1;
+					// add the current user to the inactive exempt list if that list
+					// is empty.
+					$added = OptionsHelper::add_initial_user_to_exempt_list( wp_get_current_user() );
+					if ( $added ) {
+						$args = array(
+							'page' => 'mls-settings',
+						);
+						$url  = add_query_arg( $args, network_admin_url( 'admin.php' ) );
+						// add details to output for the modal popup.
+						self::$extra_notice_details[] = array(
+							'title'    => __( 'User Added to Exempt List', 'melapress-login-security' ),
+							'message'  => __( 'Your user has been exempted from the all policies since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin\'s settings.', 'melapress-login-security' ),
+							'redirect' => add_query_arg(
+								array(
+									'page' => 'mls-settings',
+									'tab'  => 'setting',
+								),
+								network_admin_url( 'admin.php' )
 							),
-							network_admin_url( 'admin.php' )
-						),
-						'buttons'  => array(
-							array(
-								'text'    => __( 'View settings', 'melapress-login-security' ),
-								'class'   => 'button-primary',
-								'onClick' => 'mls_close_thickbox("' . $url . '")',
+							'buttons'  => array(
+								array(
+									'text'    => __( 'View settings', 'melapress-login-security' ),
+									'class'   => 'button-primary',
+									'onClick' => 'mls_close_thickbox("' . $url . '")',
+								),
 							),
-						),
-					);
-				}
-
-				if ( empty( $_POST['_ppm_options']['inactive_users_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					self::notice( 'admin_save_error_required_field_notice' );
-					$ok_to_save = false;
-				} else {
-					$_POST['_ppm_options']['inactive_users_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['_ppm_options']['inactive_users_expiry']['value'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				}
-			}
-
-			if ( ! isset( $_POST['_ppm_options']['enable_sessions_policies'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['enable_sessions_policies'] = 0;
-			} else {
-				$_POST['_ppm_options']['enable_sessions_policies'] = 1;
-				if ( empty( $_POST['_ppm_options']['default_session_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					self::notice( 'admin_save_error_required_field_notice' );
-					$ok_to_save = false;
-				} else {
-					$_POST['_ppm_options']['default_session_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['_ppm_options']['default_session_expiry']['value'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				}
-				if ( empty( $_POST['_ppm_options']['remember_session_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					self::notice( 'admin_save_error_required_field_notice' );
-					$ok_to_save = false;
-				} else {
-					$_POST['_ppm_options']['remember_session_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['_ppm_options']['remember_session_expiry']['value'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				}
-			}
-
-			if ( ! isset( $_POST['_ppm_options']['inactive_users_reset_on_unlock'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['inactive_users_reset_on_unlock'] = 0;
-			} else {
-				$_POST['_ppm_options']['inactive_users_reset_on_unlock'] = 1;
-			}			
-
-			// Exclude special characters.
-			if ( ! isset( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['ui_rules']['exclude_special_chars'] = 0;
-			}
-
-			// Check inputs for emptyness.
-			$ok_to_save = true;
-			if ( ( isset( $_POST['_ppm_options']['min_length'] ) && empty( $_POST['_ppm_options']['min_length'] ) ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				( isset( $_POST['_ppm_options']['password_expiry'] ) && empty( $_POST['_ppm_options']['password_expiry']['value'] ) && intval( $_POST['_ppm_options']['password_expiry']['value'] ) !== 0 ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				( isset( $_POST['_ppm_options']['password_history'] ) && empty( $_POST['_ppm_options']['password_history'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				) {
-				self::notice( 'admin_save_error_required_field_notice' );
-				$ok_to_save = false;
-			}
-
-			if ( isset( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) && intval( $_POST['_ppm_options']['ui_rules']['exclude_special_chars'] ) !== 0 && empty( $_POST['_ppm_options']['excluded_special_chars'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				self::notice( 'admin_save_error_required_field_notice' );
-				$ok_to_save = false;
-			}
-
-			$min_req_security_questions = isset( $_POST['_ppm_options']['min_answered_needed_count'] ) ? intval( $_POST['_ppm_options']['min_answered_needed_count'] ) : 3; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-			if ( isset( $_POST['_ppm_options']['enable_sessions_policies'] ) && ! empty( $_POST['_ppm_options']['enable_sessions_policies'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				if ( isset( $_POST['_ppm_options']['enabled_questions'] ) && ! empty( $_POST['_ppm_options']['enabled_questions'] ) && count( $_POST['_ppm_options']['enabled_questions'] ) < $min_req_security_questions ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					self::notice( 'admin_save_error_not_enough_questions_provided_notice' );
-					$ok_to_save = false;
-				}
-			}
-
-			/**
-			 * Validates the input based on the rules defined in the @see MLS_Options::$default_options_validation_rules
-			 */
-			foreach ( \MLS\MLS_Options::$default_options_validation_rules as $key => $valid_rules ) {
-
-				if ( is_array( $valid_rules ) && ! isset( $valid_rules['typeRule'] ) ) {
-					foreach ( $valid_rules as $field_name => $rule ) {
-						if ( isset( $_POST['_ppm_options'][ $key ][ $field_name ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-							if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ][ $field_name ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-								self::notice( 'admin_save_error_notice' );
-								$ok_to_save = false;
-							}
-						}
+						);
 					}
-				} elseif ( isset( $_POST['_ppm_options'][ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-						$rule = $valid_rules;
-					if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['_ppm_options'][ $key ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-						self::notice( 'admin_save_error_notice' );
+					if ( empty( $_POST['mls_options']['inactive_users_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+						self::notice( 'admin_save_error_required_field_notice' );
+						$ok_to_save = false;
+					} else {
+						$_POST['mls_options']['inactive_users_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['mls_options']['inactive_users_expiry']['value'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					}
+				}
+
+				if ( ! isset( $_POST['mls_options']['enable_sessions_policies'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$_POST['mls_options']['enable_sessions_policies'] = 0;
+				} else {
+					$_POST['mls_options']['enable_sessions_policies'] = 1;
+					if ( empty( $_POST['mls_options']['default_session_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+						self::notice( 'admin_save_error_required_field_notice' );
+						$ok_to_save = false;
+					} else {
+						$_POST['mls_options']['default_session_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['mls_options']['default_session_expiry']['value'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					}
+					if ( empty( $_POST['mls_options']['remember_session_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+						self::notice( 'admin_save_error_required_field_notice' );
+						$ok_to_save = false;
+					} else {
+						$_POST['mls_options']['remember_session_expiry']['value'] = sanitize_text_field( wp_unslash( $_POST['mls_options']['remember_session_expiry']['value'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					}
+				}
+
+				// Check inputs for emptyness.
+				$ok_to_save = true;
+				if ( ( isset( $_POST['mls_options']['min_length'] ) && empty( $_POST['mls_options']['min_length'] ) ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					( isset( $_POST['mls_options']['password_expiry'] ) && empty( $_POST['mls_options']['password_expiry']['value'] ) && intval( $_POST['mls_options']['password_expiry']['value'] ) !== 0 ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					( isset( $_POST['mls_options']['password_history'] ) && empty( $_POST['mls_options']['password_history'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					) {
+					self::notice( 'admin_save_error_required_field_notice' );
+					$ok_to_save = false;
+				}
+
+				if ( isset( $_POST['mls_options']['ui_rules']['exclude_special_chars'] ) && intval( $_POST['mls_options']['ui_rules']['exclude_special_chars'] ) !== 0 && empty( $_POST['mls_options']['excluded_special_chars'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					self::notice( 'admin_save_error_required_field_notice' );
+					$ok_to_save = false;
+				}
+
+				$min_req_security_questions = isset( $_POST['mls_options']['min_answered_needed_count'] ) ? intval( $_POST['mls_options']['min_answered_needed_count'] ) : 3; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+				if ( isset( $_POST['mls_options']['enable_sessions_policies'] ) && ! empty( $_POST['mls_options']['enable_sessions_policies'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					if ( isset( $_POST['mls_options']['enabled_questions'] ) && ! empty( $_POST['mls_options']['enabled_questions'] ) && count( $_POST['mls_options']['enabled_questions'] ) < $min_req_security_questions ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+						self::notice( 'admin_save_error_not_enough_questions_provided_notice' );
 						$ok_to_save = false;
 					}
 				}
-			}
 
-			$bool_rules = array(
-				'special_chars',
-				'mix_case',
-				'numeric',
-				'inactive_users_enabled',
-				'exclude_special_chars',
-			);
+				/**
+				 * Validates the input based on the rules defined in the @see MLS_Options::$default_options_validation_rules
+				 */
+				foreach ( \MLS\MLS_Options::$default_options_validation_rules as $key => $valid_rules ) {
 
-			$post_array  = filter_input_array( INPUT_POST );
-			$mls_options = $post_array['_ppm_options'];
+					if ( is_array( $valid_rules ) && ! isset( $valid_rules['typeRule'] ) ) {
+						foreach ( $valid_rules as $field_name => $rule ) {
+							if ( isset( $_POST['mls_options'][ $key ][ $field_name ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+								if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['mls_options'][ $key ][ $field_name ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+									self::notice( 'admin_save_error_notice' );
+									$ok_to_save = false;
+								}
+							}
+						}
+					} elseif ( isset( $_POST['mls_options'][ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-			// Ensure slashes (which can be added when a " is excluded) are removed prior to saving.
-			if ( isset( $mls_options['excluded_special_chars'] ) ) {
-				$mls_options['excluded_special_chars'] = stripslashes( $mls_options['excluded_special_chars'] );
-			}
-
-			foreach ( $bool_rules as $rule ) {
-				$mls_options['ui_rules'][ $rule ] = isset( $mls_options['ui_rules'][ $rule ] ) && ! in_array( $mls_options['ui_rules'][ $rule ], array( 0, '0', false, '' ), true );
-			}
-
-			$main_bool_options     = array( 'master_switch', 'enforce_password', 'inherit_policies', 'change_initial_password', 'timed_logins', 'restrict_login_ip', 'disable_self_reset', 'locked_user_disable_self_reset', 'inactive_users_enabled', 'inactive_users_reset_on_unlock', 'failed_login_policies_enabled', 'failed_login_reset_on_unblock', 'notify_password_expiry', 'activate_password_policies', 'activate_password_recycle_policies' );
-			$ui_rules_bool_options = array( 'history', 'username', 'length', 'numeric', 'mix_case', 'special_chars', 'exclude_special_chars' );
-			$pw_rules_bool_options = array( 'length', 'numeric', 'upper_case', 'lower_case', 'special_chars', 'exclude_special_chars' );
-
-			// Turn bools into yes/no.
-			$mls_options_updated = array();
-			// Process main options.
-			foreach ( $main_bool_options as $main_bool ) {
-				$bool_to_check                     = ( isset( $mls_options[ $main_bool ] ) ) ? $mls_options[ $main_bool ] : false;
-				$mls_options_updated[ $main_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
-			}
-			// Process UI options.
-			foreach ( $ui_rules_bool_options as $ui_bool ) {
-				$bool_to_check                               = ( isset( $mls_options['ui_rules'][ $ui_bool ] ) ) ? $mls_options['ui_rules'][ $ui_bool ] : false;
-				$mls_options_updated['ui_rules'][ $ui_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
-			}
-			// Process PW options.
-			foreach ( $pw_rules_bool_options as $pw_rules_bool ) {
-				$bool_to_check                                  = ( isset( $mls_options['rules'][ $pw_rules_bool ] ) ) ? $mls_options['rules'][ $pw_rules_bool ] : false;
-				$mls_options_updated['rules'][ $pw_rules_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
-			}
-
-			if ( isset( $_POST['_ppm_options']['notify_password_expiry_days'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				if ( intval( $_POST['_ppm_options']['notify_password_expiry_days'] ) >= intval( $_POST['_ppm_options']['password_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					$mls_options_updated['notify_password_expiry_days'] = intval( $_POST['_ppm_options']['password_expiry']['value'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					if ( 0 === $mls_options_updated['notify_password_expiry_days'] ) {
-						$mls_options_updated['notify_password_expiry'] = false;
+							$rule = $valid_rules;
+						if ( ! Validator_Factory::validate( sanitize_text_field( wp_unslash( $_POST['mls_options'][ $key ] ) ), $rule ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+							self::notice( 'admin_save_error_notice' );
+							$ok_to_save = false;
+						}
 					}
 				}
-				if ( 'hours' === $_POST['_ppm_options']['password_expiry']['unit'] && 'days' === $_POST['_ppm_options']['notify_password_expiry_unit'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Missing
-					$mls_options_updated['notify_password_expiry_unit'] = 'hours';
+
+				// Ensure slashes (which can be added when a " is excluded) are removed prior to saving.
+				if ( isset( $settings['excluded_special_chars'] ) ) {
+					$settings['excluded_special_chars'] = stripslashes( $settings['excluded_special_chars'] );
 				}
-			}
 
-			if ( ! isset( $_POST['_ppm_options']['activate_password_expiration_policies'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$_POST['_ppm_options']['activate_password_expiration_policies'] = 0;
-			} else {
-				$_POST['_ppm_options']['activate_password_expiration_policies'] = 1;
-				// add the current user to the inactive exempt list if that list
-				// is empty.
-				$added = OptionsHelper::add_initial_user_to_exempt_list( wp_get_current_user() );
-				if ( $added ) {
-					$args = array(
-						'page' => 'mls-settings',
-					);
-					$url  = add_query_arg( $args, network_admin_url( 'admin.php' ) );
-					// add details to output for the modal popup.
-					self::$extra_notice_details[] = array(
-						'title'    => __( 'User Added to Exempt List', 'melapress-login-security' ),
-						'message'  => __( 'Your user has been exempted from the all policies since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin\'s settings.', 'melapress-login-security' ),
-						'redirect' => add_query_arg(
-							array(
-								'page' => 'mls-settings',
-								'tab'  => 'setting',
-							),
-							network_admin_url( 'admin.php' )
-						),
-						'buttons'  => array(
-							array(
-								'text'    => __( 'View settings', 'melapress-login-security' ),
-								'class'   => 'button-primary',
-								'onClick' => 'mls_close_thickbox("' . $url . '")',
-							),
-						),
-					);
+				// Turn bools into yes/no.
+				$settings_updated = array();
+				// Process main options.
+				foreach ( \MLS\MLS_Options::$policy_boolean_options as $main_bool ) {
+					$bool_to_check                  = ( isset( $settings[ $main_bool ] ) ) ? $settings[ $main_bool ] : false;
+					$settings_updated[ $main_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
 				}
-			}
+				// Process UI options.
+				foreach ( \MLS\MLS_Options::$password_ui_boolean_options as $ui_bool ) {
+					$settings['ui_rules'][ $ui_bool ]         = isset( $settings['ui_rules'][ $ui_bool ] ) && ! in_array( $settings['ui_rules'][ $ui_bool ], array( 0, '0', false, '' ), true );
+					$bool_to_check                            = ( isset( $settings['ui_rules'][ $ui_bool ] ) ) ? $settings['ui_rules'][ $ui_bool ] : false;
+					$settings_updated['ui_rules'][ $ui_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
+				}
+				// Process PW options.
+				foreach ( \MLS\MLS_Options::$password_rules_boolean_options as $pw_rules_bool ) {
+					$bool_to_check                               = ( isset( $settings['rules'][ $pw_rules_bool ] ) ) ? $settings['rules'][ $pw_rules_bool ] : false;
+					$settings_updated['rules'][ $pw_rules_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
+				}
 
-			// Process reset blocked message.
-			$mls_options_updated['disable_self_reset_message']             = ( ! empty( $mls_options['disable_self_reset_message'] ) ) ? sanitize_textarea_field( $mls_options['disable_self_reset_message'] ) : false;
-			$mls_options_updated['locked_user_disable_self_reset_message'] = ( ! empty( $mls_options['locked_user_disable_self_reset_message'] ) ) ? sanitize_textarea_field( $mls_options['locked_user_disable_self_reset_message'] ) : false;
-			$mls_options_updated['deactivated_account_message']            = ( isset( $mls_options['deactivated_account_message'] ) && ! empty( $mls_options['deactivated_account_message'] ) ) ? wp_kses_post( $mls_options['deactivated_account_message'] ) : trim( \MLS\MLS_Options::get_default_account_deactivated_message() );
-			$mls_options_updated['timed_login_message']                    = ( ! empty( $mls_options['timed_login_message'] ) ) ? sanitize_textarea_field( $mls_options['timed_login_message'] ) : false;
-			$mls_options_updated['enable_sessions_policies']               = ( isset( $mls_options['enable_sessions_policies'] ) ) ? true : false;
-			$mls_options_updated['enable_device_policies']                 = ( isset( $mls_options['enable_device_policies'] ) ) ? true : false;
-			$mls_options_updated['enable_security_questions']              = ( isset( $mls_options['enable_security_questions'] ) ) ? true : false;
-			$mls_options_updated['notify_password_reset_on_login']         = ( isset( $mls_options['notify_password_reset_on_login'] ) ) ? true : false;	
-			$mls_options_updated['timed_logins_auto_logout']               = ( isset( $mls_options['timed_logins_auto_logout'] ) ) ? true : false;	
-			
-			
+				if ( isset( $_POST['mls_options']['notify_password_expiry_days'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					if ( intval( $_POST['mls_options']['notify_password_expiry_days'] ) >= intval( $_POST['mls_options']['password_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+						$settings_updated['notify_password_expiry_days'] = intval( $_POST['mls_options']['password_expiry']['value'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+						if ( 0 === $settings_updated['notify_password_expiry_days'] ) {
+							$settings_updated['notify_password_expiry'] = false;
+						}
+					}
+					if ( 'hours' === $_POST['mls_options']['password_expiry']['unit'] && 'days' === $_POST['mls_options']['notify_password_expiry_unit'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Missing
+						$settings_updated['notify_password_expiry_unit'] = 'hours';
+					}
+				}
 
-			$processed_ppm_options = apply_filters( 'mls_pre_option_save_validation', array_merge( $mls_options, $mls_options_updated ) );
+				if ( ! isset( $_POST['mls_options']['activate_password_expiration_policies'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$_POST['mls_options']['activate_password_expiration_policies'] = 0;
+				} else {
+					$_POST['mls_options']['activate_password_expiration_policies'] = 1;
+					// add the current user to the inactive exempt list if that list
+					// is empty.
+					$added = OptionsHelper::add_initial_user_to_exempt_list( wp_get_current_user() );
+					if ( $added ) {
+						$args = array(
+							'page' => 'mls-settings',
+						);
+						$url  = add_query_arg( $args, network_admin_url( 'admin.php' ) );
+						// add details to output for the modal popup.
+						self::$extra_notice_details[] = array(
+							'title'    => __( 'User Added to Exempt List', 'melapress-login-security' ),
+							'message'  => __( 'Your user has been exempted from the all policies since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin\'s settings.', 'melapress-login-security' ),
+							'redirect' => add_query_arg(
+								array(
+									'page' => 'mls-settings',
+									'tab'  => 'setting',
+								),
+								network_admin_url( 'admin.php' )
+							),
+							'buttons'  => array(
+								array(
+									'text'    => __( 'View settings', 'melapress-login-security' ),
+									'class'   => 'button-primary',
+									'onClick' => 'mls_close_thickbox("' . $url . '")',
+								),
+							),
+						);
+					}
+				}
 
-			if ( $ok_to_save ) {
-				if ( self::$options->mls_save_policy( $processed_ppm_options ) ) {
-					self::$setting_tab = (object) self::$options->setting_options;
-					self::notice( 'admin_save_success_notice' );
+				// Process reset blocked message.
+				$settings_updated['disable_self_reset_message']             = ( ! empty( $settings['disable_self_reset_message'] ) ) ? sanitize_textarea_field( $settings['disable_self_reset_message'] ) : false;
+				$settings_updated['locked_user_disable_self_reset_message'] = ( ! empty( $settings['locked_user_disable_self_reset_message'] ) ) ? sanitize_textarea_field( $settings['locked_user_disable_self_reset_message'] ) : false;
+				$settings_updated['deactivated_account_message']            = ( isset( $settings['deactivated_account_message'] ) && ! empty( $settings['deactivated_account_message'] ) ) ? wp_kses_post( $settings['deactivated_account_message'] ) : trim( \MLS\MLS_Options::get_default_account_deactivated_message() );
+				$settings_updated['timed_login_message']                    = ( ! empty( $settings['timed_login_message'] ) ) ? sanitize_textarea_field( $settings['timed_login_message'] ) : false;
+
+				$processedmls_options = apply_filters( 'mls_pre_option_save_validation', array_merge( $settings, $settings_updated ) );
+
+				if ( $ok_to_save ) {
+					if ( self::$options->mls_save_policy( $processedmls_options ) ) {
+						self::$setting_tab = (object) self::$options->setting_options;
+						self::notice( 'admin_save_success_notice' );
+					}
 				}
 			}
 		}
@@ -1297,14 +1231,11 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		public static function admin_enqueue_scripts() {
 			$mls = melapress_login_security();
 			add_thickbox();
-			// enqueue these scripts and styles before admin_head.
 			wp_enqueue_script( 'jquery-ui-dialog' );
-			// jquery and jquery-ui should be dependencies, didn't check though.
-			wp_enqueue_style( 'wp-jquery-ui-dialog' );
 
 			// enqueue plugin JS.
 			wp_enqueue_style( 'ppm-wp-settings-css', MLS_PLUGIN_URL . 'admin/assets/css/settings.css', array(), MLS_VERSION );
-			wp_enqueue_script( 'ppm-wp-settings', MLS_PLUGIN_URL . 'admin/assets/js/settings.js', array( 'jquery-ui-autocomplete', 'jquery-ui-sortable' ), MLS_VERSION, true );
+			wp_enqueue_script( 'ppm-wp-settings', MLS_PLUGIN_URL . 'admin/assets/js/settings.js', array( 'jquery-ui-autocomplete', 'jquery-ui-sortable', 'jquery-ui-datepicker' ), MLS_VERSION, true );
 			$session_setting = isset( $mls->options->mls_setting->terminate_session_password ) ? $mls->options->mls_setting->terminate_session_password : $mls->options->default_setting->terminate_session_password;
 			wp_localize_script(
 				'ppm-wp-settings',
@@ -1317,6 +1248,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					'special_chars_regex'        => melapress_login_security()->get_special_chars( true ),
 					'reset_done_title'           => __( 'Reset process complete', 'melapress-login-security' ),
 					'csv_error'                  => __( 'CSV contains invalid data, provide user IDs only.', 'melapress-login-security' ),
+					'csv_file_error'             => __( 'Please provide the correct file type only.', 'melapress-login-security' ),
 					'csv_error_length'           => __( 'Please ensure more than 1 ID is provided.', 'melapress-login-security' ),
 					'reset_done_text'            => __( 'You may now close this window.', 'melapress-login-security' ),
 				)
@@ -1341,10 +1273,6 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function global_admin_enqueue_scripts() {
-			if ( \MLS_Core::is_user_exempted( get_current_user_id() ) ) {
-				return;
-			}
-
 			// enqueue these scripts and styles before admin_head
 			// jquery and jquery-ui should be dependencies, didn't check though.
 			if ( ! wp_script_is( 'jquery-ui-dialog', 'queue' ) ) {
@@ -1751,6 +1679,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 								{user_last_name} <i><?php esc_html_e( '- User Last Name', 'melapress-login-security' ); ?></i><br>
 								{user_display_name} <i><?php esc_html_e( '- User Display Name', 'melapress-login-security' ); ?></i><br>
 								{admin_email} <i><?php esc_html_e( '- From email address / site admin email', 'melapress-login-security' ); ?></i><br>
+								{remaining_time} <i><?php esc_html_e( '- Time until next login is allowed.', 'melapress-login-security' ); ?></i><br>	
 							</div>
 						</div>
 
@@ -1767,7 +1696,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				<table class="form-table has-sticky-bar">
 					<tbody>
 
-					<tr valign="top">
+						<tr valign="top">
 							<h3><?php esc_html_e( 'User requests password reset when the feature is disabled', 'melapress-login-security' ); ?></h3>
 							<p class="description"><?php esc_html_e( 'This warning is shown when a user requests a password reset but an active Login Security Policy prohibits it.', 'melapress-login-security' ); ?></p>
 						</tr>
@@ -1780,11 +1709,11 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 								<fieldset>
 									<?php
 									$content   = \MLS\EmailAndMessageStrings::get_email_template_setting( 'password_reset_request_disabled_message' );
-									$editor_id = '_ppm_options_password_reset_request_disabled_message';
+									$editor_id = 'mls_options_password_reset_request_disabled_message';
 									$settings  = array(
 										'media_buttons' => false,
 										'editor_height' => 200,
-										'textarea_name' => '_ppm_options[password_reset_request_disabled_message]',
+										'textarea_name' => 'mls_options[password_reset_request_disabled_message]',
 									);
 									wp_editor( $content, $editor_id, $settings );
 									?>
@@ -1793,7 +1722,39 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 						</tr>	
 					</tbody>
 				</table>
-			<?php
+				
+				<?php
+				?>
+				<table class="form-table has-sticky-bar">
+					<tbody>
+						<tr valign="top">
+							<h3><?php esc_html_e( 'User exceeds maximum number of failed logins.', 'melapress-login-security' ); ?></h3>
+							<p class="description"><?php esc_html_e( 'This warning is shown when a user exceed the max allowed number of failed login attempts.', 'melapress-login-security' ); ?></p>
+						</tr>
+
+						<tr valign="top">
+							<th scope="row">
+								<?php esc_html_e( 'Message', 'melapress-login-security' ); ?>
+							</th>
+							<td style="padding-right: 15px;">
+								<fieldset>
+									<?php
+									$content   = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_exceeded_failed_logins_count_message' );
+									$editor_id = 'mls_options_user_exceeded_failed_logins_count_message';
+									$settings  = array(
+										'media_buttons' => false,
+										'editor_height' => 200,
+										'textarea_name' => 'mls_options[user_exceeded_failed_logins_count_message]',
+									);
+									wp_editor( $content, $editor_id, $settings );
+									?>
+								</fieldset>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<?php
 		}
 	}
 }

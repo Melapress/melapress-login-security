@@ -157,13 +157,13 @@ if ( ! class_exists( '\MLS\Admin\UserLastLoginTime' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public static function get_users_last_login_time_by_id( $user_id, $return_false_if_not_set = false ) {
-			$time        = false;
-			$time        = get_user_meta( $user_id, MLS_PREFIX . '_last_login_time', true );
-			
+		public static function get_users_last_login_time_by_id( $user_id ) {
+			$time = false;
+			$time = get_user_meta( $user_id, MLS_PREFIX . '_last_login_time', true );
+
 			if ( $time ) {
 				return date_i18n( get_option( 'date_format' ) . ' \a\t ' . get_option( 'time_format' ), $time );
-			} 
+			}
 
 			return esc_html__( 'No data to display', 'melapress-login-security' );
 		}

@@ -53,7 +53,7 @@ if ( ! defined( 'MLS_PREFIX' ) ) {
 		define( 'MLS_PREFIX', 'ppmwp' );
 	} else {
 		define( 'MLS_PREFIX', 'mls' );
-	}	
+	}
 }
 
 if ( ! defined( 'MLS_PW_HISTORY_META_KEY' ) ) {
@@ -141,7 +141,7 @@ if ( ! defined( 'MLS_VERSION' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_VERSION', '2.0.1' );
+	define( 'MLS_VERSION', '2.1.0' );
 }
 
 if ( ! defined( 'MLS_MENU_SLUG' ) ) {

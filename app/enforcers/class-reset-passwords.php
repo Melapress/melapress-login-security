@@ -147,7 +147,12 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 					'exclude' => $exempted_users,
 					'fields'  => array( 'ID' ),
 				);
-				$users     = get_users( $user_args );
+
+				if ( is_multisite() ) {
+					$user_args['blog_id'] = 0;
+				}
+
+				$users = get_users( $user_args );
 
 				foreach ( $users as $user ) {
 					self::reset_user( $user->ID, $kill_sessions, $send_reset, $reset_when );
@@ -157,12 +162,17 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 					self::reset_user( $user_id, $kill_sessions, $send_reset, $reset_when );
 				}
 			} elseif ( 'reset-csv' === $reset_type ) {
-				$users = explode( ',', $file_text );
+				$users       = explode( ',', $file_text );
+				$reset_count = 0;
 				foreach ( $users as $user_id ) {
 					$user = get_userdata( $user_id );
 					if ( false !== $user ) {
+						$reset_count = ++$reset_count;
 						self::reset_user( $user_id, $kill_sessions, $send_reset, $reset_when );
 					}
+				}
+				if ( 0 === $reset_count ) {
+					wp_send_json_error( esc_html__( 'No valid user data found in file, please try again', 'melapress-login-security' ) );
 				}
 			} else {
 				wp_send_json_error( esc_html__( 'No valid reset type given', 'melapress-login-security' ) );
@@ -184,7 +194,12 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function reset_user( $user_id, $kill_sessions = false, $send_reset = false, $reset_when = '' ) {
-			$user       = get_user_by( 'ID', $user_id );
+			$user = get_user_by( 'ID', $user_id );
+
+			if ( get_user_meta( $user_id, 'mls_temp_user', true ) ) {
+				return;
+			}
+
 			$is_delayed = false;
 			if ( ! empty( $reset_when ) && 'reset-login' === $reset_when ) {
 				\MLS\User_Profile::generate_new_reset_key( $user->ID );
@@ -391,9 +406,6 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 				}
 			}
 
-			// Update usermeta so we know we have sent a message.
-			update_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, true );
-
 			// Only send the email if allowed in settings.
 			if ( $is_delayed && isset( $role_options->disable_user_password_reset_email ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->disable_user_password_reset_email ) ) {
 				return;
@@ -411,6 +423,9 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 					wp_die( wp_kses_post( $fail_message ) );
 				}
 			}
+
+			// Update usermeta so we know we have sent a message.
+			update_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, true );
 		}
 
 		/**
@@ -533,14 +548,8 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 				return;
 			}
 
-			// Destroy user session.
-			// THIS METHOD CAN ONLY BE REACHED IF THE OPTION TO TERMINATE
-			// SESSIONS IS _UNCHECKED_. SESSIONS SHOULDN'T BE DESTROYED HERE.
-			// $mls->ppm_user_session_destroy( $user_id );.
-
 			// Update user meta.
 			update_user_meta( $user_id, MLS_DELAYED_RESET_META_KEY, true );
-			update_user_meta( $user_id, MLS_PASSWORD_EXPIRED_META_KEY, 1 );
 
 			if ( $send_reset ) {
 				self::send_reset_email( $user_id, 'admin', false, true );
@@ -611,7 +620,7 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function customize_reset_key_expiry_time( $expiration ) {
+		public function customize_reset_key_expiry_time( $expiration ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 			$mls             = melapress_login_security();
 			$number          = $mls->options->mls_setting->password_reset_key_expiry['value'];
 			$unit            = ( 'days' === $mls->options->mls_setting->password_reset_key_expiry['unit'] ) ? DAY_IN_SECONDS : HOUR_IN_SECONDS;
@@ -645,6 +654,7 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 				$verify_reset_key->reset_key  = $reset_key;
 				$verify_reset_key->user_login = $user_login;
 			}
+
 			return $verify_reset_key;
 		}
 
@@ -668,24 +678,34 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 
 			$roles = \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 
+			// If we reach this point with no default options, stop here.
 			if ( ! $roles || ! is_array( $roles ) ) {
-				return true;
+				if ( is_multisite() ) {
+					$roles = array( 'subscriber' );
+				} else {
+					return true;
+				}
 			}
 
 			$roles = reset( $roles );
 
-			// If we reach this point with no default options, stop here.
-			if ( empty( $default_options ) ) {
-				return true;
-			}
+			$allowed_actions = array(
+				'resetpassword',
+				'mls_unlock_inactive_user',
+				'wp_ppm_reset_user_pw',
+			);
 
 			// Allow if request is from an admin.
-			if ( ( isset( $_REQUEST['action'] ) && 'resetpassword' === $_REQUEST['action'] ) || ( isset( $_REQUEST['action'] ) && 'mls_unlock_inactive_user' === $_REQUEST['action'] ) || ( isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' === $_REQUEST['action'] && 'profile' === $_REQUEST['from'] ) || ( isset( $_REQUEST['action'] ) && 'unlock' === $_REQUEST['action'] && isset( $_REQUEST['page'] ) && 'mls-locked-users' === $_REQUEST['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ( isset( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], $allowed_actions, true ) ) || ( isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' === $_REQUEST['action'] && 'profile' === $_REQUEST['from'] ) || ( isset( $_REQUEST['action'] ) && 'unlock' === $_REQUEST['action'] && isset( $_REQUEST['page'] ) && 'mls-locked-users' === $_REQUEST['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$user          = wp_get_current_user();
 				$allowed_roles = array( 'administrator' );
 				if ( array_intersect( $allowed_roles, $user->roles ) ) {
 					return true;
 				}
+			}
+
+			if ( get_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true ) ) {
+				return true;
 			}
 
 			// Check if user is currently considered to be 'locked'.

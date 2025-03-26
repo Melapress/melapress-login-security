@@ -139,7 +139,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			);
 
 			add_action( "load-$forms_hook_submenu", array( __CLASS__, 'admin_enqueue_scripts' ) );
-			add_action( "admin_head-$forms_hook_submenu", array( __CLASS__, 'process_forms' ) );
+			add_action( "admin_head-$forms_hook_submenu", array( __CLASS__, 'process' ) );
 
 			// Add admin submenu page for form placement.
 			$hide_login_submenu = add_submenu_page(
@@ -156,7 +156,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			);
 
 			add_action( "load-$hide_login_submenu", array( __CLASS__, 'admin_enqueue_scripts' ) );
-			add_action( "admin_head-$hide_login_submenu", array( __CLASS__, 'process_hide_login' ) );
+			add_action( "admin_head-$hide_login_submenu", array( __CLASS__, 'process' ) );
 
 
 			/* @free:start */

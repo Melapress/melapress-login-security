@@ -33,11 +33,13 @@ class OptionsHelper {
 	 *
 	 * @method should_inactive_users_feature_be_active
 	 *
+	 * @param bool $check_failed_logins_also - Check failed logins module too.
+	 *
 	 * @return bool
 	 *
 	 * @since 2.0.0
 	 */
-	public static function should_inactive_users_feature_be_active() {
+	public static function should_inactive_users_feature_be_active( $check_failed_logins_also = false ) {
 		$mls = \melapress_login_security();
 
 		// return early if the inactive class already is set active.
@@ -58,7 +60,7 @@ class OptionsHelper {
 		// check if we are enabled.
 		if (
 			( ( isset( $master_policy->inactive_users_enabled ) && self::string_to_bool( $master_policy->inactive_users_enabled ) ) ||
-			( isset( $master_policy->failed_login_policies_enabled ) && self::string_to_bool( $master_policy->failed_login_policies_enabled ) ) )
+			( $check_failed_logins_also && isset( $master_policy->failed_login_policies_enabled ) && self::string_to_bool( $master_policy->failed_login_policies_enabled ) ) )
 		) {
 			// master policy sets this as active, no need to do farther checks.
 			$active = true;
@@ -83,7 +85,7 @@ class OptionsHelper {
 				}
 				if (
 					( ( isset( $role_options->inactive_users_enabled ) && self::string_to_bool( $role_options->inactive_users_enabled ) ) ||
-					( isset( $role_options->failed_login_policies_enabled ) && self::string_to_bool( $role_options->failed_login_policies_enabled ) ) )
+					( $check_failed_logins_also && isset( $role_options->failed_login_policies_enabled ) && self::string_to_bool( $role_options->failed_login_policies_enabled ) ) )
 				) {
 					$active = true;
 				}
@@ -772,17 +774,17 @@ class OptionsHelper {
 				'class' => array(),
 				'id'    => array(),
 			),
-			'thead'       => array(
+			'thead'    => array(
 				'scope' => array(),
 				'class' => array(),
 				'id'    => array(),
 			),
-			'tbody'       => array(
+			'tbody'    => array(
 				'scope' => array(),
 				'class' => array(),
 				'id'    => array(),
 			),
-			'tfoot'       => array(
+			'tfoot'    => array(
 				'scope' => array(),
 				'class' => array(),
 				'id'    => array(),
@@ -844,10 +846,6 @@ class OptionsHelper {
 				'id'    => array(),
 			),
 			'table'    => array(
-				'class' => array(),
-				'id'    => array(),
-			),
-			'tbody'    => array(
 				'class' => array(),
 				'id'    => array(),
 			),
@@ -943,5 +941,28 @@ class OptionsHelper {
 		}
 
 		return $user->roles;
+	}
+
+	/**
+	 * Ensure input is ok for specific settings.
+	 *
+	 * @param   string $setting_key  Setting to clean.
+	 * @param   mixed  $value        Current value.
+	 *
+	 * @return  mixed - Result.
+	 */
+	public static function sanitise_value_by_key( $setting_key, $value ) {
+		$processed_value = false;
+		if ( in_array( $setting_key, \MLS\MLS_Options::$policy_boolean_options, true ) || in_array( $setting_key, \MLS\MLS_Options::$settings_boolean_options, true ) ) {
+			if ( 'yes' === $value || 'no' === $value ) {
+				return $value;
+			} else {
+				return 'no';
+			}
+		} elseif ( in_array( $setting_key, \MLS\MLS_Options::$textarea_settings, true ) ) {
+			return wp_kses_post( sanitize_textarea_field( $value ) );
+		}
+
+		return $value;
 	}
 }

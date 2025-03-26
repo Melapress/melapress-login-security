@@ -34,7 +34,7 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public static function plugin_upgraded( $old_version, $new_version ) {
+		public static function plugin_upgraded( $old_version, $new_version ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			if ( ! empty( $old_version ) && version_compare( $old_version, '2.0.0', '<' ) ) {
 
 				// SETTINGS.
@@ -98,7 +98,7 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 				$settings['timed_logins_login_blocked_message'] = $policy['timed_login_message'];
 			}
 
-			if ( isset( $policy['deactivated_account_message'] ) && ! empty( $policy['deactivated_account_message'] ) ) {				
+			if ( isset( $policy['deactivated_account_message'] ) && ! empty( $policy['deactivated_account_message'] ) ) {
 				$settings['inactive_user_account_locked_reset_disabled_message'] = $policy['deactivated_account_message'];
 			}
 
@@ -121,7 +121,7 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 
 			if ( isset( $settings['user_unlocked_email_body'] ) && ! empty( $settings['user_unlocked_email_body'] ) ) {
 				$settings['user_unlocked_email_body'] = $settings['user_unlocked_email_body'];
-			}			
+			}
 
 			// Save updated rules.
 			$update = is_multisite() ? update_site_option( 'ppmwp_options', $policy ) : update_option( 'ppmwp_options', $policy );

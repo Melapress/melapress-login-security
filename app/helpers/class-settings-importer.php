@@ -15,6 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MLS\Helpers\OptionsHelper;
+
 /**
  * Import and export settings class.
  *
@@ -47,7 +49,7 @@ class SettingsImporter {
 	 * @since 2.0.0
 	 */
 	public function selectively_enqueue_admin_script( $hook ) {
-		if ( 'login-security_page_mls-settings' !== $hook ) {
+		if ( ! str_contains( $hook, 'mls-settings' ) ) {
 			return;
 		}
 
@@ -371,15 +373,26 @@ class SettingsImporter {
 	 */
 	public function check_setting_and_handle_import() {
 		// Grab POSTed data.
-		$nonce = null;
+		$nonce      = null;
+		$valid_call = false;
 
-		if ( ! current_user_can( 'manage_options' ) || isset( $_POST['nonce'] ) ) {
+		// Check if has signature of valid request.
+		if ( ! empty( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && strtolower( wp_unslash( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) === 'xmlhttprequest' ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$valid_call = true;
+		}
+
+		if ( isset( $_POST['nonce'] ) ) {
 			$nonce = \sanitize_text_field( \wp_unslash( $_POST['nonce'] ) );
 		}
 
 		// Check nonce.
-		if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'mls-export-settings' ) ) {
+		if ( ! $valid_call || empty( $nonce ) || ! wp_verify_nonce( $nonce, 'mls-export-settings' ) ) {
 			wp_send_json_error( esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
+			return;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) || ! wp_doing_ajax() ) {
+			return;
 		}
 
 		$setting_name = null;
@@ -389,6 +402,11 @@ class SettingsImporter {
 		$process_import = null;
 		if ( isset( $_POST['process_import'] ) ) {
 			$process_import = \sanitize_text_field( \wp_unslash( $_POST['process_import'] ) );
+		}
+
+		if ( ! $setting_name || ! strpos( $setting_name, 'mls' ) === 0 || ! strpos( $setting_name, 'ppm' ) === 0 ) {
+			wp_send_json_error( esc_html__( 'Invalid setting given.', 'melapress-login-security' ) );
+			return;
 		}
 
 		$setting_value = filter_input( INPUT_POST, 'setting_value', FILTER_DEFAULT, FILTER_FORCE_ARRAY );
@@ -402,27 +420,57 @@ class SettingsImporter {
 
 		// Check if relevant data is present for setting to be operable before import.
 		if ( ! empty( $setting_value ) ) {
-
 			if ( 'true' !== $process_import && $failed ) {
 				wp_send_json_error( $message );
 			}
 		}
 
-		if ( 'ppmwp_setting' === $setting_name && isset( $_POST['from_email_to_use'] ) && ! empty( maybe_unserialize( $setting_value ) ) ) {
-			$setting_arr               = (array) maybe_unserialize( $setting_value );
-			$setting_arr['from_email'] = \sanitize_text_field( \wp_unslash( $_POST['from_email_to_use'] ) );
-			$setting_value             = $setting_arr;
+		if ( ( 'ppmwp_setting' === $setting_name || 'mls_setting' === $setting_name ) && isset( $_POST['from_email_to_use'] ) && ! empty( maybe_unserialize( $setting_value ) ) ) {
+			if ( \is_email( \sanitize_email( \wp_unslash( $_POST['from_email_to_use'] ) ) ) ) {
+				$setting_arr               = (array) maybe_unserialize( $setting_value );
+				$setting_arr['from_email'] = \sanitize_email( \wp_unslash( $_POST['from_email_to_use'] ) );
+				$setting_value             = $setting_arr;
+			}
+		}
 
+		$mls_options     = new \MLS\MLS_Options();
+		$policy_keys     = array_keys( $mls_options->default_options );
+		$setting_keys    = array_keys( $mls_options->default_setting );
+		$known_keys      = array_merge( $policy_keys, $setting_keys );
+		$processed_value = false;
+
+		$known_other_keys = array(
+			'mls_activation',
+			'mls_active_version',
+			'mls_reset_timestamp',
+			'mls_wizard_complete',
+			'ppmwp_activation',
+			'ppmwp_active_version',
+			'ppmwp_reset_timestamp',
+			'ppmwp_wizard_complete',
+		);
+
+		if ( is_array( maybe_unserialize( $setting_value ) ) ) {
+			$processed_value = array();
+			foreach ( maybe_unserialize( $setting_value ) as $array_key => $array_value ) {
+				if ( in_array( $array_key, $known_keys, true ) ) {
+					$processed_value[ $array_key ] = OptionsHelper::sanitise_value_by_key( $array_key, \wp_unslash( $array_value ) );
+				} else {
+					$processed_value[ $array_key ] = \wp_strip_all_tags( \wp_unslash( $array_value ) );
+				}
+			}
+		} elseif ( in_array( $setting_name, $known_other_keys, true ) ) {
+			$processed_value = \wp_strip_all_tags( \wp_unslash( $setting_value ) );
 		}
 
 		// If set to import the data once checked, then do so.
-		if ( 'true' === $process_import && ! isset( $message['failure_reason'] ) ) {
+		if ( $processed_value && 'true' === $process_import && ! isset( $message['failure_reason'] ) ) {
 			/**
 			 * Fire of action for others to observe.
 			 */
 			do_action( 'mls_settings_imported' );
 
-			$updated                        = ( ! update_site_option( $setting_name, maybe_unserialize( $setting_value ) ) ) ? esc_html__( 'Setting updated', 'melapress-login-security' ) : esc_html__( 'Setting created', 'melapress-login-security' );
+			$updated                        = ( ! update_site_option( $setting_name, $processed_value ) ) ? esc_html__( 'Setting updated', 'melapress-login-security' ) : esc_html__( 'Setting created', 'melapress-login-security' );
 			$message['import_confirmation'] = $updated;
 			wp_send_json_success( $message );
 		}
