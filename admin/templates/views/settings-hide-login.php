@@ -47,6 +47,13 @@ $login_control = new \MLS\Login_Page_Control();
 						<?php echo $login_control::render_login_page_url_settings(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> 
 					</tbody>
 				</table>
+
+				<table class="form-table">
+					<tbody>
+						<?php echo $login_control::render_login_failure_message_settings(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					</tbody>
+				</table>
+
 				<table class="form-table">
 					<tbody>
 						<?php echo $login_control::render_login_gdpr_settings(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

@@ -52,7 +52,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 							</span>
 						</legend>
 						<label for="mls-restrict-login-ip">
-							<input name="_ppm_options[restrict_login_ip]" type="checkbox" id="mls-restrict-login-ip" value="1" <?php checked( OptionsHelper::string_to_bool( $settings_tab->restrict_login_ip ) ); ?> />
+							<input name="mls_options[restrict_login_ip]" type="checkbox" id="mls-restrict-login-ip" value="1" <?php checked( OptionsHelper::string_to_bool( $settings_tab->restrict_login_ip ) ); ?> />
 								<?php esc_html_e( 'Activate IP addresses restrictions', 'melapress-login-security' ); ?>		
 								<br>    				
 								<p class="description">
@@ -64,7 +64,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 									<?php
 										ob_start();
 									?>
-									<input name="_ppm_options[restrict_login_ip_count]" type="number" value="<?php echo esc_attr( $settings_tab->restrict_login_ip_count ); ?>" min="1" max="10" size="4" class="tiny-text ltr" required/>
+									<input name="mls_options[restrict_login_ip_count]" type="number" value="<?php echo esc_attr( $settings_tab->restrict_login_ip_count ); ?>" min="1" max="10" size="4" class="tiny-text ltr" required/>
 									<?php
 										$input_history = ob_get_clean();
 										/* translators: %s: Configured number of old password to check for duplication. */
@@ -77,7 +77,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 										<?php
 											$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notification templates', 'ppw-wp' ) . '</a>';
 										?>
-										<?php echo wp_sprintf( __( 'To customize the notification displayed to users when a login is blocked due to restrictions, please visit the %s plugin settings.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) ); ?>
+										<?php echo wp_kses_post( wp_sprintf( /* translators: %s: Link to settings. */ __( 'To customize the notification displayed to users when a login is blocked due to restrictions, please visit the %s plugin settings.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) ) ); ?>
 									</p>
 								</div>
 						</label>
@@ -93,13 +93,13 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 		/**
 		 * Add settings to message templates area.
 		 *
-		 * @param array $mls_settings - Settings
+		 * @param array $mls_settings - Settings.
 		 *
 		 * @return void
 		 *
 		 * @since 2.0.0
 		 */
-		public static function add_template_settings( $mls_settings ) {
+		public static function add_template_settings( $mls_settings ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 			?>
 				<table class="form-table has-sticky-bar">
 					<tbody>
@@ -117,11 +117,11 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 								<fieldset>
 									<?php
 									$content   = \MLS\EmailAndMessageStrings::get_email_template_setting( 'restrict_login_ip_login_blocked_message' );
-									$editor_id = '_ppm_options_restrict_login_ip_login_blocked_message';
+									$editor_id = 'mls_options_restrict_login_ip_login_blocked_message';
 									$settings  = array(
 										'media_buttons' => false,
 										'editor_height' => 200,
-										'textarea_name' => '_ppm_options[restrict_login_ip_login_blocked_message]',
+										'textarea_name' => 'mls_options[restrict_login_ip_login_blocked_message]',
 									);
 									wp_editor( $content, $editor_id, $settings );
 									?>
@@ -324,7 +324,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 		 *
 		 * @return null|WP_User|WP_Error
 		 */
-		public static function pre_login_check( $user, $username, $password ) {
+		public static function pre_login_check( $user, $username, $password ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			// If WP has already created an error at this point, pass it back and bail.
 			if ( is_wp_error( $user ) ) {
 				return $user;

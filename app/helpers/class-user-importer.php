@@ -581,7 +581,7 @@ class UserImporter {
 					</th>
 					<td>
 						<fieldset>
-							<input name="_ppm_options[disable_user_imported_email]" type="checkbox" id="ppm-disable_user_imported_email" value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls_settings->disable_user_imported_email ) ); ?>/>
+							<input name="mls_options[disable_user_imported_email]" type="checkbox" id="ppm-disable_user_imported_email" value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls_settings->disable_user_imported_email ) ); ?>/>
 						</fieldset>
 					</td>
 				</tr>
@@ -592,7 +592,7 @@ class UserImporter {
 					</th>
 					<td>
 						<fieldset>
-							<input type="text" name="_ppm_options[user_imported_email_subject]" value="<?php echo esc_attr( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_imported_email_subject' ) ); ?>"  id="ppm-user_imported_email_subject" style="float: left; display: block; width: 450px;" />
+							<input type="text" name="mls_options[user_imported_email_subject]" value="<?php echo esc_attr( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_imported_email_subject' ) ); ?>"  id="ppm-user_imported_email_subject" style="float: left; display: block; width: 450px;" />
 						</fieldset>
 					</td>
 				</tr>
@@ -605,11 +605,11 @@ class UserImporter {
 						<fieldset>
 							<?php
 							$content   = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_imported_email_body' );
-							$editor_id = '_ppm_options_user_imported_email_body';
+							$editor_id = 'mls_options_user_imported_email_body';
 							$settings  = array(
 								'media_buttons' => false,
 								'editor_height' => 200,
-								'textarea_name' => '_ppm_options[user_user_imported_email_body]',
+								'textarea_name' => 'mls_options[user_user_imported_email_body]',
 							);
 							wp_editor( $content, $editor_id, $settings );
 							?>
@@ -633,7 +633,7 @@ class UserImporter {
 					</th>
 					<td>
 						<fieldset>
-							<input name="_ppm_options[disable_user_imported_forced_reset_email]" type="checkbox" id="ppm-disable_user_imported_forced_reset_email" value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls_settings->disable_user_imported_forced_reset_email ) ); ?>/>
+							<input name="mls_options[disable_user_imported_forced_reset_email]" type="checkbox" id="ppm-disable_user_imported_forced_reset_email" value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $mls_settings->disable_user_imported_forced_reset_email ) ); ?>/>
 						</fieldset>
 					</td>
 				</tr>
@@ -644,7 +644,7 @@ class UserImporter {
 					</th>
 					<td>
 						<fieldset>
-							<input type="text" name="_ppm_options[user_imported_forced_reset_email_subject]" value="<?php echo esc_attr( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_imported_forced_reset_email_subject' ) ); ?>"  id="ppm-user_imported_forced_reset_email_subject" style="float: left; display: block; width: 450px;" />
+							<input type="text" name="mls_options[user_imported_forced_reset_email_subject]" value="<?php echo esc_attr( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_imported_forced_reset_email_subject' ) ); ?>"  id="ppm-user_imported_forced_reset_email_subject" style="float: left; display: block; width: 450px;" />
 						</fieldset>
 					</td>
 				</tr>
@@ -657,11 +657,11 @@ class UserImporter {
 						<fieldset>
 							<?php
 							$content   = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_imported_forced_reset_email_body' );
-							$editor_id = '_ppm_options_uuser_imported_forced_reset_email_body';
+							$editor_id = 'mls_options_uuser_imported_forced_reset_email_body';
 							$settings  = array(
 								'media_buttons' => false,
 								'editor_height' => 200,
-								'textarea_name' => '_ppm_options[user_user_imported_forced_reset_email_body]',
+								'textarea_name' => 'mls_options[user_user_imported_forced_reset_email_body]',
 							);
 							wp_editor( $content, $editor_id, $settings );
 							?>

@@ -3,17 +3,17 @@
 }
 .ppm-wrap .page-head{
 	position: relative;
-	padding-right: 250px;
 }
 .ppm-wrap .page-head .action{
-	position: absolute;
-	right: 0;
-	top: 0;
-	width: 236px;
+    position: absolute;
+    right: 0;
+    top: 19px;
+    width: auto;
 }
 .ppm-wrap .page-head h2{
-	font-size: 23px;
-  font-weight: 400;
+    font-size: 23px;
+    font-weight: 400;
+    display: inline-block;
 }
 .ppm-wrap .short-message{
 	font-style: italic;
@@ -127,7 +127,7 @@ div#reset-container input#_mls_global_reset_button {
 	opacity: 0.5;
 }
 
-.mls-settings .disabled {
+.mls-settings .disabled, .row-disabled {
 	opacity: 0.5;
     pointer-events: none;
 }
@@ -303,9 +303,19 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
     .mls-reset-all-wrapper {
         position: relative;
     }  
+    .ppm-wrap .page-head {
+        padding-right: 0;
+        overflow: hidden;
+    }
     .sidebar-present {
         width: 100%;
         float: none;
+    }
+    .ppm-wrap .page-head .action{
+        position: relative;
+        right: 0;
+        top: 0;
+        width: 100%;
     }
 }
 
@@ -569,3 +579,1090 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
     margin: 0 auto;
     background: #fff;
 }
+
+/* TEMPORARY LOGINS ADMIN */
+#new-temp-login-form {
+    display: none;
+}
+
+#new-temp-login-form {
+    background-color: #fff;
+    padding: 10px 25px;
+    margin-top: 20px;
+    margin-bottom: 30px;
+}
+
+#new-temp-login-form .form-content input {
+    width: auto;
+}
+
+#new-temp-login-form .form-content .mw-300 {
+    min-width: 300px;
+}
+
+#melapress_temp_logins .column-actions {
+    width: 100px;
+    position: relative;
+}
+
+.mls-inline-notice {
+    position: absolute;
+    left: -180px;
+    top: 0;
+    line-height: 19px;
+    max-height: 29px;
+    min-width: 150px;
+}
+
+[data-mls-email-temp-link] span, [data-mls-copy-link] span {
+    font-size: 22px;
+    margin: 0 0 0 5px;
+}
+
+[data-mls-email-temp-link] {
+    color: #4b9b89;
+}
+
+[data-mls-copy-link] {
+    color: #a03131
+}
+
+.expired {
+    color: red;
+}
+
+.from_login {
+    color: green;
+}
+
+.inline-input {
+    display: inline-block;
+    max-width: 50px;
+    position: relative;
+    top: 2px;
+}
+
+#new-link {
+    min-width: 75%;
+    margin-right: 10px;
+    margin-bottom: 15px;
+}
+
+a[href="#close"] {
+    margin-left: 10px !important;
+}
+
+input.errored {
+    border-color: red;
+}
+
+.ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
+.ui-timepicker-div dl { text-align: left; }
+.ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
+.ui-timepicker-div dl dd { margin: 0 0 10px 0 }
+.ui-timepicker-div td { font-size: 90%; }
+.ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+.ui-timepicker-div .ui_tpicker_unit_hide{ display: none; }
+
+.ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input { background: none; color: inherit; border: none; outline: none; border-bottom: solid 1px #555; width: 95%; }
+.ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input:focus { border-bottom-color: #aaa; }
+
+.ui-timepicker-rtl{ direction: rtl; }
+.ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
+.ui-timepicker-rtl dl dt{ float: right; clear: right; }
+.ui-timepicker-rtl dl dd { margin: 0 40% 10px 10px; }
+
+/* Shortened version style */
+.ui-timepicker-div.ui-timepicker-oneLine { padding-right: 2px; }
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_time, 
+.ui-timepicker-div.ui-timepicker-oneLine dt { display: none; }
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_time_label { display: block; padding-top: 2px; }
+.ui-timepicker-div.ui-timepicker-oneLine dl { text-align: right; }
+.ui-timepicker-div.ui-timepicker-oneLine dl dd, 
+.ui-timepicker-div.ui-timepicker-oneLine dl dd > div { display:inline-block; margin:0; }
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_minute:before,
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_second:before { content:':'; display:inline-block; }
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_millisec:before,
+.ui-timepicker-div.ui-timepicker-oneLine dl dd.ui_tpicker_microsec:before { content:'.'; display:inline-block; }
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide,
+.ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide:before{ display: none; }
+
+.ui-datepicker-title, .ui_tpicker_time, .ui-datepicker-buttonpane, .ui_tpicker_time_label  {
+  display: none;
+}
+
+#mls-timepicker {
+  max-width: 100px;
+}
+
+.ui_tpicker_hour_label, .ui_tpicker_minute_label {
+  width: 80px;
+  position: relative;
+  top: 5px;
+}
+
+.ui-datepicker-calendar {
+  width: 200px;
+  background: #fff;
+  border: 1px solid #eee;
+}
+
+/* Date Picker Default Styles */
+.ui-datepicker {
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  background-color: #fff;
+  border: 1px solid #dcdcde;
+  border-top: none;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  min-width: 17em;
+  width: auto !important;
+  z-index: 1000 !important;
+}
+.ui-datepicker * {
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  border-radius: 0;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.ui-datepicker .ui-datepicker-group {
+  float: left;
+}
+.ui-datepicker table {
+  font-size: 13px;
+  margin: 0;
+  border: none;
+  border-collapse: collapse;
+}
+.ui-datepicker .ui-widget-header,
+.ui-datepicker .ui-datepicker-header {
+  background-image: none;
+  border: none;
+  color: #fff;
+  font-weight: normal;
+}
+.ui-datepicker .ui-datepicker-header .ui-state-hover {
+  background: transparent;
+  border-color: transparent;
+  cursor: pointer;
+}
+.ui-datepicker .ui-datepicker-title {
+  margin: 0;
+  padding: 10px 0;
+  color: #fff;
+  font-size: 14px;
+  line-height: 14px;
+  text-align: center;
+}
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+  position: relative;
+  top: 0;
+  height: 34px;
+  width: 34px;
+}
+.ui-datepicker .ui-state-hover.ui-datepicker-prev,
+.ui-datepicker .ui-state-hover.ui-datepicker-next {
+  border: none;
+}
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-prev-hover {
+  left: 0;
+}
+.ui-datepicker .ui-datepicker-next,
+.ui-datepicker .ui-datepicker-next-hover {
+  right: 0;
+}
+.ui-datepicker .ui-datepicker-prev {
+  float: left;
+}
+.ui-datepicker .ui-datepicker-prev:before {
+  content: "\f341";
+}
+.ui-datepicker .ui-datepicker-next {
+  float: right;
+}
+.ui-datepicker .ui-datepicker-next:before {
+  content: "\f345";
+}
+.ui-datepicker .ui-datepicker-next span,
+.ui-datepicker .ui-datepicker-prev span {
+  display: none;
+}
+.ui-datepicker .ui-datepicker-next.ui-state-disabled,
+.ui-datepicker .ui-datepicker-prev.ui-state-disabled {
+  visibility: hidden;
+}
+.ui-datepicker .ui-datepicker-next:not(.ui-state-disabled):before,
+.ui-datepicker .ui-datepicker-prev:not(.ui-state-disabled):before {
+  font: normal 20px/34px "dashicons";
+  padding-left: 7px;
+  color: #2271b1;
+  speak: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  width: 34px;
+  height: 34px;
+}
+.ui-datepicker .ui-datepicker-prev-hover:before,
+.ui-datepicker .ui-datepicker-next-hover:before {
+  opacity: 0.7;
+}
+.ui-datepicker select.ui-datepicker-month,
+.ui-datepicker select.ui-datepicker-year {
+  width: 33%;
+}
+.ui-datepicker thead {
+  color: #fff;
+  font-weight: 600;
+}
+.ui-datepicker th {
+  padding: 10px;
+}
+.ui-datepicker td {
+  padding: 0;
+  border: 1px solid #f0f0f1;
+}
+.ui-datepicker td.ui-datepicker-other-month {
+  border: transparent;
+}
+.ui-datepicker tr:first-of-type td {
+  border-top: 1px solid #f0f0f1;
+}
+.ui-datepicker td.ui-datepicker-week-end {
+  background-color: #f6f7f7;
+}
+.ui-datepicker td.ui-datepicker-today {
+  background-color: #f5e6ab;
+}
+.ui-datepicker td.ui-datepicker-current-day {
+  background: #b8e6bf;
+}
+.ui-datepicker td.ui-state-disabled {
+  cursor: default;
+  opacity: 0.2;
+}
+.ui-datepicker td.ui-state-disabled .ui-state-default {
+  background: #dcdcde;
+  cursor: default;
+}
+.ui-datepicker td .ui-state-default {
+  background: transparent;
+  border: none;
+  text-align: center;
+  text-decoration: none;
+  width: auto;
+  display: block;
+  padding: 5px 10px;
+  font-weight: normal;
+  color: #3c434a;
+}
+.ui-datepicker td .ui-state-default.ui-priority-secondary {
+  opacity: 0.3;
+}
+.ui-datepicker td .ui-state-default.ui-priority-secondary.ui-state-hover {
+  opacity: 1;
+}
+/* WordPress Color Schemes */
+/* Default/Unknown */
+.ui-datepicker .ui-widget-header,
+.ui-datepicker .ui-datepicker-header {
+  background: #2271b1;
+}
+.ui-datepicker thead {
+  background: #2c3338;
+}
+.ui-datepicker td .ui-state-hover {
+  background: #2271b1;
+  color: #fff;
+}
+/* Fresh */
+body.admin-color-fresh .ui-datepicker .ui-widget-header,
+body.admin-color-fresh .ui-datepicker .ui-datepicker-header {
+  background: #2271b1;
+}
+body.admin-color-fresh .ui-datepicker thead {
+  background: #2c3338;
+}
+body.admin-color-fresh .ui-datepicker td .ui-state-hover {
+  background: #2271b1;
+}
+/* Blue */
+body.admin-color-blue .ui-datepicker .ui-widget-header,
+body.admin-color-blue .ui-datepicker .ui-datepicker-header {
+  background: #096484;
+}
+body.admin-color-blue .ui-datepicker thead {
+  background: #4796b3;
+}
+body.admin-color-blue .ui-datepicker td .ui-state-hover {
+  background: #096484;
+}
+/* Coffee */
+body.admin-color-coffee .ui-datepicker .ui-widget-header,
+body.admin-color-coffee .ui-datepicker .ui-datepicker-header {
+  background: #59524c;
+}
+body.admin-color-coffee .ui-datepicker thead {
+  background: #46403c;
+}
+body.admin-color-coffee .ui-datepicker td .ui-state-hover {
+  background: #c7a589;
+}
+/* Ectoplasm */
+body.admin-color-ectoplasm .ui-datepicker .ui-widget-header,
+body.admin-color-ectoplasm .ui-datepicker .ui-datepicker-header {
+  background: #523f6d;
+}
+body.admin-color-ectoplasm .ui-datepicker thead {
+  background: #413256;
+}
+body.admin-color-ectoplasm .ui-datepicker td .ui-state-hover {
+  background: #a3b745;
+}
+/* Midnight */
+body.admin-color-midnight .ui-datepicker .ui-widget-header,
+body.admin-color-midnight .ui-datepicker .ui-datepicker-header {
+  background: #363b3f;
+}
+body.admin-color-midnight .ui-datepicker thead {
+  background: #26292c;
+}
+body.admin-color-midnight .ui-datepicker td .ui-state-hover {
+  background: #e14d43;
+}
+/* Modern */
+body.admin-color-modern .ui-datepicker .ui-widget-header,
+body.admin-color-modern .ui-datepicker .ui-datepicker-header {
+  background: #3858e9;
+}
+body.admin-color-modern .ui-datepicker thead {
+  background: #26292c;
+}
+body.admin-color-modern .ui-datepicker td .ui-state-hover {
+  background: #3858e9;
+}
+/* Ocean */
+body.admin-color-ocean .ui-datepicker .ui-widget-header,
+body.admin-color-ocean .ui-datepicker .ui-datepicker-header {
+  background: #738e96;
+}
+body.admin-color-ocean .ui-datepicker thead {
+  background: #627c83;
+}
+body.admin-color-ocean .ui-datepicker td .ui-state-hover {
+  background: #9ebaa0;
+}
+/* Sunrise */
+body.admin-color-sunrise .ui-datepicker .ui-widget-header,
+body.admin-color-sunrise .ui-datepicker .ui-datepicker-header {
+  background: #e65054;
+}
+body.admin-color-sunrise .ui-datepicker thead {
+  background: #b32d2e;
+}
+body.admin-color-sunrise .ui-datepicker td .ui-state-hover {
+  background: #dd823b;
+}
+/* Light */
+body.admin-color-light .ui-datepicker .ui-widget-header,
+body.admin-color-light .ui-datepicker .ui-datepicker-header {
+  background: #8c8f94;
+}
+body.admin-color-light .ui-datepicker thead {
+  background: #50575e;
+}
+body.admin-color-light .ui-datepicker td .ui-state-hover {
+  background: #04a4cc;
+}
+/* bbPress Color Schemes */
+/* Evergreen */
+body.admin-color-bbp-evergreen .ui-datepicker .ui-widget-header,
+body.admin-color-bbp-evergreen .ui-datepicker .ui-datepicker-header {
+  background: #56b274;
+}
+body.admin-color-bbp-evergreen .ui-datepicker thead {
+  background: #36533f;
+}
+body.admin-color-bbp-evergreen .ui-datepicker td .ui-state-hover {
+  background: #446950;
+}
+/* Mint */
+body.admin-color-bbp-mint .ui-datepicker .ui-widget-header,
+body.admin-color-bbp-mint .ui-datepicker .ui-datepicker-header {
+  background: #4ca26a;
+}
+body.admin-color-bbp-mint .ui-datepicker thead {
+  background: #4f6d59;
+}
+body.admin-color-bbp-mint .ui-datepicker td .ui-state-hover {
+  background: #5fb37c;
+}
+/* Parent Input Alignment */
+body.wp-admin:not(.rtl) .ui-datepicker {
+  margin-left: -1px;
+}
+body.wp-admin.rtl .ui-datepicker {
+  margin-right: -1px;
+}
+
+
+
+/*! Hint.css - v2.7.0 - 2021-10-01
+* https://kushagra.dev/lab/hint/
+* Copyright (c) 2021 Kushagra Gour */
+
+/*-------------------------------------*\
+	HINT.css - A CSS tooltip library
+\*-------------------------------------*/
+/**
+ * HINT.css is a tooltip library made in pure CSS.
+ *
+ * Source: https://github.com/chinchang/hint.css
+ * Demo: http://kushagragour.in/lab/hint/
+ *
+ */
+/**
+ * source: hint-core.scss
+ *
+ * Defines the basic styling for the tooltip.
+ * Each tooltip is made of 2 parts:
+ * 	1) body (:after)
+ * 	2) arrow (:before)
+ *
+ * Classes added:
+ * 	1) hint
+ */
+ [class*="hint--"] {
+    position: relative;
+    display: inline-block;
+    /**
+       * tooltip arrow
+       */
+    /**
+       * tooltip body
+       */ }
+    [class*="hint--"]:before, [class*="hint--"]:after {
+      position: absolute;
+      -webkit-transform: translate3d(0, 0, 0);
+      -moz-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+      visibility: hidden;
+      opacity: 0;
+      z-index: 1000000;
+      pointer-events: none;
+      -webkit-transition: 0.3s ease;
+      -moz-transition: 0.3s ease;
+      transition: 0.3s ease;
+      -webkit-transition-delay: 0ms;
+      -moz-transition-delay: 0ms;
+      transition-delay: 0ms; }
+    [class*="hint--"]:hover:before, [class*="hint--"]:hover:after {
+      visibility: visible;
+      opacity: 1; }
+    [class*="hint--"]:hover:before, [class*="hint--"]:hover:after {
+      -webkit-transition-delay: 100ms;
+      -moz-transition-delay: 100ms;
+      transition-delay: 100ms; }
+    [class*="hint--"]:before {
+      content: '';
+      position: absolute;
+      background: transparent;
+      border: 6px solid transparent;
+      z-index: 1000001; }
+    [class*="hint--"]:after {
+      background: #383838;
+      color: white;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      line-height: 12px;
+      white-space: nowrap; }
+    [class*="hint--"][aria-label]:after {
+      content: attr(aria-label); }
+    [class*="hint--"][data-hint]:after {
+      content: attr(data-hint); }
+  
+  [aria-label='']:before, [aria-label='']:after,
+  [data-hint='']:before,
+  [data-hint='']:after {
+    display: none !important; }
+  
+  /**
+   * source: hint-position.scss
+   *
+   * Defines the positoning logic for the tooltips.
+   *
+   * Classes added:
+   * 	1) hint--top
+   * 	2) hint--bottom
+   * 	3) hint--left
+   * 	4) hint--right
+   */
+  /**
+   * set default color for tooltip arrows
+   */
+  .hint--top-left:before {
+    border-top-color: #383838; }
+  
+  .hint--top-right:before {
+    border-top-color: #383838; }
+  
+  .hint--top:before {
+    border-top-color: #383838; }
+  
+  .hint--bottom-left:before {
+    border-bottom-color: #383838; }
+  
+  .hint--bottom-right:before {
+    border-bottom-color: #383838; }
+  
+  .hint--bottom:before {
+    border-bottom-color: #383838; }
+  
+  .hint--left:before {
+    border-left-color: #383838; }
+  
+  .hint--right:before {
+    border-right-color: #383838; }
+  
+  /**
+   * top tooltip
+   */
+  .hint--top:before {
+    margin-bottom: -11px; }
+  
+  .hint--top:before, .hint--top:after {
+    bottom: 100%;
+    left: 50%; }
+  
+  .hint--top:before {
+    left: calc(50% - 6px); }
+  
+  .hint--top:after {
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    transform: translateX(-50%); }
+  
+  .hint--top:hover:before {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  .hint--top:hover:after {
+    -webkit-transform: translateX(-50%) translateY(-8px);
+    -moz-transform: translateX(-50%) translateY(-8px);
+    transform: translateX(-50%) translateY(-8px); }
+  
+  /**
+   * bottom tooltip
+   */
+  .hint--bottom:before {
+    margin-top: -11px; }
+  
+  .hint--bottom:before, .hint--bottom:after {
+    top: 100%;
+    left: 50%; }
+  
+  .hint--bottom:before {
+    left: calc(50% - 6px); }
+  
+  .hint--bottom:after {
+    -webkit-transform: translateX(-50%);
+    -moz-transform: translateX(-50%);
+    transform: translateX(-50%); }
+  
+  .hint--bottom:hover:before {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  .hint--bottom:hover:after {
+    -webkit-transform: translateX(-50%) translateY(8px);
+    -moz-transform: translateX(-50%) translateY(8px);
+    transform: translateX(-50%) translateY(8px); }
+  
+  /**
+   * right tooltip
+   */
+  .hint--right:before {
+    margin-left: -11px;
+    margin-bottom: -6px; }
+  
+  .hint--right:after {
+    margin-bottom: -14px; }
+  
+  .hint--right:before, .hint--right:after {
+    left: 100%;
+    bottom: 50%; }
+  
+  .hint--right:hover:before {
+    -webkit-transform: translateX(8px);
+    -moz-transform: translateX(8px);
+    transform: translateX(8px); }
+  
+  .hint--right:hover:after {
+    -webkit-transform: translateX(8px);
+    -moz-transform: translateX(8px);
+    transform: translateX(8px); }
+  
+  /**
+   * left tooltip
+   */
+  .hint--left:before {
+    margin-right: -11px;
+    margin-bottom: -6px; }
+  
+  .hint--left:after {
+    margin-bottom: -14px; }
+  
+  .hint--left:before, .hint--left:after {
+    right: 100%;
+    bottom: 50%; }
+  
+  .hint--left:hover:before {
+    -webkit-transform: translateX(-8px);
+    -moz-transform: translateX(-8px);
+    transform: translateX(-8px); }
+  
+  .hint--left:hover:after {
+    -webkit-transform: translateX(-8px);
+    -moz-transform: translateX(-8px);
+    transform: translateX(-8px); }
+  
+  /**
+   * top-left tooltip
+   */
+  .hint--top-left:before {
+    margin-bottom: -11px; }
+  
+  .hint--top-left:before, .hint--top-left:after {
+    bottom: 100%;
+    left: 50%; }
+  
+  .hint--top-left:before {
+    left: calc(50% - 6px); }
+  
+  .hint--top-left:after {
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    transform: translateX(-100%); }
+  
+  .hint--top-left:after {
+    margin-left: 12px; }
+  
+  .hint--top-left:hover:before {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  .hint--top-left:hover:after {
+    -webkit-transform: translateX(-100%) translateY(-8px);
+    -moz-transform: translateX(-100%) translateY(-8px);
+    transform: translateX(-100%) translateY(-8px); }
+  
+  /**
+   * top-right tooltip
+   */
+  .hint--top-right:before {
+    margin-bottom: -11px; }
+  
+  .hint--top-right:before, .hint--top-right:after {
+    bottom: 100%;
+    left: 50%; }
+  
+  .hint--top-right:before {
+    left: calc(50% - 6px); }
+  
+  .hint--top-right:after {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    transform: translateX(0); }
+  
+  .hint--top-right:after {
+    margin-left: -12px; }
+  
+  .hint--top-right:hover:before {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  .hint--top-right:hover:after {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  /**
+   * bottom-left tooltip
+   */
+  .hint--bottom-left:before {
+    margin-top: -11px; }
+  
+  .hint--bottom-left:before, .hint--bottom-left:after {
+    top: 100%;
+    left: 50%; }
+  
+  .hint--bottom-left:before {
+    left: calc(50% - 6px); }
+  
+  .hint--bottom-left:after {
+    -webkit-transform: translateX(-100%);
+    -moz-transform: translateX(-100%);
+    transform: translateX(-100%); }
+  
+  .hint--bottom-left:after {
+    margin-left: 12px; }
+  
+  .hint--bottom-left:hover:before {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  .hint--bottom-left:hover:after {
+    -webkit-transform: translateX(-100%) translateY(8px);
+    -moz-transform: translateX(-100%) translateY(8px);
+    transform: translateX(-100%) translateY(8px); }
+  
+  /**
+   * bottom-right tooltip
+   */
+  .hint--bottom-right:before {
+    margin-top: -11px; }
+  
+  .hint--bottom-right:before, .hint--bottom-right:after {
+    top: 100%;
+    left: 50%; }
+  
+  .hint--bottom-right:before {
+    left: calc(50% - 6px); }
+  
+  .hint--bottom-right:after {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    transform: translateX(0); }
+  
+  .hint--bottom-right:after {
+    margin-left: -12px; }
+  
+  .hint--bottom-right:hover:before {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  .hint--bottom-right:hover:after {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  /**
+   * source: hint-sizes.scss
+   *
+   * Defines width restricted tooltips that can span
+   * across multiple lines.
+   *
+   * Classes added:
+   * 	1) hint--small
+   * 	2) hint--medium
+   * 	3) hint--large
+   *
+   */
+  .hint--small:after,
+  .hint--medium:after,
+  .hint--large:after {
+    white-space: normal;
+    line-height: 1.4em;
+    word-wrap: break-word; }
+  
+  .hint--small:after {
+    width: 80px; }
+  
+  .hint--medium:after {
+    width: 150px; }
+  
+  .hint--large:after {
+    width: 300px; }
+  
+  /**
+   * source: hint-theme.scss
+   *
+   * Defines basic theme for tooltips.
+   *
+   */
+  [class*="hint--"] {
+    /**
+       * tooltip body
+       */ }
+    [class*="hint--"]:after {
+      text-shadow: 0 -1px 0px black;
+      box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3); }
+  
+  /**
+   * source: hint-color-types.scss
+   *
+   * Contains tooltips of various types based on color differences.
+   *
+   * Classes added:
+   * 	1) hint--error
+   * 	2) hint--warning
+   * 	3) hint--info
+   * 	4) hint--success
+   *
+   */
+  /**
+   * Error
+   */
+  .hint--error:after {
+    background-color: #b34e4d;
+    text-shadow: 0 -1px 0px #592726; }
+  
+  .hint--error.hint--top-left:before {
+    border-top-color: #b34e4d; }
+  
+  .hint--error.hint--top-right:before {
+    border-top-color: #b34e4d; }
+  
+  .hint--error.hint--top:before {
+    border-top-color: #b34e4d; }
+  
+  .hint--error.hint--bottom-left:before {
+    border-bottom-color: #b34e4d; }
+  
+  .hint--error.hint--bottom-right:before {
+    border-bottom-color: #b34e4d; }
+  
+  .hint--error.hint--bottom:before {
+    border-bottom-color: #b34e4d; }
+  
+  .hint--error.hint--left:before {
+    border-left-color: #b34e4d; }
+  
+  .hint--error.hint--right:before {
+    border-right-color: #b34e4d; }
+  
+  /**
+   * Warning
+   */
+  .hint--warning:after {
+    background-color: #c09854;
+    text-shadow: 0 -1px 0px #6c5328; }
+  
+  .hint--warning.hint--top-left:before {
+    border-top-color: #c09854; }
+  
+  .hint--warning.hint--top-right:before {
+    border-top-color: #c09854; }
+  
+  .hint--warning.hint--top:before {
+    border-top-color: #c09854; }
+  
+  .hint--warning.hint--bottom-left:before {
+    border-bottom-color: #c09854; }
+  
+  .hint--warning.hint--bottom-right:before {
+    border-bottom-color: #c09854; }
+  
+  .hint--warning.hint--bottom:before {
+    border-bottom-color: #c09854; }
+  
+  .hint--warning.hint--left:before {
+    border-left-color: #c09854; }
+  
+  .hint--warning.hint--right:before {
+    border-right-color: #c09854; }
+  
+  /**
+   * Info
+   */
+  .hint--info:after {
+    background-color: #3986ac;
+    text-shadow: 0 -1px 0px #1a3c4d; }
+  
+  .hint--info.hint--top-left:before {
+    border-top-color: #3986ac; }
+  
+  .hint--info.hint--top-right:before {
+    border-top-color: #3986ac; }
+  
+  .hint--info.hint--top:before {
+    border-top-color: #3986ac; }
+  
+  .hint--info.hint--bottom-left:before {
+    border-bottom-color: #3986ac; }
+  
+  .hint--info.hint--bottom-right:before {
+    border-bottom-color: #3986ac; }
+  
+  .hint--info.hint--bottom:before {
+    border-bottom-color: #3986ac; }
+  
+  .hint--info.hint--left:before {
+    border-left-color: #3986ac; }
+  
+  .hint--info.hint--right:before {
+    border-right-color: #3986ac; }
+  
+  /**
+   * Success
+   */
+  .hint--success:after {
+    background-color: #458746;
+    text-shadow: 0 -1px 0px #1a321a; }
+  
+  .hint--success.hint--top-left:before {
+    border-top-color: #458746; }
+  
+  .hint--success.hint--top-right:before {
+    border-top-color: #458746; }
+  
+  .hint--success.hint--top:before {
+    border-top-color: #458746; }
+  
+  .hint--success.hint--bottom-left:before {
+    border-bottom-color: #458746; }
+  
+  .hint--success.hint--bottom-right:before {
+    border-bottom-color: #458746; }
+  
+  .hint--success.hint--bottom:before {
+    border-bottom-color: #458746; }
+  
+  .hint--success.hint--left:before {
+    border-left-color: #458746; }
+  
+  .hint--success.hint--right:before {
+    border-right-color: #458746; }
+  
+  /**
+   * source: hint-always.scss
+   *
+   * Defines a persisted tooltip which shows always.
+   *
+   * Classes added:
+   * 	1) hint--always
+   *
+   */
+  .hint--always:after, .hint--always:before {
+    opacity: 1;
+    visibility: visible; }
+  
+  .hint--always.hint--top:before {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  .hint--always.hint--top:after {
+    -webkit-transform: translateX(-50%) translateY(-8px);
+    -moz-transform: translateX(-50%) translateY(-8px);
+    transform: translateX(-50%) translateY(-8px); }
+  
+  .hint--always.hint--top-left:before {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  .hint--always.hint--top-left:after {
+    -webkit-transform: translateX(-100%) translateY(-8px);
+    -moz-transform: translateX(-100%) translateY(-8px);
+    transform: translateX(-100%) translateY(-8px); }
+  
+  .hint--always.hint--top-right:before {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  .hint--always.hint--top-right:after {
+    -webkit-transform: translateY(-8px);
+    -moz-transform: translateY(-8px);
+    transform: translateY(-8px); }
+  
+  .hint--always.hint--bottom:before {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  .hint--always.hint--bottom:after {
+    -webkit-transform: translateX(-50%) translateY(8px);
+    -moz-transform: translateX(-50%) translateY(8px);
+    transform: translateX(-50%) translateY(8px); }
+  
+  .hint--always.hint--bottom-left:before {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  .hint--always.hint--bottom-left:after {
+    -webkit-transform: translateX(-100%) translateY(8px);
+    -moz-transform: translateX(-100%) translateY(8px);
+    transform: translateX(-100%) translateY(8px); }
+  
+  .hint--always.hint--bottom-right:before {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  .hint--always.hint--bottom-right:after {
+    -webkit-transform: translateY(8px);
+    -moz-transform: translateY(8px);
+    transform: translateY(8px); }
+  
+  .hint--always.hint--left:before {
+    -webkit-transform: translateX(-8px);
+    -moz-transform: translateX(-8px);
+    transform: translateX(-8px); }
+  
+  .hint--always.hint--left:after {
+    -webkit-transform: translateX(-8px);
+    -moz-transform: translateX(-8px);
+    transform: translateX(-8px); }
+  
+  .hint--always.hint--right:before {
+    -webkit-transform: translateX(8px);
+    -moz-transform: translateX(8px);
+    transform: translateX(8px); }
+  
+  .hint--always.hint--right:after {
+    -webkit-transform: translateX(8px);
+    -moz-transform: translateX(8px);
+    transform: translateX(8px); }
+  
+  /**
+   * source: hint-rounded.scss
+   *
+   * Defines rounded corner tooltips.
+   *
+   * Classes added:
+   * 	1) hint--rounded
+   *
+   */
+  .hint--rounded:after {
+    border-radius: 4px; }
+  
+  /**
+   * source: hint-effects.scss
+   *
+   * Defines various transition effects for the tooltips.
+   *
+   * Classes added:
+   * 	1) hint--no-animate
+   * 	2) hint--bounce
+   *
+   */
+  .hint--no-animate:before, .hint--no-animate:after {
+    -webkit-transition-duration: 0ms;
+    -moz-transition-duration: 0ms;
+    transition-duration: 0ms; }
+  
+  .hint--bounce:before, .hint--bounce:after {
+    -webkit-transition: opacity 0.3s ease, visibility 0.3s ease, -webkit-transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+    -moz-transition: opacity 0.3s ease, visibility 0.3s ease, -moz-transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.71, 1.7, 0.77, 1.24); }
+  
+  .hint--no-shadow:before, .hint--no-shadow:after {
+    text-shadow: initial;
+    box-shadow: initial; }
+  
+  .hint--no-arrow:before {
+    display: none; }

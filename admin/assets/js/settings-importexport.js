@@ -9,7 +9,7 @@ jQuery( document ).ready( function() {
 			var ourButton = jQuery( this );
 			var nonce     = ourButton.attr( 'data-nonce' );
 			var key = jQuery( this ).closest( '.logs-management-settings').data( 'key' );
-			
+
 			jQuery.ajax({
 				type: 'POST',
 				url: ajaxurl,
@@ -57,6 +57,9 @@ jQuery( document ).ready( function() {
 		jQuery( 'body' ).on( 'click', '.import-settings-modal-close', function ( e ) {
 			var modal = document.getElementById( "import-settings-modal" );
 			modal.style.display = "none";
+			setTimeout( function() {
+				window.location.reload();
+			}, 300 )
 		});
 
 		/**

@@ -160,7 +160,7 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 			} elseif ( 'password_reset_request_disabled_message' === $template ) {
 				$message = __( 'Password resets via emails have been disabled. Please contact the website administrator.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'password_expired_message' === $template ) {
-				$message = __( 'The password you entered for the username {user_login_name} has expired.', 'melapress-login-security' ) . "\n\n";
+				$message  = __( 'The password you entered for the username {user_login_name} has expired.', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'You will recieve an email with next steps you can take to regain access.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'restrict_logins_prompt_failure_message' === $template ) {
 				$message = __( 'Please check the credentials and try again.', 'melapress-login-security' ) . "\n\n";
@@ -174,6 +174,17 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				$message = __( 'Incorrect answer provided', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'security_prompt_response_failure_message' === $template ) {
 				$message = __( 'Incorrect answer provided', 'melapress-login-security' ) . "\n\n";
+			} elseif ( 'user_exceeded_failed_logins_count_message' === $template ) {
+				$message = __( 'Your account has surpassed the allowed number of login attempts and can no longer log in.', 'melapress-login-security' ) . "\n\n";
+			} elseif ( 'login_failed_account_not_known' === $template ) {
+				$message = __( 'The account details provided were not recognised.', 'melapress-login-security' ) . "\n\n";
+			} elseif ( 'login_failed_username_not_known' === $template ) {
+				$message = __( 'The username provided was not recognised', 'melapress-login-security' ) . "\n\n";
+			} elseif ( 'login_failed_password_incorrect' === $template ) {
+				$message = __( 'The password provided was not recognised', 'melapress-login-security' ) . "\n\n";
+			} elseif ( 'temporary_login_created_email_body' === $template ) {
+				$message  = __( 'Hello,', 'melapress-login-security' ) . "\n\n";
+				$message .= __( 'A temporary login link has been created for you. You may login {temporary_login_link}.', 'melapress-login-security' ) . "\n\n";
 			}
 
 			$message = apply_filters( 'mls_default_email_content_strings', $message, $template );
@@ -201,16 +212,18 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 			if ( ! is_a( $user, '\WP_User' ) ) {
 				// These are the strings we are going to search for, as well as there respective replacements.
 				$replacements = array(
-					'{site_url}'            => esc_url( get_bloginfo( 'url' ) ),
-					'{home_url}'            => esc_url( get_bloginfo( 'url' ) ),
-					'{site_name}'           => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
-					'{admin_email}'         => $from_email,
-					'{blogname}'            => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
-					'{reset_or_continue}'   => ( ! empty( $args ) && isset( $args['reset_or_continue'] ) ) ? sanitize_text_field( $args['reset_or_continue'] ) : '',
-					'{reset_url}'           => ( ! empty( $args ) && isset( $args['reset_url'] ) ) ? sanitize_text_field( $args['reset_url'] ) : '',
-					'{password}'            => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
-					'{device_ip}'           => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
-					'{clear_sessions_link}' => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
+					'{site_url}'             => esc_url( get_bloginfo( 'url' ) ),
+					'{home_url}'             => esc_url( get_bloginfo( 'url' ) ),
+					'{site_name}'            => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+					'{admin_email}'          => $from_email,
+					'{blogname}'             => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+					'{reset_or_continue}'    => ( ! empty( $args ) && isset( $args['reset_or_continue'] ) ) ? sanitize_text_field( $args['reset_or_continue'] ) : '',
+					'{reset_url}'            => ( ! empty( $args ) && isset( $args['reset_url'] ) ) ? sanitize_text_field( $args['reset_url'] ) : '',
+					'{password}'             => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
+					'{device_ip}'            => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
+					'{clear_sessions_link}'  => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
+					'{remaining_time}'       => ( ! empty( $args ) && isset( $args['remaining_time'] ) ) ? sanitize_text_field( $args['remaining_time'] ) : '',
+					'{temporary_login_link}' => ( ! empty( $args ) && isset( $args['temporary_login_link'] ) ) ? wp_kses_post( $args['temporary_login_link'] ) : '',
 				);
 
 				$final_output = str_replace( array_keys( $replacements ), array_values( $replacements ), $input );
@@ -219,22 +232,24 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 
 			// These are the strings we are going to search for, as well as there respective replacements.
 			$replacements = array(
-				'{home_url}'            => esc_url( get_bloginfo( 'url' ) ),
-				'{site_url}'            => esc_url( get_bloginfo( 'url' ) ),
-				'{site_name}'           => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
-				'{user_login_name}'     => sanitize_text_field( $user->user_login ),
-				'{user_first_name}'     => sanitize_text_field( $user->firstname ),
-				'{user_last_name}'      => sanitize_text_field( $user->lastname ),
-				'{user_display_name}'   => sanitize_text_field( $user->display_name ),
-				'{user_email}'          => sanitize_text_field( $user->user_email ),
-				'{admin_email}'         => $from_email,
-				'{blogname}'            => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
-				'{reset_or_continue}'   => ( ! empty( $args ) && isset( $args['reset_or_continue'] ) ) ? sanitize_text_field( $args['reset_or_continue'] ) : '',
-				'{reset_url}'           => ( ! empty( $args ) && isset( $args['reset_url'] ) ) ? sanitize_text_field( $args['reset_url'] ) : '',
-				'{password}'            => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
-				'{user_password}'       => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
-				'{device_ip}'           => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
-				'{clear_sessions_link}' => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
+				'{home_url}'             => esc_url( get_bloginfo( 'url' ) ),
+				'{site_url}'             => esc_url( get_bloginfo( 'url' ) ),
+				'{site_name}'            => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+				'{user_login_name}'      => sanitize_text_field( $user->user_login ),
+				'{user_first_name}'      => sanitize_text_field( $user->firstname ),
+				'{user_last_name}'       => sanitize_text_field( $user->lastname ),
+				'{user_display_name}'    => sanitize_text_field( $user->display_name ),
+				'{user_email}'           => sanitize_text_field( $user->user_email ),
+				'{admin_email}'          => $from_email,
+				'{blogname}'             => ( is_multisite() ) ? get_network()->site_name : wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+				'{reset_or_continue}'    => ( ! empty( $args ) && isset( $args['reset_or_continue'] ) ) ? sanitize_text_field( $args['reset_or_continue'] ) : '',
+				'{reset_url}'            => ( ! empty( $args ) && isset( $args['reset_url'] ) ) ? sanitize_text_field( $args['reset_url'] ) : '',
+				'{password}'             => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
+				'{user_password}'        => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
+				'{device_ip}'            => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
+				'{clear_sessions_link}'  => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
+				'{remaining_time}'       => ( ! empty( $args ) && isset( $args['remaining_time'] ) ) ? sanitize_text_field( $args['remaining_time'] ) : '',
+				'{temporary_login_link}' => ( ! empty( $args ) && isset( $args['temporary_login_link'] ) ) ? wp_kses_post( $args['temporary_login_link'] ) : '',
 			);
 
 			$final_output = str_replace( array_keys( $replacements ), array_values( $replacements ), $input );
@@ -244,7 +259,9 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 		/**
 		 * Returns a clickable link.
 		 *
-		 * @return string - Link to linkify.
+		 * @param string $link - Link to linkify.
+		 *
+		 * @return string - Link.
 		 *
 		 * @since 2.0.1
 		 */

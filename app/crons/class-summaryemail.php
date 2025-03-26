@@ -102,15 +102,25 @@ class SummaryEmail implements CronInterface {
 	 * @since 2.0.0
 	 */
 	private function register_cron() {
-		// bail early if this cron is already scheduled.
-		if ( wp_next_scheduled( 'mls_send_summary_email' ) ) {
-			return;
+		$mls = melapress_login_security();
+		if ( ! isset( $mls->options->mls_setting->send_summary_email_day ) || empty( $mls->options->mls_setting->send_summary_email_day ) ) {
+			$wanted_day = 'Sunday';
+		} else {
+			$wanted_day = $mls->options->mls_setting->send_summary_email_day;
 		}
-		wp_schedule_event(
-			\current_time( 'timestamp' ), // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
-			'weekly',
-			'mls_send_summary_email'
-		);
+		$next_stamp = strtotime( 'next ' . $wanted_day );
+		$timestamp  = wp_next_scheduled( 'mls_send_summary_email' );
+
+		if ( ! $timestamp ) {
+			wp_schedule_event( $next_stamp, 'weekly', 'mls_send_summary_email' );
+		} else {
+			$day        = gmdate( 'D', $timestamp );
+			$wanted_day = ucfirst( substr( $wanted_day, 0, 3 ) );
+			if ( $day != $wanted_day ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+				wp_clear_scheduled_hook( 'mls_send_summary_email' );
+				wp_schedule_event( $next_stamp, 'weekly', 'mls_send_summary_email' );
+			}
+		}
 	}
 
 	/**
@@ -145,14 +155,15 @@ class SummaryEmail implements CronInterface {
 		$from_email = sanitize_email( $from_email );
 		$headers[]  = 'From: ' . $from_email;
 		$headers[]  = 'Content-Type: text/html; charset=UTF-8';
+		$message    = false;
 
 		$current_timestamp = current_time( 'timestamp' );  // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested, WordPress.DateTime.RestrictedFunctions.date_date
 		if ( ! $current_timestamp ) {
 			$current_timestamp = current_datetime();
 		}
 
-		$weeknumber = date( 'W' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested, WordPress.DateTime.RestrictedFunctions.date_date
-		$year       = date( 'Y' );
+		$weeknumber = gmdate( 'W' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested, WordPress.DateTime.RestrictedFunctions.date_date
+		$year       = gmdate( 'Y' );
 
 		if ( is_multisite() ) {
 			$blogname = get_network()->site_name;
@@ -164,13 +175,8 @@ class SummaryEmail implements CronInterface {
 			$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 		}
 
-		/* @free:start */
-
 		/* translators: Password reset email subject. 1: Site name, 2: Week number */
-		$title = sprintf( __( '%1$1s Week %2$2s - {site_name} password resets summary', 'melapress-login-security' ), $year, $weeknumber );
-
-		/* @free:end */
-
+		$title = sprintf( __( '%1$1s Week %2$2s - {site_name} Melapress Login Security weekly summary email', 'melapress-login-security' ), $year, $weeknumber );
 
 		$title = \MLS\EmailAndMessageStrings::replace_email_strings( $title, get_current_user_id() );
 
@@ -188,13 +194,11 @@ class SummaryEmail implements CronInterface {
 
 		$resets = $this->get_users_with_recent_password_resets();
 
-		$introduction = '<p>' . wp_sprintf( __( 'Below is the list of all the password resets that took place on the website {site_name} during week %1s of the year %2s.', 'melapress-login-security' ), '<strong>' . $weeknumber . '</strong>', '<strong>' . $year . '</strong>' ) . '</p>';
-
-		$message = '<div style="font-family: helvetica;"><div style="width: 400px; margin-bottom: 0px;"><img src="' . esc_url( MLS_PLUGIN_URL . 'assets/images/mls-email-header.png' ) . '"></div><br>';
+		$introduction = '<p>' . wp_sprintf( /* translators: %s: Week number, %s: Year number . */ __( 'Below is the list of all the password resets that took place on the website {site_name} during week %1$1s of the year %2$2s.', 'melapress-login-security' ), '<strong>' . $weeknumber . '</strong>', '<strong>' . $year . '</strong>' ) . '</p>';
 
 		$message .= '<p>' . __( 'Hello website administrator,', 'melapress-login-security' ) . '</p>';
 		$message .= '<p>' . $introduction . '</p>';
-		
+
 		// If we have nothing to report, do nothing.
 		if ( empty( $inactive_users ) && empty( $blocked_users ) && empty( $resets ) ) {
 			return;
@@ -343,7 +347,7 @@ class SummaryEmail implements CronInterface {
 
 		foreach ( $possible_user_ids as $user_id ) {
 			if ( 'password_resets' === $type ) {
-				$history               = get_user_meta( $user_id, MLS_PW_HISTORY_META_KEY, true );
+				$history = get_user_meta( $user_id, MLS_PW_HISTORY_META_KEY, true );
 				if ( ! get_user_meta( $user_id, MLS_PREFIX . '_user_has_manually_reset', true ) ) {
 					continue;
 				}

@@ -20,6 +20,7 @@ if ( ! class_exists( '\WP_List_Table' ) ) {
 require_once MLS_PATH . 'app/modules/failed-logins/InactiveUsersTable.php';
 
 $sidebar_required = false;
+$master_policy    = \MLS\Helpers\OptionsHelper::get_master_policy_options();
 
 /* @free:start */
 
@@ -32,7 +33,10 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 	<?php
 	// display the table view + message if the feature is enabled, otherwise
 	// show an error message to tell user what is required to turn this on.
-	$inactive_feature_enabled = \MLS\Helpers\OptionsHelper::should_inactive_users_feature_be_active();
+	$inactive_feature_enabled = \MLS\Helpers\OptionsHelper::should_inactive_users_feature_be_active( true );
+	if ( isset( $master_policy->failed_login_policies_enabled ) && \MLS\Helpers\OptionsHelper::string_to_bool( $master_policy->failed_login_policies_enabled ) ) {
+		$inactive_feature_enabled = true;
+	}
 	if ( ! class_exists( '\MLS\InactiveUsers' ) ) {
 		?>
 		<p>

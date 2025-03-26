@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				'system-info',
 			);
 			// Get current tab.
-			$current_tab   = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'help'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$current_tab = isset( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : 'help'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			?>
 		<a href="<?php echo esc_url( remove_query_arg( 'tab' ) ); ?>" class="nav-tab<?php echo 'help' === $current_tab ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Help', 'melapress-login-security' ); ?></a>
 		<?php

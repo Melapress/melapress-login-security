@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitafd8bb09576171a87a734276a61a25ad
+class ComposerStaticInit13996bdbd7c749bcec24f832b10f372f
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -57,6 +57,8 @@ class ComposerStaticInitafd8bb09576171a87a734276a61a25ad
         'MLS\\Restrict_Login_Credentials' => __DIR__ . '/../..' . '/app/enforcers/class-restrict-login-credentials.php',
         'MLS\\SecurityPrompt' => __DIR__ . '/../..' . '/app/modules/class-security-prompt.php',
         'MLS\\Shortcodes' => __DIR__ . '/../..' . '/app/enforcers/class-shortcodes.php',
+        'MLS\\TemporaryLogins' => __DIR__ . '/../..' . '/app/modules/temporary-logins/class-temporary-logins.php',
+        'MLS\\TemporaryLogins\\Temporary_Logins_Table' => __DIR__ . '/../..' . '/app/modules/temporary-logins/class-temporary-logins-table.php',
         'MLS\\UpdateRoutines' => __DIR__ . '/../..' . '/app/helpers/class-update-routines.php',
         'MLS\\User_Profile' => __DIR__ . '/../..' . '/app/enforcers/class-user-profile.php',
         'MLS\\Utilities\\Validator_Factory' => __DIR__ . '/../..' . '/app/Utilities/class-validator-factory.php',
@@ -71,9 +73,9 @@ class ComposerStaticInitafd8bb09576171a87a734276a61a25ad
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitafd8bb09576171a87a734276a61a25ad::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitafd8bb09576171a87a734276a61a25ad::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitafd8bb09576171a87a734276a61a25ad::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit13996bdbd7c749bcec24f832b10f372f::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit13996bdbd7c749bcec24f832b10f372f::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit13996bdbd7c749bcec24f832b10f372f::$classMap;
 
         }, null, ClassLoader::class);
     }

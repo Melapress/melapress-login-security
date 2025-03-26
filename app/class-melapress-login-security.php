@@ -56,7 +56,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		private static $_instance = null;
+		private static $_instance = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 		/**
 		 * Password policy menu icon.
@@ -168,10 +168,41 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				add_action( 'admin_menu', array( '\MLS\Failed_Logins', 'add_locked_users_admin_menu' ), 20, 3 );
 			}
 
+			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
 
-			/* @free:start */
-			add_filter( 'mls_emailer_content_filter', array( '\MLS\Emailer', 'append_email_footer' ) );
-			/* @free:end */
+
+			if ( isset( $mls_setting['enable_failure_message_overrides'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls_setting['enable_failure_message_overrides'] ) ) {
+				add_filter( 'login_errors', array( __CLASS__, 'login_errors' ) );
+			}
+		}
+
+		/**
+		 * Replace original error message with custom.
+		 *
+		 * @param   string $error  Current error message.
+		 *
+		 * @return  string          Custom message.
+		 */
+		public static function login_errors( $error ) {
+			global $errors;
+
+			if ( ! is_wp_error( $errors ) ) {
+				return $error;
+			}
+
+			$err_codes = $errors->get_error_codes();
+
+			if ( in_array( 'invalid_username', $err_codes, true ) ) {
+				$error = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'login_failed_account_not_known' ) );
+			}
+			if ( in_array( 'invalid_email', $err_codes, true ) ) {
+				$error = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'login_failed_username_not_known' ) );
+			}
+			if ( in_array( 'incorrect_password', $err_codes, true ) ) {
+				$error = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'login_failed_password_incorrect' ) );
+			}
+
+			return $error;
 		}
 
 
@@ -226,13 +257,13 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			add_action( 'user_register', array( $this->history, 'user_register' ) );
 			add_action( 'mls_apply_forced_reset_usermeta', array( $this->history, 'apply_forced_reset_usermeta' ) );
 
-			$this->new_user = new \MLS\New_User_Register();
-			add_action( 'wp_login', array( $this->new_user, 'ppm_first_time_login' ), 20, 2 );
-
 			if ( is_admin() ) {
 				// Hide all unrelated to the plugin notices on the plugin admin pages.
 				add_action( 'admin_print_scripts', array( '\MLS\Helpers\HideAdminNotices', 'hide_unrelated_notices' ) );
 			}
+
+			add_action( 'init', array( '\MLS\TemporaryLogins', 'manage_temporary_logins' ) );
+			add_filter( 'mls_login_redirect', array( '\MLS\TemporaryLogins', 'redirect_after_login' ), 10, 2 );
 		}
 
 		/**
@@ -313,7 +344,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 						$upgrade_menu,
 						array_fill_keys(
 							array_keys( $upgrade_menu, 'mls-policies-pricing', true ),
-							esc_url( 'https://www.melapress.com/wordpress-login-security/pricing/' )
+							esc_url( 'https://melapress.com/wordpress-login-security/pricing/' )
 						)
 					);
 				}
@@ -396,6 +427,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 
 			\MLS\Restrict_Login_Credentials::get_instance();
 			\MLS\Admin\UserLastLoginTime::init();
+			\MLS\TemporaryLogins::init();
 
 
 			do_action( 'mls_extension_init' );
@@ -485,9 +517,13 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			if ( isset( $mls->options->mls_setting->exempted['users'] ) && ! empty( $mls->options->mls_setting->exempted['users'] ) ) {
 
 				// check if this particular user is exempted.
-				if ( in_array( $user_id, $mls->options->mls_setting->exempted['users'] ) ) {
+				if ( in_array( $user_id, $mls->options->mls_setting->exempted['users'], true ) ) {
 					return true;
 				}
+			}
+
+			if ( get_user_meta( $user_id, 'mls_temp_user', true ) ) {
+				return true;
 			}
 
 			$user = get_user_by( 'id', $user_id );
@@ -696,6 +732,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			);
 			// Merge custom query.
 			$user_query = array_merge( $user_query, $extra_query );
+
 			// Return user object.
 			return get_users( $user_query );
 		}

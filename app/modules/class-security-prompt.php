@@ -111,11 +111,11 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 							<fieldset>
 								<?php
 								$content   = \MLS\EmailAndMessageStrings::get_email_template_setting( 'security_prompt_response_failure_message' );
-								$editor_id = '_ppm_options_security_prompt_response_failure_message';
+								$editor_id = 'mls_options_security_prompt_response_failure_message';
 								$settings  = array(
 									'media_buttons' => false,
 									'editor_height' => 200,
-									'textarea_name' => '_ppm_options[security_prompt_response_failure_message]',
+									'textarea_name' => 'mls_options[security_prompt_response_failure_message]',
 								);
 								wp_editor( $content, $editor_id, $settings );
 								?>
@@ -156,7 +156,7 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 					</th>
 					<td>
 						<fieldset>
-							<input name="_ppm_options[enable_security_questions]" type="checkbox" id="ppm-enable-security-question" data-toggle-target=".security-questions-row" value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_security_questions ) ); ?>>
+							<input name="mls_options[enable_security_questions]" type="checkbox" id="ppm-enable-security-question" data-toggle-target=".security-questions-row" value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_security_questions ) ); ?>>
 							<?php esc_attr_e( 'Activate Security questions', 'melapress-login-security' ); ?>
 							<p class="description">
 								<?php esc_html_e( 'Activate this setting to require users to answer a pre-provided question to proceed with certain actions, such as, to reset a password.', 'melapress-login-security' ); ?>
@@ -167,13 +167,13 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 						<div class="security-questions-row">
 							<fieldset>
 								<label for="ppm-enable_device_policies_admin_alerts">
-									<input name="_ppm_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
+									<input name="mls_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
 									<?php esc_html_e( 'Require security question to initiate a password reset', 'melapress-login-security' ); ?>
 								</label>
 								<br>
 
 								<label for="ppm-enable_device_policies_admin_alerts">
-									<input name="_ppm_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
+									<input name="mls_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
 									<?php esc_html_e( 'Require security question to enable a disabled account', 'melapress-login-security' ); ?>
 								</label>
 								<br>
@@ -181,7 +181,7 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 								<?php
 									ob_start();
 								?>
-								<input id="prompt-counter" name="_ppm_options[min_answered_needed_count]" type="number" value="<?php echo esc_attr( $settings_tab->min_answered_needed_count ); ?>" min="2" max="10" size="4" class="tiny-text ltr" required/>
+								<input id="prompt-counter" name="mls_options[min_answered_needed_count]" type="number" value="<?php echo esc_attr( $settings_tab->min_answered_needed_count ); ?>" min="2" max="10" size="4" class="tiny-text ltr" required/>
 								<?php
 									$input_history = ob_get_clean();
 									/* translators: %s: Configured number of old password to check for duplication. */
@@ -219,7 +219,7 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 											$href   = '#remove';
 										}
 
-										echo '<li class="question-list-item ' . esc_attr( $class ) . ' "><span class="dashicons dashicons-sort"></span><label>' . wp_kses_post( $question ) . '</label> <input type="checkbox" id="' . esc_attr( $id ) . '" name="_ppm_options[enabled_questions][' . esc_attr( $id ) . ']" value="' . wp_kses_post( $question ) . '" ' . esc_attr( $checked ) . '><a href="' . esc_attr( $href ) . '">' . esc_attr( $label ) . '</a></li>';
+										echo '<li class="question-list-item ' . esc_attr( $class ) . ' "><span class="dashicons dashicons-sort"></span><label>' . wp_kses_post( $question ) . '</label> <input type="checkbox" id="' . esc_attr( $id ) . '" name="mls_options[enabled_questions][' . esc_attr( $id ) . ']" value="' . wp_kses_post( $question ) . '" ' . esc_attr( $checked ) . '><a href="' . esc_attr( $href ) . '">' . esc_attr( $label ) . '</a></li>';
 									}
 									?>
 								</ul>
@@ -360,14 +360,16 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 				$role_options = OptionsHelper::get_preferred_role_options( $user->roles );
 				$needed       = (int) $role_options->min_answered_needed_count;
 				$given_count  = count( self::get_user_responses( $user->ID, 'all', true ) );
+				$remaining    = $needed - $given_count;
 				if ( $given_count < $needed ) {
 					?>
 					<div class="notice notice-warning mls-security-notice" style="margin-left: 0;">
 						<?php
 						printf(
-							'<p><strong>%1s</strong><br>%2s</p><p>%3s</p>',
+							'<p><strong>%1s</strong><br>%2s</p><p>%3s</p><p>%4s</p>',
 							esc_html__( 'Notice:', 'melapress-login-security' ),
 							esc_html__( 'You are required to provide an answer to a number of security questions to better protect your account.', 'melapress-login-security' ),
+							esc_html__( 'Please provide a further ', 'melapress-login-security' ) . $remaining . esc_html__( ' responses to ensure your account is protected.', 'melapress-login-security' ),
 							'<a class="button button-primary" href="' . esc_url( network_admin_url( 'profile.php' ) ) . '#mls-user-security-form">' . esc_html__( 'Visit your profile page', 'melapress-login-security' ) . '</a>',
 						);
 						?>
@@ -496,9 +498,7 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 				}
 			}
 
-			if ( $given_count >= $needed ) {
-				update_user_meta( $user_id, MLS_PREFIX . '_security_prompt_responses', maybe_serialize( $provided_responses ) );
-			}
+			update_user_meta( $user_id, MLS_PREFIX . '_security_prompt_responses', maybe_serialize( $provided_responses ) );
 		}
 
 		/**

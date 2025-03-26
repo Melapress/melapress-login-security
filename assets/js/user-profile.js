@@ -409,7 +409,7 @@ Array.prototype.find = Array.prototype.find || function(callback) {
 		}
 		if ( ppmPolicyRules.length === 0 ) {
 			$( "input[id$='submit'], input#createusersub" ).prop( "disabled", false ).removeClass( 'button-disabled' );
-			$( '#pass-strength-result:not(#resetpassform #pass-strength-result)' ).html( '<p class="hint-msg">' + user_profile_l10n.hintMsgUserNew + '</p><ul style="list-style: none;"><li>' + user_profile_l10n.hintBefore + ' <a target="_blank" href="https://www.melapress.com/guide-wordpress-password-security/">' + user_profile_l10n.hintLink + '</a> ' + user_profile_l10n.hintAfter + '</li></ul>' );
+			$( '#pass-strength-result:not(#resetpassform #pass-strength-result)' ).html( '<p class="hint-msg">' + user_profile_l10n.hintMsgUserNew + '</p><ul style="list-style: none;"><li>' + user_profile_l10n.hintBefore + ' <a target="_blank" href="https://melapress.com/guide-wordpress-password-security/">' + user_profile_l10n.hintLink + '</a> ' + user_profile_l10n.hintAfter + '</li></ul>' );
 			jQuery( '#pass-strength-result' ).css( 'opacity', 1 ).removeClass('strong');
 		}	
 	}

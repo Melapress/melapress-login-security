@@ -46,7 +46,7 @@ class Restrict_Login_Credentials {
 	 *
 	 * @since 2.0.0
 	 */
-	public static function add_template_settings( $mls_settings ) {
+	public static function add_template_settings( $mls_settings ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
 		?>
 		<table class="form-table has-sticky-bar">
 			<tbody>
@@ -64,11 +64,11 @@ class Restrict_Login_Credentials {
 						<fieldset>
 							<?php
 							$content   = \MLS\EmailAndMessageStrings::get_email_template_setting( 'restrict_logins_prompt_failure_message' );
-							$editor_id = '_ppm_options_restrict_logins_prompt_failure_message';
+							$editor_id = 'mls_options_restrict_logins_prompt_failure_message';
 							$settings  = array(
 								'media_buttons' => false,
 								'editor_height' => 200,
-								'textarea_name' => '_ppm_options[restrict_logins_prompt_failure_message]',
+								'textarea_name' => 'mls_options[restrict_logins_prompt_failure_message]',
 							);
 							wp_editor( $content, $editor_id, $settings );
 							?>
@@ -176,11 +176,11 @@ class Restrict_Login_Credentials {
 					<fieldset>
 						<p class="description"><?php esc_attr_e( 'Use this setting to specify what the users can use to log in. Available options include either their username or email address, username only, or email address only.', 'melapress-login-security' ); ?></p><br>
 						<span style="display: inline-table;">
-							<input type="radio" id="default" name="_ppm_options[restrict_login_credentials]" value="default" <?php checked( $settings_tab->restrict_login_credentials, 'default' ); ?>>
+							<input type="radio" id="default" name="mls_options[restrict_login_credentials]" value="default" <?php checked( $settings_tab->restrict_login_credentials, 'default' ); ?>>
 							<label for="default"><?php esc_attr_e( 'Users can log in with either their username or email address', 'melapress-login-security' ); ?></label><br>
-							<input type="radio" id="email-only" name="_ppm_options[restrict_login_credentials]" value="email-only" <?php checked( $settings_tab->restrict_login_credentials, 'email-only' ); ?>>
+							<input type="radio" id="email-only" name="mls_options[restrict_login_credentials]" value="email-only" <?php checked( $settings_tab->restrict_login_credentials, 'email-only' ); ?>>
 							<label for="email-only"><?php esc_attr_e( 'Users can log in with their email address only', 'melapress-login-security' ); ?></label><br>
-							<input type="radio" id="username-only" name="_ppm_options[restrict_login_credentials]" value="username-only" <?php checked( $settings_tab->restrict_login_credentials, 'username-only' ); ?>>
+							<input type="radio" id="username-only" name="mls_options[restrict_login_credentials]" value="username-only" <?php checked( $settings_tab->restrict_login_credentials, 'username-only' ); ?>>
 							<label for="username-only"><?php esc_attr_e( 'Users can log in with their username only', 'melapress-login-security' ); ?></label><br>
 						</span>
 					</fieldset>
