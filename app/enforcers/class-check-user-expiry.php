@@ -15,6 +15,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use \MLS\Helpers\OptionsHelper;
+
 if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 
 	/**
@@ -118,7 +120,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			}
 
 			// Get terminate setting.
-			$terminate_session_password = \MLS\Helpers\OptionsHelper::string_to_bool( $this->options->mls_setting->terminate_session_password );
+			$terminate_session_password = OptionsHelper::string_to_bool( $this->options->mls_setting->terminate_session_password );
 
 			// Check force terminate setting is enabled.
 			if ( ! $terminate_session_password ) {
@@ -169,6 +171,15 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 				if ( \MLS_Core::is_user_exempted( $user->ID ) ) {
 					return $user;
 				}
+
+				$role_options      = OptionsHelper::get_preferred_role_options( $user->roles );
+				$expiry            = $role_options->password_expiry;
+				$is_feature_active = isset( $role_options->activate_password_expiration_policies ) && OptionsHelper::string_to_bool( $role_options->activate_password_expiration_policies ) ? true : false;
+
+				if ( ! $is_feature_active ) {
+					return $user;
+				}
+
 				$password_history = get_user_meta( $user->ID, MLS_PW_HISTORY_META_KEY, true );
 			} else {
 				$password_history = false;
@@ -241,7 +252,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 
 			$mls = melapress_login_security();
 			if ( is_a( $user, '\WP_User' ) ) {
-				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->notify_password_reset_on_login ) && get_user_meta( $user->ID, MLS_PREFIX . '_pw_expires_soon_notice_dismissed', true ) ) {
+				if ( OptionsHelper::string_to_bool( $mls->options->notify_password_reset_on_login ) && get_user_meta( $user->ID, MLS_PREFIX . '_pw_expires_soon_notice_dismissed', true ) ) {
 					delete_user_meta( $user->ID, MLS_PREFIX . '_pw_expires_soon_notice_dismissed' );
 				}
 			}
@@ -283,7 +294,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			\MLS\MLS_Reset_Passwords::reset_by_id( $user_id, $current_password, 'system' );
 			// save the last expiry time in an easy to access meta as this is
 			// used/modified by the inactive users feature.
-			$last_expiry = \MLS\Helpers\OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $user_id ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+			$last_expiry = OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $user_id ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 		}
 
 		/**
@@ -297,9 +308,9 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 		 */
 		public static function should_password_expire( $user_id ) {
 			$user              = get_user_by( 'id', $user_id );
-			$role_options      = \MLS\Helpers\OptionsHelper::get_preferred_role_options( $user->roles );
+			$role_options      = OptionsHelper::get_preferred_role_options( $user->roles );
 			$expiry            = $role_options->password_expiry;
-			$is_feature_active = isset( $role_options->activate_password_expiration_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->activate_password_expiration_policies ) ? true : false;
+			$is_feature_active = isset( $role_options->activate_password_expiration_policies ) && OptionsHelper::string_to_bool( $role_options->activate_password_expiration_policies ) ? true : false;
 
 			// no need to expire if expiry is set to 0 (by default, or by choice).
 			if ( $expiry['value'] < 1 || ! $is_feature_active ) {
@@ -325,11 +336,11 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			$expiry_string          = implode( ' ', $expiry );
 			$notify_password_expiry = $role_options->notify_password_expiry;
 
-			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $notify_password_expiry ) ) {
+			if ( OptionsHelper::string_to_bool( $notify_password_expiry ) ) {
 				$expiry_timestamp              = get_user_meta( $user_id, MLS_PREFIX . '_pw_expires_soon', true );
-				$allowed_time_in_seconds       = \MLS\Helpers\OptionsHelper::get_users_password_history_expiry_time_in_seconds( $user_id );
+				$allowed_time_in_seconds       = OptionsHelper::get_users_password_history_expiry_time_in_seconds( $user_id );
 				$time_since_last_reset_seconds = current_time( 'timestamp' ) - $last_reset; // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
-				$notify_period_in_seconds      = \MLS\Helpers\OptionsHelper::get_users_password_expiry_notice_time_in_seconds( $user_id );
+				$notify_period_in_seconds      = OptionsHelper::get_users_password_expiry_notice_time_in_seconds( $user_id );
 				$expiry_days_in_secs           = strtotime( $expiry_string, 0 );
 				$grace                         = $expiry_days_in_secs - $notify_period_in_seconds;
 
@@ -360,7 +371,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			$expiry_timestamp       = get_user_meta( $user_id, MLS_PREFIX . '_pw_expires_soon', true );
 			$notice_dismissed       = get_user_meta( $user_id, MLS_PREFIX . '_pw_expires_soon_notice_dismissed', true );
 			$user                   = get_user_by( 'id', $user_id );
-			$role_options           = \MLS\Helpers\OptionsHelper::get_preferred_role_options( $user->roles );
+			$role_options           = OptionsHelper::get_preferred_role_options( $user->roles );
 			$notify_password_expiry = ( 'yes' === $role_options->notify_password_expiry ) ? true : false;
 
 			if ( \MLS_Core::is_user_exempted( $user_id ) ) {
@@ -372,7 +383,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 				return;
 			}
 
-			$is_feature_active = isset( $role_options->activate_password_expiration_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->activate_password_expiration_policies ) ? true : false;
+			$is_feature_active = isset( $role_options->activate_password_expiration_policies ) && OptionsHelper::string_to_bool( $role_options->activate_password_expiration_policies ) ? true : false;
 
 			if ( $is_feature_active && $notify_password_expiry && ! empty( $expiry_timestamp ) && empty( $notice_dismissed ) ) {
 				$user_link = get_edit_profile_url( $user_id );

@@ -5,7 +5,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Tested up to: 6.6.2
 Tags: brute force, login, limit logins, limit login attempts, login security
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 Requires PHP: 7.3
 
 Implement WordPress login and password security policies with ease to beef up the security and managemet of your users & website.
@@ -197,7 +197,24 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
-= 2.1.0 (2025-03-27) =
+= 2.1.1 (2025-04-07) =
+
+Version 2.1.1 (2025-04-07) Maintenance update
+
+ * **Bug fixes**
+	 * Fixed a vulnerability reported by Wordfence: Missing Authorization leading to Unauthenticated Arbitrary User Deletion.
+	 * Resolved a UI issue in the calendar view for the Temporary Logins custom expiry date filter.
+	 * Fixed a bug that prevented the "Hide WordPress native errors on login form" feature from working correctly when the login URL was changed or when running on a multisite network.
+	 * Multisite: Addressed PHP errors that occurred when certain plugin cron jobs were executed.
+	 * Multisite: Addressed a bug which was causing the "User notification templates" page to be hidden on certain site setups
+	 * Fixed a bug preventing "Disallow old passwords" feature to work on 3rd party forms, unless "Password policies" are globally active in plugin settings.
+	 * Fixed an internal plugin conflict between "Disallow old passwords" feature and Temporary logins, which in some edge cases could prevent new Temporary logins to be made
+
+ * **Plugin improvements**
+	 * Users excluded from password policies are now also exempt from Security Questions enforcement.
+	 *  Users with an expired password can now log in if the policy is disabled in the plugin settings.
+	 * Improved Temporary Logins UI with a more compact layout.
+	 * Strengthened security by adding additional nonce and capability checks across the plugin.
 
 = 2.0.1 (2024-12-10) =
 

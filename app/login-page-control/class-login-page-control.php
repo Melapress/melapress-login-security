@@ -66,6 +66,10 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				add_filter( 'user_request_action_email_content', array( $this, 'user_request_action_email_content' ), 999, 2 );
 				remove_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
 				add_filter( 'login_url', array( $this, 'login_control_login_url' ), 10, 3 );
+
+				if ( isset( $mls->options->mls_setting->enable_failure_message_overrides ) && ! empty( $mls->options->mls_setting->enable_failure_message_overrides ) ) {
+					add_filter( 'authenticate', array( __CLASS__, 'login_errors_pre_check' ), 100, 3 );
+				}
 			}
 
 
@@ -73,6 +77,39 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				add_filter( 'login_footer', array( $this, 'insert_banner_markup' ), 50, 1 );
 				add_shortcode( 'mls-gdpr-banner', array( $this, 'banner_shortcode' ) );
 			}
+		}
+
+		/**
+		 * Override error message in case of custom login URL active.
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param WP_User|WP_Error|null $user     WP_User or WP_Error object from a previous callback. Default null.
+		 * @param string                $username Username for authentication.
+		 * @param string                $password Password for authentication.
+		 *
+		 * @return WP_User|WP_Error WP_User on success, WP_Error on failure.
+		 *
+		 * @since 2.0.0
+		 */
+		public static function login_errors_pre_check( $user, $username, $password ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+			if ( ! is_wp_error( $user ) ) {
+				return $user;
+			}
+
+			$err_codes = $user->get_error_codes();
+
+			if ( in_array( 'invalid_username', $err_codes, true ) ) {
+				$user->errors['invalid_username'] = array( \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'login_failed_account_not_known' ) ) );
+			}
+			if ( in_array( 'invalid_email', $err_codes, true ) ) {
+				$user->errors['invalid_email'] = array( \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'login_failed_username_not_known' ) ) );
+			}
+			if ( in_array( 'incorrect_password', $err_codes, true ) ) {
+				$user->errors['incorrect_password'] = array( \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'login_failed_password_incorrect' ) ) );
+			}
+
+			return $user;
 		}
 
 		/**
@@ -205,7 +242,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 							echo wp_kses_post( /* translators: %s: Link to PLocate.io. */ wp_sprintf( __( 'IP checking is handled by IPLocate.io, please %s to get your own key.', 'melapress-login-security' ), $link ) );
 							?>
 						</p><br>
-						<input type="text" id="iplocate_api_key" class="regular regular-text" name="mls_options[iplocate_api_key]" placeholder="" value="<?php echo esc_attr( isset( $mls->options->mls_setting->iplocate_api_key ) ? rtrim( $mls->options->mls_setting->iplocate_api_key, '/' ) : '' ); ?>" minlength="32">
+						<input type="text" id="iplocate_api_key" class="regular regular-text" name="mls_options[iplocate_api_key]" placeholder="" value="<?php echo esc_attr( ( isset( $mls->options->mls_setting->iplocate_api_key ) && ! empty( $mls->options->mls_setting->iplocate_api_key ) ) ? rtrim( $mls->options->mls_setting->iplocate_api_key, '/' ) : '' ); ?>" minlength="32">
 					</td>
 				</tr>
 				<?php
@@ -418,7 +455,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			$current_banner_content = isset( $mls->options->mls_setting->gdpr_banner_message ) && ! empty( $mls->options->mls_setting->gdpr_banner_message ) ? $mls->options->mls_setting->gdpr_banner_message : esc_html__( 'By logging in to this website you are consenting this website to process the IP address and browser information for security purposes.', 'melapress-login-security' );
 
 			$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-upgrade', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'Upgrading to premium', 'ppw-wp' ) . '</a>';
-			$desc              = wp_sprintf( esc_html__( 'To customize the notification displayed to users should they fail a prompt and a lot more, why not consider %s today.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) );
+			$desc              = wp_sprintf( /* translators: %s: Link to settings. */ esc_html__( 'To customize the notification displayed to users should they fail a prompt and a lot more, why not consider %s today.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) );
 
 			?>
 				<br>
@@ -624,7 +661,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
 			$slug        = isset( $mls_setting['custom_login_url'] ) ? $mls_setting['custom_login_url'] : '';
 
-			if ( is_multisite() && is_plugin_active_for_network( MLS_BASENAME ) ) {
+			if ( is_multisite() && \is_plugin_active_for_network( MLS_BASENAME ) ) {
 				return $slug;
 			} else {
 				return $slug;
@@ -642,7 +679,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
 			$slug        = isset( $mls_setting['restrict_login_bypass_slug'] ) ? $mls_setting['restrict_login_bypass_slug'] : '';
 
-			if ( is_multisite() && is_plugin_active_for_network( MLS_BASENAME ) ) {
+			if ( is_multisite() && \is_plugin_active_for_network( MLS_BASENAME ) ) {
 				return $slug;
 			} else {
 				return $slug;
