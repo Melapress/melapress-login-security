@@ -656,6 +656,7 @@ input.errored {
     border-color: red;
 }
 
+/* Timepicker CSS */
 .ui-timepicker-div .ui-widget-header { margin-bottom: 8px; }
 .ui-timepicker-div dl { text-align: left; }
 .ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
@@ -687,7 +688,7 @@ input.errored {
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide,
 .ui-timepicker-div.ui-timepicker-oneLine .ui_tpicker_unit_hide:before{ display: none; }
 
-.ui-datepicker-title, .ui_tpicker_time, .ui-datepicker-buttonpane, .ui_tpicker_time_label  {
+.ui_tpicker_time, .ui-datepicker-buttonpane, .ui_tpicker_time_label  {
   display: none;
 }
 
@@ -800,7 +801,7 @@ input.errored {
 .ui-datepicker .ui-datepicker-prev:not(.ui-state-disabled):before {
   font: normal 20px/34px "dashicons";
   padding-left: 7px;
-  color: #2271b1;
+  color: #fff;
   speak: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

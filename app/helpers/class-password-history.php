@@ -54,7 +54,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_after_password_reset() {
+		public function after_password_reset() {
 			// update password history when user resets password manually.
 			add_action( 'password_reset', array( $this, 'reset_by_user' ), 10, 2 );
 			add_action( 'after_password_reset', array( $this, 'reset_by_user' ), 10, 2 );
@@ -72,6 +72,11 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 */
 		public static function push( $user_id, $password_event ) {
 			$mls = melapress_login_security();
+
+			// Not for temp users.
+			if ( isset( $_REQUEST['action'] ) && 'mls_create_login_link' === $_REQUEST['action'] ) {
+				return true;
+			}
 
 			// get the saved history.
 			$password_history = get_user_meta( $user_id, MLS_PW_HISTORY_META_KEY, true );
@@ -204,7 +209,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 						if ( ! is_wp_error( $key ) ) {
 							update_user_meta( $user_id, MLS_NEW_USER_META_KEY, $key );
 						}
-					} elseif ( $this->ppm_get_first_login_policy( $userdata->ID ) ) {
+					} elseif ( $this->get_first_login_policy( $userdata->ID ) ) {
 							// Double check we are not doing profile_update to avoid
 							// https://github.com/WPWhiteSecurity/password-policy-manager/issues/239.
 						if ( ! doing_action( 'profile_update' ) ) {
@@ -247,7 +252,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 */
 		public function ppm_retrieve_password_key( $user_login, $key ) {
 			$user = get_user_by( 'login', $user_login );
-			if ( $this->ppm_get_first_login_policy( $user->ID ) ) {
+			if ( $this->get_first_login_policy( $user->ID ) ) {
 				update_user_meta( $user->ID, MLS_NEW_USER_META_KEY, $key );
 			}
 		}
@@ -262,7 +267,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_get_first_login_policy( $user_id = 0, $roles = array() ) {
+		public function get_first_login_policy( $user_id = 0, $roles = array() ) {
 			$mls             = melapress_login_security();
 			$default_options = isset( $mls->options->inherit['master_switch'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->inherit['master_switch'] ) ? $mls->options->inherit : array();
 			if ( ! is_multisite() || ! doing_action( 'invite_user' ) ) {
@@ -315,7 +320,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			);
 			self::push( $user_id, $password_event );
 			// If check current running action `profile_update`.
-			if ( $this->ppm_get_first_login_policy( '', $role ) ) {
+			if ( $this->get_first_login_policy( '', $role ) ) {
 				$key = get_password_reset_key( $userdata );
 				update_user_meta( $user_id, MLS_NEW_USER_META_KEY, $key );
 			}

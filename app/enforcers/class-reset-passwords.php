@@ -640,19 +640,22 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 		 */
 		public function ppm_get_user_reset_key( $user, $meta_key ) {
 			$verify_reset_key = false;
-			$user_id          = $user->ID;
-			$user_login       = $user->user_login;
 
-			$usermeta_key = ( 'new-user' === $meta_key ) ? MLS_NEW_USER_META_KEY : MLS_USER_RESET_PW_ON_LOGIN_META_KEY;
+			if ( is_a( $user, '\WP_User' ) ) {
+				$user_id          = $user->ID;
+				$user_login       = $user->user_login;
 
-			// User get reset by user ID.
-			$reset_key = get_user_meta( $user_id, $usermeta_key, true );
+				$usermeta_key = ( 'new-user' === $meta_key ) ? MLS_NEW_USER_META_KEY : MLS_USER_RESET_PW_ON_LOGIN_META_KEY;
 
-			// If check reset key exists OR not.
-			if ( $reset_key ) {
-				$verify_reset_key             = check_password_reset_key( $reset_key, $user_login );
-				$verify_reset_key->reset_key  = $reset_key;
-				$verify_reset_key->user_login = $user_login;
+				// User get reset by user ID.
+				$reset_key = get_user_meta( $user_id, $usermeta_key, true );
+
+				// If check reset key exists OR not.
+				if ( $reset_key ) {
+					$verify_reset_key             = check_password_reset_key( $reset_key, $user_login );
+					$verify_reset_key->reset_key  = $reset_key;
+					$verify_reset_key->user_login = $user_login;
+				}
 			}
 
 			return $verify_reset_key;

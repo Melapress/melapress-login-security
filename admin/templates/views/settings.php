@@ -119,7 +119,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 							<td>
 								<fieldset>
 									<input type="text" id="ppm-exempted" style="float: left; display: block; width: 250px;">
-									<input type="hidden" id="ppm-exempted-users" name="mls_options[exempted][users]" value="<?php echo ! empty( self::$options->mls_setting->exempted['users'] ) ? esc_attr( htmlentities( wp_json_encode( self::$options->mls_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
+									<input type="hidden" id="ppm-exempted-users" name="mls_options[exempted][users]" value="<?php echo ( isset( self::$options->mls_setting->exempted['users'] ) && ! empty( self::$options->mls_setting->exempted['users'] ) ) ? esc_attr( htmlentities( wp_json_encode( self::$options->mls_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
 									<p class="description" style="clear:both;">
 										<?php
 										esc_html_e( 'Users in this list will be exempted from all the policies.', 'melapress-login-security' );

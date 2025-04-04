@@ -403,7 +403,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$this->regex->init();
 			// Call password history class.
 			$history = new \MLS\Password_History();
-			$history->ppm_after_password_reset();
+			$history->after_password_reset();
 
 			// Call password expire class.
 			$expire = new \MLS\Check_User_Expiry();
@@ -517,7 +517,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			if ( isset( $mls->options->mls_setting->exempted['users'] ) && ! empty( $mls->options->mls_setting->exempted['users'] ) ) {
 
 				// check if this particular user is exempted.
-				if ( in_array( $user_id, $mls->options->mls_setting->exempted['users'], true ) ) {
+				if ( in_array( $user_id, $mls->options->mls_setting->exempted['users'] ) ) { // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 					return true;
 				}
 			}

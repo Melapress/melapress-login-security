@@ -345,13 +345,13 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 			$delete_nonce = wp_create_nonce( MLS_PREFIX . 'delete_role_nonce' );
 			$label        = isset( $_REQUEST['page'] ) ? sanitize_title( wp_unslash( $_REQUEST['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$actions      = array(
-				'disable' => sprintf( '<a href="?page=%s&action=%s&user_id=%s">' . esc_html__( 'Disable', 'melapress-login-security' ) . '</a>', $label, 'disable_link', sanitize_key( $item['user_id'] ) ),
-				'delete'  => sprintf( '<a href="?page=%s&action=%s&user_id=%s">' . esc_html__( 'Delete', 'melapress-login-security' ) . '</a>', $label, 'delete_link', sanitize_key( $item['user_id'] ) ),
+				'disable' => sprintf( '<a href="?page=%s&action=%s&user_id=%s&nonce=%s">' . esc_html__( 'Disable', 'melapress-login-security' ) . '</a>', $label, 'disable_link', sanitize_key( $item['user_id'] ), sanitize_key( wp_create_nonce( MLS_PREFIX . '-disable-login-link' ) ) ),
+				'delete'  => sprintf( '<a href="?page=%s&action=%s&user_id=%s&nonce=%s">' . esc_html__( 'Delete', 'melapress-login-security' ) . '</a>', $label, 'delete_link', sanitize_key( $item['user_id'] ), sanitize_key( wp_create_nonce( MLS_PREFIX . '-delete-link' ) ) ),
 				'edit'    => sprintf( '<a href="?page=%s&action=%s&user_id=%s" data-delete-role="%s" data-nonce="%s">' . esc_html__( 'Edit', 'melapress-login-security' ) . '</a>', $label, 'edit_link', sanitize_key( $item['user_id'] ), sanitize_key( $item['user_login'] ), $delete_nonce ),
 			);
 
 			if ( get_user_meta( $item['user_id'], 'mls_temp_user_expired', true ) ) {
-				$actions['disable'] = sprintf( '<a href="?page=%s&action=%s&user_id=%s">' . esc_html__( 'Enable', 'melapress-login-security' ) . '</a>', $label, 'enable_link', sanitize_key( $item['user_id'] ) );
+				$actions['disable'] = sprintf( '<a href="?page=%s&action=%s&user_id=%s&nonce=%s">' . esc_html__( 'Enable', 'melapress-login-security' ) . '</a>', $label, 'enable_link', sanitize_key( $item['user_id'] ), sanitize_key( wp_create_nonce( MLS_PREFIX . '-disable-login-link' ) ) );
 			}
 			$link = get_edit_user_link( sanitize_key( $item['user_id'] ) );
 			return sprintf( '%1$s %2$s', sprintf( '<a href="%s">' . $item['user_login'] . '</a><br>' . $item['user_email'] . '', $link, $label, 'user-edit', sanitize_key( $item['user_id'] ) ), $this->row_actions( $actions ) );
@@ -365,6 +365,17 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 		 * @since 2.1.0
 		 */
 		public function process_bulk_action() {
+			// Check basics.
+			if ( ! current_user_can( 'manage_options' ) || ! isset( $_REQUEST['_wpnonce'] ) ) {
+				return;
+			}
+
+			// Check nonce.
+			if ( ! wp_verify_nonce( wp_unslash( $_REQUEST['_wpnonce'] ), 'bulk-' . $this->_args['plural'] ) ) {
+				echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Action not allowed.', 'melapress-login-security' ) . '</p></div>';
+				return;
+			}
+
 			$post_array = filter_input_array( INPUT_POST );
 			$action     = $this->current_action();
 

@@ -404,7 +404,7 @@ class SettingsImporter {
 			$process_import = \sanitize_text_field( \wp_unslash( $_POST['process_import'] ) );
 		}
 
-		if ( ! $setting_name || ! strpos( $setting_name, 'mls' ) === 0 || ! strpos( $setting_name, 'ppm' ) === 0 ) {
+		if ( ! $setting_name || '' === $setting_name || ! strpos( $setting_name, 'mls' ) === 0 || 0 === ! strpos( $setting_name, 'ppm' ) ) {
 			wp_send_json_error( esc_html__( 'Invalid setting given.', 'melapress-login-security' ) );
 			return;
 		}
@@ -425,14 +425,6 @@ class SettingsImporter {
 			}
 		}
 
-		if ( ( 'ppmwp_setting' === $setting_name || 'mls_setting' === $setting_name ) && isset( $_POST['from_email_to_use'] ) && ! empty( maybe_unserialize( $setting_value ) ) ) {
-			if ( \is_email( \sanitize_email( \wp_unslash( $_POST['from_email_to_use'] ) ) ) ) {
-				$setting_arr               = (array) maybe_unserialize( $setting_value );
-				$setting_arr['from_email'] = \sanitize_email( \wp_unslash( $_POST['from_email_to_use'] ) );
-				$setting_value             = $setting_arr;
-			}
-		}
-
 		$mls_options     = new \MLS\MLS_Options();
 		$policy_keys     = array_keys( $mls_options->default_options );
 		$setting_keys    = array_keys( $mls_options->default_setting );
@@ -450,17 +442,30 @@ class SettingsImporter {
 			'ppmwp_wizard_complete',
 		);
 
-		if ( is_array( maybe_unserialize( $setting_value ) ) ) {
+		if ( is_serialized( $setting_value ) ) {
 			$processed_value = array();
-			foreach ( maybe_unserialize( $setting_value ) as $array_key => $array_value ) {
-				if ( in_array( $array_key, $known_keys, true ) ) {
-					$processed_value[ $array_key ] = OptionsHelper::sanitise_value_by_key( $array_key, \wp_unslash( $array_value ) );
-				} else {
-					$processed_value[ $array_key ] = \wp_strip_all_tags( \wp_unslash( $array_value ) );
+			$value_arr       = unserialize( $setting_value, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+
+			if ( $value_arr && ! empty( $value_arr ) ) {
+				foreach ( $value_arr as $array_key => $array_value ) {
+					if ( in_array( $array_key, $known_keys, true ) ) {
+						$processed_value[ $array_key ] = OptionsHelper::sanitise_value_by_key( $array_key, \wp_unslash( $array_value ) );
+					}
 				}
 			}
 		} elseif ( in_array( $setting_name, $known_other_keys, true ) ) {
-			$processed_value = \wp_strip_all_tags( \wp_unslash( $setting_value ) );
+			$processed_value = OptionsHelper::sanitise_value_by_key( $setting_name, \wp_strip_all_tags( \wp_unslash( $setting_value ) ) );
+		}
+
+		// If we reached this point with nothing, do not continue further.
+		if ( is_array( $processed_value ) && empty( $processed_value ) ) {
+			return;
+		}
+
+		if ( ( 'ppmwp_setting' === $setting_name || 'mls_setting' === $setting_name ) && isset( $_POST['from_email_to_use'] ) && ! empty( $_POST['from_email_to_use'] ) && is_array( $processed_value ) && ! empty( $processed_value ) ) {
+			if ( \is_email( \sanitize_email( \wp_unslash( $_POST['from_email_to_use'] ) ) ) ) {
+				$processed_value['from_email'] = \sanitize_email( \wp_unslash( $_POST['from_email_to_use'] ) );
+			}
 		}
 
 		// If set to import the data once checked, then do so.

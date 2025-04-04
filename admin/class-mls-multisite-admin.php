@@ -76,6 +76,14 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			add_action( 'wp_ajax_dismiss_mls_update_notice', array( __CLASS__, 'dismiss_update_notice' ) );
 			add_action( 'wp_ajax_mls_begin_migration', array( __CLASS__, 'begin_migration' ) );
 			add_action( 'wp_ajax_mls_get_migration_status', array( __CLASS__, 'get_migration_status' ) );
+
+
+			/* @free:start */
+			if ( ! class_exists( '\MLS\EmailAndMessageTemplates' ) ) {
+				add_filter( 'mls_settings_page_nav_tabs', array( __CLASS__, 'messages_settings_tab_link' ), 10, 1 );
+				add_filter( 'mls_settings_page_content_tabs', array( __CLASS__, 'messages_settings_tab' ), 10, 1 );
+			}
+			/* @free:end */
 		}
 
 		/**

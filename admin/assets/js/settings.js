@@ -1480,7 +1480,7 @@ jQuery( 'document' ).ready( function( $ ) {
 					jQuery( '#melapress_temp_logins' ).load( location.href+' #melapress_temp_logins >*', '' );	
 					var link_markup = '';
 					if ( result.data.link ) {
-						var link_markup = '<p class="description"><input id="new-link" type="text" value="'+ result.data.link +'" readonly></input><a href="#" class="button button-primary close-form" data-mls-copy-link="'+ result.data.link +'">Copy link and close</a><a href="#close" class="button button-secondary">Close & Continue</a></p>';
+						var link_markup = '<p class="description"><input id="new-link" type="text" value="'+ result.data.link +'" readonly></input><br><a href="#" class="button button-primary close-form" data-mls-copy-link="'+ result.data.link +'">Copy link and close</a><a href="#close" class="button button-secondary">Close & Continue</a></p>';
 					}
 				
 					jQuery( '#mls-create-login-result' ).after('<div id="create-result" class="notice notice-success"><p class="description">'+ result.data.message +'</p>'+ link_markup +'</div>');
