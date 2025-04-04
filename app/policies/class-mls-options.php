@@ -402,6 +402,20 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'user_reset_next_login_email_body'           => '',
 			'send_plain_text_emails'                     => 'no',
 			'enable_failure_message_overrides'           => 'no',
+			'user_reset_email_subject'                   => '',
+			'user_reset_email_body'                      => '',
+			'user_delayed_reset_email_subject'           => '',
+			'user_delayed_reset_email_body'              => '',
+			'user_password_expired_email_subject'        => '',
+			'user_password_expired_email_body'           => '',
+			'user_unlocked_email_subject'                => '',
+			'user_unlocked_reset_needed_email_subject'   => '',
+			'user_unlocked_reset_needed_email_body'      => '',
+			'user_imported_email_subject'                => '',
+			'user_user_imported_email_body'              => '',
+			'user_imported_forced_reset_email_subject'   => '',
+			'user_user_imported_forced_reset_email_body' => '',
+			'password_reset_login_failed_username_not_known' => '',
 		);
 
 		/**

@@ -915,7 +915,7 @@ class OptionsHelper {
 	 *
 	 * @return array
 	 *
-	 * @since 4.4.3
+	 * @since 2.0.0
 	 */
 	public static function get_user_roles( $user = null ) {
 
@@ -944,25 +944,171 @@ class OptionsHelper {
 	}
 
 	/**
+	 * Strip all content from a given variable and return only numbers.
+	 *
+	 * @param   mixed $target - Item to clean.
+	 *
+	 * @return  mixed - Cleaned input.
+	 *
+	 * @since 2.1.0
+	 */
+	public static function strip_all_but_numeric( $target ) {
+		if ( is_bool( $target ) ) {
+			return false;
+		}
+		return preg_replace( '/[^0-9]/', '', $target );
+	}
+
+	/**
+	 * Ensure a given input is yes or no only.
+	 *
+	 * @param string $value - input string.
+	 *
+	 * @return string  - Cleaned input.
+	 *
+	 * @since 2.1.0
+	 */
+	public static function sanitize_yes_no_input( $value ) {
+		if ( 'yes' === $value || 'no' === $value ) {
+			return $value;
+		} else {
+			return 'no';
+		}
+	}
+
+	/**
 	 * Ensure input is ok for specific settings.
 	 *
 	 * @param   string $setting_key  Setting to clean.
 	 * @param   mixed  $value        Current value.
 	 *
 	 * @return  mixed - Result.
+	 *
+	 * @since 2.1.0
 	 */
 	public static function sanitise_value_by_key( $setting_key, $value ) {
-		$processed_value = false;
+		$processed_value = '';
+
 		if ( in_array( $setting_key, \MLS\MLS_Options::$policy_boolean_options, true ) || in_array( $setting_key, \MLS\MLS_Options::$settings_boolean_options, true ) ) {
-			if ( 'yes' === $value || 'no' === $value ) {
-				return $value;
-			} else {
-				return 'no';
-			}
+			$processed_value = self::sanitize_yes_no_input( $value );
+
 		} elseif ( in_array( $setting_key, \MLS\MLS_Options::$textarea_settings, true ) ) {
-			return wp_kses_post( sanitize_textarea_field( $value ) );
+			$processed_value = wp_kses_post( sanitize_textarea_field( $value ) );
+
+		} elseif ( is_array( $value ) ) {
+			$processed_value = array();
+
+			switch ( $setting_key ) {
+				case 'password_expiry':
+				case 'inactive_users_expiry':
+				case 'remember_session_expiry':
+				case 'password_reset_key_expiry':
+				case 'default_session_expiry':
+					$valid_units = array(
+						'months',
+						'days',
+						'hours',
+						'seconds',
+					);
+
+					if ( isset( $value['unit'] ) && in_array( $value['unit'], $valid_units, true ) ) {
+						$processed_value['value'] = self::strip_all_but_numeric( $value['value'] );
+						$processed_value['unit']  = $value['unit'];
+					}
+
+					break;
+
+				case 'ui_rules':
+					$processed_value['history']               = self::sanitize_yes_no_input( $value['history'] );
+					$processed_value['username']              = self::sanitize_yes_no_input( $value['username'] );
+					$processed_value['length']                = self::strip_all_but_numeric( $value['length'] );
+					$processed_value['numeric']               = self::sanitize_yes_no_input( $value['numeric'] );
+					$processed_value['mix_case']              = self::sanitize_yes_no_input( $value['mix_case'] );
+					$processed_value['special_chars']         = self::sanitize_yes_no_input( $value['special_chars'] );
+					$processed_value['exclude_special_chars'] = self::sanitize_yes_no_input( $value['exclude_special_chars'] );
+					break;
+
+				case 'rules':
+					$processed_value['length']                = self::strip_all_but_numeric( $value['length'] );
+					$processed_value['numeric']               = self::sanitize_yes_no_input( $value['numeric'] );
+					$processed_value['upper_case']            = self::sanitize_yes_no_input( $value['upper_case'] );
+					$processed_value['lower_case']            = self::sanitize_yes_no_input( $value['lower_case'] );
+					$processed_value['special_chars']         = self::sanitize_yes_no_input( $value['special_chars'] );
+					$processed_value['exclude_special_chars'] = self::sanitize_yes_no_input( $value['exclude_special_chars'] );
+					break;
+
+				case 'timed_logins_schedule':
+					$days       = array(
+						'monday',
+						'tuesday',
+						'wednesday',
+						'thursday',
+						'friday',
+						'saturday',
+						'sunday',
+					);
+					$valid_keys = array(
+						'enable',
+						'from_hr',
+						'from_min',
+						'from_am_or_pm',
+						'to_hr',
+						'to_min',
+						'to_am_or_pm',
+					);
+
+					foreach ( $days as $day ) {
+						if ( isset( $value[ $day ] ) ) {
+							$processed_value[ $day ] = array(
+								'enable'        => self::strip_all_but_numeric( $value[ $day ]['enable'] ),
+								'from_hr'       => self::strip_all_but_numeric( $value[ $day ]['from_hr'] ),
+								'from_min'      => self::strip_all_but_numeric( $value[ $day ]['from_min'] ),
+								'from_am_or_pm' => ( 'am' === $value[ $day ]['from_am_or_pm'] || 'pm' === $value[ $day ]['from_am_or_pm'] ) ? $value[ $day ]['from_am_or_pm'] : 'pm',
+								'to_hr'         => self::strip_all_but_numeric( $value[ $day ]['to_hr'] ),
+								'to_min'        => self::strip_all_but_numeric( $value[ $day ]['to_min'] ),
+								'to_am_or_pm'   => ( 'am' === $value[ $day ]['to_am_or_pm'] || 'pm' === $value[ $day ]['to_am_or_pm'] ) ? $value[ $day ]['to_am_or_pm'] : 'pm',
+							);
+						}
+					}
+
+					break;
+
+				case 'enabled_questions':
+					foreach ( $value as $question_key => $question ) {
+						$processed_value[ sanitize_key( $question_key ) ] = sanitize_textarea_field( $question );
+					}
+					break;
+
+				case 'exempted':
+					if ( isset( $value['users'] ) ) {
+						foreach ( $value['users'] as $index => $user_id ) {
+							$processed_value['users'][ $index ] = self::strip_all_but_numeric( $user_id );
+						}
+					}
+					break;
+
+				case 'multiple_role_order':
+					global $wp_roles;
+
+					if ( ! isset( $wp_roles ) ) {
+						$wp_roles = new WP_Roles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					}
+
+					$role_names = array_values( $wp_roles->get_names() );
+
+					foreach ( $value as $index => $input_role_name ) {
+						if ( in_array( $input_role_name, $role_names, true ) ) {
+							$processed_value[ $index ] = $input_role_name;
+						}
+					}
+
+					break;
+
+				default:
+					$processed_value = false;
+			}
 		}
 
-		return $value;
+		return $processed_value;
 	}
 }
