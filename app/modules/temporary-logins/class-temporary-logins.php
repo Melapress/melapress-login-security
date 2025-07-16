@@ -8,14 +8,13 @@
 
 declare(strict_types=1);
 
-namespace MLS;
+namespace MLS\TemporaryLogins;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use MLS\Helpers\OptionsHelper;
 use MLS\Emailer;
 
 /**
@@ -23,14 +22,16 @@ use MLS\Emailer;
  *
  * @since 2.1.0
  */
-if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
+if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 
 	/**
 	 * Declare SessionsManager Class
 	 *
 	 * @since 2.1.0
 	 */
-	class TemporaryLogins {
+	class Temporary_Logins {
+
+		public const TEMP_USER_META_KEY = 'mls_temp_user';
 
 		/**
 		 * Init hooks.
@@ -38,11 +39,11 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		 * @since 2.1.0
 		 */
 		public static function init() {
-			add_action( 'admin_menu', array( __CLASS__, 'register_admin_page' ) );
-			add_action( 'wp_ajax_mls_create_login_link', array( __CLASS__, 'create_login_link' ) );
-			add_action( 'wp_ajax_mls_send_login_link', array( __CLASS__, 'send_login_link' ) );
-			add_action( 'admin_init', array( __CLASS__, 'monitor_admin_actions' ) );
-			add_action( 'admin_menu', array( __CLASS__, 'replace_admin_link' ), 11 );
+			\add_action( 'admin_menu', array( __CLASS__, 'register_admin_page' ) );
+			\add_action( 'wp_ajax_mls_create_login_link', array( __CLASS__, 'create_login_link' ) );
+			\add_action( 'wp_ajax_mls_send_login_link', array( __CLASS__, 'send_login_link' ) );
+			\add_action( 'admin_init', array( __CLASS__, 'monitor_admin_actions' ) );
+			\add_action( 'admin_menu', array( __CLASS__, 'replace_admin_link' ), 11 );
 		}
 
 		/**
@@ -62,44 +63,56 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		}
 
 		/**
-		 * Monitor for form submimssions.
+		 * Monitor for form submissions.
 		 *
 		 * @return void
 		 *
 		 * @since 2.1.0
 		 */
 		public static function monitor_admin_actions() {
-			if ( ! current_user_can( 'manage_options' ) || ! isset( $_REQUEST['action'] ) || empty( $_REQUEST['action'] ) || empty( $_REQUEST['user_id'] ) || ! isset( $_REQUEST['nonce'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+			if ( ! isset( $_REQUEST['nonce'] ) || empty( $_REQUEST['nonce'] ) ) {
+				return;
+			}
+			if ( ! \wp_verify_nonce( sanitize_key( wp_unslash( $_REQUEST['nonce'] ) ), MLS_PREFIX . '-disable-login-link' ) ) {
 				return;
 			}
 
-			$user_id  = sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$base_url = menu_page_url( 'mls-temporary-logins', false );
+			if ( ! current_user_can( 'manage_options' ) || ! isset( $_REQUEST['action'] ) || empty( $_REQUEST['action'] ) || empty( $_REQUEST['user_id'] ) ) {
+				return;
+			}
 
-			if ( 'delete_link' === $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				if ( wp_verify_nonce( sanitize_key( wp_unslash( $_REQUEST['nonce'] ) ), MLS_PREFIX . '-delete-login-link' ) ) {
+			$user_id  = \sanitize_text_field( \wp_unslash( $_REQUEST['user_id'] ) );
+			$base_url = \menu_page_url( 'mls-temporary-logins', false );
+
+			if ( 'delete_link' === $_REQUEST['action'] ) {
+
+				if ( self::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
+
 					self::delete_user( $user_id );
 					add_action( 'admin_notices', array( __CLASS__, 'user_deleted_notice' ) );
 
 					wp_redirect( $base_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-					exit();
 				}
-			} elseif ( 'disable_link' === $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				if ( wp_verify_nonce( sanitize_key( wp_unslash( $_REQUEST['nonce'] ) ), MLS_PREFIX . '-disable-login-link' ) ) {
+				exit();
+
+			} elseif ( 'disable_link' === $_REQUEST['action'] ) {
+				if ( self::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
 					update_user_meta( $user_id, 'mls_temp_user_expired', self::get_current_gmt_timestamp() );
 					add_action( 'admin_notices', array( __CLASS__, 'user_disabled_notice' ) );
 
 					wp_redirect( $base_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-					exit();
 				}
-			} elseif ( 'enable_link' === $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				if ( wp_verify_nonce( sanitize_key( wp_unslash( $_REQUEST['nonce'] ) ), MLS_PREFIX . '-disable-login-link' ) ) {
+				exit();
+
+			} elseif ( 'enable_link' === $_REQUEST['action'] ) {
+				if ( self::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
 					delete_user_meta( $user_id, 'mls_temp_user_expired' );
 					add_action( 'admin_notices', array( __CLASS__, 'user_reenabled_notice' ) );
 
 					wp_redirect( $base_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-					exit();
 				}
+				exit();
 			}
 		}
 
@@ -180,7 +193,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 				array( __CLASS__, 'admin_area' ),
 				10
 			);
-			add_action( "load-$hook_name", array( '\MLS\Admin\Admin', 'admin_enqueue_scripts' ) );
+			\add_action( "load-$hook_name", array( '\MLS\Admin\Admin', 'admin_enqueue_scripts' ) );
 		}
 
 		/**
@@ -191,7 +204,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		 * @since 2.1.0
 		 */
 		public static function admin_area() {
-			if ( ! current_user_can( 'manage_options' ) ) {
+			if ( ! \current_user_can( 'manage_options' ) ) {
 				return;
 			}
 
@@ -206,8 +219,8 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 			}
 
-			$languages                = get_available_languages();
-			$can_install_translations = current_user_can( 'install_languages' ) && \wp_can_install_language_pack();
+			$languages                = \get_available_languages();
+			$can_install_translations = \current_user_can( 'install_languages' ) && \wp_can_install_language_pack();
 
 			$form_values = array(
 				'user_email'                    => '',
@@ -473,7 +486,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 					</p>
 					<form id="melapress_temp_logins" method="post">
 						<?php
-							$roles_table = new \MLS\TemporaryLogins\Temporary_Logins_Table();
+							$roles_table = new Temporary_Logins_Table();
 							$roles_table->prepare_items();
 							$roles_table->display();
 						?>
@@ -506,7 +519,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 			$is_valid_edit = false;
 
 			// Check nonce.
-			if ( ! isset( $data['user_id'] ) || ! current_user_can( 'manage_options' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
+			if ( ! isset( $data['user_id'] ) || ! \current_user_can( 'manage_options' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
 				wp_send_json_error( array( 'message' => esc_html__( 'Nonce check failed.', 'melapress-login-security' ) ) );
 			}
 
@@ -554,7 +567,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		 */
 		public static function create_new_user( $data ) {
 
-			$nonce  = isset( $data['mls-create-login-nonce'] ) ? $data['mls-create-login-nonce'] : false;
+			$nonce = isset( $data['mls-create-login-nonce'] ) ? $data['mls-create-login-nonce'] : false;
 
 			// Check nonce.
 			if ( ! current_user_can( 'manage_options' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
@@ -604,7 +617,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 				'role'       => $role,
 			);
 
-			$user_id = wp_insert_user( $user_args );
+			$user_id = \wp_insert_user( $user_args );
 
 			if ( is_wp_error( $user_id ) ) {
 				$code = $user_id->get_error_code();
@@ -631,7 +644,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 
 				self::check_and_install_language( $locale );
 
-				update_user_meta( $user_id, 'mls_temp_user', true );
+				update_user_meta( $user_id, self::TEMP_USER_META_KEY, true );
 				update_user_meta( $user_id, 'mls_temp_user_created_on', self::get_current_gmt_timestamp() );
 				update_user_meta( $user_id, 'mls_temp_user_expires_on', self::get_user_expire_time( $expiry_option, $date, $time ) );
 				update_user_meta( $user_id, 'mls_temp_user_expires_on_date', $date );
@@ -777,7 +790,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 
 			if ( function_exists( 'random_bytes' ) ) {
 				try {
-					return bin2hex( random_bytes( $byte_length ) ); // phpcs:ignore
+					return bin2hex( random_bytes( $byte_length ) );
 				} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				}
 			}
@@ -839,7 +852,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		}
 
 		/**
-		 * Create a ranadom username for the temporary user
+		 * Create a random username for the temporary user
 		 *
 		 * @param array $data - User data.
 		 *
@@ -941,7 +954,6 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		 * @since 2.1.0
 		 */
 		public static function get_temporary_logins() {
-			$meta_key = 'mls_temp_user';
 
 			global $wpdb;
 
@@ -952,7 +964,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 				AND     (
 			';
 
-			$sql     .= ' ' . $wpdb->usermeta . '.meta_key    =   \'' . $meta_key . '\' ';
+			$sql     .= ' ' . $wpdb->usermeta . '.meta_key    =   \'' . self::TEMP_USER_META_KEY . '\' ';
 			$sql     .= ' ) ';
 			$sql     .= ' ORDER BY ID ';
 			$user_ids = $wpdb->get_col( $sql ); // phpcs:ignore
@@ -1005,7 +1017,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 				return false;
 			}
 
-			$check = get_user_meta( $user_id, 'mls_temp_user', true );
+			$check = get_user_meta( $user_id, self::TEMP_USER_META_KEY, true );
 
 			if ( ! empty( $check ) && $check_expiry ) {
 				$check = ! ( self::is_login_expired( $user_id ) );
@@ -1015,11 +1027,30 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		}
 
 		/**
+		 * Checks if given user is valid temporary one or not.
+		 *
+		 * @param \WP_User|\stdClass $user - The user to check. Could be either WP User object, or class with valid ID property.
+		 *
+		 * @return boolean
+		 *
+		 * @since 2.1.2
+		 */
+		public static function is_valid_temp_user( $user ): bool {
+			$check = \get_user_meta( $user->ID, self::TEMP_USER_META_KEY, true );
+
+			if ( $check ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		/**
 		 * Get valid temporary user based on token
 		 *
-		 * @param string $token - Token to lookip.
+		 * @param string $token - Token to lookup.
 		 *
-		 * @return array|bool
+		 * @return \WP_User|\WP_Error|bool
 		 *
 		 * @since 2.1.0
 		 */
@@ -1028,32 +1059,26 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 				return false;
 			}
 
-			global $wpdb;
-			$meta_key = 'mls_temp_user_expires_on';
+			$meta_key = 'mls_temp_user_token';
 
-			$sql = '
-				SELECT  ID, display_name
-				FROM        ' . $wpdb->users . ' INNER JOIN ' . $wpdb->usermeta . '
-				ON          ' . $wpdb->users . '.ID             =       ' . $wpdb->usermeta . '.user_id
-				AND     (
-			';
+			$users = \get_users(
+				array(
+					'meta_key'   => $meta_key,
+					'meta_value' => $token,
+				)
+			);
 
-			$sql       .= ' ' . $wpdb->usermeta . '.meta_value =   "' . $token . '" ';
-			$sql       .= ' ) ';
-			$sql       .= ' ORDER BY ID ';
-			$users_data = $wpdb->get_col( $sql ); // phpcs:ignore
-
-			if ( empty( $users_data ) ) {
+			if ( empty( $users ) ) {
 				return false;
 			}
 
-			return $users_data;
+			return $users[0];
 		}
 
 		/**
 		 * Initialize Temporary Login
 		 *
-		 * Hooked to init action to initilize tlwp
+		 * Hooked to init action to initialize temporary logins
 		 *
 		 * @return void
 		 *
@@ -1061,12 +1086,12 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 		 */
 		public static function manage_temporary_logins() {
 			if ( ! empty( $_GET['mls_temp_user_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$mls_temp_user_token = sanitize_key( $_GET['mls_temp_user_token'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$users               = self::get_valid_user_based_on_token( $mls_temp_user_token );
+				$mls_temp_user_token = \sanitize_key( $_GET['mls_temp_user_token'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$user                = self::get_valid_user_based_on_token( $mls_temp_user_token );
 
 				$temporary_user = '';
-				if ( ! empty( $users ) ) {
-					$temporary_user = get_user_by( 'ID', $users[0] );
+				if ( ! empty( $user ) && ! \is_wp_error( $user ) ) {
+					$temporary_user = $user;
 				}
 
 				if ( ! empty( $temporary_user ) ) {
@@ -1074,10 +1099,10 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 					$do_login          = true;
 					$do_login          = apply_filters( 'mls_temporary_login_pre_check', $do_login, $temporary_user_id );
 
-					if ( is_user_logged_in() ) {
-						$current_user_id = get_current_user_id();
+					if ( \is_user_logged_in() ) {
+						$current_user_id = \get_current_user_id();
 						if ( $temporary_user_id !== $current_user_id ) {
-							wp_logout();
+							\wp_logout();
 						} else {
 							$do_login = false;
 						}
@@ -1087,16 +1112,16 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 						$temporary_user_login = $temporary_user->login;
 
 						if ( self::is_login_expired( $temporary_user_id ) ) {
-							wp_safe_redirect( home_url() );
+							\wp_safe_redirect( home_url() );
 							exit();
 						}
 
-						update_user_meta( $temporary_user_id, 'mls_last_login', self::get_current_gmt_timestamp() );
-						wp_set_current_user( $temporary_user_id, $temporary_user_login );
-						wp_set_auth_cookie( $temporary_user_id );
+						\update_user_meta( $temporary_user_id, 'mls_last_login', self::get_current_gmt_timestamp() );
+						\wp_set_current_user( $temporary_user_id, $temporary_user_login );
+						\wp_set_auth_cookie( $temporary_user_id );
 
 						$login_count_key = 'mls_login_count';
-						$login_count     = get_user_meta( $temporary_user_id, $login_count_key, true );
+						$login_count     = \get_user_meta( $temporary_user_id, $login_count_key, true );
 
 						if ( ! empty( $login_count ) ) {
 							++$login_count;
@@ -1104,31 +1129,31 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 							$login_count = 1;
 						}
 
-						update_user_meta( $temporary_user_id, $login_count_key, $login_count );
-						do_action( 'wp_login', $temporary_user_login, $temporary_user );
-						do_action( 'mls_after_login_success', $temporary_user_id );
+						\update_user_meta( $temporary_user_id, $login_count_key, $login_count );
+						\do_action( 'wp_login', $temporary_user_login, $temporary_user );
+						\do_action( 'mls_after_login_success', $temporary_user_id );
 					}
 
 					$request_uri     = self::get_request_uri();
-					$redirect_to_url = apply_filters( 'mls_login_redirect', apply_filters( 'login_redirect', network_site_url( remove_query_arg( 'mls_temp_user_token', $request_uri ) ), false, $temporary_user ), $temporary_user );
+					$redirect_to_url = \apply_filters( 'mls_login_redirect', apply_filters( 'login_redirect', network_site_url( remove_query_arg( 'mls_temp_user_token', $request_uri ) ), false, $temporary_user ), $temporary_user );
 
 				} else {
 					// User not found.
-					$redirect_to_url = home_url();
+					$redirect_to_url = \home_url();
 				}
 
-				wp_safe_redirect( $redirect_to_url );
+				\wp_safe_redirect( $redirect_to_url );
 				exit();
 			}
 
 			// Ensure expired users are blocked, or any remaining temporary users cant access specific pages.
-			if ( is_user_logged_in() ) {
-				$user_id = get_current_user_id();
+			if ( \is_user_logged_in() ) {
+				$user_id = \get_current_user_id();
 
 				if ( ! empty( $user_id ) && self::is_valid_temporary_login( $user_id, false ) ) {
 					if ( self::is_login_expired( $user_id ) ) {
-						wp_logout();
-						wp_safe_redirect( home_url() );
+						\wp_logout();
+						\wp_safe_redirect( \home_url() );
 						exit();
 					} else {
 						global $pagenow;
@@ -1267,7 +1292,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 			$args    = array( 'temporary_login_link' => '<a href="' . esc_url( $link ) . '">' . esc_html__( 'by clicking here', 'melapress-login-security' ) . '</a>' );
 			$message = \MLS\EmailAndMessageStrings::replace_email_strings( $message, $email_user_id, $args );
 
-			$from_email = $mls->options->mls_setting->from_email ? $mls->$options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
 
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
@@ -1301,7 +1326,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins' ) ) {
 				return;
 			}
 
-			$delete_user = wp_delete_user( $user_id, get_current_user_id() );
+			$delete_user = \wp_delete_user( $user_id, get_current_user_id() );
 
 			// Handle networks.
 			if ( is_multisite() ) {

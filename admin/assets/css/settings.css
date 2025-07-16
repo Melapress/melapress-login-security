@@ -231,7 +231,7 @@ div#reset-container input#_mls_global_reset_button {
     overflow: hidden;
     width: auto;
     max-width: 242px;
-    z-index: 100;
+    z-index: 98;
     background: #eee;;
 }
 
@@ -433,7 +433,7 @@ ul.c4wp-pro-features-ul li.dashicons-yes-alt:before {
 }
 
 .mls-modal-main-wrapper.show {
-    z-index: 9999;
+    z-index: 99;
     opacity: 1;
     transition: all 0.3s ease-in-out;
 }

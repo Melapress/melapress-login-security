@@ -542,7 +542,7 @@ jQuery( 'document' ).ready( function( $ ) {
 		var fileText = false;
 
 		if ( currVal == 'reset-role' ) {
-			var role = jQuery( '#reset-role-select option:selected' ).text();
+			var role = jQuery( '#reset-role-select option:selected' ).val();
 		} else if ( currVal == 'reset-users' ) {
 			var users = [];
 			jQuery( '.reset-user-list li' ).each(function () {

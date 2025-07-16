@@ -132,6 +132,7 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				$message .= __( 'Website name: {site_name}', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'Website URL: {site_url}', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'Username: {user_login_name}', 'melapress-login-security' ) . "\n\n";
+				$message .= __( 'Please visit the following URL to reset your password so you can log in to the website: {reset_url}.', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'If you have any questions or require assistance please contact the website administrator on {admin_email}.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'user_imported' === $template || 'user_imported_email_body' === $template ) {
 				$message  = __( 'Hello', 'melapress-login-security' ) . "\n\n";

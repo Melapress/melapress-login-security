@@ -68,9 +68,11 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 				<div id="ppmwp_links-inner-wrapper">
 					<?php
 					$title_active = isset( $roles[ $current_tab ] ) ? 'nav-tab-active' : '';
-					?>
-					<span class="nav-tab <?php echo esc_attr( $title_active ); ?> dummy"><span style="opacity: 0.2" class="dashicons dashicons-admin-settings"></span><?php esc_html_e( 'Role-based policies', 'melapress-login-security' ); ?></span>
-					<?php
+					if ( ! isset( $roles[ $current_tab ] ) ) {
+						?>
+						<span class="nav-tab <?php echo esc_attr( $title_active ); ?> dummy"><span style="opacity: 0.2" class="dashicons dashicons-admin-settings"></span><?php esc_html_e( 'Role-based policies', 'melapress-login-security' ); ?></span>
+						<?php
+					}
 					if ( isset( $roles[ $current_tab ] ) ) {
 						$first_item = array(
 							$current_tab => $roles[ $current_tab ],

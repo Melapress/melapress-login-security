@@ -48,7 +48,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			// Ajax.
 			add_action( 'wp_ajax_get_users_roles', array( __CLASS__, 'search_users_roles' ) );
 			add_action( 'wp_ajax_mls_send_test_email', array( __CLASS__, 'send_test_email' ) );
-			add_action( 'wp_ajax_mls_process_reset', array( '\MLS\MLS_Reset_Passwords', 'process_global_password_reset' ) );
+			add_action( 'wp_ajax_mls_process_reset', array( '\MLS\Reset_Passwords', 'process_global_password_reset' ) );
 
 			// Add dialog box.
 			add_action( 'admin_footer', array( __CLASS__, 'admin_footer_session_expired_dialog' ) );

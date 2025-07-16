@@ -127,7 +127,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 									</p>
 									<ul id="ppm-exempted-list">
 										<?php
-										if ( is_array( self::$options->mls_setting->exempted['users'] ) ) {
+										if ( isset( self::$options->mls_setting->exempted['users'] ) && is_array( self::$options->mls_setting->exempted['users'] ) ) {
 											foreach ( self::$options->mls_setting->exempted['users'] as $user_id ) {
 												$user = get_userdata( $user_id );
 												if ( $user ) :

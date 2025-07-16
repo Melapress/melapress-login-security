@@ -15,9 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use MLS\Helpers\OptionsHelper;
-use MLS\Helpers\SettingsHelper;
-
 /**
  * Check if this class already exists.
  *
@@ -122,10 +119,10 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 		 * @since 2.1.0
 		 */
 		private function table_data() {
-			$users = \MLS\TemporaryLogins::get_temporary_logins();
+			$users = Temporary_Logins::get_temporary_logins();
 			$data  = array();
 
-			$current = \MLS\TemporaryLogins::get_current_gmt_timestamp();
+			$current = Temporary_Logins::get_current_gmt_timestamp();
 
 			foreach ( $users as $user_id ) {
 				if ( is_multisite() ) {
@@ -134,7 +131,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 					}
 				}
 				$user        = get_user_by( 'ID', $user_id );
-				$login_url   = \MLS\TemporaryLogins::get_login_url( $user->data->ID );
+				$login_url   = Temporary_Logins::get_login_url( $user->data->ID );
 				$expires_on  = get_date_from_gmt( gmdate( 'Y-m-d H:i:s', (int) get_user_meta( $user->data->ID, 'mls_temp_user_expires_on', true ) ), get_option( 'date_format', get_option( 'date_format' ), true ) . ' ' . get_option( 'time_format', get_option( 'time_format' ), true ) );
 				$login_count = ( get_user_meta( $user->data->ID, 'mls_login_count', true ) ) ? get_user_meta( $user->data->ID, 'mls_login_count', true ) : 0;
 
@@ -344,9 +341,10 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 		public function column_user_login( $item ) {
 			$delete_nonce = wp_create_nonce( MLS_PREFIX . 'delete_role_nonce' );
 			$label        = isset( $_REQUEST['page'] ) ? sanitize_title( wp_unslash( $_REQUEST['page'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$nonce        = \wp_create_nonce( MLS_PREFIX . '-disable-login-link' );
 			$actions      = array(
-				'disable' => sprintf( '<a href="?page=%s&action=%s&user_id=%s&nonce=%s">' . esc_html__( 'Disable', 'melapress-login-security' ) . '</a>', $label, 'disable_link', sanitize_key( $item['user_id'] ), sanitize_key( wp_create_nonce( MLS_PREFIX . '-disable-login-link' ) ) ),
-				'delete'  => sprintf( '<a href="?page=%s&action=%s&user_id=%s&nonce=%s">' . esc_html__( 'Delete', 'melapress-login-security' ) . '</a>', $label, 'delete_link', sanitize_key( $item['user_id'] ), sanitize_key( wp_create_nonce( MLS_PREFIX . '-delete-link' ) ) ),
+				'disable' => sprintf( '<a href="?page=%s&action=%s&user_id=%s&nonce=%s">' . esc_html__( 'Disable', 'melapress-login-security' ) . '</a>', $label, 'disable_link', sanitize_key( $item['user_id'] ), sanitize_key( $nonce ) ),
+				'delete'  => sprintf( '<a href="?page=%s&action=%s&user_id=%s&nonce=%s">' . esc_html__( 'Delete', 'melapress-login-security' ) . '</a>', $label, 'delete_link', sanitize_key( $item['user_id'] ), sanitize_key( $nonce ) ),
 				'edit'    => sprintf( '<a href="?page=%s&action=%s&user_id=%s" data-delete-role="%s" data-nonce="%s">' . esc_html__( 'Edit', 'melapress-login-security' ) . '</a>', $label, 'edit_link', sanitize_key( $item['user_id'] ), sanitize_key( $item['user_login'] ), $delete_nonce ),
 			);
 
@@ -371,7 +369,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 			}
 
 			// Check nonce.
-			if ( ! wp_verify_nonce( wp_unslash( $_REQUEST['_wpnonce'] ), 'bulk-' . $this->_args['plural'] ) ) {
+			if ( ! wp_verify_nonce( \sanitize_key( \wp_unslash( $_REQUEST['_wpnonce'] ) ), 'bulk-' . $this->_args['plural'] ) ) {
 				echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Action not allowed.', 'melapress-login-security' ) . '</p></div>';
 				return;
 			}
@@ -383,7 +381,9 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 				case 'delete':
 					if ( isset( $post_array['user_ids'] ) ) {
 						foreach ( $post_array['user_ids'] as $user_id ) {
-							\MLS\TemporaryLogins::delete_user( $user_id );
+							if ( Temporary_Logins::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
+								Temporary_Logins::delete_user( $user_id );
+							}
 						}
 						echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Temporary logins deleted.', 'melapress-login-security' ) . '</p></div>';
 					}
@@ -393,10 +393,12 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 				case 'reactivate':
 					if ( isset( $post_array['user_ids'] ) ) {
 						foreach ( $post_array['user_ids'] as $user_id ) {
-							if ( ! empty( get_user_meta( $user_id, 'mls_temp_user_expired', true ) ) ) {
-								delete_user_meta( $user_id, 'mls_temp_user_expired' );
-							} else {
-								update_user_meta( $user_id, 'mls_temp_user_expired', \MLS\TemporaryLogins::get_current_gmt_timestamp() );
+							if ( Temporary_Logins::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
+								if ( ! empty( get_user_meta( $user_id, 'mls_temp_user_expired', true ) ) ) {
+									delete_user_meta( $user_id, 'mls_temp_user_expired' );
+								} else {
+									update_user_meta( $user_id, 'mls_temp_user_expired', Temporary_Logins::get_current_gmt_timestamp() );
+								}
 							}
 						}
 						echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Temporary logins reactivated/deactivated.', 'melapress-login-security' ) . '</p></div>';
