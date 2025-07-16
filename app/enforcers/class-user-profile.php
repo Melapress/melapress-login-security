@@ -186,7 +186,7 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 		 */
 		public function ppm_handle_login_based_resets( $user_login, $user, $reset_type = 'reset-on-login' ) {
 			// Get user reset key.
-			$reset = new \MLS\MLS_Reset_Passwords();
+			$reset = new \MLS\Reset_Passwords();
 			$mls   = melapress_login_security();
 
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, $reset_type );

@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MLS\Reset_Passwords;
 use \MLS\Helpers\OptionsHelper;
 
 if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
@@ -291,7 +292,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			do_action( 'mls_user_password_has_expired', $user_id );
 
 			// Reset user by User ID.
-			\MLS\MLS_Reset_Passwords::reset_by_id( $user_id, $current_password, 'system' );
+			Reset_Passwords::reset_by_id( $user_id, $current_password, 'system' );
 			// save the last expiry time in an easy to access meta as this is
 			// used/modified by the inactive users feature.
 			$last_expiry = OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $user_id ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested

@@ -83,7 +83,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 			$options = $mls->options->users_options;
 
 			/*
-			 * Remove any excluded special characters from the list displaed.
+			 * Remove any excluded special characters from the list displayed.
 			 *
 			 * @since 2.1.0
 			 */

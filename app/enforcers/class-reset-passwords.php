@@ -10,19 +10,21 @@ declare(strict_types=1);
 
 namespace MLS;
 
+use MLS\TemporaryLogins\Temporary_Logins;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
+if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 
 	/**
 	 * Resets passwords
 	 *
 	 * @since 2.0.0
 	 */
-	class MLS_Reset_Passwords {
+	class Reset_Passwords {
 
 		/**
 		 * Hooks delayed password reset to login if option is checked
@@ -39,7 +41,10 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			// Customize password reset key expiry time.
 			add_filter( 'password_reset_expiration', array( $this, 'customize_reset_key_expiry_time' ) );
 
-			add_filter( 'allow_password_reset', array( $this, 'ppm_is_user_allowed_to_reset' ), 10, 2 );
+			add_filter( 'allow_password_reset', array( __CLASS__, 'ppm_is_user_allowed_to_reset' ), 10, 2 );
+			add_filter( 'send_retrieve_password_email', array( __CLASS__, 'send_reset_mail' ), 10, 3 );
+			add_filter( 'user_row_actions', array( __CLASS__, 'allowed_actions' ), 10, 2 );
+			add_action( 'lostpassword_errors', array( __CLASS__, 'lostpassword_form' ), 10, 2 );
 			add_filter( 'mepr-validate-forgot-password', array( $this, 'mepr_forgot_password' ), 10, 1 );
 		}
 
@@ -136,23 +141,30 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 				}
 			} elseif ( 'reset-role' === $reset_type ) {
 				$exempted_users = array();
+				if ( isset( $mls->options->mls_setting->exempted['users'] ) && ! empty( $mls->options->mls_setting->exempted['users'] ) && \is_array( $mls->options->mls_setting->exempted['users'] ) ) {
+					$exempted_users = $mls->options->mls_setting->exempted['users'];
+				}
 
 				if ( ! $include_self ) {
 					array_push( $exempted_users, get_current_user_id() );
 				}
 
 				// exclude exempted roles and users.
+				// $user_args = array(
+				// 	'blog_id' => 0,
+				// 	'role'    => $role,
+				// 	'exclude' => $exempted_users,
+				// 	'fields'  => array( 'ID' ),
+				// );
+
+				// $users = get_users( $user_args );
+
 				$user_args = array(
-					'role'    => $role,
-					'exclude' => $exempted_users,
-					'fields'  => array( 'ID' ),
+					'role__in'    => $role,
+					'excluded_users' => $exempted_users,
 				);
 
-				if ( is_multisite() ) {
-					$user_args['blog_id'] = 0;
-				}
-
-				$users = get_users( $user_args );
+				$users = MLS_Options::get_all_users_data( 'query', $user_args );
 
 				foreach ( $users as $user ) {
 					self::reset_user( $user->ID, $kill_sessions, $send_reset, $reset_when );
@@ -240,7 +252,7 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 				return $post;
 			}
 
-			$allow = $this->ppm_is_user_allowed_to_reset( true, $user->ID );
+			$allow = self::ppm_is_user_allowed_to_reset( true, $user->ID );
 
 			if ( class_exists( '\MeprUtils' ) ) {
 				if ( is_wp_error( $allow ) ) {
@@ -257,10 +269,9 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 						$default_options = \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->inherit['master_switch'] ) ? $mls->options->inherit : array();
 
 						// Get user by ID.
-						$get_userdata = get_user_by( 'ID', $user->ID );
-						$roles        = $get_userdata->roles;
+						$roles        = $user->roles;
 
-						$roles = \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
+						$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 						$roles = reset( $roles );
 
 						$options = get_site_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
@@ -375,6 +386,10 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			$login_page = \MLS\Helpers\OptionsHelper::get_password_reset_page();
 			$message    = false;
 
+			if ( empty( $user_email ) ) {
+				return;
+			}
+
 			if ( ! is_wp_error( $key ) ) {
 				if ( 'admin' === $by ) {
 					if ( $is_delayed ) {
@@ -482,6 +497,9 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			$mls = melapress_login_security();
 
 			$exempted_users = array();
+			if ( isset( $mls->options->mls_setting->exempted['users'] ) && ! empty( $mls->options->mls_setting->exempted['users'] ) && \is_array( $mls->options->mls_setting->exempted['users'] ) ) {
+				$exempted_users = $mls->options->mls_setting->exempted['users'];
+			}
 
 			// Nonce was checked prior to this call via process_reset.
 			if ( isset( $_POST['current_user'] ) || ! $skip_self ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -490,21 +508,17 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 
 			// exclude exempted roles and users.
 			$user_args = array(
+				'blog_id' => 0,
 				'exclude' => $exempted_users,
 				'fields'  => array( 'ID' ),
 			);
 
-			// If check multisite installed OR not.
-			if ( is_multisite() ) {
-				$user_args['blog_id'] = 0;
-			}
-
 			update_site_option( MLS_PREFIX . '_reset_timestamp', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 
 			// Send users for bg processing later.
-			$total_users        = count_users();
+			$total_users        = self::count_users();
 			$batch_size         = 50;
-			$slices             = ceil( $total_users['total_users'] / $batch_size );
+			$slices             = ceil( $total_users / $batch_size );
 			$users              = array();
 			$background_process = new \MLS\Reset_User_PW_Process();
 
@@ -515,14 +529,16 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 
 				if ( ! empty( $users ) ) {
 					foreach ( $users as $user ) {
-						$item = array(
-							'ID'              => $user->ID,
-							'kill_sessions'   => $kill_sessions,
-							'send_reset'      => $send_reset,
-							'is_global_reset' => $is_global_reset,
-							'reset_when'      => $reset_when,
-						);
-						$background_process->push_to_queue( $item );
+						if ( ! Temporary_Logins::is_valid_temp_user( $user ) ) {
+							$item = array(
+								'ID'              => $user->ID,
+								'kill_sessions'   => $kill_sessions,
+								'send_reset'      => $send_reset,
+								'is_global_reset' => $is_global_reset,
+								'reset_when'      => $reset_when,
+							);
+							$background_process->push_to_queue( $item );
+						}
 					}
 				}
 			}
@@ -642,8 +658,8 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			$verify_reset_key = false;
 
 			if ( is_a( $user, '\WP_User' ) ) {
-				$user_id          = $user->ID;
-				$user_login       = $user->user_login;
+				$user_id    = $user->ID;
+				$user_login = $user->user_login;
 
 				$usermeta_key = ( 'new-user' === $meta_key ) ? MLS_NEW_USER_META_KEY : MLS_USER_RESET_PW_ON_LOGIN_META_KEY;
 
@@ -662,16 +678,91 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 		}
 
 		/**
+		 * Allows the retrieve password to be send or not.
+		 *
+		 * @param bool    $send       Whether to send the email.
+		 * @param string  $user_login The username for the user.
+		 * @param WP_User $user_data  WP_User object.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.2.0
+		 */
+		public static function send_reset_mail( $send, $user_login, $user_data ) {
+
+			if ( \is_a( $user_data, '\WP_User' ) ) {
+				$allowed = self::ppm_is_user_allowed_to_reset( $send, $user_data->ID, true );
+				if ( \is_wp_error( $allowed ) ) {
+					return false;
+				}
+				return $allowed;
+			}
+
+			return $send;
+		}
+
+		/**
+		 * Check for exclusion.
+		 *
+		 * @param \WP_Error      $errors    A WP_Error object containing any errors generated
+		 *                                 by using invalid credentials.
+		 * @param \WP_User|false $user_data WP_User object if found, false if the user does not exist.
+		 *
+		 * @return \WP_Error
+		 *
+		 * @since 2.2.0
+		 */
+		public static function lostpassword_form( $errors, $user_data ) {
+			if ( \is_a( $user_data, '\WP_User' ) ) {
+				$allowed = self::ppm_is_user_allowed_to_reset( true, $user_data->ID, true );
+
+				if ( \is_wp_error( $allowed ) ) {
+					$errors->add( $allowed->get_error_code(), $allowed->get_error_message(), $allowed->get_error_data() );
+				}
+			}
+
+			return $errors;
+		}
+
+		/**
+		 * Checks and removes reset link from user actions row if the given user is no allowed to.
+		 *
+		 * @param array    $actions - Array with the current actions.
+		 * @param \WP_User $user_object - The user object.
+		 *
+		 * @return array
+		 *
+		 * @since 2.2.0
+		 */
+		public static function allowed_actions( $actions, $user_object ) {
+			if ( \is_a( $user_object, '\WP_User' ) && isset( $actions['resetpassword'] ) && ! empty( $actions['resetpassword'] ) ) {
+				$allowed = self::ppm_is_user_allowed_to_reset( true, $user_object->ID, true );
+
+				if ( \is_wp_error( $allowed ) || false === (bool) $allowed ) {
+					unset( $actions['resetpassword'] );
+				}
+			}
+
+			return $actions;
+		}
+
+		/**
 		 * Check if users is allowed to reset.
 		 *
 		 * @param  bool $allow - Is currently allowed.
 		 * @param  int  $user_id - User ID.
+		 * @param  bool $ignore_request - Should the request part must be ignored or not.
 		 *
-		 * @return bool result.
+		 * @return bool|\WP_error
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_is_user_allowed_to_reset( $allow, $user_id ) {
+		public static function ppm_is_user_allowed_to_reset( $allow, $user_id, bool $ignore_request = false ) {
+
+			if ( \MLS_Core::is_user_exempted( $user_id ) ) {
+				return true;
+			}
+
 			$mls             = melapress_login_security();
 			$default_options = \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->inherit['master_switch'] ) ? $mls->options->inherit : array();
 
@@ -679,7 +770,7 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			$get_userdata = get_user_by( 'ID', $user_id );
 			$roles        = $get_userdata->roles;
 
-			$roles = \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
+			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 
 			// If we reach this point with no default options, stop here.
 			if ( ! $roles || ! is_array( $roles ) ) {
@@ -692,18 +783,20 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 
 			$roles = reset( $roles );
 
-			$allowed_actions = array(
-				'resetpassword',
-				'mls_unlock_inactive_user',
-				'wp_ppm_reset_user_pw',
-			);
+			if ( ! $ignore_request ) {
+				$allowed_actions = array(
+					'resetpassword',
+					'mls_unlock_inactive_user',
+					'wp_ppm_reset_user_pw',
+				);
 
-			// Allow if request is from an admin.
-			if ( ( isset( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], $allowed_actions, true ) ) || ( isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' === $_REQUEST['action'] && 'profile' === $_REQUEST['from'] ) || ( isset( $_REQUEST['action'] ) && 'unlock' === $_REQUEST['action'] && isset( $_REQUEST['page'] ) && 'mls-locked-users' === $_REQUEST['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$user          = wp_get_current_user();
-				$allowed_roles = array( 'administrator' );
-				if ( array_intersect( $allowed_roles, $user->roles ) ) {
-					return true;
+				// Allow if request is from an admin.
+				if ( ( isset( $_REQUEST['action'] ) && in_array( $_REQUEST['action'], $allowed_actions, true ) ) || ( isset( $_REQUEST['from'] ) && isset( $_REQUEST['action'] ) && 'update' === $_REQUEST['action'] && 'profile' === $_REQUEST['from'] ) || ( isset( $_REQUEST['action'] ) && 'unlock' === $_REQUEST['action'] && isset( $_REQUEST['page'] ) && 'mls-locked-users' === $_REQUEST['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					$user          = wp_get_current_user();
+					$allowed_roles = array( 'administrator' );
+					if ( array_intersect( $allowed_roles, $user->roles ) ) {
+						return true;
+					}
 				}
 			}
 
@@ -727,6 +820,23 @@ if ( ! class_exists( '\MLS\MLS_Reset_Passwords' ) ) {
 			}
 
 			return true;
+		}
+
+		/**
+		 * Counts the users on multisite network
+		 *
+		 * @return int
+		 *
+		 * @since 2.2.0
+		 */
+		public static function count_users(): int {
+			global $wpdb;
+
+			$query             =
+					'SELECT count(ID) as users FROM ' . $wpdb->users;
+					$db_result = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+			return (int) $db_result[0]['users'];
 		}
 	}
 }

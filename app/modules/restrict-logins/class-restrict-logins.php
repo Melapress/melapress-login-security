@@ -331,8 +331,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 			}
 
 			// Get the user ID, either from the user object if we have it, or by SQL query if we dont.
-			$failed_logins = new \MLS\Failed_Logins();
-			$user_id       = ( isset( $user->ID ) ) ? $user->ID : $failed_logins->get_user_id_from_login_name( $username );
+			$user_id       = ( isset( $user->ID ) ) ? $user->ID : \get_user_by( 'login', $username )->ID;
 
 			// If we still have nothing, stop here.
 			if ( ! $user_id ) {
@@ -344,9 +343,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 				return $user;
 			}
 
-			$userdata = get_user_by( 'id', $user_id );
-
-			$role_options = OptionsHelper::get_preferred_role_options( $userdata->roles );
+			$role_options = OptionsHelper::get_preferred_role_options( $user->roles );
 
 			if ( OptionsHelper::string_to_bool( $role_options->restrict_login_ip ) ) {
 				$stored_ips   = self::get_user_stored_ips( $user_id );

@@ -117,7 +117,7 @@ if ( ! class_exists( '\MLS\Password_Gen' ) ) {
 			$chargroup_count = count( $chargroups );
 
 			// set a length way more than the minimum required for the generated password.
-			$length = $mls->options->users_options->min_length + 8;
+			$length = (int) $mls->options->users_options->min_length + 8;
 
 			if ( 0 === $chargroup_count ) {
 				$strong_password = wp_generate_password( $length );

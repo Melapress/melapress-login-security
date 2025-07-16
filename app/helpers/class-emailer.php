@@ -101,7 +101,7 @@ class Emailer {
 		$media['mls-logo']          = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mls-email-header.png';
 		$media['documentation']     = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/documentation.png';
 		$media['support']           = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/support.png';
-		$media['melapress-icon']    = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/melapress-icon@2x.png';
+		$media['melapress-icon']    = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/melapress-icon.png';
 		$media['wsal-dg-footer-bg'] = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/wsal-dg-footer-bg.png';
 
 		$header = '

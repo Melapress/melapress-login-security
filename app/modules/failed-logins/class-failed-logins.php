@@ -133,7 +133,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			// Get the user ID, either from the user object if we have it, or by SQL query if we dont.
-			$user_id = ( isset( $user->ID ) ) ? $user->ID : $this->get_user_id_from_login_name( $username );
+			$user_id = ( isset( $user->ID ) ) ? $user->ID : \get_user_by( 'login', $username )->ID;
 
 			// If we still have nothing, stop here.
 			if ( ! $user_id ) {
@@ -145,9 +145,9 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 				return $user;
 			}
 
-			$userdata = get_user_by( 'id', $user_id );
+			$user = get_user_by( 'id', $user_id );
 
-			$role_options = OptionsHelper::get_preferred_role_options( $userdata->roles );
+			$role_options = OptionsHelper::get_preferred_role_options( $user->roles );
 
 			if ( OptionsHelper::string_to_bool( $role_options->failed_login_policies_enabled ) ) {
 
@@ -161,7 +161,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 
 					// Enough time has passed and the user is allowed to reset.
 					if ( ! $time_difference ) {
-						$this->clear_failed_login_data( $userdata->user_login, $userdata );
+						$this->clear_failed_login_data( $user->user_login, $user );
 					}
 				}
 
@@ -226,7 +226,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 				$login_attempts_transient_name = MLS_PREFIX . '_user_' . $userdata->ID . '_failed_login_attempts';
 
 				// Get the user ID by SQL query.
-				$user_id = $this->get_user_id_from_login_name( $username );
+				$user_id = \get_user_by( 'login', $username )->ID;
 				// Grab users currently stored attempts.
 				$login_attempts_transient = $this->get_users_stored_transient_data( $userdata->ID, false );
 				// Check if we have any failed login attempts stored for this user in a transient.
@@ -361,7 +361,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			if ( is_numeric( $username ) ) {
 				$user_id = $username;
 			} else {
-				$user_id = ( isset( $user->ID ) ) ? $user->ID : $this->get_user_id_from_login_name( $username );
+				$user_id = ( isset( $user->ID ) ) ? $user->ID : \get_user_by( 'login', $username )->ID;
 			}
 
 			if ( $user_id ) {
@@ -408,26 +408,6 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			return $transient_data;
-		}
-
-		/**
-		 * Queries the usermeta table to retrieve a users ID. Leaner than using get_user_by as we dont need the whole user object.
-		 *
-		 * @param  string $username  Users login name.
-		 *
-		 * @return string            Users ID.
-		 *
-		 * @since 2.0.0
-		 */
-		public function get_user_id_from_login_name( $username ) {
-			global $wpdb;
-			$user_data = $wpdb->get_results( $wpdb->prepare( "SELECT ID FROM $wpdb->users WHERE user_login = %s", array( $username ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
-
-			if ( isset( $user_data[0] ) ) {
-				$user_id = $user_data[0];
-				$user_id = $user_id->ID;
-				return $user_id;
-			}
 		}
 
 		/**

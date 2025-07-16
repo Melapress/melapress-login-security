@@ -59,7 +59,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		private $role_options;
+		private static $role_options;
 
 		/**
 		 * Instantiate
@@ -69,11 +69,10 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 		 * @since 2.0.0
 		 */
 		public function __construct() {
-			$mls                = melapress_login_security();
-			$this->options      = $mls->options;
-			$this->msgs         = $mls->msgs;
-			$this->regex        = $mls->regex;
-			$this->role_options = $mls->options->users_options;
+			$mls           = melapress_login_security();
+			$this->options = $mls->options;
+			$this->msgs    = $mls->msgs;
+			$this->regex   = $mls->regex;
 		}
 
 		/**
@@ -95,18 +94,61 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enable_custom_form' ) );
 			}
 
-			if ( null === $this->role_options || ! OptionsHelper::get_plugin_is_enabled() ) {
+			$userid = get_current_user_id();
+			$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid;
+
+			if ( 0 === $userid ) {
+				list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
+				$rp_cookie       = 'wp-resetpass-' . COOKIEHASH;
+				if ( isset( $_COOKIE[ $rp_cookie ] ) && 0 < strpos( $_COOKIE[ $rp_cookie ], ':' ) ) {
+					list( $rp_login, $rp_key ) = explode( ':', wp_unslash( $_COOKIE[ $rp_cookie ] ), 2 );
+
+					$user = check_password_reset_key( $rp_key, $rp_login );
+
+					if ( isset( $_POST['pass1'] ) && ! hash_equals( $rp_key, $_POST['rp_key'] ) ) {
+						$user = false;
+					}
+
+					if ( is_a( $user, '\WP_User' ) ) {
+						$userid = $user->ID;
+					}
+				}
+			}
+
+			if ( 0 === $userid ) {
 				return;
 			}
 
-			$is_feature_active = isset( $this->role_options->activate_password_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->activate_password_policies ) ? true : false;
+			$user = \get_user_by( 'ID', $userid );
+
+			if ( ! is_a( $user, '\WP_User' ) ) {
+				return;
+			}
+
+			$roles = $user->roles;
+
+			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
+			$roles = reset( $roles );
+
+			$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+
+			if ( null === $options || ! OptionsHelper::get_plugin_is_enabled() ) {
+				return;
+			}
+
+			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $options['master_switch'] ) ) {
+				// Get current user setting.
+				$options = \wp_parse_args( MLS_Options::get_default_options() );
+			}
+
+			self::$role_options = $options;
+
+			$is_feature_active = isset( $options['activate_password_policies'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['activate_password_policies'] ) ? true : false;
 			if ( ! $is_feature_active ) {
 
-				$is_feature_active_security_prompt = isset( $this->role_options->enable_security_questions ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->enable_security_questions ) ? true : false;
+				$is_feature_active_security_prompt = isset( $options['enable_security_questions'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['enable_security_questions'] ) ? true : false;
 
 				if ( $is_feature_active_security_prompt ) {
-					$userid = get_current_user_id();
-					$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid; // phpcs:ignore 
 					$this->modify_user_scripts( $userid );
 					$this->add_admin_css( $userid );
 				}
@@ -182,6 +224,24 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 
 				$current_user = wp_get_current_user();
 
+				if ( ! is_a( $current_user, '\WP_User' ) ) {
+					return;
+				}
+
+				$roles = $current_user->roles;
+
+				$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
+				$roles = reset( $roles );
+
+				$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+
+				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $options['master_switch'] ) ) {
+					// Get current user setting.
+					$options = \wp_parse_args( MLS_Options::get_default_options() );
+				}
+
+				self::$role_options = $options;
+
 				wp_deregister_script( 'password-strength-meter' );
 
 				wp_register_script( 'password-strength-meter', MLS_PLUGIN_URL . 'assets/js/password-strength-meter.js', array( 'jquery', 'zxcvbn-async' ), MLS_VERSION, 1 );
@@ -193,6 +253,8 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				wp_enqueue_script( 'ppm-user-profile', MLS_PLUGIN_URL . 'assets/js/custom-form.js', array( 'jquery', 'password-strength-meter', 'wp-util' ), MLS_VERSION, 1 );
 
 				wp_localize_script( 'ppm-user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
+				wp_localize_script( 'ppm-user-profile', 'pwsL10n', $this->msgs->user_profile_l10n );
+				wp_localize_script( 'ppm-user-profile', 'myacPwsL10n', array( 'disable_enforcement' => false ) );
 				wp_localize_script( 'user-profile', 'pwsL10n', $this->msgs->user_profile_l10n );
 
 				// Variables to check shortly.
@@ -237,7 +299,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			// we don't want to overwrite the global if WP doesn't want to set it yet.
 			$userid = $user_id;
 
-			$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid; // phpcs:ignore 
+			$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid;
 
 			$this->modify_user_scripts( $userid );
 		}
@@ -314,7 +376,34 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				return;
 			}
 
-			$is_feature_active = ( isset( $this->role_options->activate_password_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->activate_password_policies ) ) || ( isset( $this->role_options->enable_device_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->enable_device_policies ) ) || ( isset( $this->role_options->enable_security_questions ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->enable_security_questions ) ) ? true : false;
+			if ( 0 === $user_id ) {
+				return;
+			}
+
+			$user = \get_user_by( 'ID', $user_id );
+
+			if ( ! is_a( $user, '\WP_User' ) ) {
+				$action = \current_action();
+				if ( 'admin_print_styles-user-new.php' === $action || 'load-user-new.php' === $action ) {
+					$roles = array();
+				} else {
+					return;
+				}
+			} else {
+				$roles = $user->roles;
+			}
+
+			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
+			$roles = reset( $roles );
+
+			$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+
+			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $options['master_switch'] ) ) {
+				// Get current user setting.
+				$options = \wp_parse_args( MLS_Options::get_default_options() );
+			}
+
+			$is_feature_active = ( isset( $options['activate_password_policies'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['activate_password_policies'] ) ) || ( isset( $options['enable_device_policies'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['enable_device_policies'] ) ) || ( isset( $options['enable_security_questions'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['enable_security_questions'] ) ) ? true : false;
 
 			if ( ! $is_feature_active ) {
 				return;
@@ -339,7 +428,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			wp_register_script( 'user-profile', MLS_PLUGIN_URL . "assets/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), MLS_VERSION, 1 );
 
 			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
-			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
+
 			wp_localize_script( 'user-profile', 'ppmErrors', $this->msgs->error_strings );
 			wp_localize_script( 'user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
 			wp_localize_script(
@@ -352,7 +441,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 		}
 
 		/**
-		 * Localise scripts.
+		 * Localize scripts.
 		 *
 		 * @param WP_Error $errors - Current errors.
 		 * @param WP_User  $user - Current user.
@@ -373,7 +462,36 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				return;
 			}
 
-			$is_feature_active = isset( $this->role_options->activate_password_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->activate_password_policies ) ? true : false;
+			if ( 0 === $user_id ) {
+				return;
+			}
+
+			if ( false === $user ) {
+				$user = \get_user_by( 'ID', $user_id );
+			}
+
+			if ( ! is_a( $user, '\WP_User' ) ) {
+				$action = \current_action();
+				if ( 'admin_print_styles-user-new.php' === $action || 'load-user-new.php' === $action ) {
+					$roles = array();
+				} else {
+					return;
+				}
+			} else {
+				$roles = $user->roles;
+			}
+
+			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
+			$roles = reset( $roles );
+
+			$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+
+			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $options['master_switch'] ) ) {
+				// Get current user setting.
+				$options = \wp_parse_args( MLS_Options::get_default_options() );
+			}
+
+			$is_feature_active = isset( $options['activate_password_policies'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['activate_password_policies'] ) ? true : false;
 			if ( ! $is_feature_active ) {
 				return;
 			}
@@ -447,14 +565,14 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 					<?php
 					unset( $this->msgs->error_strings['history'] );
 
-					$is_needed                   = isset( $this->role_options->rules['exclude_special_chars'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['exclude_special_chars'] );
-					$do_we_have_chars_to_exclude = isset( $this->role_options->excluded_special_chars ) && ! empty( $this->role_options->excluded_special_chars );
+					$is_needed                   = isset( self::$role_options['rules']['exclude_special_chars'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( self::$role_options['rules']['exclude_special_chars'] );
+					$do_we_have_chars_to_exclude = isset( self::$role_options['excluded_special_chars'] ) && ! empty( self::$role_options['excluded_special_chars'] );
 
 					/**
 					 * Edge case when all special characters are excluded in the excluded characters
 					 * can return false positive when new password is set
 					 */
-					if ( ! \MLS\Helpers\OptionsHelper::string_to_bool( $this->role_options->rules['special_chars'] ) && isset( $this->msgs->error_strings['special_chars'] ) ) {
+					if ( ! \MLS\Helpers\OptionsHelper::string_to_bool( self::$role_options['rules']['special_chars'] ) && isset( $this->msgs->error_strings['special_chars'] ) ) {
 						unset( $this->msgs->error_strings['special_chars'] );
 					}
 

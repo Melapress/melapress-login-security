@@ -840,7 +840,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 					$this->load_login_template();
 
 				} elseif ( 'wp-login.php' === $pagenow ) {
-					global $error, $interim_login, $action, $user_login;
+					global $error, $interim_login, $action, $user_login, $errors;
 					@include_once ABSPATH . 'wp-login.php'; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 					die;
 				}
