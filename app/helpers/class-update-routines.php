@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace MLS;
 
+use MLS\Reset_Passwords;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -210,9 +212,9 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 			}
 
 			// Send users for bg processing later.
-			$total_users        = count_users();
+			$total_users        = Reset_Passwords::count_users();
 			$batch_size         = 50;
-			$slices             = ceil( $total_users['total_users'] / $batch_size );
+			$slices             = ceil( $total_users / $batch_size );
 			$users              = array();
 			$background_process = new \MLS\Migrate_UserMeta_BG_Process();
 

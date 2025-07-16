@@ -32,11 +32,11 @@ class SettingsImporter {
 	 * @since 2.0.0
 	 */
 	public function init() {
-		add_filter( 'mls_settings_page_nav_tabs', array( $this, 'settings_tab_link' ), 50, 1 );
-		add_filter( 'mls_settings_page_content_tabs', array( $this, 'settings_tab' ), 50, 1 );
-		add_filter( 'wp_ajax_mls_export_settings', array( $this, 'export_settings' ), 10, 1 );
-		add_filter( 'wp_ajax_mls_check_setting_and_handle_import', array( $this, 'check_setting_and_handle_import' ), 10, 1 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'selectively_enqueue_admin_script' ) );
+		\add_filter( 'mls_settings_page_nav_tabs', array( $this, 'settings_tab_link' ), 50, 1 );
+		\add_filter( 'mls_settings_page_content_tabs', array( $this, 'settings_tab' ), 50, 1 );
+		\add_filter( 'wp_ajax_mls_export_settings', array( $this, 'export_settings' ), 10, 1 );
+		\add_filter( 'wp_ajax_mls_check_setting_and_handle_import', array( $this, 'check_setting_and_handle_import' ), 10, 1 );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'selectively_enqueue_admin_script' ) );
 	}
 
 	/**
@@ -49,7 +49,7 @@ class SettingsImporter {
 	 * @since 2.0.0
 	 */
 	public function selectively_enqueue_admin_script( $hook ) {
-		if ( ! str_contains( $hook, 'mls-settings' ) ) {
+		if ( ! str_contains( (string) $hook, 'mls-settings' ) ) {
 			return;
 		}
 

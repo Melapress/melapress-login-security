@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit7372fdde6dd30552a847c259b47dcbae
+class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
 {
     public static $prefixLengthsPsr4 = array (
         'M' => 
@@ -22,6 +22,7 @@ class ComposerStaticInit7372fdde6dd30552a847c259b47dcbae
     );
 
     public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'MLS\\Admin\\Admin' => __DIR__ . '/../..' . '/admin/class-mls-admin.php',
         'MLS\\Admin\\Network_Admin' => __DIR__ . '/../..' . '/admin/class-mls-multisite-admin.php',
         'MLS\\Admin\\Upgrade_Notice' => __DIR__ . '/../..' . '/admin/classes/class-upgrade-notices.php',
@@ -39,25 +40,26 @@ class ComposerStaticInit7372fdde6dd30552a847c259b47dcbae
         'MLS\\Helpers\\HideAdminNotices' => __DIR__ . '/../..' . '/app/helpers/class-hide-admin-notices.php',
         'MLS\\Helpers\\OptionsHelper' => __DIR__ . '/../..' . '/app/helpers/class-optionshelper.php',
         'MLS\\Helpers\\SettingsImporter' => __DIR__ . '/../..' . '/app/helpers/class-settings-importer.php',
+        'MLS\\Helpers\\Settings_Helper' => __DIR__ . '/../..' . '/app/helpers/class-settings-helper.php',
         'MLS\\Helpers\\UserImporter' => __DIR__ . '/../..' . '/app/helpers/class-user-importer.php',
         'MLS\\Login_Page_Control' => __DIR__ . '/../..' . '/app/login-page-control/class-login-page-control.php',
         'MLS\\MB_String_Helper' => __DIR__ . '/../..' . '/app/helpers/class-mb-string-helper.php',
         'MLS\\MLS_Messages' => __DIR__ . '/../..' . '/app/policies/class-mls-messages.php',
         'MLS\\MLS_Options' => __DIR__ . '/../..' . '/app/policies/class-mls-options.php',
         'MLS\\MLS_Regex' => __DIR__ . '/../..' . '/app/policies/class-mls-regex.php',
-        'MLS\\MLS_Reset_Passwords' => __DIR__ . '/../..' . '/app/enforcers/class-reset-passwords.php',
         'MLS\\Migrate_UserMeta_BG_Process' => __DIR__ . '/../..' . '/app/helpers/class-migrate-usermeta-bg-process.php',
         'MLS\\New_User_Register' => __DIR__ . '/../..' . '/app/enforcers/class-new-user.php',
         'MLS\\Password_Check' => __DIR__ . '/../..' . '/app/enforcers/class-password-check.php',
         'MLS\\Password_Gen' => __DIR__ . '/../..' . '/app/helpers/class-wp-password-gen.php',
         'MLS\\Password_History' => __DIR__ . '/../..' . '/app/helpers/class-password-history.php',
         'MLS\\Pointer' => __DIR__ . '/../..' . '/app/helpers/class-pointer.php',
+        'MLS\\Reset_Passwords' => __DIR__ . '/../..' . '/app/enforcers/class-reset-passwords.php',
         'MLS\\Reset_User_PW_Process' => __DIR__ . '/../..' . '/app/enforcers/class-wp-reset-bg-process.php',
         'MLS\\RestrictLogins' => __DIR__ . '/../..' . '/app/modules/restrict-logins/class-restrict-logins.php',
         'MLS\\Restrict_Login_Credentials' => __DIR__ . '/../..' . '/app/enforcers/class-restrict-login-credentials.php',
-        'MLS\\SecurityPrompt' => __DIR__ . '/../..' . '/app/modules/class-security-prompt.php',
+        'MLS\\Security_Prompt' => __DIR__ . '/../..' . '/app/modules/class-security-prompt.php',
         'MLS\\Shortcodes' => __DIR__ . '/../..' . '/app/enforcers/class-shortcodes.php',
-        'MLS\\TemporaryLogins' => __DIR__ . '/../..' . '/app/modules/temporary-logins/class-temporary-logins.php',
+        'MLS\\TemporaryLogins\\Temporary_Logins' => __DIR__ . '/../..' . '/app/modules/temporary-logins/class-temporary-logins.php',
         'MLS\\TemporaryLogins\\Temporary_Logins_Table' => __DIR__ . '/../..' . '/app/modules/temporary-logins/class-temporary-logins-table.php',
         'MLS\\UpdateRoutines' => __DIR__ . '/../..' . '/app/helpers/class-update-routines.php',
         'MLS\\User_Profile' => __DIR__ . '/../..' . '/app/enforcers/class-user-profile.php',
@@ -73,9 +75,9 @@ class ComposerStaticInit7372fdde6dd30552a847c259b47dcbae
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit7372fdde6dd30552a847c259b47dcbae::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit7372fdde6dd30552a847c259b47dcbae::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit7372fdde6dd30552a847c259b47dcbae::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit3f4349977146012cefaaaad2b7b71f42::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit3f4349977146012cefaaaad2b7b71f42::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit3f4349977146012cefaaaad2b7b71f42::$classMap;
 
         }, null, ClassLoader::class);
     }

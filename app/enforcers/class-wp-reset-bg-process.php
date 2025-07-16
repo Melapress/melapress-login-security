@@ -61,7 +61,7 @@ class Reset_User_PW_Process extends \WP_Background_Process {
 			delete_user_meta( $user->ID, MLS_EXPIRED_EMAIL_SENT_META_KEY );
 		}
 
-		\MLS\MLS_Reset_Passwords::reset_by_id( $user->ID, $user->data->user_pass, 'admin', $is_delayed, $item['kill_sessions'], $item['send_reset'], true );
+		\MLS\Reset_Passwords::reset_by_id( $user->ID, $user->data->user_pass, 'admin', $is_delayed, $item['kill_sessions'], $item['send_reset'], true );
 
 		return false;
 	}

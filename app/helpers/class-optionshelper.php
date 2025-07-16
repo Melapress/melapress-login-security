@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MLS\MLS_Options;
 use MLS\InactiveUsers;
 
 /**
@@ -138,8 +139,16 @@ class OptionsHelper {
 	 * @since 2.0.0
 	 */
 	public static function get_role_options( $role = '' ) {
-		$mls     = melapress_login_security();
-		$options = ( isset( melapress_login_security()->options ) ) ? melapress_login_security()->options->get_role_options( $role ) : array();
+		// $mls     = melapress_login_security();
+		// $options = ( isset( melapress_login_security()->options ) ) ? melapress_login_security()->options->get_role_options( $role ) : array();
+
+		$options = \get_site_option( MLS_PREFIX . '_' . $role . '_options', MLS_Options::get_default_options() );
+
+		if ( self::string_to_bool( $options['master_switch'] ) ) {
+			// Get current user setting.
+			$options = \wp_parse_args( MLS_Options::get_default_options() );
+		}
+
 		return (object) $options;
 	}
 
@@ -956,7 +965,7 @@ class OptionsHelper {
 		if ( is_bool( $target ) ) {
 			return false;
 		}
-		return preg_replace( '/[^0-9]/', '', $target );
+		return preg_replace( '/[^0-9]/', '', (string) $target );
 	}
 
 	/**
@@ -989,10 +998,10 @@ class OptionsHelper {
 	public static function sanitise_value_by_key( $setting_key, $value ) {
 		$processed_value = '';
 
-		if ( in_array( $setting_key, \MLS\MLS_Options::$policy_boolean_options, true ) || in_array( $setting_key, \MLS\MLS_Options::$settings_boolean_options, true ) ) {
+		if ( in_array( $setting_key, MLS_Options::$policy_boolean_options, true ) || in_array( $setting_key, MLS_Options::$settings_boolean_options, true ) ) {
 			$processed_value = self::sanitize_yes_no_input( $value );
 
-		} elseif ( in_array( $setting_key, \MLS\MLS_Options::$textarea_settings, true ) ) {
+		} elseif ( in_array( $setting_key, MLS_Options::$textarea_settings, true ) ) {
 			$processed_value = wp_kses_post( sanitize_textarea_field( $value ) );
 
 		} elseif ( is_array( $value ) ) {

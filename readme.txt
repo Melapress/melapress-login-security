@@ -5,7 +5,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.0
 Tested up to: 6.6.2
 Tags: brute force, login, limit logins, limit login attempts, login security
-Stable tag: 2.1.1
+Stable tag: 2.2.0
 Requires PHP: 7.3
 
 Implement WordPress login and password security policies with ease to beef up the security and managemet of your users & website.

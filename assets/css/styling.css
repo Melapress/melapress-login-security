@@ -6,7 +6,7 @@
 #pass-strength-result ul, .pass-strength-result ul {
   font-weight: normal;
   text-align: left;
-  list-style: disc outside;
+  list-style: none;
   font-size: smaller;
   padding-left: 18px;
   margin-top: 8px;

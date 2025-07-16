@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace MLS;
 
+use MLS\Reset_Passwords;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -92,7 +94,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 				return true;
 			}
 
-			// Ensure we dont store repeat requests.
+			// Ensure we don't store repeat requests.
 			foreach ( $password_history as $event ) {
 				$diff = abs( $password_event['timestamp'] - $event['timestamp'] );
 				if ( $diff < 10 ) {
@@ -105,8 +107,8 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 
 			// trim to the right size by.
 			// we're technically saving the latest password + the required history.
-			$length               = $mls->options->password_history + 1;
-			$new_password_history = array_slice( $password_history, -$mls->options->password_history, $length );
+			$length               = (int) $mls->options->password_history + 1;
+			$new_password_history = array_slice( $password_history, - (int) $mls->options->password_history, $length );
 
 			// save it.
 			return update_user_meta( $user_id, MLS_PW_HISTORY_META_KEY, $new_password_history );
@@ -202,6 +204,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 
 			// If check current running action `profile_update`.
 			if ( doing_action( 'user_register' ) ) {
+				remove_filter( 'allow_password_reset', array( Reset_Passwords::class, 'ppm_is_user_allowed_to_reset' ), 10 );
 				if ( ! isset( $_POST['send_user_notification'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					// Handle users directly registered using Restrict Content.
 					if ( isset( $_POST['action'] ) && 'rc_process_registration_form' === $_POST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -217,6 +220,9 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 						}
 					}
 				} else {
+					// if ( $this->get_first_login_policy( $user_id ) ) {
+					// 	$this->apply_forced_reset_usermeta( $user_id );
+					// }
 					add_action( 'retrieve_password_key', array( $this, 'ppm_retrieve_password_key' ), 10, 2 );
 				}
 			}
@@ -273,10 +279,15 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			if ( ! is_multisite() || ! doing_action( 'invite_user' ) ) {
 				// Get user by ID.
 				$get_userdata = get_user_by( 'ID', $user_id );
+
+				if ( ! is_a( $get_userdata, '\WP_User' ) ) {
+					return;
+				}
+
 				$roles        = $get_userdata->roles;
 			}
 
-			$roles = \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
+			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 			$roles = reset( $roles );
 
 			// If we reach this point with no default options, stop here.

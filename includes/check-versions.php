@@ -29,6 +29,6 @@ if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 		if ( is_plugin_active( $premium_version_slug ) ) {
 			deactivate_plugins( $premium_version_slug, true );
 		}
-	}	
+	}
 }
 /* @free:end */

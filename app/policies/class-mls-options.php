@@ -15,8 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use MLS\Helpers\OptionsHelper;
-
 if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 	/**
@@ -107,6 +105,166 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 * @since 2.0.0
 		 */
 		public $default_options = array(
+			'master_switch'                             => 'no',
+			'activate_password_policies'                => 'no',
+			'activate_password_expiration_policies'     => 'no',
+			'activate_password_recycle_policies'        => 'no',
+			'enforce_password'                          => 'no',
+			'min_length'                                => 8,
+			'password_history'                          => 1,
+			'inherit_policies'                          => 'yes',
+			'password_expiry'                           => array(
+				'value' => 0,
+				'unit'  => 'months',
+			),
+			'ui_rules'                                  => array(
+				'history'               => 'yes',
+				'username'              => 'yes',
+				'length'                => 'yes',
+				'numeric'               => 'yes',
+				'mix_case'              => 'yes',
+				'special_chars'         => 'yes',
+				'exclude_special_chars' => 'no',
+			),
+			'rules'                                     => array(
+				'length'                => 'yes',
+				'numeric'               => 'yes',
+				'upper_case'            => 'yes',
+				'lower_case'            => 'yes',
+				'special_chars'         => 'yes',
+				'exclude_special_chars' => 'no',
+			),
+			'change_initial_password'                   => 'no',
+			'timed_logins'                              => 'no',
+			'timed_logins_schedule'                     => array(
+				'monday'    => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'tuesday'   => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'wednesday' => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'thursday'  => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'friday'    => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'saturday'  => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+				'sunday'    => array(
+					'enable'        => 'no',
+					'from_hr'       => 00,
+					'from_min'      => 00,
+					'to_hr'         => 11,
+					'to_min'        => 59,
+					'from_am_or_pm' => 'am',
+					'to_am_or_pm'   => 'pm',
+				),
+			),
+			'inactive_users_enabled'                    => 'no',
+			'inactive_users_expiry'                     => array(
+				'value' => 30,
+				'unit'  => 'days',
+			),
+			'inactive_users_reset_on_unlock'            => 'yes',
+			'failed_login_policies_enabled'             => 'no',
+			'failed_login_attempts'                     => 5,
+			'failed_login_reset_attempts'               => 1440,
+			'failed_login_unlock_setting'               => 'unlock-by-admin',
+			'failed_login_reset_hours'                  => 60, // Mins @since 3.0.0.
+			'failed_login_reset_on_unblock'             => 'yes',
+			'disable_self_reset'                        => 'no',
+			'disable_self_reset_message'                => '',
+			'deactivated_account_message'               => '',
+			'timed_login_message'                       => '',
+			'locked_user_disable_self_reset'            => 'no',
+			'locked_user_disable_self_reset_message'    => '',
+			'restrict_login_ip'                         => 'no',
+			'restrict_login_ip_count'                   => 3,
+			'restrict_login_message'                    => '',
+			'notify_password_expiry'                    => 'no',
+			'notify_password_reset_on_login'            => 'no',
+			'notify_password_expiry_days'               => 3,
+			'notify_password_expiry_unit'               => 'days',
+			'restrict_login_credentials'                => 'default',
+			'restrict_login_credentials_message'        => '',
+			'enable_sessions_policies'                  => 'no',
+			'remember_session_expiry'                   => array(
+				'value' => 14,
+				'unit'  => 'days',
+			),
+			'default_session_expiry'                    => array(
+				'value' => 2,
+				'unit'  => 'days',
+			),
+			'enable_device_policies'                    => 'no',
+			'enable_device_policies_admin_alerts'       => 'no',
+			'enable_security_questions'                 => 'no',
+			'enabled_questions'                         => array(),
+			'device_policies_prompt_email_content'      => '',
+			'device_policies_admin_alert_email_content' => '',
+			'device_policies_prompt_email_subject'      => '',
+			'device_policies_admin_alert_email_subject' => '',
+			'min_answered_needed_count'                 => 3,
+			'password_reset_request_disabled_message'   => '',
+			'user_exceeded_failed_logins_count_message' => '',
+			'password_expired_message'                  => '',
+			'inactive_user_account_locked_message'      => '',
+			'inactive_user_account_locked_reset_disabled_message' => '',
+			'restrict_logins_prompt_failure_message'    => '',
+			'timed_logins_login_blocked_message'        => '',
+			'restrict_login_ip_login_blocked_message'   => '',
+			'failed_logins_login_blocked_message'       => '',
+			'security_prompt_response_failure_message'  => '',
+			'timed_logins_auto_logout'                  => 'no',
+			'login_failed_account_not_known'            => '',
+			'login_failed_username_not_known'           => '',
+			'login_failed_password_incorrect'           => '',
+			'currently_editing_role'                    => '',
+			'excluded_special_chars'                    => '',
+		);
+
+		private static $default_plugin_options = array(
 			'master_switch'                             => 'no',
 			'activate_password_policies'                => 'no',
 			'activate_password_expiration_policies'     => 'no',
@@ -819,7 +977,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			}
 
 			// Get current role in user edit page.
-			$current_role = ! empty( $user_role ) ? '_' . $user_role : '';
+			$current_role = ! empty( $user_role ) ? $user_role : '';
 
 			// Override current role if this is being called via the user-new.php admin screen
 			// This means we can then apply the policy for the role submitted, rather than current_user.
@@ -828,28 +986,24 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				$current_role = ! empty( $post_array['role'] ) ? '_' . $post_array['role'] : '';
 			}
 
-			$settings = get_site_option( MLS_PREFIX . $current_role . '_options' );
+			$settings = \get_site_option( MLS_PREFIX . '_' . $current_role . '_options', self::get_default_options() );
 			if ( ( ! empty( $settings ) && 0 === \MLS\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) || 'user-new.php' === $pagenow ) {
 
 				// Get current user setting.
 				$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
 
-			} else {
+			} elseif ( ! empty( $settings ) ) {
 
-				$settings = get_site_option( MLS_PREFIX . '_options' );
-
-				if ( ! empty( $settings ) ) {
-					if ( \MLS\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) {
-						// Get current user setting.
-						$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
-					} else {
-						$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
-
-						$this->users_options->enforce_password = 1;
-					}
+				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) {
+					// Get current user setting.
+					$this->users_options = (object) wp_parse_args( self::get_default_options(), $this->inherit );
 				} else {
 					$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
+					// God knows.
+					// $this->users_options->enforce_password = 1;
 				}
+			} else {
+				$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
 			}
 
 			return $this->users_options;
@@ -902,7 +1056,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 */
 		public function mls_save_policy( $options ) {
 
-			$options = $this->refactor( $options );
+			$options = self::refactor( $options );
 			// We need options, not default options here in wp_parse_args.
 			$this->options = wp_parse_args( $options, $this->options );
 			// Get current tab role.
@@ -927,7 +1081,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		private function refactor( $options ) {
+		private static function refactor( $options ) {
 
 			if ( isset( $options['ui_rules'] ) ) {
 				$options['rules']['upper_case'] = $options['ui_rules']['mix_case'];
@@ -962,6 +1116,88 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			}
 
 			return false;
+		}
+
+		public static function get_default_options() {
+			return \get_site_option( MLS_PREFIX . '_options', self::$default_plugin_options );
+		}
+
+
+		/**
+		 * Return all users, either by using a direct query or get_users.
+		 *
+		 * @param string $method     Method to use.
+		 * @param array  $users_args Query arguments.
+		 *
+		 * @return mixed Array of IDs/Object of Users.
+		 *
+		 * @since 2.2.0
+		 */
+		public static function get_all_users_data( $method, $users_args ) {
+			if ( 'get_users' === $method ) {
+				return get_users( $users_args );
+			}
+
+			// method is "query", let's build the SQL query ourselves.
+			global $wpdb;
+
+			$batch_size = isset( $users_args['batch_size'] ) ? (int) $users_args['batch_size'] : false;
+			$offset     = isset( $users_args['count'] ) ? (int) $users_args['count'] * $batch_size : false;
+
+			// Default.
+			$select = 'SELECT ID, user_login FROM ' . $wpdb->users;
+
+			// If we want to grab users with a specific role.
+			if ( isset( $users_args['role__in'] ) && ! empty( $users_args['role__in'] ) ) {
+				$roles  = array_map( 'esc_sql', (array) $users_args['role__in'] );
+				$select = '
+					SELECT  ID, user_login
+					FROM    ' . $wpdb->users . ' u INNER JOIN ' . $wpdb->usermeta . ' um
+					ON      u.ID = um.user_id
+					WHERE   um.meta_key LIKE \'' . esc_sql( $wpdb->base_prefix ) . '%capabilities\'' .
+					' AND     (
+			';
+				$i      = 1;
+				foreach ( $roles as $role ) {
+					$select .= ' um.meta_value    LIKE    \'%"' . esc_sql( $role ) . '"%\' ';
+					if ( $i < count( $roles ) ) {
+						$select .= ' OR ';
+					}
+					++$i;
+				}
+				$select .= ' ) ';
+
+				$excluded_users = ( ! empty( $users_args['excluded_users'] ) ) ? array_map( 'esc_sql', $users_args['excluded_users'] ) : array();
+
+				$excluded_users = array_map(
+					function ( $excluded_user ) {
+						return '"' . esc_sql( $excluded_user ) . '"';
+					},
+					$excluded_users
+				);
+
+				if ( ! empty( $excluded_users ) ) {
+					$select .= '
+						AND user_id NOT IN ( ' . implode( ',', $excluded_users ) . ' )
+				';
+				}
+
+				$skip_existing_2fa_users = ( ! empty( $users_args['skip_existing_2fa_users'] ) ) ? (bool) $users_args['skip_existing_2fa_users'] : false;
+
+				if ( $skip_existing_2fa_users ) {
+					$select .= '
+				AND u.ID NOT IN (
+				  SELECT DISTINCT user_id FROM  ' . $wpdb->usermeta . ' WHERE meta_key = \'wp_2fa_enabled_methods\'
+				)
+				';
+				}
+			}
+
+			if ( $batch_size ) {
+				$select .= ' LIMIT ' . $batch_size . ' OFFSET ' . $offset;
+			}
+
+			return $wpdb->get_results( $select );
 		}
 	}
 

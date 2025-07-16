@@ -8,6 +8,13 @@
 
 declare(strict_types=1);
 
+use MLS\Security_Prompt;
+use MLS\Device_Detection;
+use MLS\Sessions_Manager;
+use MLS\Helpers\OptionsHelper;
+use MLS\Reset_Passwords;
+use MLS\TemporaryLogins\Temporary_Logins;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -151,9 +158,9 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 
 
 			// Update user's last activity.
-			add_action( 'wp_login', array( $this, 'update_user_last_activity' ) );
-			add_action( 'wp_logout', array( $this, 'update_user_last_activity' ) );
-			add_action( 'wp_login_failed', array( $this, 'update_user_last_activity' ) );
+			add_action( 'wp_login', array( __CLASS__, 'update_user_last_activity' ) );
+			add_action( 'wp_logout', array( __CLASS__, 'update_user_last_activity' ) );
+			add_action( 'wp_login_failed', array( __CLASS__, 'update_user_last_activity' ) );
 			add_action( 'wp_loaded', array( $this, 'register_summary_email_cron' ) );
 
 			$login_control = new \MLS\Login_Page_Control();
@@ -171,7 +178,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
 
 
-			if ( isset( $mls_setting['enable_failure_message_overrides'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls_setting['enable_failure_message_overrides'] ) ) {
+			if ( isset( $mls_setting['enable_failure_message_overrides'] ) && OptionsHelper::string_to_bool( $mls_setting['enable_failure_message_overrides'] ) ) {
 				add_filter( 'login_errors', array( __CLASS__, 'login_errors' ) );
 			}
 		}
@@ -262,8 +269,8 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				add_action( 'admin_print_scripts', array( '\MLS\Helpers\HideAdminNotices', 'hide_unrelated_notices' ) );
 			}
 
-			add_action( 'init', array( '\MLS\TemporaryLogins', 'manage_temporary_logins' ) );
-			add_filter( 'mls_login_redirect', array( '\MLS\TemporaryLogins', 'redirect_after_login' ), 10, 2 );
+			add_action( 'init', array( Temporary_Logins::class, 'manage_temporary_logins' ) );
+			add_filter( 'mls_login_redirect', array( Temporary_Logins::class, 'redirect_after_login' ), 10, 2 );
 		}
 
 		/**
@@ -427,7 +434,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 
 			\MLS\Restrict_Login_Credentials::get_instance();
 			\MLS\Admin\UserLastLoginTime::init();
-			\MLS\TemporaryLogins::init();
+			Temporary_Logins::init();
 
 
 			do_action( 'mls_extension_init' );
@@ -435,16 +442,16 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			// call ppm history all hook.
 			$history->hook();
 
-			$options_master_switch    = \MLS\Helpers\OptionsHelper::string_to_bool( $this->options->master_switch );
-			$settings_master_switch   = \MLS\Helpers\OptionsHelper::string_to_bool( $user_settings->master_switch );
-			$inherit_policies_setting = \MLS\Helpers\OptionsHelper::string_to_bool( $user_settings->inherit_policies );
+			$options_master_switch    = OptionsHelper::string_to_bool( $this->options->master_switch );
+			$settings_master_switch   = OptionsHelper::string_to_bool( $user_settings->master_switch );
+			$inherit_policies_setting = OptionsHelper::string_to_bool( $user_settings->inherit_policies );
 
 			$is_needed = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
 
 			// Enable all features only if policy switch is enabled.
 			if ( $is_needed ) {
 
-				if ( ! \MLS\Helpers\OptionsHelper::string_to_bool( $user_settings->enforce_password ) ) {
+				if ( ! OptionsHelper::string_to_bool( $user_settings->enforce_password ) ) {
 
 					$pwd_check = new \MLS\Password_Check();
 
@@ -461,7 +468,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 					// call ppm expire all hook.
 					$expire->hook();
 
-					$reset = new \MLS\MLS_Reset_Passwords();
+					$reset = new \MLS\Reset_Passwords();
 
 					$reset->hook();
 				}
@@ -529,8 +536,8 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$user = get_user_by( 'id', $user_id );
 
 			if ( is_a( $user, '\WP_User' ) ) {
-				$role_options            = \MLS\Helpers\OptionsHelper::get_preferred_role_options( $user->roles );
-				$do_not_enforce_for_role = \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->enforce_password );
+				$role_options            = OptionsHelper::get_preferred_role_options( $user->roles );
+				$do_not_enforce_for_role = OptionsHelper::string_to_bool( $role_options->enforce_password );
 
 				if ( $do_not_enforce_for_role ) {
 					return true;
@@ -791,9 +798,9 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		public static function ppm_apply_timestammp_for_users() {
 
 			// Send users for bg processing later.
-			$total_users = count_users();
+			$total_users = Reset_Passwords::count_users();
 			$batch_size  = 100;
-			$slices      = ceil( $total_users['total_users'] / $batch_size );
+			$slices      = ceil( $total_users / $batch_size );
 			$users       = array();
 
 			for ( $count = 0; $count < $slices; $count++ ) {
@@ -862,7 +869,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function update_user_last_activity( $user ) {
+		public static function update_user_last_activity( $user ) {
 
 			if ( is_int( $user ) ) {
 				$user = get_user_by( 'id', $user );
@@ -880,7 +887,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			if ( isset( $user->ID ) ) {
 				if ( method_exists( 'MLS\Helpers\OptionsHelper', 'is_user_inactive' ) ) {
 					// Check if user is already handled by our inactivity feature.
-					$is_user_inactive = \MLS\Helpers\OptionsHelper::is_user_inactive( $user->ID );
+					$is_user_inactive = OptionsHelper::is_user_inactive( $user->ID );
 					if ( ! $is_user_inactive ) {
 						// Apply last active time.
 						update_user_meta( $user->ID, MLS_PREFIX . '_last_activity', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
@@ -1045,7 +1052,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$roles_obj = wp_roles();
 
 			foreach ( $roles_obj->role_names as $role ) {
-				$role_options = \MLS\Helpers\OptionsHelper::get_role_options( $role );
+				$role_options = OptionsHelper::get_role_options( $role );
 				$sysinfo     .= "\n" . '-- ' . $role . '  --' . "\n\n";
 				if ( ! empty( $role_options ) ) {
 					foreach ( $role_options as $option => $value ) {

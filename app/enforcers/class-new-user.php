@@ -55,12 +55,13 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 					return $redirect_to;
 				}
 
-				$reset            = new \MLS\MLS_Reset_Passwords();
+				$reset            = new \MLS\Reset_Passwords();
 				$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
 				$mls              = \MLS_Core::get_instance();
 
 				if ( $verify_reset_key ) {
-					if ( isset( $verify_reset_key->errors['invalid_key'] ) ) {
+					if ( isset( $verify_reset_key->errors['invalid_key'] ) || empty( $user->user_activation_key ) ) {
+						remove_filter( 'allow_password_reset', array( Reset_Passwords::class, 'ppm_is_user_allowed_to_reset' ), 10 );
 						$reset_key                    = \MLS\User_Profile::generate_new_reset_key( $user->ID );
 						$verify_reset_key             = check_password_reset_key( $reset_key, $user->user_login );
 						$verify_reset_key->reset_key  = $reset_key;
@@ -86,7 +87,7 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		 */
 		public function ppm_validate_password_reset( $error, $user ) {
 			// Get user reset key.
-			$reset            = new \MLS\MLS_Reset_Passwords();
+			$reset            = new \MLS\Reset_Passwords();
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
 
 			// Ignore nonce check as we are only using this as a flag.

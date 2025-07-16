@@ -22,14 +22,14 @@ use MLS\Helpers\OptionsHelper;
  *
  * @since 2.0.0
  */
-if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
+if ( ! class_exists( '\MLS\Security_Prompt' ) ) {
 
 	/**
 	 * Declare SessionsManager Class
 	 *
 	 * @since 2.0.0
 	 */
-	class SecurityPrompt {
+	class Security_Prompt {
 
 		/**
 		 * Is prompt currently deemed to be required?
@@ -156,7 +156,7 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 					</th>
 					<td>
 						<fieldset>
-							<input name="mls_options[enable_security_questions]" type="checkbox" id="ppm-enable-security-question" data-toggle-target=".security-questions-row" value="yes" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_security_questions ) ); ?>>
+							<input name="mls_options[enable_security_questions]" type="checkbox" id="ppm-enable-security-question" data-toggle-target=".security-questions-row" value="yes" <?php checked( OptionsHelper::string_to_bool( $settings_tab->enable_security_questions ) ); ?>>
 							<?php esc_attr_e( 'Activate Security questions', 'melapress-login-security' ); ?>
 							<p class="description">
 								<?php esc_html_e( 'Activate this setting to require users to answer a pre-provided question to proceed with certain actions, such as, to reset a password.', 'melapress-login-security' ); ?>
@@ -167,13 +167,13 @@ if ( ! class_exists( '\MLS\SecurityPrompt' ) ) {
 						<div class="security-questions-row">
 							<fieldset>
 								<label for="ppm-enable_device_policies_admin_alerts">
-									<input name="mls_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
+									<input name="mls_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
 									<?php esc_html_e( 'Require security question to initiate a password reset', 'melapress-login-security' ); ?>
 								</label>
 								<br>
 
 								<label for="ppm-enable_device_policies_admin_alerts">
-									<input name="mls_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
+									<input name="mls_options[enable_device_policies_admin_alerts]" type="checkbox" id="ppm-enable_device_policies_admin_alerts" data-toggle-target=".send-admin-alert-row" value="1" <?php checked( OptionsHelper::string_to_bool( $settings_tab->enable_device_policies_admin_alerts ) ); ?>>
 									<?php esc_html_e( 'Require security question to enable a disabled account', 'melapress-login-security' ); ?>
 								</label>
 								<br>

@@ -30,12 +30,12 @@ class UserImporter {
 	 * @since 2.0.0
 	 */
 	public function init() {
-		add_filter( 'mls_user_management_page_nav_tabs', array( $this, 'settings_tab_link' ), 50, 1 );
-		add_filter( 'mls_user_management_page_content_tabs', array( $this, 'settings_tab' ), 50, 1 );
-		add_filter( 'wp_ajax_mls_export_users', array( $this, 'export_users' ), 10, 1 );
-		add_filter( 'wp_ajax_mls_process_user_import', array( $this, 'process_import' ), 10, 1 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'selectively_enqueue_admin_script' ) );
-		add_action( 'ppm_email_settings_markup_footer', array( $this, 'settings_additional_markup' ), 100 );
+		\add_filter( 'mls_user_management_page_nav_tabs', array( $this, 'settings_tab_link' ), 50, 1 );
+		\add_filter( 'mls_user_management_page_content_tabs', array( $this, 'settings_tab' ), 50, 1 );
+		\add_filter( 'wp_ajax_mls_export_users', array( $this, 'export_users' ), 10, 1 );
+		\add_filter( 'wp_ajax_mls_process_user_import', array( $this, 'process_import' ), 10, 1 );
+		\add_action( 'admin_enqueue_scripts', array( $this, 'selectively_enqueue_admin_script' ) );
+		\add_action( 'ppm_email_settings_markup_footer', array( $this, 'settings_additional_markup' ), 100 );
 	}
 
 	/**
