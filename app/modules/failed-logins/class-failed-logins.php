@@ -128,7 +128,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 		public function pre_login_check( $user, $username, $password ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 
 			// If WP has already created an error at this point, pass it back and bail.
-			if ( is_wp_error( $user ) ) {
+			if ( is_wp_error( $user ) || null === $user ) {
 				return $user;
 			}
 
@@ -234,7 +234,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 				// Add this failed attempts to what we have so far.
 				array_push( $current_failed_login_attempts, current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 				// Save it, but only upto the number of max allowed attempts - we dont want this thing to bloat.
-				$attempts_timer  = ( ! isset( $role_options->failed_login_reset_attempts ) ) ? 1440 : $role_options->failed_login_reset_attempts;
+				$attempts_timer  = (int) ( ( ! isset( $role_options->failed_login_reset_attempts ) ) ? 1440 : $role_options->failed_login_reset_attempts );
 				$transient_timer = $attempts_timer * 60;
 				set_transient( $login_attempts_transient_name, array_slice( $current_failed_login_attempts, -$max_login_attempts ), $transient_timer );
 

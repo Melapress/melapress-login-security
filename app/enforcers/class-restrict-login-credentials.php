@@ -101,6 +101,11 @@ class Restrict_Login_Credentials {
 		}
 
 		$role_options = OptionsHelper::get_preferred_role_options( $user->roles );
+
+		if ( ! ( \property_exists( $role_options, 'restrict_login_credentials' ) ) ) {
+			return $user;
+		}
+
 		$type         = $role_options->restrict_login_credentials;
 
 		if ( 'default' !== $role_options->restrict_login_credentials ) {
