@@ -686,7 +686,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return bool
 		 *
-		 * @since 2.2.0
+		 * @since 2.2.1
 		 */
 		public static function send_reset_mail( $send, $user_login, $user_data ) {
 
@@ -710,7 +710,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return \WP_Error
 		 *
-		 * @since 2.2.0
+		 * @since 2.2.1
 		 */
 		public static function lostpassword_form( $errors, $user_data ) {
 			if ( \is_a( $user_data, '\WP_User' ) ) {
@@ -732,7 +732,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return array
 		 *
-		 * @since 2.2.0
+		 * @since 2.2.1
 		 */
 		public static function allowed_actions( $actions, $user_object ) {
 			if ( \is_a( $user_object, '\WP_User' ) && isset( $actions['resetpassword'] ) && ! empty( $actions['resetpassword'] ) ) {
@@ -827,7 +827,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return int
 		 *
-		 * @since 2.2.0
+		 * @since 2.2.1
 		 */
 		public static function count_users(): int {
 			global $wpdb;

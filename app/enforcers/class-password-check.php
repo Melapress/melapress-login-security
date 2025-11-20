@@ -485,7 +485,7 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 			$role_options = \MLS\Helpers\OptionsHelper::get_preferred_role_options( $user->roles );
 
 			$new_password_history = array_slice( array_reverse( $password_history ), 0, $role_options->password_history + 1 );
-			$is_feature_active    = isset( $role_options->activate_password_recycle_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->activate_password_recycle_policies ) ? true : false;
+			$is_feature_active    = (\property_exists( $role_options, 'activate_password_recycle_policies' ) && isset( $role_options->activate_password_recycle_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->activate_password_recycle_policies )) ? true : false;
 
 			if ( ! $is_feature_active ) {
 				return false;

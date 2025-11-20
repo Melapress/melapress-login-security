@@ -13,6 +13,21 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+	$today_date = gmdate( 'Y-m-d' );
+	$today_date = gmdate( 'Y-m-d', strtotime( $today_date ) );
+
+	$event_date_begin = gmdate( 'Y-m-d', strtotime( '11/21/2025' ) );
+	$event_date_end   = gmdate( 'Y-m-d', strtotime( '12/01/2025' ) );
+
+if ( ( $today_date >= $event_date_begin ) && ( $today_date <= $event_date_end ) ) {
+	?>
+		<style>
+			.upgrade-sidebar.postbox-container div.postbox {
+				background: url(<?php echo esc_url( MLS_PLUGIN_URL . 'assets/images/bf-corner-notice.svg' ); ?>) no-repeat #fff 100% 0;
+			}
+		</style>
+			<?php
+}
 ?>
 
 <div class="upgrade-sidebar postbox-container">

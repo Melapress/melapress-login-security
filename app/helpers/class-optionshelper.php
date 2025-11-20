@@ -617,7 +617,7 @@ class OptionsHelper {
 	 * @since 2.0.0
 	 */
 	public static function get_preferred_role_options( $roles ) {
-		$roles     = self::prioritise_roles( $roles );
+		$roles     = (array) self::prioritise_roles( $roles );
 		$user_role = reset( $roles );
 
 		return self::get_role_options( $user_role );

@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MLS\Admin\Admin;
 use MLS\Helpers\OptionsHelper;
 
 if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
@@ -24,7 +25,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	class Network_Admin extends \MLS\Admin\Admin {
+	class Network_Admin extends Admin {
 
 		/**
 		 * Class construct.
@@ -73,6 +74,12 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			}
 
 			add_action( 'network_admin_notices', array( __CLASS__, 'plugin_was_updated_banner' ), 10, 3 );
+
+			/* @free:start */
+			\add_action( 'network_admin_notices', array( Admin::class, 'extra_event_banner' ), 10, 3 );
+			\add_action( 'wp_ajax_mls_dismiss_extra_event_banner', array( __CLASS__, 'dismiss_extra_event_banner' ) );
+			/* @free:end */
+
 			add_action( 'wp_ajax_dismiss_mls_update_notice', array( __CLASS__, 'dismiss_update_notice' ) );
 			add_action( 'wp_ajax_mls_begin_migration', array( __CLASS__, 'begin_migration' ) );
 			add_action( 'wp_ajax_mls_get_migration_status', array( __CLASS__, 'get_migration_status' ) );
@@ -95,7 +102,18 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 		 */
 		public static function admin_menu() {
 			// Add admin menu page.
-			$hook_name = add_menu_page( __( 'Login Security Policies', 'melapress-login-security' ), __( 'Login Security', 'melapress-login-security' ), 'manage_network_options', MLS_MENU_SLUG, array( __CLASS__, 'screen' ), 'data:image/svg+xml;base64,' . melapress_login_security()->icon, 99 );
+			$hook_name = add_menu_page(
+				__(
+					'Login Security Policies',
+					'melapress-login-security'
+				),
+				__( 'Login Security', 'melapress-login-security' ),
+				'manage_network_options',
+				MLS_MENU_SLUG,
+				array( __CLASS__, 'screen' ),
+				' data:image/svg+xml;base64,' . base64_encode( file_get_contents( MLS_PATH . 'assets/images/plugin-icon.svg' ) ),
+				99
+			);
 
 			add_action( "load-$hook_name", array( __CLASS__, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$hook_name", array( __CLASS__, 'process' ) );

@@ -335,7 +335,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 
 			// get the expiry into a string.
 			$expiry_string          = implode( ' ', $expiry );
-			$notify_password_expiry = $role_options->notify_password_expiry;
+			$notify_password_expiry = ( \property_exists( $role_options, 'notify_password_expiry' ) ) ? $role_options->notify_password_expiry : 'no';
 
 			if ( OptionsHelper::string_to_bool( $notify_password_expiry ) ) {
 				$expiry_timestamp              = get_user_meta( $user_id, MLS_PREFIX . '_pw_expires_soon', true );
@@ -373,7 +373,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			$notice_dismissed       = get_user_meta( $user_id, MLS_PREFIX . '_pw_expires_soon_notice_dismissed', true );
 			$user                   = get_user_by( 'id', $user_id );
 			$role_options           = OptionsHelper::get_preferred_role_options( $user->roles );
-			$notify_password_expiry = ( 'yes' === $role_options->notify_password_expiry ) ? true : false;
+			$notify_password_expiry = ( \property_exists( $role_options, 'notify_password_expiry' ) && 'yes' === $role_options->notify_password_expiry ) ? true : false;
 
 			if ( \MLS_Core::is_user_exempted( $user_id ) ) {
 				if ( ! empty( $expiry_timestamp ) ) {

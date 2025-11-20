@@ -66,15 +66,6 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		private static $_instance = null; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
 		/**
-		 * Password policy menu icon.
-		 *
-		 * @var string Icon encode string
-		 *
-		 * @since 2.0.0
-		 */
-		public $icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMzAwIDMwMCI+CiAgICA8aW1hZ2Ugd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIHhsaW5rOmhyZWY9ImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBSUFBQUFDQUNBWUFBQUREUG1ITEFBQUFBWE5TUjBJQXJzNGM2UUFBQjU5SlJFRlVlRjd0bmN1clYxVVV4ejg3TGMwb2UyaDJOWVBLeWhkYVlKSDRLZzNUUURUU2FRUkJvQVVOb2tHUFFRV1Y0S0NnbVRRUXlrbU5tbVVONnA4b1p3MGxHam9JUld2RmtuWHJ4KzNlKzl2bm5OOTUvcjVuY2dkM24zUDJYdXZ6VzJ2dHRmZFpPNkZycWlXUXBucjBHandDWU1vaEVBQUNZSmdTTUxNN2dPZUJLOEFQS2FXcnd4eHB0VkVOemdLWTJTM0F5OEFwWUJOd0JqaWRVdnF6bXFpR2VYZnZBVEF6SDhNS1lBMXdISGdUV0R1aXJvK0JUd1RBL0FEM0dnQXpjMFZ2Qmc0Qko0RDE4TC9BVmdBc1lyeDZCNENaTFFFZUFYWUIrNEY5d0xwRnhpZ0FoZ0JBK1BhdHdGRmdML0FFc0RMRE13dUF2Z05nWnY1cmZ4WFlBOHlFejgrMVhnS2dqd0NZMlZMZ09lQmRZQ2ZncGo5WDZhTkRGZ0I5QWNETWxnUDN4Uy85SkxBRHVEbkR6Qy9XUkFCMEdZQ1l4dDBOUEJZQm5VL2x0c2N2dnFMdWI5d3VBTG9JZ0puZEZMLzIzUkhOZTBUdjBmMmtMd0hRTlFETTdQNUkyaHdFdGdVSTd1UHJ1QVJBVndBd3M0MFJ6UjhEVmdPZXJ5OFQyQlVCUlFDMENVQWtianduL3hid0VuQjdFZTFOb0swQWFCb0FNMXNHcklvMDdXdkFZZUMyQ1NpenpDTUVRRk1BbUprcjJhTjVuN2Q3eHM0RHU3cDhleTRNQXFCdUFPelNwUlhNekhoNjlrQk01VHhsZTJ1dWhtcHVKd0RxQXNETVBCZC9KQ0w2TGNBRGdLL0hkK2tTQURVQzhBeHdGdGpRUURSZkZpb0JVQ01BdnVYcVhNemp5eXFvN3ZzRWdBRFFqcUNGR0tpVWhERXpXWUM2N1ZmTnp4Y0FOUXU0NjQ4WEFGM1hVTTM5RXdBTENEaTJvSGtHODRVQ092Z2J1RmFnZmRXbWw0SHpLYVdMWlI4a0FCWUd3TGVhKzI2azk4b0t0NEg3ZmdkZVNTbGRLUHN1QVNBQXlySURRNTRGbUprc3dEZzBCTUE0Q2RYK2Y3bUFEQkdYeWdUS0FtUklWaFlnUTBqMU5wRUZ5SkN2TElEV0FvcXZCY2dGWlB5MDVBSXloRlJ2RTdtQURQbktCY2dGeUFWb09iaGdpUmpGQUJtMlZURkFocERxYmFJWUlFTytpZ0VVQXlnR1VBelFmQXp3VndNZnhjZ0ZkTmdGZkFTOFhmTUhNZ0tnd3dENDExSDNBdC9WK0VHc0FPZzRBTDlHdWRvdmdJY0FMNG94eVVzQVpFaXpyVm5BMXBUU0wyYm1OWTU4Ky95SEV5NTk0ME1YQUYwSHdQc1hHMHo5UytrUGdDY25hQWtFUUI4QUNBaTg3TjFUd0dmeE42UHJZNXNJZ0xFaUtsa2xiQUtwNEJzdVlMUi9VUmpyUWVCcjRPbU12bzlySWdER1NhaHNtYmc2QUpqdHE1bmRCWHdiQlRTcTdNd1dBSDBFSUZ5Q1d3SS95OEEvUENsYlRFTUE5QldBZ01ETDZid1RCVGJLMUZBU0FIMEdJQ0I0T0Nxb2VUSHNvdFZWZWd1QUFiOEIzMlFvc0dxVG40Q2ZVMHFGdnRtTCtidFhRSG0yWkFjK1R5bjlrWE92bVhrRmREL3B4RlBIUlpKRnZRYmdSK0RGSEFGVmJIT3RxUEpIZ2pWUDRwUXRWbjBscGVRZmkyWmRVV0h0OVFoYWZjcVljL1VhZ085VFNrVyt2TTBSU0svYlJIM0ZOeUpybUJNVENJQmVhM3llenB1WlYxTDE0cHBlV2RWTDV5ODJUUlFBUXdNZ0FrT3ZvZXhIMzNsTTRLWDNGcm9Fd0JBQkNBamNCWGh0NVUvbkhJTTNPbVFCTUZRQUFnS2ZGdm9zNUV2QVMrelB2UVRBa0FFSUNIeGE2T3NHWDhXZUFsbUFvU3Q5ZEh5eGdDUUFwa25wczJPTmZRUnlBVk9xZkFXQjA2aDRUUU9uVmVzeGJpV0NwaGlBYVVzRmF6Rm9CUFpwWEF6U2N2Qi9abi9xbG9PYk5QU3RmaGN3YnFCbU5wVWJRc2JKWlpMLzd5d0FacVl0WVpQVTlBTFA2aVFBWnFaTm9RMG8zMS9ST1FDMExid2h6Y2RyT2dPQVBneHBWdkd6YitzRUFHYW1UOFBhMFgvN0xrQWZoN2FrK1M2NEFIMGUzcTd5V3cwQ0FSV0lhRi8vN2JrQWxZanBnUFpibkFhcVNGUTM5TithQlZDWnVDa0hvSW5oOTNaWGNCUENhVHNQME1RWUJVQ0dsTnRLQkdWMHJYSVRBWkFoUWdHd2lKQ3ExS2ZSd1pFWjlOWGNSQllnUThDeUFMSUFLaGUvRUFOeUFRdElaZ0psNGpLTVUrVW1jZ0VaSXBRTGtBdVFDNUFMYVA3RWtBempWTG1KWEVDR0NPVUM1QUxrQXVRQzVBTG1aVURUUUUwRE03em93a0x5bzFET1JUMjc4ZytxOTg2eU1ZQVhhRG9jMWJ6cjZxSHZHYmhlNGVHWGdmTXBwWXRsbnlFTFVGWnlBN2xQQUF4RWtXV0hJUURLU200Zzl3bUFnU2l5N0RBRVFGbkpEZVMrcWdENGdRcG5nUTFqcWxxM0thNVNzNEEyTzl6a3U2c0NzQkk0RW1mZWJJbksxa1dQUGFsN3ZBS2dybFR3N0hQdDBxVVZ6TXpzQlE0QSt3QS9PTG5zU1ZpVEJrSUExQTNBdnlDWWVYVkxMM3V5RXpnYTUrSXRtYlJHQ3o1UEFEUUZ3QWdJeTRCVndPWTQvY0l6YWpsSG9CVFViVlp6QWRBMEFLUHZNek8zQUp2aUNCUS9BTUdQUkdueUVnQnRBakFIaG8yQW40OTNERmdOK05Fb2xRTFJESklFUUZjQUdIRVJmdnJGY2VBZ3NDMFdrK3FLRlFSQTF3RHcva1RCSkQ4VmEzY2NpN0lmZURUakYxMjBpUURvSWdCelhNTTlNWHZ3S2FSYmh1M0FwQ3lDQU9nNkFDT3VZWG00Z3ozQVNXQkhoWk03Wng4ckFQb0N3Qnlyc0JTdTc0ZWw3MGRld1MxQ21ZQlJBUFFSZ0RrdzdJclpnMXNHcjZ5OW9nQU1BcUR2QUVUUTZHc01ubUwyREtPbm5SOEg3c3lJQ0FYQUVBQVlpUlBjRmZqcW8xdUYyYldIZFl1TVVRQU1DWUE1cm1GdHBKc1BBU2VBOWZPNEJnRXdWQURDTlhoZzZESEJtcGhDK3ZIckRvSm1BUm4rc1V4VW5mSFk5cHBFWFY0L2VmdFVyRUdjQVU2bmdoK0d0RGVDWnQ4OE9BQkdZZ1ZmWjNEWGNBVzRrRks2MnF4bysvRzJ3UUxRRC9HMzMwc0IwTDRPV3UyQkFHaFYvTzIvWEFDMHI0TldlL0FQbUczOXZVRk9EMlFBQUFBQVNVVk9SSzVDWUlJPSIvPgogIDwvc3ZnPg==';
-
-		/**
 		 * Holds instances of the cron classes in this plugin.
 		 *
 		 * @var array
@@ -486,6 +477,37 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			} else {
 				$admin = new MLS\Admin\Network_Admin( $this->options, $user_settings, $role_setting );
 			}
+
+			/* @free:start */
+			$today_date = gmdate( 'Y-m-d' );
+			$today_date = gmdate( 'Y-m-d', strtotime( $today_date ) );
+
+			$event_date_begin = gmdate( 'Y-m-d', strtotime( '11/21/2025' ) );
+			$event_date_end   = gmdate( 'Y-m-d', strtotime( '12/01/2025' ) );
+
+			$event_ending_date = \get_site_option( MLS_PREFIX . '_extra_event_banner_end_date', false );
+
+			$extra_event_banner_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
+			$extra_event_banner_super_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_super_dismissed', false );
+
+			if ( gmdate( 'Y-m-d', strtotime( '11/28/2025' ) ) === $today_date && $extra_event_banner_dismissed && ! $extra_event_banner_super_dismissed ) {
+				\delete_site_option( MLS_PREFIX . '_extra_event_banner_dismissed' );
+			}
+
+			if ( ( $today_date >= $event_date_begin ) && ( $today_date <= $event_date_end ) && ( false === $event_ending_date || strtotime( $event_ending_date ) < strtotime( $today_date ) ) ) {
+				$extra_event_banner_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
+				if ( ! $extra_event_banner_dismissed ) {
+					\update_site_option( MLS_PREFIX . '_extra_event_banner', true );
+					\update_site_option( MLS_PREFIX . '_extra_event_banner_end_date', strtotime( $event_date_end ) );
+					\update_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
+				}
+			} else {
+				\delete_site_option( MLS_PREFIX . '_extra_event_banner' );
+				\delete_site_option( MLS_PREFIX . '_extra_event_banner_end_date' );
+				\delete_site_option( MLS_PREFIX . '_extra_event_banner_dismissed' );
+				\delete_site_option( MLS_PREFIX . '_extra_event_banner_super_dismissed' );
+			}
+			/* @free:end */
 		}
 
 		/**

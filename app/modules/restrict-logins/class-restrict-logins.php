@@ -163,6 +163,10 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 			$userdata     = get_user_by( 'id', $user->ID );
 			$role_options = OptionsHelper::get_preferred_role_options( $userdata->roles );
 
+			if ( ! ( \property_exists( $role_options, 'restrict_login_ip' ) ) ) {
+				return;
+			}
+
 			if ( ! OptionsHelper::string_to_bool( $role_options->restrict_login_ip ) ) {
 				return;
 			}
@@ -326,7 +330,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 		 */
 		public static function pre_login_check( $user, $username, $password ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			// If WP has already created an error at this point, pass it back and bail.
-			if ( is_wp_error( $user ) ) {
+			if ( is_wp_error( $user ) || null === $user ) {
 				return $user;
 			}
 
@@ -344,6 +348,10 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 			}
 
 			$role_options = OptionsHelper::get_preferred_role_options( $user->roles );
+
+			if ( ! ( \property_exists( $role_options, 'restrict_login_ip' ) ) ) {
+				return;
+			}
 
 			if ( OptionsHelper::string_to_bool( $role_options->restrict_login_ip ) ) {
 				$stored_ips   = self::get_user_stored_ips( $user_id );
