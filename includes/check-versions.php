@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 
-/* @free:start */
+// @free:start
 if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 	/**
 	 * Takes care of deactivation of the premium plugin when the free plugin is activated.
@@ -31,4 +31,4 @@ if ( ! function_exists( 'mls_free_on_plugin_activation' ) ) {
 		}
 	}
 }
-/* @free:end */
+// @free:end

@@ -15,8 +15,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use MLS\Utilities\Validator_Factory;
 use MLS\Helpers\OptionsHelper;
+use MLS\Licensing\Licensing_Factory;
+use MLS\Utilities\Validator_Factory;
 
 if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
@@ -132,22 +133,22 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 			\add_action( 'admin_notices', array( __CLASS__, 'plugin_was_updated_banner' ), 20, 3 );
 
-			/* @free:start */
+			// @free:start
 			\add_action( 'admin_notices', array( __CLASS__, 'extra_event_banner' ), 10, 3 );
 			\add_action( 'wp_ajax_mls_dismiss_extra_event_banner', array( __CLASS__, 'dismiss_extra_event_banner' ) );
-			/* @free:end */
+			// @free:end
 
 			\add_action( 'wp_ajax_dismiss_mls_update_notice', array( __CLASS__, 'dismiss_update_notice' ) );
 			\add_action( 'wp_ajax_mls_begin_migration', array( __CLASS__, 'begin_migration' ) );
 			\add_action( 'wp_ajax_mls_get_migration_status', array( __CLASS__, 'get_migration_status' ) );
 
 
-			/* @free:start */
+			// @free:start
 			if ( ! class_exists( '\MLS\EmailAndMessageTemplates' ) ) {
 				\add_filter( 'mls_settings_page_nav_tabs', array( __CLASS__, 'messages_settings_tab_link' ), 10, 1 );
 				\add_filter( 'mls_settings_page_content_tabs', array( __CLASS__, 'messages_settings_tab' ), 10, 1 );
 			}
-			/* @free:end */
+			// @free:end
 		}
 
 		/**
@@ -155,7 +156,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 *
 		 * @return void
 		 *
-		 * @since 2.2.1
+		 * @since 2.3.0
 		 */
 		public static function extra_event_banner() {
 			$screen                       = \get_current_screen();
@@ -382,7 +383,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 *
 		 * @return void
 		 *
-		 * @since 2.2.1
+		 * @since 2.300
 		 */
 		public static function dismiss_extra_event_banner() {
 			// Grab POSTed data.
@@ -837,14 +838,12 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		public static function plugin_action_links( $old_links ) {
 			$new_links = array();
 
-			if ( \function_exists( 'melapress_login_security_freemius' ) ) {
-				if ( melapress_login_security_freemius()->can_use_premium_code() && isset( $old_links['upgrade'] ) ) {
-					unset( $old_links['upgrade'] );
-				} elseif ( melapress_login_security_freemius()->is_free_plan() ) {
-					unset( $old_links['upgrade'] );
-					$upgrade_link = '<a style="color: #dd7363; font-weight: bold;" class="mls-premium-link" target="_blank" href="https://melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=referral&utm_campaign=mls">' . \__( 'Get the Premium!', 'melapress-login-security' ) . '</a>';
-					array_push( $new_links, $upgrade_link );
-				}
+			if ( Licensing_Factory::provider_call( 'can_use_premium_code' ) && isset( $old_links['upgrade'] ) ) {
+				unset( $old_links['upgrade'] );
+			} elseif ( ! Licensing_Factory::is_premium() ) {
+				unset( $old_links['upgrade'] );
+				$upgrade_link = '<a style="color: #dd7363; font-weight: bold;" class="mls-premium-link" target="_blank" href="https://melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=referral&utm_campaign=mls">' . \__( 'Get the Premium!', 'melapress-login-security' ) . '</a>';
+				array_push( $new_links, $upgrade_link );
 			} else {
 				$upgrade_link = '<a style="color: #dd7363; font-weight: bold;" class="mls-premium-link" target="_blank" href="https://melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=referral&utm_campaign=mls">' . \__( 'Get the Premium!', 'melapress-login-security' ) . '</a>';
 				array_push( $new_links, $upgrade_link );
@@ -883,18 +882,20 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				'manage_options',
 				MLS_MENU_SLUG,
 				array( __CLASS__, 'screen' ),
-				' ',//'data:image/svg+xml;base64,' . \base64_encode( \file_get_contents( MLS_PATH . 'assets/images/plugin-icon.svg' ) ),
+				' ', // 'data:image/svg+xml;base64,' . \base64_encode( \file_get_contents( MLS_PATH . 'assets/images/plugin-icon.svg' ) ),
 				99
 			);
 
 			// Inject icon color styles without altering menu text color.
-			\add_action( 'admin_head', function() {
-				$slug = esc_attr( MLS_MENU_SLUG );
-				// SVG markup simplified for embedding as data URI (default color #f0f6fc).
-				$svg_default = MLS_PLUGIN_URL . 'assets/images/plugin-icon-default.svg';
-				// Active/selected color #a7aaad.
-				$svg_active = MLS_PLUGIN_URL . 'assets/images/plugin-icon-active.svg';
-				?>
+			\add_action(
+				'admin_head',
+				function() {
+					$slug = esc_attr( MLS_MENU_SLUG );
+					// SVG markup simplified for embedding as data URI (default color #f0f6fc).
+					$svg_default = MLS_PLUGIN_URL . 'assets/images/plugin-icon-default.svg';
+					// Active/selected color #a7aaad.
+					$svg_active = MLS_PLUGIN_URL . 'assets/images/plugin-icon-active.svg';
+					?>
 				<style>
 					#toplevel_page_mls-policies a div::before {
 						content: "";
@@ -927,13 +928,13 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 					#toplevel_page_mls-policies a div.wp-menu-name::before {
 						mask-size: contain !important;
-  -webkit-mask-size: contain !important;
-  content: '' !important;
-  -webkit-mask: none  !important;;
-    mask-size: 0  !important;;
-  background-color: transparent !important;
-  margin-left: -20px !important;
-  margin-top: -10px !important;
+	-webkit-mask-size: contain !important;
+	content: '' !important;
+	-webkit-mask: none  !important;;
+	mask-size: 0  !important;;
+	background-color: transparent !important;
+	margin-left: -20px !important;
+	margin-top: -10px !important;
 					}
 
 				</style>
@@ -946,8 +947,9 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				#adminmenu .toplevel_page_<?php echo $slug; ?>:focus .wp-menu-image,
 				#adminmenu .toplevel_page_<?php echo $slug; ?> > a:focus .wp-menu-image {background: url("<?php echo $svg_active; ?>") no-repeat center center / 20px 20px !important;; opacity: .6 !important; }
 				</style> -->
-				<?php
-			} );
+					<?php
+				}
+			);
 
 			\add_action( "load-$hook_name", array( __CLASS__, 'admin_enqueue_scripts' ) );
 			\add_action( "admin_head-$hook_name", array( __CLASS__, 'process' ) );
@@ -1020,10 +1022,10 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			\add_action( "admin_head-$hide_login_submenu", array( __CLASS__, 'process' ) );
 
 
-			/* @free:start */
+			// @free:start
 			$hook_upgrade_submenu = \add_submenu_page( MLS_MENU_SLUG, \esc_html__( 'Premium Features ➤', 'melapress-login-security' ), \esc_html__( 'Premium Features ➤', 'melapress-login-security' ), 'manage_options', 'mls-upgrade', array( __CLASS__, 'ppm_display_upgrade_page' ), 3 );
 			\add_action( "load-$hook_upgrade_submenu", array( __CLASS__, 'help_page_enqueue_scripts' ) );
-			/* @free:end */
+			// @free:end
 
 			if ( ! \is_multisite() ) {
 				// Add admin submenu page for temp logins.
@@ -1083,7 +1085,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			require_once 'templates/views/settings-hide-login.php';
 		}
 
-		/* @free:start */
+		// @free:start
 		/**
 		 * Display help page.
 		 *
@@ -1094,7 +1096,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		public static function ppm_display_upgrade_page() {
 			require_once MLS_PATH . 'admin/templates/help/upgrade.php';
 		}
-		/* @free:end */
+		// @free:end
 
 		/**
 		 * Melapress Login Security onload process
@@ -1780,7 +1782,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$users                  = array();
 			$seen_ids               = array();
 			foreach ( $combined as $u ) {
-				if ( $u instanceof \WP_User && ! isset( $seen_ids[ $u->ID ] ) ) {
+				if ( \property_exists( $u, 'ID' ) && ! isset( $seen_ids[ $u->ID ] ) ) {
 					$seen_ids[ $u->ID ] = true;
 					$users[]            = $u;
 				}
@@ -1913,10 +1915,9 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$message = sprintf(
 				__(
 					'<p>Hooray!</p>
-
-<p>If you are reading this email it means that your website’s email setup is working. You can now enable the password and other login security policies on {site_name} using Melapress Login Security.</p>
-<p>If you need help getting started, refer to our <a href="https://melapress.com/support/kb/melapress-login-security-getting-started/?utm_source=plugins&utm_medium=link&utm_campaign=mls">getting started guide</a>.</p>
-<p>Stay secure!</p>',
+						<p>If you are reading this email it means that your website’s email setup is working. You can now enable the password and other login security policies on {site_name} using Melapress Login Security.</p>
+						<p>If you need help getting started, refer to our <a href="https://melapress.com/support/kb/melapress-login-security-getting-started/?utm_source=plugins&utm_medium=link&utm_campaign=mls">getting started guide</a>.</p>
+						<p>Stay secure!</p>',
 					'melapress-login-security'
 				)
 			);
@@ -1984,7 +1985,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function messages_settings_tab_link( $markup ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-			return $markup . '<a href="#message-settings" class="nav-tab" data-tab-target=".ppm-message-settings">' . \esc_attr__( 'User notification templates', 'melapress-login-security' ) . '</a>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			return $markup . '<a href="#message-settings" class="nav-tab" data-tab-target=".ppm-message-settings">' . \esc_attr__( 'User notices templates', 'melapress-login-security' ) . '</a>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		}
 
 		/**
@@ -2037,8 +2038,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 						<tr valign="top">
 							<br>
-							<h1><?php \esc_html_e( 'User messages template', 'melapress-login-security' ); ?></h1>
-							<p class="description"><?php \esc_html_e( 'On this page you can edit all of the user messages and prompts used by the plugin', 'melapress-login-security' ); ?></p>
+							<h1><?php \esc_html_e( 'User notices templates', 'melapress-login-security' ); ?></h1>
+							<p class="description"><?php \esc_html_e( 'Customise the security-related notices and prompts shown to users during login and account actions.', 'melapress-login-security' ); ?></p>
 							<br>
 						</tr>
 
@@ -2049,8 +2050,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					<tbody>
 
 						<tr valign="top">
-							<h3><?php \esc_html_e( 'User requests password reset when the feature is disabled', 'melapress-login-security' ); ?></h3>
-							<p class="description"><?php \esc_html_e( 'This warning is shown when a user requests a password reset but an active Login Security Policy prohibits it.', 'melapress-login-security' ); ?></p>
+							<h3><?php \esc_html_e( 'Expired password', 'melapress-login-security' ); ?></h3>
+							<p class="description"><?php \esc_html_e( 'Shown when a user attempts to log in using a password that has expired.', 'melapress-login-security' ); ?></p>
 						</tr>
 
 						<tr valign="top">
@@ -2080,8 +2081,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				<table class="form-table has-sticky-bar">
 					<tbody>
 						<tr valign="top">
-							<h3><?php \esc_html_e( 'User exceeds maximum number of failed logins.', 'melapress-login-security' ); ?></h3>
-							<p class="description"><?php \esc_html_e( 'This warning is shown when a user exceed the max allowed number of failed login attempts.', 'melapress-login-security' ); ?></p>
+							<h3><?php \esc_html_e( 'Password reset disabled', 'melapress-login-security' ); ?></h3>
+							<p class="description"><?php \esc_html_e( 'Shown when a user requests a password reset but password resets are disabled by an active Login Security Policy.', 'melapress-login-security' ); ?></p>
 						</tr>
 
 						<tr valign="top">

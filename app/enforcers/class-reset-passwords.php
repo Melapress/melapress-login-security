@@ -365,9 +365,18 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 */
 		public static function send_reset_email( $user_id, $by, $return_on_fail = false, $is_delayed = false ) {
 			// Check if message has already been sent.
-			$email_sent = get_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, true );
+			$email_sent_count = (int) get_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, true );
 
-			if ( $email_sent ) {
+			// Get the email limit setting
+			$mls_options = melapress_login_security()->options->mls_setting;
+			$limit_type = $mls_options->password_expiry_email_limit ?? 'limit_to_one';
+			$max_emails = 1;
+
+			if ( $limit_type === 'send_multiple' ) {
+				$max_emails = (int) ($mls_options->password_expiry_email_limit_count ?? 5);
+			}
+
+			if ( $email_sent_count >= $max_emails ) {
 				return;
 			}
 
@@ -440,7 +449,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			}
 
 			// Update usermeta so we know we have sent a message.
-			update_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, true );
+			update_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, $email_sent_count + 1 );
 		}
 
 		/**
@@ -686,7 +695,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return bool
 		 *
-		 * @since 2.2.1
+		 * @since 2.3.0
 		 */
 		public static function send_reset_mail( $send, $user_login, $user_data ) {
 
@@ -710,7 +719,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return \WP_Error
 		 *
-		 * @since 2.2.1
+		 * @since 2.3.0
 		 */
 		public static function lostpassword_form( $errors, $user_data ) {
 			if ( \is_a( $user_data, '\WP_User' ) ) {
@@ -732,7 +741,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return array
 		 *
-		 * @since 2.2.1
+		 * @since 2.3.0
 		 */
 		public static function allowed_actions( $actions, $user_object ) {
 			if ( \is_a( $user_object, '\WP_User' ) && isset( $actions['resetpassword'] ) && ! empty( $actions['resetpassword'] ) ) {
@@ -827,7 +836,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @return int
 		 *
-		 * @since 2.2.1
+		 * @since 2.3.0
 		 */
 		public static function count_users(): int {
 			global $wpdb;

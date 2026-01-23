@@ -55,30 +55,30 @@ class SettingsImporter {
 
 		$mls = melapress_login_security();
 
-		wp_enqueue_script( 'mls_settings_importexport', MLS_PLUGIN_URL . 'admin/assets/js/settings-importexport.js', array( 'ppm-wp-settings' ), MLS_VERSION, true );
+		\wp_enqueue_script( 'mls_settings_importexport', MLS_PLUGIN_URL . 'admin/assets/js/settings-importexport.js', array( 'ppm-wp-settings' ), MLS_VERSION, true );
 
-		wp_localize_script(
+		\wp_localize_script(
 			'mls_settings_importexport',
 			'wpws_import_data',
 			array(
-				'wp_import_nonce'       => wp_create_nonce( 'mls-import-settings' ),
-				'checkingMessage'       => esc_html__( 'Checking import contents', 'melapress-login-security' ),
-				'checksPassedMessage'   => esc_html__( 'Ready to import', 'melapress-login-security' ),
-				'checksFailedMessage'   => esc_html__( 'Issues found', 'melapress-login-security' ),
-				'importingMessage'      => esc_html__( 'Importing settings', 'melapress-login-security' ),
-				'importedMessage'       => esc_html__( 'Settings imported', 'melapress-login-security' ),
-				'helpMessage'           => esc_html__( 'Help', 'melapress-login-security' ),
-				'notFoundMessage'       => esc_html__( 'The role, user or post type contained in your settings are not currently found in this website. Importing such settings could lead to abnormal behavour. For more information and / or if you require assistance, please', 'melapress-login-security' ),
-				'notSupportedMessage'   => esc_html__( 'Currently this data is not supported by our export/import wizard.', 'melapress-login-security' ),
-				'restrictAccessMessage' => esc_html__( 'To avoid accidental lock-out, this setting is not imported.', 'melapress-login-security' ),
-				'wrongFormat'           => esc_html__( 'Please upload a valid JSON file.', 'melapress-login-security' ),
-				'cancelMessage'         => esc_html__( 'Cancel', 'melapress-login-security' ),
-				'readyMessage'          => esc_html__( 'The settings file has been tested and the configuration is ready to be imported. Would you like to proceed?', 'melapress-login-security' ),
-				'proceedMessage'        => esc_html__( 'The configuration has been successfully imported. Click OK to close this window', 'melapress-login-security' ),
-				'proceed'               => esc_html__( 'Proceed', 'melapress-login-security' ),
-				'ok'                    => esc_html__( 'OK', 'melapress-login-security' ),
+				'wp_import_nonce'       => \wp_create_nonce( 'mls-import-settings' ),
+				'checkingMessage'       => \esc_html__( 'Checking import contents', 'melapress-login-security' ),
+				'checksPassedMessage'   => \esc_html__( 'Ready to import', 'melapress-login-security' ),
+				'checksFailedMessage'   => \esc_html__( 'Issues found', 'melapress-login-security' ),
+				'importingMessage'      => \esc_html__( 'Importing settings', 'melapress-login-security' ),
+				'importedMessage'       => \esc_html__( 'Settings imported', 'melapress-login-security' ),
+				'helpMessage'           => \esc_html__( 'Help', 'melapress-login-security' ),
+				'notFoundMessage'       => \esc_html__( 'The role, user or post type contained in your settings are not currently found in this website. Importing such settings could lead to abnormal behavour. For more information and / or if you require assistance, please', 'melapress-login-security' ),
+				'notSupportedMessage'   => \esc_html__( 'Currently this data is not supported by our export/import wizard.', 'melapress-login-security' ),
+				'restrictAccessMessage' => \esc_html__( 'To avoid accidental lock-out, this setting is not imported.', 'melapress-login-security' ),
+				'wrongFormat'           => \esc_html__( 'Please upload a valid JSON file.', 'melapress-login-security' ),
+				'cancelMessage'         => \esc_html__( 'Cancel', 'melapress-login-security' ),
+				'readyMessage'          => \esc_html__( 'The settings file has been tested and the configuration is ready to be imported. Would you like to proceed?', 'melapress-login-security' ),
+				'proceedMessage'        => \esc_html__( 'The configuration has been successfully imported. Click OK to close this window', 'melapress-login-security' ),
+				'proceed'               => \esc_html__( 'Proceed', 'melapress-login-security' ),
+				'ok'                    => \esc_html__( 'OK', 'melapress-login-security' ),
 				'helpPage'              => '',
-				'helpLinkText'          => esc_html__( 'Contact Us', 'melapress-login-security' ),
+				'helpLinkText'          => \esc_html__( 'Contact Us', 'melapress-login-security' ),
 				'isUsingCustomEmail'    => ( $mls->options->mls_setting->from_email && ! empty( $mls->options->mls_setting->from_email ) ) ? $mls->options->mls_setting->from_email : false,
 			)
 		);
@@ -94,7 +94,7 @@ class SettingsImporter {
 	 * @since 2.0.0
 	 */
 	public function settings_tab_link( $markup ) {
-		return $markup . '<a href="#settings-export" class="nav-tab" data-tab-target=".mls-settings-export">' . esc_attr__( 'Settings Import/Export', 'melapress-login-security' ) . '</a>';
+		return $markup . '<a href="#settings-export" class="nav-tab" data-tab-target=".mls-settings-export">' . \esc_attr__( 'Settings Import/Export', 'melapress-login-security' ) . '</a>';
 	}
 
 	/**
@@ -129,39 +129,39 @@ class SettingsImporter {
 	 * @since 2.0.0
 	 */
 	public static function render_settings() {
-		$nonce = wp_create_nonce( 'mls-export-settings' );
+		$nonce = \wp_create_nonce( 'mls-export-settings' );
 		?>
 				
 				<tr valign="top">
 					<br>
-					<h1><?php esc_html_e( 'Settings Import/Export', 'melapress-login-security' ); ?></h1>
-					<p class="description"><?php esc_html_e( 'On this page you can import and export your plugins settings.', 'melapress-login-security' ); ?></p>
+					<h1><?php \esc_html_e( 'Settings Import/Export', 'melapress-login-security' ); ?></h1>
+					<p class="description"><?php \esc_html_e( 'On this page you can import and export your plugins settings.', 'melapress-login-security' ); ?></p>
 					<br>
 				</tr>
 
 				<tr>
-					<th><label><?php esc_html_e( 'Export settings', 'melapress-login-security' ); ?></label></th>
+					<th><label><?php \esc_html_e( 'Export settings', 'melapress-login-security' ); ?></label></th>
 					<td>
 						<fieldset>
 							<input type="button" id="export-settings" class="button-primary"
-									value="<?php esc_html_e( 'Export', 'melapress-login-security' ); ?>"
-									data-export-wpws-settings data-nonce="<?php echo esc_attr( $nonce ); ?>">
+									value="<?php \esc_html_e( 'Export', 'melapress-login-security' ); ?>"
+									data-export-wpws-settings data-nonce="<?php echo \esc_attr( $nonce ); ?>">
 							<p class="description">
-							<?php esc_html_e( 'Once the settings are exported a download will automatically start. The settings are exported to a JSON file.', 'melapress-login-security' ); ?>
+							<?php \esc_html_e( 'Once the settings are exported a download will automatically start. The settings are exported to a JSON file.', 'melapress-login-security' ); ?>
 							</p>
 						</fieldset>
 					</td>
 				</tr>
 
 				<tr>
-					<th><label><?php esc_html_e( 'Import settings', 'melapress-login-security' ); ?></label></th>
+					<th><label><?php \esc_html_e( 'Import settings', 'melapress-login-security' ); ?></label></th>
 					<td>
 						<fieldset>
 
 							<input type="file" id="wpws-settings-file" name="filename"><br>
-							<input style="margin-top: 7px;" type="submit" id="import-settings" class="button-primary" data-import-wpws-settings data-nonce="<?php echo esc_attr( $nonce ); ?>" value="<?php esc_html_e( 'Validate & Import', 'melapress-login-security' ); ?>">
+							<input style="margin-top: 7px;" type="submit" id="import-settings" class="button-primary" data-import-wpws-settings data-nonce="<?php echo \esc_attr( $nonce ); ?>" value="<?php \esc_html_e( 'Validate & Import', 'melapress-login-security' ); ?>">
 							<p class="description">
-							<?php esc_html_e( 'Once you choose a JSON settings file, it will be checked prior to being imported to alert you of any issues, if there are any.', 'melapress-login-security' ); ?>
+							<?php \esc_html_e( 'Once you choose a JSON settings file, it will be checked prior to being imported to alert you of any issues, if there are any.', 'melapress-login-security' ); ?>
 							</p>
 							<div id="import-settings-modal">
 								<div class="modal-content">

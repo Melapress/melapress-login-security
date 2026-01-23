@@ -44,6 +44,66 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 			\add_action( 'wp_ajax_mls_send_login_link', array( __CLASS__, 'send_login_link' ) );
 			\add_action( 'admin_init', array( __CLASS__, 'monitor_admin_actions' ) );
 			\add_action( 'admin_menu', array( __CLASS__, 'replace_admin_link' ), 11 );
+			// Integration: attempt to hook into WP 2FA checks to allow skipping 2FA for temporary users.
+			\add_action( 'init', array( __CLASS__, 'integrate_wp2fa' ) );
+		}
+
+		/**
+		 * Integration helper for WP 2FA plugins.
+		 *
+		 * Adds filters that short-circuit 2FA requirement when a temporary user has the
+		 * `mls_temp_user_skip_2fa` meta set. This is best-effort: it registers handlers
+		 * for commonly-provided filter hooks used by 2FA plugins. If the installed 2FA
+		 * plugin exposes a different filter name we may need to adapt.
+		 *
+		 * @return void
+		 */
+		public static function integrate_wp2fa() {
+			// Callback used for filters that ask whether to skip/show the 2FA form.
+			$skip_form_cb = function( $skip, $user = null ) {
+				$user_id = 0;
+				if ( is_int( $user ) || ( is_string( $user ) && ctype_digit( $user ) ) ) {
+					$user_id = (int) $user;
+				} elseif ( is_object( $user ) && isset( $user->ID ) ) {
+					$user_id = (int) $user->ID;
+				} elseif ( ! empty( $GLOBALS['user_ID'] ) ) {
+					$user_id = (int) $GLOBALS['user_ID'];
+				}
+
+				if ( $user_id > 0 && (int) get_user_meta( $user_id, 'mls_temp_user_skip_2fa', true ) ) {
+					return true;
+				}
+
+				return $skip;
+			};
+
+			// Callback used for filters that ask whether 2FA is required/enabled for the user.
+			$require_cb = function( $required, $user = null ) {
+				$user_id = 0;
+				if ( is_int( $user ) || ( is_string( $user ) && ctype_digit( $user ) ) ) {
+					$user_id = (int) $user;
+				} elseif ( is_object( $user ) && isset( $user->ID ) ) {
+					$user_id = (int) $user->ID;
+				} elseif ( ! empty( $GLOBALS['user_ID'] ) ) {
+					$user_id = (int) $GLOBALS['user_ID'];
+				}
+
+				if ( $user_id > 0 && (int) get_user_meta( $user_id, 'mls_temp_user_skip_2fa', true ) ) {
+					return false;
+				}
+
+				return $required;
+			};
+
+			// Register plugin-specific filter to skip the login 2FA form.
+			\add_filter( 'wp_2fa_skip_2fa_login_form', $skip_form_cb, 10, 2 );
+
+			// Register common filters used by 2FA providers to determine requirement.
+			\add_filter( 'wp_2fa_is_user_required', $require_cb, 10, 2 );
+			\add_filter( 'wp_2fa_user_required', $require_cb, 10, 2 );
+			\add_filter( 'two_factor_is_user_enabled', $require_cb, 10, 2 );
+			\add_filter( 'two_factor_should_run_for_user', $require_cb, 10, 2 );
+			\add_filter( 'two_factor_user_api_login_enable', $require_cb, 10, 2 );
 		}
 
 		/**
@@ -227,6 +287,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				'user_first_name'               => '',
 				'user_last_name'                => '',
 				'user-role'                     => '',
+				'skip_2fa'                      => 0,
 				'redirect_to'                   => '',
 				'login_expire'                  => 'expire_from_now',
 				'max_logins'                    => 5,
@@ -250,6 +311,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 					'user_first_name'               => $user->first_name,
 					'user_last_name'                => $user->last_name,
 					'user-role'                     => implode( ',', $user->roles ),
+					'skip_2fa'                      => (int) get_user_meta( $user->ID, 'mls_temp_user_skip_2fa', true ),
 					'redirect_to'                   => get_user_meta( $user->ID, 'mls_temp_user_redirect_to', true ),
 					'max_logins'                    => get_user_meta( $user->ID, 'mls_temp_user_max_login_limit', true ),
 					'login_expire'                  => get_user_meta( $user->ID, 'mls_temp_user_expires_on', true ),
@@ -302,6 +364,8 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 					<h1 class="wp-heading-inline"><?php esc_html_e( 'Melapress Login Security - Temporary Login', 'melapress-login-security' ); ?></h1>
 					<a href="<?php echo esc_url( add_query_arg( 'page', 'mls-temporary-logins&action=create-login', admin_url( 'users.php' ) ) ); ?>" class="page-title-action mls-create-login-link"><?php esc_html_e( 'Create temporary login', 'melapress-login-security' ); ?></a>
 
+					<p><?php esc_html_e( 'Create time-limited login links for external users without sharing passwords or creating permanent WordPress accounts. Temporary logins automatically expire and can be revoked at any time. Learn more about', 'melapress-login-security' ); ?> <a href="https://melapress.com/create-manage-wordpress-temporary-users-plugin/?utm_source=plugin&utm_medium=mls&temp_login_help_text" target="_blank"><?php esc_html_e( 'temporary logins', 'melapress-login-security' ); ?></a>.</p>
+
 					<form id="new-temp-login-form" method="post" <?php echo wp_kses_post( $display_form ); ?>>
 						<table class="form-table form-content">
 							<input name="user_id" type="number" id="user_id" value="<?php echo esc_attr( $form_values['user_id'] ); ?>" aria-required="true" maxlength="60" class="form-input hidden">
@@ -348,6 +412,23 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 											}
 											?>
 										</select>
+									</td>
+								</tr>
+
+								<tr class="form-field">
+									<th scope="row">
+										<label for="skip_2fa"><?php esc_html_e( 'Skip 2FA', 'melapress-login-security' ); ?></label>
+									</th>
+									<td>
+										<label for="skip_2fa">
+											<style>
+												#skip_2fa {
+													width: 0px !important;
+												}
+											</style>
+											<input type="checkbox" id="skip_2fa" name="skip_2fa" value="1" <?php checked( $form_values['skip_2fa'], 1 ); ?>>
+											<?php esc_html_e( 'If 2FA is enforced for users with this role via the', 'melapress-login-security' ); ?> <a href="https://melapress.com/wordpress-2fa/?utm_source=plugin&utm_medium=mls&temp_login_help_text_2fa" target="_blank"><?php esc_html_e( 'WP 2FA plugin', 'melapress-login-security' ); ?></a><?php esc_html_e( ', skip 2FA for this temporary user.', 'melapress-login-security' ); ?>
+										</label>
 									</td>
 								</tr>
 							
@@ -607,6 +688,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 			$email       = isset( $data['user_email'] ) ? sanitize_email( $data['user_email'] ) : '';
 			$role        = ! empty( $data['role'] ) ? $data['role'] : 'subscriber';
 			$redirect_to = ! empty( $data['redirect_to'] ) ? sanitize_text_field( $data['redirect_to'] ) : 'wp_dashboard';
+			$skip_2fa    = ! empty( $data['skip_2fa'] ) ? 1 : 0;
 
 			$user_args = array(
 				'first_name' => $first_name,
@@ -651,6 +733,13 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				update_user_meta( $user_id, 'mls_temp_user_max_login_limit', $max_login_limit );
 				update_user_meta( $user_id, 'mls_temp_user_token', self::generate_mls_temporary_token( $user_id ) );
 				update_user_meta( $user_id, 'mls_temp_user_redirect_to', $redirect_to );
+				update_user_meta( $user_id, 'mls_temp_user_skip_2fa', $skip_2fa );
+
+				if ( (bool) $skip_2fa ) {
+					update_user_meta( $user_id, 'wp_2fa_enforcement_state', 'excluded' );
+				} else {
+					delete_user_meta( $user_id, 'wp_2fa_enforcement_state' );
+				}
 				update_user_meta( $user_id, 'show_welcome_panel', 0 );
 				update_user_meta( $user_id, 'locale', $locale );
 
@@ -715,6 +804,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 			$role            = ! empty( $data['role'] ) ? $data['role'] : 'subscriber';
 			$redirect_to     = ! empty( $data['redirect_to'] ) ? sanitize_text_field( $data['redirect_to'] ) : 'wp_dashboard';
 			$login_count     = ! empty( $data['login_count'] ) ? sanitize_text_field( $data['login_count'] ) : 0;
+			$skip_2fa        = ! empty( $data['skip_2fa'] ) ? 1 : 0;
 
 			// Grab date depending on desired expiry type.
 			if ( 'expire_from_now' === $expiry_option ) {
@@ -759,11 +849,18 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 
 			self::check_and_install_language( $locale );
 
+			if ( (bool) $skip_2fa ) {
+				update_user_meta( $user_id, 'wp_2fa_enforcement_state', 'excluded' );
+			} else {
+				delete_user_meta( $user_id, 'wp_2fa_enforcement_state' );
+			}
+
 			update_user_meta( $user_id, 'mls_temp_user_updated', self::get_current_gmt_timestamp() );
 			update_user_meta( $user_id, 'mls_temp_user_expires_on', self::get_user_expire_time( $expiry_option, $date, $time ) );
 			update_user_meta( $user_id, 'mls_temp_user_expires_on_date', $date );
 			update_user_meta( $user_id, 'mls_temp_user_max_login_limit', $max_login_limit );
 			update_user_meta( $user_id, 'mls_temp_user_redirect_to', $redirect_to );
+			update_user_meta( $user_id, 'mls_temp_user_skip_2fa', $skip_2fa );
 			update_user_meta( $user_id, 'locale', $locale );
 			update_user_meta( $user_id, 'mls_login_count', $login_count );
 

@@ -12,6 +12,7 @@ use MLS\Security_Prompt;
 use MLS\Device_Detection;
 use MLS\Sessions_Manager;
 use MLS\Helpers\OptionsHelper;
+use MLS\Licensing\Licensing_Factory;
 use MLS\Reset_Passwords;
 use MLS\TemporaryLogins\Temporary_Logins;
 
@@ -139,38 +140,38 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				$this->msgs = new \MLS\MLS_Messages();
 
 				// Load plugin's text language files.
-				add_action( 'init', array( $this, 'localise' ) );
+				\add_action( 'init', array( $this, 'localise' ) );
 				// Init.
-				add_action( 'init', array( $this, 'init' ) );
+				\add_action( 'init', array( $this, 'init' ) );
 				// Admin init.
-				add_action( 'admin_init', array( $this, 'ppm_overwrite_admin_menu' ) );
+				\add_action( 'admin_init', array( $this, 'ppm_overwrite_admin_menu' ) );
 
 			}
 
 
 			// Update user's last activity.
-			add_action( 'wp_login', array( __CLASS__, 'update_user_last_activity' ) );
-			add_action( 'wp_logout', array( __CLASS__, 'update_user_last_activity' ) );
-			add_action( 'wp_login_failed', array( __CLASS__, 'update_user_last_activity' ) );
-			add_action( 'wp_loaded', array( $this, 'register_summary_email_cron' ) );
+			\add_action( 'wp_login', array( __CLASS__, 'update_user_last_activity' ) );
+			\add_action( 'wp_logout', array( __CLASS__, 'update_user_last_activity' ) );
+			\add_action( 'wp_login_failed', array( __CLASS__, 'update_user_last_activity' ) );
+			\add_action( 'wp_loaded', array( $this, 'register_summary_email_cron' ) );
 
 			$login_control = new \MLS\Login_Page_Control();
-			add_action( 'plugins_loaded', array( $login_control, 'is_login_check' ), 9999 );
-			add_action( 'wp_loaded', array( $login_control, 'redirect_user' ) );
+			\add_action( 'plugins_loaded', array( $login_control, 'is_login_check' ), 9999 );
+			\add_action( 'wp_loaded', array( $login_control, 'redirect_user' ) );
 
 			if ( class_exists( '\MLS\Failed_Logins' ) ) {
 				$failed_logins = new \MLS\Failed_Logins();
-				add_action( 'init', array( $failed_logins, 'init' ) );
-				add_action( 'wp_login_failed', array( $failed_logins, 'failed_login_check' ), 1, 2 );
-				add_action( 'authenticate', array( $failed_logins, 'pre_login_check' ), 20, 3 );
-				add_action( 'admin_menu', array( '\MLS\Failed_Logins', 'add_locked_users_admin_menu' ), 20, 3 );
+				\add_action( 'init', array( $failed_logins, 'init' ) );
+				\add_action( 'wp_login_failed', array( $failed_logins, 'failed_login_check' ), 1, 2 );
+				\add_action( 'authenticate', array( $failed_logins, 'pre_login_check' ), 20, 3 );
+				\add_action( 'admin_menu', array( '\MLS\Failed_Logins', 'add_locked_users_admin_menu' ), 20, 3 );
 			}
 
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \get_site_option( MLS_PREFIX . '_setting' );
 
 
 			if ( isset( $mls_setting['enable_failure_message_overrides'] ) && OptionsHelper::string_to_bool( $mls_setting['enable_failure_message_overrides'] ) ) {
-				add_filter( 'login_errors', array( __CLASS__, 'login_errors' ) );
+				\add_filter( 'login_errors', array( __CLASS__, 'login_errors' ) );
 			}
 		}
 
@@ -184,7 +185,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		public static function login_errors( $error ) {
 			global $errors;
 
-			if ( ! is_wp_error( $errors ) ) {
+			if ( ! \is_wp_error( $errors ) ) {
 				return $error;
 			}
 
@@ -249,19 +250,19 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		public function hooks() {
 			// filters allowed special characters, this is run with a late
 			// priority so that users can add new characters.
-			add_filter( 'mls_filter_allowed_special_chars', array( $this, 'remove_excluded_special_chars_from_allowed' ), 15, 1 );
+			\add_filter( 'mls_filter_allowed_special_chars', array( $this, 'remove_excluded_special_chars_from_allowed' ), 15, 1 );
 
 			$this->history = new \MLS\Password_History();
-			add_action( 'user_register', array( $this->history, 'user_register' ) );
-			add_action( 'mls_apply_forced_reset_usermeta', array( $this->history, 'apply_forced_reset_usermeta' ) );
+			\add_action( 'user_register', array( $this->history, 'user_register' ) );
+			\add_action( 'mls_apply_forced_reset_usermeta', array( $this->history, 'apply_forced_reset_usermeta' ) );
 
-			if ( is_admin() ) {
+			if ( \is_admin() ) {
 				// Hide all unrelated to the plugin notices on the plugin admin pages.
-				add_action( 'admin_print_scripts', array( '\MLS\Helpers\HideAdminNotices', 'hide_unrelated_notices' ) );
+				\add_action( 'admin_print_scripts', array( '\MLS\Helpers\HideAdminNotices', 'hide_unrelated_notices' ) );
 			}
 
-			add_action( 'init', array( Temporary_Logins::class, 'manage_temporary_logins' ) );
-			add_filter( 'mls_login_redirect', array( Temporary_Logins::class, 'redirect_after_login' ), 10, 2 );
+			\add_action( 'init', array( Temporary_Logins::class, 'manage_temporary_logins' ) );
+			\add_filter( 'mls_login_redirect', array( Temporary_Logins::class, 'redirect_after_login' ), 10, 2 );
 		}
 
 		/**
@@ -291,8 +292,8 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			// get list of removed characters from option.
 			$allowed_chars = $this->get_special_chars();
 			// run characters string through filter where chars can be added/removed.
-			$special_chars_string = apply_filters_deprecated( 'ppwmp_filter_allowed_special_chars', array( $allowed_chars ), '1.4.0', 'mls_filter_allowed_special_chars' );
-			$special_chars_string = apply_filters( 'mls_filter_allowed_special_chars', $special_chars_string );
+			$special_chars_string = \apply_filters_deprecated( 'ppwmp_filter_allowed_special_chars', array( $allowed_chars ), '1.4.0', 'mls_filter_allowed_special_chars' );
+			$special_chars_string = \apply_filters( 'mls_filter_allowed_special_chars', $special_chars_string );
 			return $special_chars_string;
 		}
 
@@ -342,7 +343,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 						$upgrade_menu,
 						array_fill_keys(
 							array_keys( $upgrade_menu, 'mls-policies-pricing', true ),
-							esc_url( 'https://melapress.com/wordpress-login-security/pricing/' )
+							\esc_url( 'https://melapress.com/wordpress-login-security/pricing/' )
 						)
 					);
 				}
@@ -355,7 +356,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				 * @var $submenu
 				 */
 				if ( $help ) {
-					if ( ! is_multisite() ) {
+					if ( ! \is_multisite() ) {
 						$help_menu = $submenu['mls-policies'][ $help ];
 
 						if ( isset( $submenu['mls-policies'][9] ) && isset( $submenu['mls-policies'][10] ) ) {
@@ -386,7 +387,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 */
 		public function init() {
 
-			$mls = melapress_login_security();
+			$mls = \melapress_login_security();
 
 			$this->options->init();
 
@@ -427,8 +428,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			\MLS\Admin\UserLastLoginTime::init();
 			Temporary_Logins::init();
 
-
-			do_action( 'mls_extension_init' );
+			\do_action( 'mls_extension_init' );
 
 			// call ppm history all hook.
 			$history->hook();
@@ -472,33 +472,33 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				class_alias( '\MLS\Password_Check', '\PPMWP\PPM_WP_Password_Check' );
 			}
 
-			if ( ! is_multisite() ) {
+			if ( ! \is_multisite() ) {
 				$admin = new MLS\Admin\Admin( $this->options, $user_settings, $role_setting );
 			} else {
 				$admin = new MLS\Admin\Network_Admin( $this->options, $user_settings, $role_setting );
 			}
 
-			/* @free:start */
+			// @free:start
 			$today_date = gmdate( 'Y-m-d' );
-			$today_date = gmdate( 'Y-m-d', strtotime( $today_date ) );
+			$today_date = gmdate( 'Y-m-d', strtotime( (string) $today_date ) );
 
 			$event_date_begin = gmdate( 'Y-m-d', strtotime( '11/21/2025' ) );
 			$event_date_end   = gmdate( 'Y-m-d', strtotime( '12/01/2025' ) );
 
 			$event_ending_date = \get_site_option( MLS_PREFIX . '_extra_event_banner_end_date', false );
 
-			$extra_event_banner_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
+			$extra_event_banner_dismissed       = (string) \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
 			$extra_event_banner_super_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_super_dismissed', false );
 
 			if ( gmdate( 'Y-m-d', strtotime( '11/28/2025' ) ) === $today_date && $extra_event_banner_dismissed && ! $extra_event_banner_super_dismissed ) {
 				\delete_site_option( MLS_PREFIX . '_extra_event_banner_dismissed' );
 			}
 
-			if ( ( $today_date >= $event_date_begin ) && ( $today_date <= $event_date_end ) && ( false === $event_ending_date || strtotime( $event_ending_date ) < strtotime( $today_date ) ) ) {
+			if ( ( $today_date >= $event_date_begin ) && ( $today_date <= $event_date_end ) && ( false === $event_ending_date || strtotime( (string) $event_ending_date ) < strtotime( (string) $today_date ) ) ) {
 				$extra_event_banner_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
 				if ( ! $extra_event_banner_dismissed ) {
 					\update_site_option( MLS_PREFIX . '_extra_event_banner', true );
-					\update_site_option( MLS_PREFIX . '_extra_event_banner_end_date', strtotime( $event_date_end ) );
+					\update_site_option( MLS_PREFIX . '_extra_event_banner_end_date', strtotime( (string) $event_date_end ) );
 					\update_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
 				}
 			} else {
@@ -507,7 +507,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				\delete_site_option( MLS_PREFIX . '_extra_event_banner_dismissed' );
 				\delete_site_option( MLS_PREFIX . '_extra_event_banner_super_dismissed' );
 			}
-			/* @free:end */
+			// @free:end
 		}
 
 		/**
@@ -536,7 +536,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 */
 		public static function is_user_exempted( $user_id = false ) {
 
-			$mls = melapress_login_security();
+			$mls = \melapress_login_security();
 
 			// if no user is supplied, assume they are not exempted.
 			if ( false === $user_id ) {
@@ -551,11 +551,11 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				}
 			}
 
-			if ( get_user_meta( $user_id, 'mls_temp_user', true ) ) {
+			if ( \get_user_meta( $user_id, 'mls_temp_user', true ) ) {
 				return true;
 			}
 
-			$user = get_user_by( 'id', $user_id );
+			$user = \get_user_by( 'id', $user_id );
 
 			if ( is_a( $user, '\WP_User' ) ) {
 				$role_options            = OptionsHelper::get_preferred_role_options( $user->roles );
@@ -588,7 +588,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function activation_timestamp() {
-			update_site_option( MLS_PREFIX . '_activation', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+			\update_site_option( MLS_PREFIX . '_activation', \current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 			self::ppm_multisite_install_plugin();
 		}
 
@@ -611,11 +611,11 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function cleanup() {
-			if ( ! current_user_can( 'activate_plugins' ) ) {
+			if ( ! \current_user_can( 'activate_plugins' ) ) {
 				return;
 			}
 
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \get_site_option( MLS_PREFIX . '_setting' );
 			if ( $mls_setting ) {
 				$clear_up_needed = isset( $mls_setting['clear_history'] ) && ( 'yes' === $mls_setting['clear_history'] || 1 === $mls_setting['clear_history'] );
 
@@ -636,7 +636,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 */
 		public static function clear_options() {
 			global $wpdb;
-			if ( is_multisite() ) {
+			if ( \is_multisite() ) {
 				$prepared_query = $wpdb->prepare(
 					"DELETE FROM `{$wpdb->sitemeta}` WHERE `meta_key` LIKE %s ORDER BY `meta_key` ASC",
 					'mls%'
@@ -662,7 +662,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				'fields' => array( 'ID' ),
 			);
 
-			if ( ! is_multisite() ) {
+			if ( ! \is_multisite() ) {
 				self::clear_user_history( $args );
 			} else {
 				self::clear_ms_history( $args );
@@ -721,10 +721,10 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 */
 		public static function clear_user_history( $args ) {
 
-			$users = get_users( $args );
+			$users = \get_users( $args );
 
 			foreach ( $users as $user ) {
-				delete_user_meta( $user->ID, MLS_PW_HISTORY_META_KEY );
+				\delete_user_meta( $user->ID, MLS_PW_HISTORY_META_KEY );
 			}
 		}
 
@@ -763,7 +763,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$user_query = array_merge( $user_query, $extra_query );
 
 			// Return user object.
-			return get_users( $user_query );
+			return \get_users( $user_query );
 		}
 
 		/**
@@ -794,10 +794,10 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		public static function ppm_multisite_install_plugin() {
 			$installation_errors = false;
 			// If check multisite and network admin.
-			if ( is_multisite() && is_super_admin() && ! is_network_admin() ) {
-				$installation_errors  = esc_html__( 'The Melapress Login Security plugin is a multisite network tool. Please activate it from the network dashboard.', 'melapress-login-security' );
+			if ( \is_multisite() && \is_super_admin() && ! \is_network_admin() ) {
+				$installation_errors  = \esc_html__( 'The Melapress Login Security plugin is a multisite network tool. Please activate it from the network dashboard.', 'melapress-login-security' );
 				$installation_errors .= '<br />';
-				$installation_errors .= '<a href="javascript:;" onclick="window.top.location.href=\'' . esc_url( network_admin_url( 'plugins.php' ) ) . '\'">' . esc_html__( 'Redirect me to the network dashboard', 'melapress-login-security' ) . '</a> ';
+				$installation_errors .= '<a href="javascript:;" onclick="window.top.location.href=\'' . \esc_url( \network_admin_url( 'plugins.php' ) ) . '\'">' . \esc_html__( 'Redirect me to the network dashboard', 'melapress-login-security' ) . '</a> ';
 			}
 			if ( $installation_errors ) {
 				?>
@@ -831,7 +831,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 					'offset' => $count * $batch_size,
 					'fields' => array( 'ID' ),
 				);
-				$users = get_users( $args );
+				$users = \get_users( $args );
 
 				if ( ! empty( $users ) ) {
 					$background_process = new \MLS\Apply_Timestamp_For_Users_Process();
@@ -856,23 +856,23 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		public function handle_user_redirection( $verify_reset_key, $send_json_after = false, $exit_on_over = false ) {
 
 			if ( $verify_reset_key ) {
-				$redirect_to = add_query_arg(
+				$redirect_to = \add_query_arg(
 					array(
 						'action' => 'rp',
 						'key'    => $verify_reset_key->reset_key,
 						'login'  => rawurlencode( $verify_reset_key->user_login ),
 					),
-					network_site_url( 'wp-login.php' )
+					\network_site_url( 'wp-login.php' )
 				);
 				if ( $send_json_after ) {
-					wp_send_json_success(
+					\wp_send_json_success(
 						array(
 							'success'  => true,
 							'redirect' => $redirect_to,
 						)
 					);
 				} else {
-					wp_safe_redirect( $redirect_to );
+					\wp_safe_redirect( $redirect_to );
 					if ( $exit_on_over ) {
 						exit;
 					} else {
@@ -894,16 +894,16 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		public static function update_user_last_activity( $user ) {
 
 			if ( is_int( $user ) ) {
-				$user = get_user_by( 'id', $user );
+				$user = \get_user_by( 'id', $user );
 			} elseif ( is_string( $user ) ) {
 				// If user is using an email, act accordingly.
 				if ( filter_var( $user, FILTER_VALIDATE_EMAIL ) ) {
-					$user = get_user_by( 'email', $user );
+					$user = \get_user_by( 'email', $user );
 				} else {
-					$user = get_user_by( 'login', $user );
+					$user = \get_user_by( 'login', $user );
 				}
 			} else {
-				$user = wp_get_current_user();
+				$user = \wp_get_current_user();
 			}
 
 			if ( isset( $user->ID ) ) {
@@ -912,10 +912,10 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 					$is_user_inactive = OptionsHelper::is_user_inactive( $user->ID );
 					if ( ! $is_user_inactive ) {
 						// Apply last active time.
-						update_user_meta( $user->ID, MLS_PREFIX . '_last_activity', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+						\update_user_meta( $user->ID, MLS_PREFIX . '_last_activity', \current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 					}
 				} else {
-					update_user_meta( $user->ID, MLS_PREFIX . '_last_activity', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+					\update_user_meta( $user->ID, MLS_PREFIX . '_last_activity', \current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 				}
 			}
 		}
@@ -935,16 +935,16 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 
 			// Start with the basics...
 			$sysinfo .= '-- Site Info --' . "\n\n";
-			$sysinfo .= 'Site URL (WP Address):    ' . site_url() . "\n";
-			$sysinfo .= 'Home URL (Site Address):  ' . home_url() . "\n";
-			$sysinfo .= 'Multisite:                ' . ( is_multisite() ? 'Yes' : 'No' ) . "\n";
+			$sysinfo .= 'Site URL (WP Address):    ' . \site_url() . "\n";
+			$sysinfo .= 'Home URL (Site Address):  ' . \home_url() . "\n";
+			$sysinfo .= 'Multisite:                ' . ( \is_multisite() ? 'Yes' : 'No' ) . "\n";
 
 			// Get theme info.
-			$theme_data   = wp_get_theme();
+			$theme_data   = \wp_get_theme();
 			$theme        = $theme_data->Name . ' ' . $theme_data->Version; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			$parent_theme = $theme_data->Template; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			if ( ! empty( $parent_theme ) ) {
-				$parent_theme_data = wp_get_theme( $parent_theme );
+				$parent_theme_data = \wp_get_theme( $parent_theme );
 				$parent_theme      = $parent_theme_data->Name . ' ' . $parent_theme_data->Version; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
 
@@ -955,17 +955,17 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$sysinfo .= "\n" . '-- WordPress Configuration --' . "\n\n";
 			$sysinfo .= 'Version:                  ' . get_bloginfo( 'version' ) . "\n";
 			$sysinfo .= 'Language:                 ' . ( ! empty( $locale ) ? $locale : 'en_US' ) . "\n";
-			$sysinfo .= 'Permalink Structure:      ' . ( get_option( 'permalink_structure' ) ? get_option( 'permalink_structure' ) : 'Default' ) . "\n";
+			$sysinfo .= 'Permalink Structure:      ' . ( \get_option( 'permalink_structure' ) ? \get_option( 'permalink_structure' ) : 'Default' ) . "\n";
 			$sysinfo .= 'Active Theme:             ' . $theme . "\n";
 			if ( $parent_theme !== $theme ) {
 				$sysinfo .= 'Parent Theme:             ' . $parent_theme . "\n";
 			}
-			$sysinfo .= 'Show On Front:            ' . get_option( 'show_on_front' ) . "\n";
+			$sysinfo .= 'Show On Front:            ' . \get_option( 'show_on_front' ) . "\n";
 
 			// Only show page specs if frontpage is set to 'page'.
-			if ( 'page' === get_option( 'show_on_front' ) ) {
-				$front_page_id = (int) get_option( 'page_on_front' );
-				$blog_page_id  = (int) get_option( 'page_for_posts' );
+			if ( 'page' === \get_option( 'show_on_front' ) ) {
+				$front_page_id = (int) \get_option( 'page_on_front' );
+				$blog_page_id  = (int) \get_option( 'page_for_posts' );
 
 				$sysinfo .= 'Page On Front:            ' . ( 0 !== $front_page_id ? get_the_title( $front_page_id ) . ' (#' . $front_page_id . ')' : 'Unset' ) . "\n";
 				$sysinfo .= 'Page For Posts:           ' . ( 0 !== $blog_page_id ? get_the_title( $blog_page_id ) . ' (#' . $blog_page_id . ')' : 'Unset' ) . "\n";
@@ -993,7 +993,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$sysinfo .= "\n" . '-- WordPress Active Plugins --' . "\n\n";
 
 			$plugins        = get_plugins();
-			$active_plugins = get_option( 'active_plugins', array() );
+			$active_plugins = \get_option( 'active_plugins', array() );
 
 			foreach ( $plugins as $plugin_path => $plugin ) {
 				if ( ! in_array( $plugin_path, $active_plugins, true ) ) {
@@ -1016,28 +1016,28 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				$sysinfo .= $plugin['Name'] . ': ' . $plugin['Version'] . $update . "\n";
 			}
 
-			if ( is_multisite() ) {
+			if ( \is_multisite() ) {
 				// WordPress Multisite active plugins.
 				$sysinfo .= "\n" . '-- Network Active Plugins --' . "\n\n";
 
-				$plugins        = wp_get_active_network_plugins();
-				$active_plugins = get_site_option( 'active_sitewide_plugins', array() );
+				$plugins        = \wp_get_active_network_plugins();
+				$active_plugins = \get_site_option( 'active_sitewide_plugins', array() );
 
 				foreach ( $plugins as $plugin_path ) {
-					$plugin_base = plugin_basename( $plugin_path );
+					$plugin_base = \plugin_basename( $plugin_path );
 
 					if ( ! array_key_exists( $plugin_base, $active_plugins ) ) {
 						continue;
 					}
 
 					$update   = ( array_key_exists( $plugin_path, $updates ) ) ? ' (needs update - ' . $updates[ $plugin_path ]->update->new_version . ')' : '';
-					$plugin   = get_plugin_data( $plugin_path );
+					$plugin   = \get_plugin_data( $plugin_path );
 					$sysinfo .= $plugin['Name'] . ': ' . $plugin['Version'] . $update . "\n";
 				}
 			}
 
 			// Server configuration.
-			$server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
+			$server_software = isset( $_SERVER['SERVER_SOFTWARE'] ) ? \sanitize_text_field( \wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '';
 			$sysinfo        .= "\n" . '-- Webserver Configuration --' . "\n\n";
 			$sysinfo        .= 'PHP Version:              ' . PHP_VERSION . "\n";
 			$sysinfo        .= 'MySQL Version:            ' . $wpdb->db_version() . "\n";

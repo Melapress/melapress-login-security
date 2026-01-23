@@ -24,11 +24,11 @@ $current_tab         = isset( $_REQUEST['role'] ) && in_array( wp_unslash( $_REQ
 $master_switch_title = ! empty( $current_tab ) ? __( 'Inherit login security policies', 'melapress-login-security' ) : __( 'Enable login security policies', 'melapress-login-security' );
 $sidebar_required    = false;
 
-/* @free:start */
+// @free:start
 
 // Override in free edition.
 $sidebar_required = true;
-/* @free:end */
+// @free:end
 
 $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 ?>
@@ -291,9 +291,9 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 	</div>
 
 	<?php
-	/* @free:start */
+	// @free:start
 	require_once MLS_PATH . 'admin/templates/views/upgrade-sidebar.php';
-	/* @free:end */
+	// @free:end
 
 	?>
 </div>

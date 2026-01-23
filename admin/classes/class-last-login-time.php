@@ -36,11 +36,11 @@ if ( ! class_exists( '\MLS\Admin\UserLastLoginTime' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function init() {
-			add_filter( 'manage_users_custom_column', array( __CLASS__, 'populate_users_dashboard_column' ), 10, 3 );
-			add_filter( 'manage_users_columns', array( __CLASS__, 'add_users_dashboard_column' ) );
-			add_action( 'wp_login', array( __CLASS__, 'track_last_login' ), 10, 2 );
-			add_filter( 'mls_reports_page_additional_tabs', array( __CLASS__, 'addition_reports_tab' ), 10, 2 );
-			add_filter( 'mls_reports_page_additional_content', array( __CLASS__, 'addition_reports_content' ), 10, 3 );
+			\add_filter( 'manage_users_custom_column', array( __CLASS__, 'populate_users_dashboard_column' ), 10, 3 );
+			\add_filter( 'manage_users_columns', array( __CLASS__, 'add_users_dashboard_column' ) );
+			\add_action( 'wp_login', array( __CLASS__, 'track_last_login' ), 10, 2 );
+			\add_filter( 'mls_reports_page_additional_tabs', array( __CLASS__, 'addition_reports_tab' ), 10, 2 );
+			\add_filter( 'mls_reports_page_additional_content', array( __CLASS__, 'addition_reports_content' ), 10, 3 );
 		}
 
 		/**
@@ -56,7 +56,7 @@ if ( ! class_exists( '\MLS\Admin\UserLastLoginTime' ) ) {
 		public static function addition_reports_tab( $current_additional, $current_tab ) {
 			ob_start();
 			?>
-			<a href="<?php echo esc_url( add_query_arg( 'tab', 'last-login' ) ); ?>" class="nav-tab<?php echo 'last-login' === $current_tab ? ' nav-tab-active' : ''; ?>"><?php esc_html_e( 'Last login time', 'melapress-login-security' ); ?></a>
+			<a href="<?php echo \esc_url( \add_query_arg( 'tab', 'last-login' ) ); ?>" class="nav-tab<?php echo 'last-login' === $current_tab ? ' nav-tab-active' : ''; ?>"><?php \esc_html_e( 'Last login time', 'melapress-login-security' ); ?></a>
 			<?php
 			return $current_additional . ob_get_clean();
 		}
@@ -84,7 +84,7 @@ if ( ! class_exists( '\MLS\Admin\UserLastLoginTime' ) ) {
 							<option value="all" selected>All</option>
 							<?php
 							foreach ( $roles as $key => $value ) {
-								echo '<option value="' . esc_attr( strtolower( $value ) ) . '">' . wp_kses_post( $value ) . '</option>';
+								echo '<option value="' . \esc_attr( strtolower( $value ) ) . '">' . \wp_kses_post( $value ) . '</option>';
 							}
 							?>
 						</select>
@@ -109,8 +109,8 @@ if ( ! class_exists( '\MLS\Admin\UserLastLoginTime' ) ) {
 		 */
 		public static function track_last_login( $user_login, $user ) {
 			if ( isset( $user->ID ) ) {
-				$current_time = current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
-				update_user_meta( $user->ID, MLS_PREFIX . '_last_login_time', $current_time );
+				$current_time = \current_time( 'timestamp' ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+				\update_user_meta( $user->ID, MLS_PREFIX . '_last_login_time', $current_time );
 			}
 		}
 
@@ -159,13 +159,13 @@ if ( ! class_exists( '\MLS\Admin\UserLastLoginTime' ) ) {
 		 */
 		public static function get_users_last_login_time_by_id( $user_id ) {
 			$time = false;
-			$time = get_user_meta( $user_id, MLS_PREFIX . '_last_login_time', true );
+			$time = \get_user_meta( $user_id, MLS_PREFIX . '_last_login_time', true );
 
 			if ( $time ) {
-				return date_i18n( get_option( 'date_format' ) . ' \a\t ' . get_option( 'time_format' ), $time );
+				return \date_i18n( \get_option( 'date_format' ) . ' \a\t ' . \get_option( 'time_format' ), $time );
 			}
 
-			return esc_html__( 'No data to display', 'melapress-login-security' );
+			return \esc_html__( 'No data to display', 'melapress-login-security' );
 		}
 	}
 }

@@ -7,6 +7,7 @@
  */
 
 declare(strict_types=1);
+use MLS\Licensing\Licensing_Factory;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,8 +33,12 @@ require_once 'sidebar.php';
 		}
 	</style>
 	<?php
-	$freemius_id = melapress_login_security_freemius()->get_id();
-	$vars        = array( 'id' => $freemius_id );
-	echo fs_get_template( 'contact.php', $vars ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	if ( strtolower( 'freemius' ) === strtolower( Licensing_Factory::get_provider_type() ) ) {
+		$freemius_id = Licensing_Factory::provider_call( 'get_id' );
+		$vars        = array( 'id' => $freemius_id );
+		if ( function_exists( 'fs_get_template' ) ) {
+			echo fs_get_template( 'contact.php', $vars ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		}
+	}
 	?>
 </div>

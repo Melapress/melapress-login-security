@@ -133,7 +133,12 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			// Get the user ID, either from the user object if we have it, or by SQL query if we dont.
-			$user_id = ( isset( $user->ID ) ) ? $user->ID : \get_user_by( 'login', $username )->ID;
+			if ( $user instanceof \WP_User && isset( $user->ID ) ) {
+				$user_id = $user->ID;
+			} else {
+				$user    = \get_user_by( 'login', $username );
+				$user_id = ( $user instanceof \WP_User && isset( $user->ID ) ) ? $user->ID : null;
+			}
 
 			// If we still have nothing, stop here.
 			if ( ! $user_id ) {
@@ -466,6 +471,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			// Redefining user_login ensures we return the right case in the email.
 			$user_login = $user_data->user_login;
 			$user_email = $user_data->user_email;
+			$login_page = \MLS\Helpers\OptionsHelper::get_password_reset_page();
 			$args       = array();
 			$key        = false;
 
@@ -486,6 +492,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->disable_user_unlocked_reset_needed_email ) ) {
 					return;
 				}
+				$args['reset_url'] = esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) );
 				$title = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_unlocked_reset_needed_email_subject' );
 			} else {
 				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->disable_user_unlocked_email ) ) {
@@ -589,7 +596,7 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 							<br>
 							<p class="description">
 								<?php
-									$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notification templates', 'ppw-wp' ) . '</a>';
+									$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notices templates', 'ppw-wp' ) . '</a>';
 								?>
 								<?php echo wp_kses_post( wp_sprintf( /* translators: %s: Link to settings. */ __( 'To customize the notification displayed to users should they fail a prompt, please visit the %s plugin settings.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) ) ); ?>
 							</p>

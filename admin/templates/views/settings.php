@@ -17,11 +17,11 @@ use MLS\Helpers\OptionsHelper;
 
 $sidebar_required = false;
 
-/* @free:start */
+// @free:start
 
 // Override in free edition.
 $sidebar_required = true;
-/* @free:end */
+// @free:end
 $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 
@@ -292,6 +292,30 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr valign="top">
 							<th scope="row">
+								<?php esc_html_e( 'Password Expiry Email Limit', 'melapress-login-security' ); ?>
+							</th>
+							<td>
+								<p class="description"><?php esc_html_e( 'Configure how many password reset emails users receive when their password expires. Limiting emails helps prevent potential abuse while ensuring users can reset their passwords. If a user attempts to log in multiple times with an expired password, the plugin will only send reset emails up to the configured limit.', 'melapress-login-security' ); ?></p>
+								<br>
+
+								<fieldset>
+									<label for="password_expiry_email_limit_one">
+										<input type="radio" name="mls_options[password_expiry_email_limit]" id="password_expiry_email_limit_one" value="limit_to_one" <?php checked( self::$options->mls_setting->password_expiry_email_limit, 'limit_to_one' ); ?> />
+										<?php esc_html_e( 'Limit to one email - Send only one password reset email per user when their password expires, regardless of how many times they attempt to log in.', 'melapress-login-security' ); ?>
+									</label>
+									<br>
+									<label for="password_expiry_email_limit_multiple">
+										<input type="radio" name="mls_options[password_expiry_email_limit]" id="password_expiry_email_limit_multiple" value="send_multiple" <?php checked( self::$options->mls_setting->password_expiry_email_limit, 'send_multiple' ); ?> />
+										<?php esc_html_e( 'Send multiple emails - send up to', 'melapress-login-security' ); ?>
+									</label>
+									<input type="number" id="password_expiry_email_limit_count" name="mls_options[password_expiry_email_limit_count]" value="<?php echo esc_attr( self::$options->mls_setting->password_expiry_email_limit_count ); ?>" min="2" max="20" style="width: 60px; margin-left: 5px; <?php echo ( self::$options->mls_setting->password_expiry_email_limit !== 'send_multiple' ) ? 'display: none;' : ''; ?>" />
+									<span id="password_expiry_email_limit_count_text" style="<?php echo ( self::$options->mls_setting->password_expiry_email_limit !== 'send_multiple' ) ? 'display: none;' : ''; ?>"><?php esc_html_e( 'emails', 'melapress-login-security' ); ?></span>
+								</fieldset>
+							</td>
+						</tr>
+
+						<tr valign="top">
+							<th scope="row">
 								<?php esc_html_e( 'From email address', 'melapress-login-security' ); ?>
 							</th>
 							<td>
@@ -394,9 +418,9 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 	</form>
 
 	<?php
-	/* @free:start */
+	// @free:start
 	require_once MLS_PATH . 'admin/templates/views/upgrade-sidebar.php';
-	/* @free:end */
+	// @free:end
 
 	?>
 </div> 
@@ -444,6 +468,17 @@ if ( $scripts_required ) {
 			$( 'body' ).find( '.nav-tab-active' ).removeClass( 'nav-tab-active' );
 			$(this).addClass( 'nav-tab-active' );
 			showTab();
+		});
+
+		// Toggle password expiry email limit input field
+		$( 'input[name="mls_options[password_expiry_email_limit]"]' ).on( 'change', function() {
+			if ( $(this).val() === 'send_multiple' ) {
+				$( '#password_expiry_email_limit_count' ).show();
+				$( '#password_expiry_email_limit_count_text' ).show();
+			} else {
+				$( '#password_expiry_email_limit_count' ).hide();
+				$( '#password_expiry_email_limit_count_text' ).hide();
+			}
 		});
 	} );
 

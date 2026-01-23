@@ -2,12 +2,12 @@
 /**
  * Melapress Login Security
  *
- * @copyright Copyright (C) 2013-2025, Melapress - support@melapress.com
+ * @copyright Copyright (C) 2013-2026, Melapress - support@melapress.com
  * @license   http://www.gnu.org/licenses/gpl-3.0.html GNU General Public License, version 3 or higher
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     2.2.1
+ * Version:     2.3.0
  * Plugin URI:  https://melapress.com/wordpress-login-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      Melapress
@@ -37,18 +37,23 @@
  * @package MelapressLoginSecurity
  */
 
+use MLS\Licensing\Licensing_Factory;
+
 // Setup function name based on build.
-$melapress_login_security = 'melapress_login_security_freemius';
-/* @free:start */
-$melapress_login_security = 'melapress_login_security';
-/* @free:end */
+// $melapress_login_security = 'melapress_login_security_freemius';
+// @free:start
+// $melapress_login_security = 'melapress_login_security';
+// @free:end
 
-require_once plugin_dir_path( __FILE__ ) . '/includes/check-versions.php';
-require_once plugin_dir_path( __FILE__ ) . '/includes/user-functions.php';
+require_once \plugin_dir_path( __FILE__ ) . '/includes/check-versions.php';
+require_once \plugin_dir_path( __FILE__ ) . '/includes/user-functions.php';
+require_once \plugin_dir_path( __FILE__ ) . 'class-plugin-deactivation.php';
 
-/* @free:start */
-register_activation_hook( __FILE__, 'mls_free_on_plugin_activation' );
-/* @free:end */
+new \Deactivation_Feedback_Server\Plugin_Deactivation();
+
+// @free:start
+\register_activation_hook( __FILE__, 'mls_free_on_plugin_activation' );
+// @free:end
 
 /**
  * Define Constants
@@ -69,7 +74,7 @@ if ( ! defined( 'MLS_PATH' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_PATH', plugin_dir_path( MLS_FILE ) );
+	define( 'MLS_PATH', \plugin_dir_path( MLS_FILE ) );
 }
 
 if ( ! defined( 'MLS_PLUGIN_URL' ) ) {
@@ -78,7 +83,7 @@ if ( ! defined( 'MLS_PLUGIN_URL' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_PLUGIN_URL', plugin_dir_url( MLS_FILE ) );
+	define( 'MLS_PLUGIN_URL', \plugin_dir_url( MLS_FILE ) );
 }
 
 if ( ! defined( 'MLS_BASENAME' ) ) {
@@ -87,7 +92,7 @@ if ( ! defined( 'MLS_BASENAME' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_BASENAME', plugin_basename( MLS_FILE ) );
+	define( 'MLS_BASENAME', \plugin_basename( MLS_FILE ) );
 }
 
 if ( ! defined( 'MLS_PREFIX' ) ) {
@@ -96,7 +101,7 @@ if ( ! defined( 'MLS_PREFIX' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	if ( ! empty( get_site_option( 'ppmwp_options', false ) ) ) {
+	if ( ! empty( \get_site_option( 'ppmwp_options', false ) ) ) {
 		define( 'MLS_PREFIX', 'ppmwp' );
 	} else {
 		define( 'MLS_PREFIX', 'mls' );
@@ -188,7 +193,7 @@ if ( ! defined( 'MLS_VERSION' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_VERSION', '2.2.1' );
+	define( 'MLS_VERSION', '2.3.0' );
 }
 
 if ( ! defined( 'MLS_MENU_SLUG' ) ) {
@@ -201,16 +206,16 @@ if ( ! defined( 'MLS_MENU_SLUG' ) ) {
 }
 
 
-if ( ! function_exists( $melapress_login_security ) ) {
+// if ( ! function_exists( $melapress_login_security ) ) {
 
 
 	/*
 	 * Include classes that define and provide policies
 	 */
 	$autoloader_file_path = MLS_PATH . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-	if ( file_exists( $autoloader_file_path ) ) {
-		require_once $autoloader_file_path;
-	}
+if ( file_exists( $autoloader_file_path ) ) {
+	require_once $autoloader_file_path;
+}
 
 	/**
 	 * Get an instance of the main class
@@ -219,35 +224,35 @@ if ( ! function_exists( $melapress_login_security ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	if ( ! function_exists( 'melapress_login_security' ) ) {
+if ( ! function_exists( 'melapress_login_security' ) ) {
+	/**
+	 * Get an instance of the main class
+	 *
+	 * @return object
+	 *
+	 * @since 2.0.0
+	 */
+	function melapress_login_security() {
+
 		/**
-		 * Get an instance of the main class
-		 *
-		 * @return object
+		 * Instantiate & start the plugin
 		 *
 		 * @since 2.0.0
 		 */
-		function melapress_login_security() {
-
-			/**
-			 * Instantiate & start the plugin
-			 *
-			 * @since 2.0.0
-			 */
-			$mls = MLS_Core::get_instance();
-			return $mls;
-		}
+		$mls = MLS_Core::get_instance();
+		return $mls;
 	}
+}
 
-	add_action( 'plugins_loaded', 'melapress_login_security' );
-	register_activation_hook( __FILE__, array( 'MLS_Core', 'activation_timestamp' ) );
-	register_deactivation_hook( __FILE__, array( 'MLS_Core', 'ppm_deactivation' ) );
+	\add_action( 'plugins_loaded', 'melapress_login_security' );
+	\register_activation_hook( __FILE__, array( 'MLS_Core', 'activation_timestamp' ) );
+	\register_deactivation_hook( __FILE__, array( 'MLS_Core', 'ppm_deactivation' ) );
 
 
-	/* @free:start */
+	// @free:start
 
 	// Redirect to settings on activate.
-	add_action( 'admin_init', 'mls_plugin_activate_redirect' );
+	\add_action( 'admin_init', 'mls_plugin_activate_redirect' );
 
 	/**
 	 * Redirect to settings on plugin activation.
@@ -256,16 +261,24 @@ if ( ! function_exists( $melapress_login_security ) ) {
 	 *
 	 * @since 2.0.0
 	 */
+if ( ! function_exists( 'mls_plugin_activate_redirect' ) ) {
 	function mls_plugin_activate_redirect() {
-		if ( get_site_option( MLS_PREFIX . '_redirect_to_settings', false ) ) {
-			delete_site_option( MLS_PREFIX . '_redirect_to_settings' );
-			$url = add_query_arg( 'page', 'mls-policies', network_admin_url( 'admin.php' ) );
-			wp_safe_redirect( $url );
+		if ( \get_site_option( MLS_PREFIX . '_redirect_to_settings', false ) ) {
+			// Check user has permission to access settings.
+			if ( ! \current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			\delete_site_option( MLS_PREFIX . '_redirect_to_settings' );
+			$url = \add_query_arg( 'page', 'mls-policies', \network_admin_url( 'admin.php' ) );
+			\wp_safe_redirect( $url );
+			exit;
 		}
 	}
-	/* @free:end */
+}
+	// @free:end
 
-	add_action( 'admin_init', 'mls_on_plugin_update', 10 );
+	\add_action( 'admin_init', 'mls_on_plugin_update', 10 );
 
 	/**
 	 * Redirect to settings on plugin update.
@@ -274,60 +287,59 @@ if ( ! function_exists( $melapress_login_security ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	if ( ! function_exists( 'mls_on_plugin_update' ) ) {
-		/**
-		 * Show notice to user on plugin version update.
-		 *
-		 * @return void
-		 *
-		 * @since 2.0.0
-		 */
-		function mls_on_plugin_update() {
+if ( ! function_exists( 'mls_on_plugin_update' ) ) {
+	/**
+	 * Show notice to user on plugin version update.
+	 *
+	 * @return void
+	 *
+	 * @since 2.0.0
+	 */
+	function mls_on_plugin_update() {
 
-			$stored_version    = get_site_option( MLS_PREFIX . '_active_version', false );
-			$existing_settings = get_site_option( MLS_PREFIX . '_options', false );
+		$stored_version    = \get_site_option( MLS_PREFIX . '_active_version', false );
+		$existing_settings = \get_site_option( MLS_PREFIX . '_options', false );
 
-			if ( $existing_settings && ! empty( $existing_settings ) ) {
-				if ( ! empty( $stored_version ) && version_compare( $stored_version, MLS_VERSION, '<' ) ) {
-					update_site_option( MLS_PREFIX . '_active_version', MLS_VERSION );
-					update_site_option( MLS_PREFIX . '_show_update_notice', true );
+		if ( $existing_settings && ! empty( $existing_settings ) ) {
+			if ( ! empty( $stored_version ) && version_compare( $stored_version, MLS_VERSION, '<' ) ) {
+				\update_site_option( MLS_PREFIX . '_active_version', MLS_VERSION );
+				\update_site_option( MLS_PREFIX . '_show_update_notice', true );
 
-					\MLS\UpdateRoutines::plugin_upgraded( $stored_version, MLS_VERSION );
-				} elseif ( empty( $stored_version ) ) {
-					update_site_option( MLS_PREFIX . '_active_version', MLS_VERSION );
-					update_site_option( MLS_PREFIX . '_show_update_notice', true );
-				}
-
-				if ( get_site_option( MLS_PREFIX . '_show_update_notice', false ) ) {
-					delete_site_option( MLS_PREFIX . '_show_update_notice' );
-					update_site_option( MLS_PREFIX . '_update_notice_needed', true );
-					$args = array(
-						'page' => 'mls-policies',
-					);
-					$url  = add_query_arg( $args, network_admin_url( 'admin.php' ) );
-					wp_safe_redirect( $url );
-					exit;
-				}
+				\MLS\UpdateRoutines::plugin_upgraded( $stored_version, MLS_VERSION );
+			} elseif ( empty( $stored_version ) ) {
+				\update_site_option( MLS_PREFIX . '_active_version', MLS_VERSION );
+				\update_site_option( MLS_PREFIX . '_show_update_notice', true );
 			}
 
-			if ( ! $stored_version ) {
-				update_site_option( MLS_PREFIX . '_active_version', MLS_VERSION );
-			}
-
-			if ( get_site_option( MLS_PREFIX . '_show_update_notice', false ) ) {
-				delete_site_option( MLS_PREFIX . '_show_update_notice' );
-				update_site_option( MLS_PREFIX . '_update_notice_needed', true );
+			if ( \get_site_option( MLS_PREFIX . '_show_update_notice', false ) ) {
+				\delete_site_option( MLS_PREFIX . '_show_update_notice' );
+				\update_site_option( MLS_PREFIX . '_update_notice_needed', true );
 				$args = array(
 					'page' => 'mls-policies',
 				);
-				$url  = add_query_arg( $args, network_admin_url( 'admin.php' ) );
-				wp_safe_redirect( $url );
+				$url  = \add_query_arg( $args, \network_admin_url( 'admin.php' ) );
+				\wp_safe_redirect( $url );
 				exit;
 			}
 		}
+
+		if ( ! $stored_version ) {
+			\update_site_option( MLS_PREFIX . '_active_version', MLS_VERSION );
+		}
+
+		if ( \get_site_option( MLS_PREFIX . '_show_update_notice', false ) ) {
+			\delete_site_option( MLS_PREFIX . '_show_update_notice' );
+			\update_site_option( MLS_PREFIX . '_update_notice_needed', true );
+			$args = array(
+				'page' => 'mls-policies',
+			);
+			$url  = \add_query_arg( $args, \network_admin_url( 'admin.php' ) );
+			\wp_safe_redirect( $url );
+			exit;
+		}
 	}
 }
-
+// }
 
 /**
  * Declare compatibility with WC HPOS.
