@@ -1,15 +1,15 @@
-# Copyright (C) 2025 Melapress
+# Copyright (C) 2026 Melapress
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security 2.2.1\n"
+"Project-Id-Version: Melapress Login Security 2.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
 "Last-Translator: Melapress <info@melapress.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-11-20T14:18:00+00:00\n"
+"POT-Creation-Date: 2026-01-23T13:56:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: melapress-login-security\n"
@@ -39,29 +39,29 @@ msgstr ""
 msgid "https://melapress.com/"
 msgstr ""
 
-#: admin/class-mls-admin.php:185
+#: admin/class-mls-admin.php:186
 #: admin/templates/help/upgrade.php:277
 #: admin/templates/views/upgrade-sidebar.php:53
 msgid "Upgrade to Premium"
 msgstr ""
 
-#: admin/class-mls-admin.php:186
+#: admin/class-mls-admin.php:187
 msgid "Black Friday"
 msgstr ""
 
-#: admin/class-mls-admin.php:186
+#: admin/class-mls-admin.php:187
 msgid " Sale Now Live!"
 msgstr ""
 
-#: admin/class-mls-admin.php:188
+#: admin/class-mls-admin.php:189
 msgid "Get Offer Now"
 msgstr ""
 
-#: admin/class-mls-admin.php:393
-#: admin/class-mls-admin.php:709
-#: admin/class-mls-admin.php:726
-#: admin/class-mls-admin.php:749
-#: app/enforcers/class-check-user-expiry.php:449
+#: admin/class-mls-admin.php:394
+#: admin/class-mls-admin.php:710
+#: admin/class-mls-admin.php:727
+#: admin/class-mls-admin.php:750
+#: app/enforcers/class-check-user-expiry.php:451
 #: app/enforcers/class-reset-passwords.php:117
 #: app/helpers/class-settings-importer.php:338
 #: app/helpers/class-settings-importer.php:390
@@ -70,328 +70,324 @@ msgstr ""
 msgid "Nonce Verification Failed."
 msgstr ""
 
-#: admin/class-mls-admin.php:406
-#: admin/class-mls-admin.php:754
+#: admin/class-mls-admin.php:407
+#: admin/class-mls-admin.php:755
 msgid "Complete."
 msgstr ""
 
-#: admin/class-mls-admin.php:427
+#: admin/class-mls-admin.php:428
 msgid "Melapress Login Security has been updated to version"
 msgstr ""
 
-#: admin/class-mls-admin.php:429
+#: admin/class-mls-admin.php:430
 msgid "You are now running the latest version of Melapress Login Security. To see what's been included in this update, refer to the plugin's release notes and change log where we list all new features, updates, and bug fixes."
 msgstr ""
 
-#: admin/class-mls-admin.php:431
+#: admin/class-mls-admin.php:432
 msgid "Read the release notes"
 msgstr ""
 
-#: admin/class-mls-admin.php:466
+#: admin/class-mls-admin.php:467
 msgid "Important data migration required"
 msgstr ""
 
-#: admin/class-mls-admin.php:468
+#: admin/class-mls-admin.php:469
 msgid "This update made some required changes to where our plugin data is stored and requires updating to avoid issues in future. Click below to begin the process, which will happen automatically."
 msgstr ""
 
-#: admin/class-mls-admin.php:470
+#: admin/class-mls-admin.php:471
 msgid "Begin migration process"
 msgstr ""
 
-#: admin/class-mls-admin.php:714
+#: admin/class-mls-admin.php:715
 msgid "Started"
 msgstr ""
 
-#: admin/class-mls-admin.php:733
+#: admin/class-mls-admin.php:734
 msgid "Process starting"
 msgstr ""
 
-#: admin/class-mls-admin.php:819
+#: admin/class-mls-admin.php:820
 msgid "To ensure you dont lock yourself out of your own dashboard, be sure to exclude your own admin account from password policies when enabling this feature."
 msgstr ""
 
-#: admin/class-mls-admin.php:821
+#: admin/class-mls-admin.php:822
 msgid "Acknowledge"
 msgstr ""
 
 #: admin/class-mls-admin.php:845
-#: admin/class-mls-admin.php:849
+#: admin/class-mls-admin.php:848
 msgid "Get the Premium!"
 msgstr ""
 
-#: admin/class-mls-admin.php:853
+#: admin/class-mls-admin.php:852
 msgid "Configure policies"
 msgstr ""
 
-#: admin/class-mls-admin.php:863
+#: admin/class-mls-admin.php:862
 msgid "Docs"
 msgstr ""
 
-#: admin/class-mls-admin.php:881
-#: admin/class-mls-admin.php:955
-#: admin/class-mls-multisite-admin.php:106
-#: admin/class-mls-multisite-admin.php:121
+#: admin/class-mls-admin.php:880
+#: admin/class-mls-admin.php:957
+#: admin/class-mls-multisite-admin.php:107
+#: admin/class-mls-multisite-admin.php:122
 #: admin/templates/admin-default.php:13
 #: admin/templates/admin-form.php:38
 msgid "Login Security Policies"
 msgstr ""
 
-#: admin/class-mls-admin.php:882
-#: admin/class-mls-multisite-admin.php:110
+#: admin/class-mls-admin.php:881
+#: admin/class-mls-multisite-admin.php:111
 msgid "Login Security"
 msgstr ""
 
-#: admin/class-mls-admin.php:960
-#: admin/class-mls-admin.php:961
-#: admin/class-mls-multisite-admin.php:126
+#: admin/class-mls-admin.php:962
+#: admin/class-mls-admin.php:963
 #: admin/class-mls-multisite-admin.php:127
+#: admin/class-mls-multisite-admin.php:128
 msgid "Help & Contact Us"
 msgstr ""
 
-#: admin/class-mls-admin.php:975
-#: admin/class-mls-admin.php:976
-#: admin/class-mls-multisite-admin.php:140
+#: admin/class-mls-admin.php:977
+#: admin/class-mls-admin.php:978
 #: admin/class-mls-multisite-admin.php:141
+#: admin/class-mls-multisite-admin.php:142
 msgid "Settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:991
-#: admin/class-mls-admin.php:992
-#: admin/class-mls-multisite-admin.php:156
+#: admin/class-mls-admin.php:993
+#: admin/class-mls-admin.php:994
 #: admin/class-mls-multisite-admin.php:157
+#: admin/class-mls-multisite-admin.php:158
 #: admin/templates/views/settings-forms.php:34
 msgid "Forms & Placement"
 msgstr ""
 
-#: admin/class-mls-admin.php:1008
-#: admin/class-mls-admin.php:1009
-#: admin/class-mls-multisite-admin.php:173
+#: admin/class-mls-admin.php:1010
+#: admin/class-mls-admin.php:1011
 #: admin/class-mls-multisite-admin.php:174
+#: admin/class-mls-multisite-admin.php:175
 msgid "Login page hardening"
 msgstr ""
 
-#: admin/class-mls-admin.php:1024
-#: admin/class-mls-multisite-admin.php:189
+#: admin/class-mls-admin.php:1026
+#: admin/class-mls-multisite-admin.php:190
 msgid "Premium Features ➤"
 msgstr ""
 
-#: admin/class-mls-admin.php:1032
-#: admin/class-mls-admin.php:1033
-#: app/modules/temporary-logins/class-temporary-logins.php:189
-#: app/modules/temporary-logins/class-temporary-logins.php:190
+#: admin/class-mls-admin.php:1034
+#: admin/class-mls-admin.php:1035
+#: app/modules/temporary-logins/class-temporary-logins.php:249
+#: app/modules/temporary-logins/class-temporary-logins.php:250
 msgid "Temporary Logins"
 msgstr ""
 
-#: admin/class-mls-admin.php:1295
-#: admin/class-mls-admin.php:1299
-#: admin/class-mls-admin.php:1303
+#: admin/class-mls-admin.php:1297
+#: admin/class-mls-admin.php:1301
+#: admin/class-mls-admin.php:1305
 msgid "You are not allowed to reset your password. Please contact the website administrator."
 msgstr ""
 
-#: admin/class-mls-admin.php:1320
-#: admin/class-mls-admin.php:1463
+#: admin/class-mls-admin.php:1322
+#: admin/class-mls-admin.php:1465
 msgid "User Added to Exempt List"
 msgstr ""
 
-#: admin/class-mls-admin.php:1321
-#: admin/class-mls-admin.php:1464
+#: admin/class-mls-admin.php:1323
+#: admin/class-mls-admin.php:1466
 msgid "Your user has been exempted from the all policies since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
 msgstr ""
 
-#: admin/class-mls-admin.php:1331
-#: admin/class-mls-admin.php:1474
+#: admin/class-mls-admin.php:1333
+#: admin/class-mls-admin.php:1476
 msgid "View settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:1575
+#: admin/class-mls-admin.php:1577
 msgid "Reset process complete"
 msgstr ""
 
-#: admin/class-mls-admin.php:1576
+#: admin/class-mls-admin.php:1578
 msgid "CSV contains invalid data, provide user IDs only."
 msgstr ""
 
-#: admin/class-mls-admin.php:1577
+#: admin/class-mls-admin.php:1579
 msgid "Please provide the correct file type only."
 msgstr ""
 
-#: admin/class-mls-admin.php:1578
+#: admin/class-mls-admin.php:1580
 msgid "Please ensure more than 1 ID is provided."
 msgstr ""
 
-#: admin/class-mls-admin.php:1579
+#: admin/class-mls-admin.php:1581
 msgid "You may now close this window."
 msgstr ""
 
-#: admin/class-mls-admin.php:1587
+#: admin/class-mls-admin.php:1589
 msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1588
+#: admin/class-mls-admin.php:1590
 msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1589
+#: admin/class-mls-admin.php:1591
 msgid "Should the plugin reset your password as well?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1618
+#: admin/class-mls-admin.php:1620
 msgid "Please check your email for instructions on how to reset your password."
 msgstr ""
 
-#: admin/class-mls-admin.php:1619
+#: admin/class-mls-admin.php:1621
 msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
 msgstr ""
 
-#: admin/class-mls-admin.php:1620
+#: admin/class-mls-admin.php:1622
 #: app/helpers/class-settings-importer.php:79
 #: app/helpers/class-user-importer.php:78
 msgid "OK"
 msgstr ""
 
-#: admin/class-mls-admin.php:1621
+#: admin/class-mls-admin.php:1623
 msgid "No"
 msgstr ""
 
-#: admin/class-mls-admin.php:1664
+#: admin/class-mls-admin.php:1666
 msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
 msgstr ""
 
-#: admin/class-mls-admin.php:1665
+#: admin/class-mls-admin.php:1667
 msgid "For more information please contact the WordPress admin on "
 msgstr ""
 
-#: admin/class-mls-admin.php:1666
+#: admin/class-mls-admin.php:1668
 #: app/enforcers/class-reset-passwords.php:61
 msgid "Reset password"
 msgstr ""
 
-#: admin/class-mls-admin.php:1827
+#: admin/class-mls-admin.php:1829
 msgid "Policies updated successfully."
 msgstr ""
 
-#: admin/class-mls-admin.php:1844
+#: admin/class-mls-admin.php:1846
 msgid "Policies update failed. Please try again."
 msgstr ""
 
-#: admin/class-mls-admin.php:1863
+#: admin/class-mls-admin.php:1865
 msgid "This setting is mandatory. Please specify a value."
 msgstr ""
 
-#: admin/class-mls-admin.php:1880
+#: admin/class-mls-admin.php:1882
 msgid "Please ensure you have the minimum number of questions configured."
 msgstr ""
 
-#: admin/class-mls-admin.php:1902
+#: admin/class-mls-admin.php:1904
 msgid "No user logged in."
 msgstr ""
 
-#: admin/class-mls-admin.php:1905
+#: admin/class-mls-admin.php:1907
 msgid "Current user has no email address defined"
 msgstr ""
 
-#: admin/class-mls-admin.php:1910
+#: admin/class-mls-admin.php:1912
 msgid "{site_name} - Melapress Login Security plugin test email"
 msgstr ""
 
-#: admin/class-mls-admin.php:1914
+#: admin/class-mls-admin.php:1916
 msgid ""
 "<p>Hooray!</p>\n"
-"\n"
-"<p>If you are reading this email it means that your website’s email setup is working. You can now enable the password and other login security policies on {site_name} using Melapress Login Security.</p>\n"
-"<p>If you need help getting started, refer to our <a href=\"https://melapress.com/support/kb/melapress-login-security-getting-started/?utm_source=plugins&utm_medium=link&utm_campaign=mls\">getting started guide</a>.</p>\n"
-"<p>Stay secure!</p>"
+"\t\t\t\t\t\t<p>If you are reading this email it means that your website’s email setup is working. You can now enable the password and other login security policies on {site_name} using Melapress Login Security.</p>\n"
+"\t\t\t\t\t\t<p>If you need help getting started, refer to our <a href=\"https://melapress.com/support/kb/melapress-login-security-getting-started/?utm_source=plugins&utm_medium=link&utm_campaign=mls\">getting started guide</a>.</p>\n"
+"\t\t\t\t\t\t<p>Stay secure!</p>"
 msgstr ""
 
 #. translators: %s: Users email address.
-#: admin/class-mls-admin.php:1939
+#: admin/class-mls-admin.php:1940
 #, php-format
 msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
 msgstr ""
 
-#: admin/class-mls-admin.php:1941
+#: admin/class-mls-admin.php:1942
 msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:1960
+#: admin/class-mls-admin.php:1961
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
-#: admin/class-mls-admin.php:1987
-msgid "User notification templates"
-msgstr ""
-
-#: admin/class-mls-admin.php:2025
-msgid "The following tags are available for use in all email template fields."
+#: admin/class-mls-admin.php:1988
+#: admin/class-mls-admin.php:2041
+msgid "User notices templates"
 msgstr ""
 
 #: admin/class-mls-admin.php:2026
-msgid "Available tags:"
+msgid "The following tags are available for use in all email template fields."
 msgstr ""
 
 #: admin/class-mls-admin.php:2027
-msgid "- Site URL"
+msgid "Available tags:"
 msgstr ""
 
 #: admin/class-mls-admin.php:2028
-msgid "- Site Name"
+msgid "- Site URL"
 msgstr ""
 
 #: admin/class-mls-admin.php:2029
-msgid "- User Login Name"
+msgid "- Site Name"
 msgstr ""
 
 #: admin/class-mls-admin.php:2030
-msgid "- User First Name"
+msgid "- User Login Name"
 msgstr ""
 
 #: admin/class-mls-admin.php:2031
-msgid "- User Last Name"
+msgid "- User First Name"
 msgstr ""
 
 #: admin/class-mls-admin.php:2032
-msgid "- User Display Name"
+msgid "- User Last Name"
 msgstr ""
 
 #: admin/class-mls-admin.php:2033
-msgid "- From email address / site admin email"
+msgid "- User Display Name"
 msgstr ""
 
 #: admin/class-mls-admin.php:2034
+msgid "- From email address / site admin email"
+msgstr ""
+
+#: admin/class-mls-admin.php:2035
 msgid "- Time until next login is allowed."
 msgstr ""
 
-#: admin/class-mls-admin.php:2040
-msgid "User messages template"
-msgstr ""
-
-#: admin/class-mls-admin.php:2041
-msgid "On this page you can edit all of the user messages and prompts used by the plugin"
-msgstr ""
-
-#: admin/class-mls-admin.php:2052
-msgid "User requests password reset when the feature is disabled"
+#: admin/class-mls-admin.php:2042
+msgid "Customise the security-related notices and prompts shown to users during login and account actions."
 msgstr ""
 
 #: admin/class-mls-admin.php:2053
-msgid "This warning is shown when a user requests a password reset but an active Login Security Policy prohibits it."
+msgid "Expired password"
 msgstr ""
 
-#: admin/class-mls-admin.php:2058
-#: admin/class-mls-admin.php:2089
+#: admin/class-mls-admin.php:2054
+msgid "Shown when a user attempts to log in using a password that has expired."
+msgstr ""
+
+#: admin/class-mls-admin.php:2059
+#: admin/class-mls-admin.php:2090
 #: app/enforcers/class-restrict-login-credentials.php:61
 #: app/modules/class-security-prompt.php:108
 #: app/modules/restrict-logins/class-restrict-logins.php:114
 msgid "Message"
 msgstr ""
 
-#: admin/class-mls-admin.php:2083
-msgid "User exceeds maximum number of failed logins."
+#: admin/class-mls-admin.php:2084
+msgid "Password reset disabled"
 msgstr ""
 
-#: admin/class-mls-admin.php:2084
-msgid "This warning is shown when a user exceed the max allowed number of failed login attempts."
+#: admin/class-mls-admin.php:2085
+msgid "Shown when a user requests a password reset but password resets are disabled by an active Login Security Policy."
 msgstr ""
 
 #: admin/classes/class-last-login-time.php:59
@@ -409,6 +405,63 @@ msgstr ""
 #: admin/classes/class-last-login-time.php:168
 msgid "No data to display"
 msgstr ""
+
+#: admin/classes/class-user-helper.php:128
+#: app/modules/failed-logins/InactiveUsersTable.php:100
+#: app/modules/failed-logins/InactiveUsersTable.php:402
+msgid "Unlock"
+msgstr ""
+
+#: admin/classes/class-user-helper.php:128
+msgid "Lock"
+msgstr ""
+
+#: admin/classes/class-user-helper.php:156
+msgid "Lock Users"
+msgstr ""
+
+#: admin/classes/class-user-helper.php:157
+msgid "Unlock Users"
+msgstr ""
+
+#: admin/classes/class-user-helper.php:304
+msgid "locked"
+msgstr ""
+
+#: admin/classes/class-user-helper.php:325
+#: admin/classes/class-user-helper.php:345
+msgid "inactivity"
+msgstr ""
+
+#. translators: 1: Reason, 2: User who locked
+#: admin/classes/class-user-helper.php:335
+#, php-format
+msgid "%1$s (by %2$s)"
+msgstr ""
+
+#: admin/classes/class-user-helper.php:427
+msgid "User has been locked."
+msgstr ""
+
+#: admin/classes/class-user-helper.php:446
+msgid "User has been unlocked."
+msgstr ""
+
+#. translators: %d: Number of users locked
+#: admin/classes/class-user-helper.php:457
+#, php-format
+msgid "%d user has been locked."
+msgid_plural "%d users have been locked."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: Number of users unlocked
+#: admin/classes/class-user-helper.php:465
+#, php-format
+msgid "%d user has been unlocked."
+msgid_plural "%d users have been unlocked."
+msgstr[0] ""
+msgstr[1] ""
 
 #: admin/templates/admin-form.php:24
 msgid "Inherit login security policies"
@@ -454,7 +507,7 @@ msgstr ""
 #: admin/templates/admin-form.php:174
 #: admin/templates/views/settings-forms.php:85
 #: admin/templates/views/settings-hide-login.php:71
-#: admin/templates/views/settings.php:392
+#: admin/templates/views/settings.php:416
 msgid "Save Changes"
 msgstr ""
 
@@ -538,7 +591,7 @@ msgstr ""
 #: app/helpers/class-settings-importer.php:75
 #: app/helpers/class-user-importer.php:74
 #: app/modules/class-security-prompt.php:313
-#: app/modules/temporary-logins/class-temporary-logins.php:470
+#: app/modules/temporary-logins/class-temporary-logins.php:551
 msgid "Cancel"
 msgstr ""
 
@@ -681,9 +734,9 @@ msgid "Reset password on first login"
 msgstr ""
 
 #: admin/templates/form-table.php:256
-#: admin/templates/views/settings.php:352
-#: admin/templates/views/settings.php:358
-#: admin/templates/views/settings.php:364
+#: admin/templates/views/settings.php:376
+#: admin/templates/views/settings.php:382
+#: admin/templates/views/settings.php:388
 msgid "Delete database data upon uninstall"
 msgstr ""
 
@@ -710,7 +763,7 @@ msgstr ""
 msgid "To customize the notification displayed to users, please visit the %s plugin settings."
 msgstr ""
 
-#: admin/templates/help/contact-us.php:22
+#: admin/templates/help/contact-us.php:23
 #: admin/templates/help/help.php:69
 #: app/helpers/class-settings-importer.php:81
 #: app/helpers/class-user-importer.php:80
@@ -1111,44 +1164,64 @@ msgid "Higher roles will superceed lower roles, meaning if a user has the role \
 msgstr ""
 
 #: admin/templates/views/settings.php:295
-msgid "From email address"
+msgid "Password Expiry Email Limit"
 msgstr ""
 
 #: admin/templates/views/settings.php:298
-msgid "By default the plugin sends email notifications from \"mls@yourdomain.com\" where \"yourdomain.com\" is the domain name of the WordPress website. This is done to ensure optimal email deliverability. However, you can change the email address notifications are sent from using the settings below."
+msgid "Configure how many password reset emails users receive when their password expires. Limiting emails helps prevent potential abuse while ensuring users can reset their passwords. If a user attempts to log in multiple times with an expired password, the plugin will only send reset emails up to the configured limit."
 msgstr ""
 
-#: admin/templates/views/settings.php:310
-msgid "Use the default email address"
+#: admin/templates/views/settings.php:304
+msgid "Limit to one email - Send only one password reset email per user when their password expires, regardless of how many times they attempt to log in."
 msgstr ""
 
-#: admin/templates/views/settings.php:315
-msgid "Use another email address"
+#: admin/templates/views/settings.php:309
+msgid "Send multiple emails - send up to"
+msgstr ""
+
+#: admin/templates/views/settings.php:312
+msgid "emails"
 msgstr ""
 
 #: admin/templates/views/settings.php:319
+msgid "From email address"
+msgstr ""
+
+#: admin/templates/views/settings.php:322
+msgid "By default the plugin sends email notifications from \"mls@yourdomain.com\" where \"yourdomain.com\" is the domain name of the WordPress website. This is done to ensure optimal email deliverability. However, you can change the email address notifications are sent from using the settings below."
+msgstr ""
+
+#: admin/templates/views/settings.php:334
+msgid "Use the default email address"
+msgstr ""
+
+#: admin/templates/views/settings.php:339
+msgid "Use another email address"
+msgstr ""
+
+#: admin/templates/views/settings.php:343
 msgid "Email Address"
 msgstr ""
 
-#: admin/templates/views/settings.php:324
+#: admin/templates/views/settings.php:348
 msgid "Display Name"
 msgstr ""
 
-#: admin/templates/views/settings.php:333
+#: admin/templates/views/settings.php:357
 msgid "Email Test"
 msgstr ""
 
-#: admin/templates/views/settings.php:336
+#: admin/templates/views/settings.php:360
 msgid "Send Test Email"
 msgstr ""
 
-#: admin/templates/views/settings.php:340
+#: admin/templates/views/settings.php:364
 msgid ""
 "The plugin uses emails to alert users that their password has expired.\n"
 "\t\t\t\t\t\t\t\t\tUse the test button below to send a test email to my email address and confirm email functionality."
 msgstr ""
 
-#: admin/templates/views/settings.php:366
+#: admin/templates/views/settings.php:390
 msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
 msgstr ""
 
@@ -1230,7 +1303,7 @@ msgstr ""
 #: app/crons/class-summaryemail.php:221
 #: app/crons/class-summaryemail.php:233
 #: app/modules/temporary-logins/class-temporary-logins-table.php:79
-#: app/modules/temporary-logins/class-temporary-logins.php:339
+#: app/modules/temporary-logins/class-temporary-logins.php:403
 msgid "Role"
 msgstr ""
 
@@ -1275,20 +1348,20 @@ msgid "Get a new password."
 msgstr ""
 
 #. translators: %1s: day %2s: time
-#: app/enforcers/class-check-user-expiry.php:396
+#: app/enforcers/class-check-user-expiry.php:397
 #, php-format
 msgid "Your password is going to expire on %1$s at %2$s."
 msgstr ""
 
-#: app/enforcers/class-check-user-expiry.php:400
+#: app/enforcers/class-check-user-expiry.php:401
 msgid "Reset password now"
 msgstr ""
 
-#: app/enforcers/class-check-user-expiry.php:400
+#: app/enforcers/class-check-user-expiry.php:401
 msgid "Dismiss notice"
 msgstr ""
 
-#: app/enforcers/class-check-user-expiry.php:454
+#: app/enforcers/class-check-user-expiry.php:456
 msgid "complete."
 msgstr ""
 
@@ -1324,34 +1397,34 @@ msgstr ""
 msgid "Reset complete."
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:432
-#: app/enforcers/class-reset-passwords.php:478
+#: app/enforcers/class-reset-passwords.php:441
+#: app/enforcers/class-reset-passwords.php:487
 #: app/enforcers/class-user-profile.php:264
 msgid "The email could not be sent."
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:432
-#: app/enforcers/class-reset-passwords.php:478
+#: app/enforcers/class-reset-passwords.php:441
+#: app/enforcers/class-reset-passwords.php:487
 #: app/enforcers/class-user-profile.php:264
 msgid "Possible reason: your host may have disabled the mail() function."
 msgstr ""
 
-#: app/enforcers/class-reset-passwords.php:456
+#: app/enforcers/class-reset-passwords.php:465
 msgid "All passwords have been reset for:"
 msgstr ""
 
 #. translators: Password reset email subject. 1: Site name
-#: app/enforcers/class-reset-passwords.php:469
+#: app/enforcers/class-reset-passwords.php:478
 #, php-format
 msgid "[%s] Global Password Reset Complete"
 msgstr ""
 
 #: app/enforcers/class-restrict-login-credentials.php:55
-msgid "User attempts to log in using restricted credentials"
+msgid "Restricted credentials used"
 msgstr ""
 
 #: app/enforcers/class-restrict-login-credentials.php:56
-msgid "This warning is shown when a user attempts to log in with credentials restricted by an active Login Security Policy."
+msgid "Shown when a user attempts to log in using credentials blocked by an active Login Security Policy."
 msgstr ""
 
 #: app/enforcers/class-restrict-login-credentials.php:172
@@ -1452,7 +1525,7 @@ msgstr ""
 #: app/helpers/class-emailstrings.php:130
 #: app/helpers/class-emailstrings.php:146
 #: app/helpers/class-emailstrings.php:151
-#: app/helpers/class-emailstrings.php:187
+#: app/helpers/class-emailstrings.php:189
 msgid "Hello,"
 msgstr ""
 
@@ -1588,48 +1661,52 @@ msgid "The password you entered for the username {user_login_name} has expired."
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:165
-msgid "You will recieve an email with next steps you can take to regain access."
+msgid "You will receive an email with next steps you can take to regain access."
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:167
-msgid "Please check the credentials and try again."
+msgid "Your account was locked by the site administration and you can no longer log in"
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:169
-msgid "Login is not allowed at this time."
+msgid "Please check the credentials and try again."
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:171
-msgid "Logins from this IP address are not allowed. Please contact the website administrator ( {admin_email} ) for further information."
+msgid "Login is not allowed at this time."
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:173
-msgid "Your user account has surpassed the maximum allowed number of failed login attempts and it has been locked."
+msgid "Logins from this IP address are not allowed. Please contact the website administrator ( {admin_email} ) for further information."
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:175
+msgid "Your user account has surpassed the maximum allowed number of failed login attempts and it has been locked."
+msgstr ""
+
 #: app/helpers/class-emailstrings.php:177
+#: app/helpers/class-emailstrings.php:179
 msgid "Incorrect answer provided"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:179
-#: app/modules/failed-logins/class-failed-logins.php:172
+#: app/helpers/class-emailstrings.php:181
+#: app/modules/failed-logins/class-failed-logins.php:177
 msgid "Your account has surpassed the allowed number of login attempts and can no longer log in."
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:181
-msgid "The account details provided were not recognised."
-msgstr ""
-
 #: app/helpers/class-emailstrings.php:183
-msgid "The username provided was not recognised"
+msgid "The account details provided were not recognized."
 msgstr ""
 
 #: app/helpers/class-emailstrings.php:185
-msgid "The password provided was not recognised"
+msgid "The username provided was not recognized"
 msgstr ""
 
-#: app/helpers/class-emailstrings.php:188
+#: app/helpers/class-emailstrings.php:187
+msgid "The password provided was not recognized"
+msgstr ""
+
+#: app/helpers/class-emailstrings.php:190
 msgid "A temporary login link has been created for you. You may login {temporary_login_link}."
 msgstr ""
 
@@ -1829,6 +1906,94 @@ msgstr ""
 
 #: app/helpers/class-user-importer.php:626
 msgid "User has been imported and must reset password"
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:274
+msgid "An error occurred, please try again."
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:283
+msgid "Invalid response from license server."
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:298
+msgid "License activation failed."
+msgstr ""
+
+#. translators: %s: account URL
+#: app/Licensing/class-edd-provider.php:545
+#, php-format
+msgid "Your Melapress Login Security license has expired. Please %s to renew your license and continue receiving updates and support."
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:546
+msgid "renew your license"
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:566
+#: app/Licensing/class-edd-provider.php:594
+msgid "Permission denied."
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:572
+msgid "License key is required."
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:578
+msgid "License activated successfully."
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:600
+msgid "License deactivated successfully."
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:602
+msgid "Failed to deactivate license."
+msgstr ""
+
+#. translators: User's first name
+#: app/Licensing/class-freemius-provider.php:606
+#: app/Licensing/class-freemius-provider.php:634
+#, php-format
+msgid "Hey %s"
+msgstr ""
+
+#: app/Licensing/class-freemius-provider.php:610
+msgid "Never miss an important update! Opt-in to our security and feature updates notifications, and non-sensitive diagnostic tracking with freemius.com."
+msgstr ""
+
+#: app/Licensing/class-freemius-provider.php:611
+#: app/Licensing/class-freemius-provider.php:646
+msgid "Note: "
+msgstr ""
+
+#: app/Licensing/class-freemius-provider.php:612
+#: app/Licensing/class-freemius-provider.php:647
+msgid "NO ACTIVITY LOG ACTIVITY & DATA IS SENT BACK TO OUR SERVERS."
+msgstr ""
+
+#. translators: 1: Plugin name. 2: Plugin name. 2: Freemius link. 4: Plugin name.
+#: app/Licensing/class-freemius-provider.php:640
+#, php-format
+msgid "Please help us improve %1$s! If you opt-in, some non-sensitive data about your usage of %2$s will be sent to %3$s, a diagnostic tracking service we use. If you skip this, that's okay! %2$s will still work just fine."
+msgstr ""
+
+#. Translators: Expired message and time
+#: app/Licensing/class-freemius-provider.php:716
+#, php-format
+msgid "%s You need to renew your license to continue using premium features."
+msgstr ""
+
+#. Translators: Number of sites
+#: app/Licensing/class-freemius-provider.php:719
+#, php-format
+msgid "The license is limited to %s sub-sites. You need to upgrade your license to cover all the sub-sites on this network."
+msgstr ""
+
+#. translators: %s: provider name
+#: app/Licensing/class-licensing-factory.php:217
+#, php-format
+msgid "Licensing provider switched to %s successfully."
 msgstr ""
 
 #: app/login-page-control/class-login-page-control.php:148
@@ -2061,7 +2226,7 @@ msgstr ""
 
 #. translators: %s: Link to settings.
 #: app/modules/class-security-prompt.php:235
-#: app/modules/failed-logins/class-failed-logins.php:594
+#: app/modules/failed-logins/class-failed-logins.php:601
 #, php-format
 msgid "To customize the notification displayed to users should they fail a prompt, please visit the %s plugin settings."
 msgstr ""
@@ -2142,88 +2307,88 @@ msgstr ""
 msgid "Account unlocked, you may now login normally."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:267
-#: app/modules/failed-logins/class-failed-logins.php:577
+#: app/modules/failed-logins/class-failed-logins.php:272
+#: app/modules/failed-logins/class-failed-logins.php:584
 msgid "minutes"
 msgstr ""
 
 #. translators: %d: Number of attempts remaining
-#: app/modules/failed-logins/class-failed-logins.php:301
+#: app/modules/failed-logins/class-failed-logins.php:306
 #, php-format
 msgid "You have %d attempt remaining."
 msgid_plural "You have %d attempts remaining."
 msgstr[0] ""
 msgstr[1] ""
 
-#: app/modules/failed-logins/class-failed-logins.php:538
+#: app/modules/failed-logins/class-failed-logins.php:545
 msgid "Failed login policies"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:543
+#: app/modules/failed-logins/class-failed-logins.php:550
 msgid "Activate failed login policies"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:546
+#: app/modules/failed-logins/class-failed-logins.php:553
 msgid "Use this setting to specify how long should the plugin keep a count of failed logins. Once this time passes, the failed login count is reset to 0."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:554
+#: app/modules/failed-logins/class-failed-logins.php:561
 msgid "Number of failed login attempts before the User account is locked"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:558
+#: app/modules/failed-logins/class-failed-logins.php:565
 msgid "Number of failed login attempts before the User account is locked:"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:564
+#: app/modules/failed-logins/class-failed-logins.php:571
 msgid "Time required to reset failed logins count to 0:"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:567
+#: app/modules/failed-logins/class-failed-logins.php:574
 msgid " minutes"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:572
+#: app/modules/failed-logins/class-failed-logins.php:579
 msgid "When a user is locked: "
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:575
+#: app/modules/failed-logins/class-failed-logins.php:582
 msgid "it can be only unlocked by the administrator"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:577
+#: app/modules/failed-logins/class-failed-logins.php:584
 msgid "unlock it after"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:584
+#: app/modules/failed-logins/class-failed-logins.php:591
 msgid "Require blocked users to reset password on unblock."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:587
+#: app/modules/failed-logins/class-failed-logins.php:594
 msgid "By ticking this checkbox, unblocked users will be required to configure a new password before logging in."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:624
-#: app/modules/failed-logins/class-failed-logins.php:625
-#: app/modules/failed-logins/class-failed-logins.php:649
+#: app/modules/failed-logins/class-failed-logins.php:631
+#: app/modules/failed-logins/class-failed-logins.php:632
+#: app/modules/failed-logins/class-failed-logins.php:656
 #: app/modules/failed-logins/locked-users-view.php:32
 msgid "Locked Users"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:690
+#: app/modules/failed-logins/class-failed-logins.php:697
 msgid "Resetting..."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:691
+#: app/modules/failed-logins/class-failed-logins.php:698
 msgid "User Reset"
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:692
-#: app/modules/failed-logins/InactiveUsersTable.php:65
+#: app/modules/failed-logins/class-failed-logins.php:699
+#: app/modules/failed-logins/InactiveUsersTable.php:66
 msgid "Currently there are no locked users."
 msgstr ""
 
-#: app/modules/failed-logins/class-failed-logins.php:693
+#: app/modules/failed-logins/class-failed-logins.php:700
 msgid "Reloading..."
 msgstr ""
 
@@ -2258,67 +2423,58 @@ msgstr ""
 msgid "block failed logins policy"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:48
+#: app/modules/failed-logins/InactiveUsersTable.php:49
 msgid "Inactive User"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:49
+#: app/modules/failed-logins/InactiveUsersTable.php:50
 msgid "Inactive Users"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:80
+#: app/modules/failed-logins/InactiveUsersTable.php:81
 msgid "User"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:81
+#: app/modules/failed-logins/InactiveUsersTable.php:82
 msgid "Roles"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:82
-msgid "Locked because of"
-msgstr ""
-
 #: app/modules/failed-logins/InactiveUsersTable.php:83
-msgid "Inactive Since"
+msgid "Lock reason"
 msgstr ""
 
 #: app/modules/failed-logins/InactiveUsersTable.php:84
+msgid "Inactive Since"
+msgstr ""
+
+#: app/modules/failed-logins/InactiveUsersTable.php:85
 #: app/modules/temporary-logins/class-temporary-logins-table.php:83
 msgid "Actions"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:99
-#: app/modules/failed-logins/InactiveUsersTable.php:401
-msgid "Unlock"
-msgstr ""
-
-#: app/modules/failed-logins/InactiveUsersTable.php:116
+#: app/modules/failed-logins/InactiveUsersTable.php:117
 msgid "Run Inactive Check Now"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:120
+#: app/modules/failed-logins/InactiveUsersTable.php:121
 msgid "Total blocked users:"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:125
+#: app/modules/failed-logins/InactiveUsersTable.php:126
 msgid "Page"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:125
+#: app/modules/failed-logins/InactiveUsersTable.php:126
 msgid "of"
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:310
-#: app/modules/failed-logins/InactiveUsersTable.php:376
+#: app/modules/failed-logins/InactiveUsersTable.php:311
+#: app/modules/failed-logins/InactiveUsersTable.php:377
 msgid "No data to display..."
 msgstr ""
 
-#: app/modules/failed-logins/InactiveUsersTable.php:362
+#: app/modules/failed-logins/InactiveUsersTable.php:363
 msgid "failed logins"
-msgstr ""
-
-#: app/modules/failed-logins/InactiveUsersTable.php:362
-msgid "inactivty"
 msgstr ""
 
 #: app/modules/failed-logins/locked-users-view.php:23
@@ -2351,15 +2507,15 @@ msgid "To customize the notification displayed to users when a login is blocked 
 msgstr ""
 
 #: app/modules/restrict-logins/class-restrict-logins.php:108
-msgid "User attempts login from a restricted location"
+msgid "Login from restricted location or IP"
 msgstr ""
 
 #: app/modules/restrict-logins/class-restrict-logins.php:109
-msgid "This warning is shown when user tries to log in using an IP originating from a location that is on the geo-blocked list."
+msgid "Shown when a user attempts to log in from a blocked country or IP address."
 msgstr ""
 
 #: app/modules/restrict-logins/class-restrict-logins.php:143
-#: app/policies/class-mls-options.php:761
+#: app/policies/class-mls-options.php:775
 msgid "website administrator"
 msgstr ""
 
@@ -2394,7 +2550,7 @@ msgid "Login count/max logins"
 msgstr ""
 
 #: app/modules/temporary-logins/class-temporary-logins-table.php:82
-#: app/modules/temporary-logins/class-temporary-logins.php:369
+#: app/modules/temporary-logins/class-temporary-logins.php:450
 msgid "Login expiry"
 msgstr ""
 
@@ -2454,183 +2610,207 @@ msgstr ""
 msgid "Temporary logins reactivated/deactivated."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:129
+#: app/modules/temporary-logins/class-temporary-logins.php:189
 msgid "Temporary login deleted"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:144
+#: app/modules/temporary-logins/class-temporary-logins.php:204
 msgid "Temporary logins deleted"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:159
+#: app/modules/temporary-logins/class-temporary-logins.php:219
 msgid "Temporary login disabled"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:174
+#: app/modules/temporary-logins/class-temporary-logins.php:234
 msgid "Temporary login re-enabled."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:212
+#: app/modules/temporary-logins/class-temporary-logins.php:272
 msgid "Create login link"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:273
+#: app/modules/temporary-logins/class-temporary-logins.php:335
 msgid "Update and reactivate link"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:277
+#: app/modules/temporary-logins/class-temporary-logins.php:339
 msgid "Edit login link"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:302
+#: app/modules/temporary-logins/class-temporary-logins.php:364
 msgid "Melapress Login Security - Temporary Login"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:303
+#: app/modules/temporary-logins/class-temporary-logins.php:365
 msgid "Create temporary login"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:312
-msgid "Email address"
+#: app/modules/temporary-logins/class-temporary-logins.php:367
+msgid "Create time-limited login links for external users without sharing passwords or creating permanent WordPress accounts. Temporary logins automatically expire and can be revoked at any time. Learn more about"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:321
-msgid "First name"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:330
-msgid "Last name"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:356
-msgid "Redirect after login"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:360
-msgid "WordPress dashboard"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:361
-msgid "System Default"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:362
-msgid "Website Home Page"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:373
-#: app/modules/temporary-logins/class-temporary-logins.php:385
-msgid "Expire"
+#: app/modules/temporary-logins/class-temporary-logins.php:367
+msgid "temporary logins"
 msgstr ""
 
 #: app/modules/temporary-logins/class-temporary-logins.php:376
-#: app/modules/temporary-logins/class-temporary-logins.php:388
-msgid "Hours"
+msgid "Email address"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:377
-#: app/modules/temporary-logins/class-temporary-logins.php:389
-msgid "Days"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:378
-#: app/modules/temporary-logins/class-temporary-logins.php:390
-msgid "Weeks"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:379
-#: app/modules/temporary-logins/class-temporary-logins.php:391
-msgid "Months"
-msgstr ""
-
-#: app/modules/temporary-logins/class-temporary-logins.php:381
-msgid "from now"
+#: app/modules/temporary-logins/class-temporary-logins.php:385
+msgid "First name"
 msgstr ""
 
 #: app/modules/temporary-logins/class-temporary-logins.php:394
-msgid "from initial access"
+msgid "Last name"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:398
-msgid "Expire on specific date & time"
+#: app/modules/temporary-logins/class-temporary-logins.php:420
+msgid "Skip 2FA"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:409
-msgid "Max logins"
+#: app/modules/temporary-logins/class-temporary-logins.php:430
+msgid "If 2FA is enforced for users with this role via the"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:412
-msgid "Expire account after"
+#: app/modules/temporary-logins/class-temporary-logins.php:430
+msgid "WP 2FA plugin"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:414
-msgid "logins"
+#: app/modules/temporary-logins/class-temporary-logins.php:430
+msgid ", skip 2FA for this temporary user."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:422
-#: app/modules/temporary-logins/class-temporary-logins.php:425
-msgid "Current login count"
+#: app/modules/temporary-logins/class-temporary-logins.php:437
+msgid "Redirect after login"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:434
-msgid "Language"
+#: app/modules/temporary-logins/class-temporary-logins.php:441
+msgid "WordPress dashboard"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:449
-msgid "Language will be installed if not already."
+#: app/modules/temporary-logins/class-temporary-logins.php:442
+msgid "System Default"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:443
+msgid "Website Home Page"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:454
+#: app/modules/temporary-logins/class-temporary-logins.php:466
+msgid "Expire"
 msgstr ""
 
 #: app/modules/temporary-logins/class-temporary-logins.php:457
+#: app/modules/temporary-logins/class-temporary-logins.php:469
+msgid "Hours"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:458
+#: app/modules/temporary-logins/class-temporary-logins.php:470
+msgid "Days"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:459
+#: app/modules/temporary-logins/class-temporary-logins.php:471
+msgid "Weeks"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:460
+#: app/modules/temporary-logins/class-temporary-logins.php:472
+msgid "Months"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:462
+msgid "from now"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:475
+msgid "from initial access"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:479
+msgid "Expire on specific date & time"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:490
+msgid "Max logins"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:493
+msgid "Expire account after"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:495
+msgid "logins"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:503
+#: app/modules/temporary-logins/class-temporary-logins.php:506
+msgid "Current login count"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:515
+msgid "Language"
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:530
+msgid "Language will be installed if not already."
+msgstr ""
+
+#: app/modules/temporary-logins/class-temporary-logins.php:538
 msgid "Send email"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:461
+#: app/modules/temporary-logins/class-temporary-logins.php:542
 msgid "Send new user the link via email"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:485
+#: app/modules/temporary-logins/class-temporary-logins.php:566
 msgid "Below is a list of temporary logins currently active."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:523
-#: app/modules/temporary-logins/class-temporary-logins.php:574
-#: app/modules/temporary-logins/class-temporary-logins.php:706
+#: app/modules/temporary-logins/class-temporary-logins.php:604
+#: app/modules/temporary-logins/class-temporary-logins.php:655
+#: app/modules/temporary-logins/class-temporary-logins.php:795
 msgid "Nonce check failed."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:527
+#: app/modules/temporary-logins/class-temporary-logins.php:608
 msgid "Please provide a valid email."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:531
+#: app/modules/temporary-logins/class-temporary-logins.php:612
 msgid "Please provide at least a first name."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:553
+#: app/modules/temporary-logins/class-temporary-logins.php:634
 msgid "Login updated."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:553
+#: app/modules/temporary-logins/class-temporary-logins.php:634
 msgid "Login created."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:1164
+#: app/modules/temporary-logins/class-temporary-logins.php:1261
 msgid "You don't have permission to access this page"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:1278
+#: app/modules/temporary-logins/class-temporary-logins.php:1375
 msgid "Nonce failure."
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:1286
+#: app/modules/temporary-logins/class-temporary-logins.php:1383
 msgid "{site_name} - Your tempoary login link"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:1292
+#: app/modules/temporary-logins/class-temporary-logins.php:1389
 msgid "by clicking here"
 msgstr ""
 
-#: app/modules/temporary-logins/class-temporary-logins.php:1305
+#: app/modules/temporary-logins/class-temporary-logins.php:1402
 msgid "Email sent."
 msgstr ""
 
@@ -2775,7 +2955,7 @@ msgid "callback must be a function"
 msgstr ""
 
 #. translators: %s: link to admin email.
-#: app/policies/class-mls-options.php:763
+#: app/policies/class-mls-options.php:777
 #, php-format
 msgid "Your WordPress user has been deactivated. Please contact the %1s to activate back your user."
 msgstr ""

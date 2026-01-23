@@ -291,7 +291,7 @@ use MLS\Helpers\OptionsHelper;
 			<div class="disabled-reset-message-wrapper disabled" style="margin-top: 10px;">
 				<p class="description" style="margin-bottom: 10px; display: block;">
 					<?php
-						$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notification templates', 'ppw-wp' ) . '</a>';
+						$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notices templates', 'ppw-wp' ) . '</a>';
 					?>
 					<?php echo wp_kses_post( wp_sprintf( /* translators: %s: Link to plugin settings. */  __( 'To customize the notification displayed to users, please visit the %s plugin settings.', 'melapress-login-security' ), $messages_settings ) ); ?>
 				</p>

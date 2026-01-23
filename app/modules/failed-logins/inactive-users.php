@@ -22,11 +22,11 @@ require_once MLS_PATH . 'app/modules/failed-logins/InactiveUsersTable.php';
 $sidebar_required = false;
 $master_policy    = \MLS\Helpers\OptionsHelper::get_master_policy_options();
 
-/* @free:start */
+// @free:start
 
 // Override in free edition.
 $sidebar_required = true;
-/* @free:end */
+// @free:end
 $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 ?>
 <div id="inactive_users_page" class="<?php echo esc_attr( $form_class ); ?>">
@@ -103,8 +103,8 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 </div>
 
 <?php
-	/* @free:start */
+	// @free:start
 	require_once MLS_PATH . 'admin/templates/views/upgrade-sidebar.php';
-	/* @free:end */
+	// @free:end
 
 ?>

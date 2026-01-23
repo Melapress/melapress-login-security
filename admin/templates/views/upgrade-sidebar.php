@@ -50,7 +50,7 @@ if ( ( $today_date >= $event_date_begin ) && ( $today_date <= $event_date_end ) 
 					<li class="dashicons-before dashicons-yes-alt"> <?php esc_html_e( 'Reports that give you an overview of the latest user activity, password resets & more', 'melapress-login-security' ); ?></li>
 					<li class="dashicons-before dashicons-yes-alt"> <?php esc_html_e( 'No adverts!', 'melapress-login-security' ); ?></li>
 				</ul>
-				<p style="text-align: center; margin: auto"><a class="premium-link" href="https://melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=link&utm_campaign=mls" target="_blank"><?php esc_html_e( 'Upgrade to Premium', 'melapress-login-security' ); ?></a>
+				<p style="text-align: center; margin: auto"><a class="premium-link" href="https://melapress.com/wordpress-login-security/pricing/?utm_source=plugins&utm_medium=mls&utm_campaign=sidebar_advert" target="_blank"><?php esc_html_e( 'Upgrade to Premium', 'melapress-login-security' ); ?></a>
 			</div>
 		</div>
 	</div>

@@ -15,11 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $sidebar_required = false;
 
-/* @free:start */
+// @free:start
 
 // Override in free edition.
 $sidebar_required = true;
-/* @free:end */
+// @free:end
 
 $form_class    = ( $sidebar_required ) ? 'sidebar-present' : '';
 $login_control = new \MLS\Login_Page_Control();
@@ -73,9 +73,9 @@ $login_control = new \MLS\Login_Page_Control();
 	</form>
 
 	<?php
-	/* @free:start */
+	// @free:start
 	require_once MLS_PATH . 'admin/templates/views/upgrade-sidebar.php';
-	/* @free:end */
+	// @free:end
 
 	?>
 

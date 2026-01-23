@@ -32,7 +32,7 @@ require_once 'sidebar.php';
 	<p><iframe title="<?php esc_html_e( 'Getting Started', 'melapress-login-security' ); ?>" class="wsal-youtube-embed" width="100%" height="315" src="https://www.youtube.com/embed/gXaMw4D_yo8" frameborder="0" allowfullscreen></iframe></p>
 
 	<?php
-	/* @free:start */
+	// @free:start
 	?>
 	<div class="title">
 		<h2 style="padding-left: 0;"><?php esc_html_e( 'Plugin Support', 'melapress-login-security' ); ?></h2>
@@ -45,7 +45,7 @@ require_once 'sidebar.php';
 	<br>
 	<!-- End -->
 	<?php
-	/* @free:end */
+	// @free:end
 	?>
 
 	<!-- Plugin documentation -->

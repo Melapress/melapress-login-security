@@ -162,7 +162,9 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				$message = __( 'Password resets via emails have been disabled. Please contact the website administrator.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'password_expired_message' === $template ) {
 				$message  = __( 'The password you entered for the username {user_login_name} has expired.', 'melapress-login-security' ) . "\n\n";
-				$message .= __( 'You will recieve an email with next steps you can take to regain access.', 'melapress-login-security' ) . "\n\n";
+				$message .= __( 'You will receive an email with next steps you can take to regain access.', 'melapress-login-security' ) . "\n\n";
+			} elseif ( 'user_locked_failure_message' === $template ) {
+				$message = __( 'Your account was locked by the site administration and you can no longer log in', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'restrict_logins_prompt_failure_message' === $template ) {
 				$message = __( 'Please check the credentials and try again.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'timed_logins_login_blocked_message' === $template ) {
@@ -178,11 +180,11 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 			} elseif ( 'user_exceeded_failed_logins_count_message' === $template ) {
 				$message = __( 'Your account has surpassed the allowed number of login attempts and can no longer log in.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'login_failed_account_not_known' === $template ) {
-				$message = __( 'The account details provided were not recognised.', 'melapress-login-security' ) . "\n\n";
+				$message = __( 'The account details provided were not recognized.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'login_failed_username_not_known' === $template ) {
-				$message = __( 'The username provided was not recognised', 'melapress-login-security' ) . "\n\n";
+				$message = __( 'The username provided was not recognized', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'login_failed_password_incorrect' === $template ) {
-				$message = __( 'The password provided was not recognised', 'melapress-login-security' ) . "\n\n";
+				$message = __( 'The password provided was not recognized', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'temporary_login_created_email_body' === $template ) {
 				$message  = __( 'Hello,', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'A temporary login link has been created for you. You may login {temporary_login_link}.', 'melapress-login-security' ) . "\n\n";
@@ -253,7 +255,7 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				'{temporary_login_link}' => ( ! empty( $args ) && isset( $args['temporary_login_link'] ) ) ? wp_kses_post( $args['temporary_login_link'] ) : '',
 			);
 
-			$final_output = str_replace( array_keys( $replacements ), array_values( $replacements ), $input );
+			$final_output = str_replace( array_keys( $replacements ), array_values( $replacements ), (string) $input );
 			return $final_output;
 		}
 

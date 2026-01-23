@@ -182,6 +182,8 @@ class UnlockInactiveUser implements AjaxInterface {
 		$user_login = $user_data->user_login;
 		$user_email = $user_data->user_email;
 
+		$login_page = \MLS\Helpers\OptionsHelper::get_password_reset_page();
+
 		// Prepare email details.
 		$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
 		$from_email = sanitize_email( $from_email );
@@ -201,6 +203,8 @@ class UnlockInactiveUser implements AjaxInterface {
 			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->disable_user_unlocked_reset_needed_email ) ) {
 				return;
 			}
+			$key = get_password_reset_key( $user_data );
+			$args['reset_url'] = esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) );
 			$title = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_unlocked_reset_needed_email_subject' );
 		} else {
 			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->disable_user_unlocked_email ) ) {

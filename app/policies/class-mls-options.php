@@ -537,6 +537,8 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'send_user_unblocked_email'                  => 'yes',
 			'send_user_pw_reset_email'                   => 'yes',
 			'send_user_pw_expired_email'                 => 'yes',
+			'password_expiry_email_limit'                => 'limit_to_one',
+			'password_expiry_email_limit_count'          => 5,
 			'login_geo_method'                           => 'default',
 			'login_geo_action'                           => 'deny_to_url',
 			'login_geo_countries'                        => '',
@@ -746,6 +748,18 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 						'hours',
 					),
 				),
+			),
+			'password_expiry_email_limit' => array(
+				'typeRule' => 'inset',
+				'set'      => array(
+					'limit_to_one',
+					'send_multiple',
+				),
+			),
+			'password_expiry_email_limit_count' => array(
+				'typeRule' => 'number',
+				'min'      => '2',
+				'max'      => '20',
 			),
 		);
 

@@ -1483,12 +1483,14 @@ jQuery( 'document' ).ready( function( $ ) {
 						var link_markup = '<p class="description"><input id="new-link" type="text" value="'+ result.data.link +'" readonly></input><br><a href="#" class="button button-primary close-form" data-mls-copy-link="'+ result.data.link +'">Copy link and close</a><a href="#close" class="button button-secondary">Close & Continue</a></p>';
 					}
 				
-					jQuery( '#mls-create-login-result' ).after('<div id="create-result" class="notice notice-success"><p class="description">'+ result.data.message +'</p>'+ link_markup +'</div>');
-					if ( link_markup == '' ) {
-						setTimeout(function () {
-							jQuery( '#create-result' ).slideUp(500).delay( 500 ).remove();
-						}, 2000); 
-					}
+						jQuery( '#mls-create-login-result' ).after('<div id="create-result" class="notice notice-success"><p class="description">'+ result.data.message +'</p>'+ link_markup +'</div>');
+						// Close the new temp login form on successful creation
+						jQuery( '#new-temp-login-form' ).slideUp(300);
+						if ( link_markup == '' ) {
+							setTimeout(function () {
+								jQuery( '#create-result' ).slideUp(500).delay( 500 ).remove();
+							}, 2000); 
+						}
 
 				} else {
 					jQuery( '#mls-create-login-result' ).after('<div id="create-result" class="notice notice-error"><p class="description">'+ result.data.message +'</p></div>');

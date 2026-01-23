@@ -36,14 +36,14 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 		public function init() {
 			global $pagenow;
 			if ( 'profile.php' !== $pagenow || 'user-edit.php' !== $pagenow ) {
-				add_action( 'show_user_profile', array( $this, 'add_area_heading' ), 5 );
-				add_action( 'edit_user_profile', array( $this, 'add_area_heading' ), 5 );
-				add_action( 'show_user_profile', array( $this, 'reset_user_password' ), 20 );
-				add_action( 'edit_user_profile', array( $this, 'reset_user_password' ), 20 );
-				add_action( 'personal_options_update', array( $this, 'save_profile_fields' ) );
-				add_action( 'edit_user_profile_update', array( $this, 'save_profile_fields' ) );
+				\add_action( 'show_user_profile', array( $this, 'add_area_heading' ), 5 );
+				\add_action( 'edit_user_profile', array( $this, 'add_area_heading' ), 5 );
+				\add_action( 'show_user_profile', array( $this, 'reset_user_password' ), 20 );
+				\add_action( 'edit_user_profile', array( $this, 'reset_user_password' ), 20 );
+				\add_action( 'personal_options_update', array( $this, 'save_profile_fields' ) );
+				\add_action( 'edit_user_profile_update', array( $this, 'save_profile_fields' ) );
 			}
-			add_action( 'wp_login', array( $this, 'ppm_reset_pw_on_login' ), 21, 2 );
+			\add_action( 'wp_login', array( $this, 'ppm_reset_pw_on_login' ), 1, 2 );
 		}
 
 		/**
@@ -54,9 +54,9 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 		 * @since 2.0.0
 		 */
 		public function add_area_heading() {
-			if ( current_user_can( 'manage_options' ) ) { ?>
+			if ( \current_user_can( 'manage_options' ) ) { ?>
 			<br>
-			<h2><?php esc_html_e( 'Melapress Login Security user profile settings', 'melapress-login-security' ); ?></h2>
+			<h2><?php \esc_html_e( 'Melapress Login Security user profile settings', 'melapress-login-security' ); ?></h2>
 				<?php
 			}
 		}
@@ -72,14 +72,14 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 		 */
 		public function reset_user_password( $user ) {
 			// Get current user, we going to need this regardless.
-			$current_user = wp_get_current_user();
+			$current_user = \wp_get_current_user();
 
 			// Bail if we still dont have an object.
 			if ( ! is_a( $user, '\WP_User' ) || ! is_a( $current_user, '\WP_User' ) ) {
 				return;
 			}
 
-			$reset = get_user_meta( $user->ID, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
+			$reset = \get_user_meta( $user->ID, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
 
 			// If the profile was recently updated, one of those updates could be a new password,
 			// so if the user is set to reset on next login, lets generate a fresh reset key
@@ -95,8 +95,8 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 						<th><label for="reset_password"><?php esc_html_e( 'Change password on next login', 'melapress-login-security' ); ?></label></th>
 						<td>
 							<label for="reset_password_on_next_login">
-								<input name="reset_password_on_next_login" type="checkbox" id="reset_password_on_next_login" <?php checked( ! empty( $reset ) ); ?>>
-								<?php wp_nonce_field( 'pmls_reset_on_next_login', 'mls_user_profile_nonce' ); ?>
+								<input name="reset_password_on_next_login" type="checkbox" id="reset_password_on_next_login" <?php \checked( ! empty( $reset ) ); ?>>
+								<?php \wp_nonce_field( 'pmls_reset_on_next_login', 'mls_user_profile_nonce' ); ?>
 							</label>
 							<br>
 						</td>
@@ -117,26 +117,26 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 		 * @since 2.0.0
 		 */
 		public function save_profile_fields( $user_id ) {
-			if ( ! current_user_can( 'manage_options' ) || ( isset( $_POST['mls_user_profile_nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mls_user_profile_nonce'] ) ), 'pmls_reset_on_next_login' ) ) ) {
+			if ( ! \current_user_can( 'manage_options' ) || ( isset( $_POST['mls_user_profile_nonce'] ) && ! \wp_verify_nonce( \sanitize_text_field( \wp_unslash( $_POST['mls_user_profile_nonce'] ) ), 'pmls_reset_on_next_login' ) ) ) {
 				return;
 			}
 
 			if ( isset( $_POST['reset_password_on_next_login'] ) ) {
-				$reset = get_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
+				$reset = \get_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
 				if ( empty( $reset ) ) {
 					/**
 					 * Fire of action for others to observe.
 					 */
-					do_action( 'mls_user_required_to_reset_password_on_next_login', $user_id );
+					\do_action( 'mls_user_required_to_reset_password_on_next_login', $user_id );
 					self::generate_new_reset_key( $user_id );
 				}
 			} else {
 				/**
 				 * Fire of action for others to observe.
 				 */
-				do_action( 'mls_user_no_longer_required_to_reset_password_on_next_login', $user_id );
+					\do_action( 'mls_user_no_longer_required_to_reset_password_on_next_login', $user_id );
 				// Remove any reset on login keys if admin has disabled it for this user.
-				delete_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY );
+				\delete_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY );
 			}
 		}
 
@@ -150,10 +150,10 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function generate_new_reset_key( $user_id ) {
-			$userdata = get_user_by( 'id', $user_id );
-			$key      = get_password_reset_key( $userdata );
-			if ( ! is_wp_error( $key ) ) {
-				update_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
+			$userdata = \get_user_by( 'id', $user_id );
+			$key      = \get_password_reset_key( $userdata );
+			if ( ! \is_wp_error( $key ) ) {
+				\update_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
 
 				return $key;
 			}
@@ -191,13 +191,13 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, $reset_type );
 
-			if ( ! $verify_reset_key || get_user_meta( $user->ID, 'mls_temp_user', true ) ) {
+			if ( ! $verify_reset_key || \get_user_meta( $user->ID, 'mls_temp_user', true ) ) {
 				return;
 			}
 
 			if ( ( $verify_reset_key && ! \is_wp_error( $verify_reset_key ) && 'new-user' === $reset_type ) || ( isset( $verify_reset_key->errors['invalid_key'] ) && ! empty( $verify_reset_key->errors['invalid_key'] ) && 'reset-on-login' === $reset_type ) || ( $verify_reset_key && ! $verify_reset_key->errors && 'reset-on-login' === $reset_type ) ) {
 				$reset_key                    = self::generate_new_reset_key( $user->ID );
-				$verify_reset_key             = check_password_reset_key( $reset_key, $user_login );
+				$verify_reset_key             = \check_password_reset_key( $reset_key, $user_login );
 				$verify_reset_key->reset_key  = $reset_key;
 				$verify_reset_key->user_login = $user_login;
 
@@ -215,11 +215,11 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 				// but they have taken too long to reset, so we reset the key and send them back to login.
 
 				// Create new reset key for this user.
-				$key = get_password_reset_key( $user );
+				$key = \get_password_reset_key( $user );
 
-				if ( ! is_wp_error( $key ) ) {
+				if ( ! \is_wp_error( $key ) ) {
 					// Update user with new key information.
-					$update = update_user_meta( $user->ID, MLS_NEW_USER_META_KEY, $key );
+					$update = \update_user_meta( $user->ID, MLS_NEW_USER_META_KEY, $key );
 				}
 				$mls->handle_user_redirection( $verify_reset_key );
 			}
@@ -238,34 +238,34 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 		 */
 		public function send_reset_next_login_email( $user_id, $by, $return_on_fail = false ) {
 
-			$user_data = get_userdata( $user_id );
+			$user_data = \get_userdata( $user_id );
 
 			// Redefining user_login ensures we return the right case in the email.
 			$user_login    = $user_data->user_login;
 			$user_email    = $user_data->user_email;
-			$key           = get_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
+			$key           = \get_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
 			$login_page    = OptionsHelper::get_password_reset_page();
 			$email_content = false;
 
 			if ( 'admin' === $by ) {
 				$content       = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_delayed_reset_email_body' );
-				$email_content = \MLS\EmailAndMessageStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
+				$email_content = \MLS\EmailAndMessageStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => \esc_url_raw( \network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 			}
 
 			$title = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_delayed_reset_email_subject' ), $user_id );
 
-			$mls = melapress_login_security();
+			$mls = \melapress_login_security();
 
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
-			$from_email = sanitize_email( $from_email );
+			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', \wp_parse_url( \network_site_url(), PHP_URL_HOST ) );
+			$from_email = \sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 
-			if ( $email_content && ! \MLS\Emailer::send_email( $user_email, wp_specialchars_decode( $title ), $email_content, $headers ) ) {
-				$fail_message = __( 'The email could not be sent.', 'melapress-login-security' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'melapress-login-security' );
+			if ( $email_content && ! \MLS\Emailer::send_email( $user_email, \wp_specialchars_decode( $title ), $email_content, $headers ) ) {
+				$fail_message = \__( 'The email could not be sent.', 'melapress-login-security' ) . "<br />\n" . \__( 'Possible reason: your host may have disabled the mail() function.', 'melapress-login-security' );
 				if ( $return_on_fail ) {
 					return $fail_message;
 				} else {
-					wp_die( wp_kses_post( $fail_message ) );
+					\wp_die( \wp_kses_post( $fail_message ) );
 				}
 			}
 		}

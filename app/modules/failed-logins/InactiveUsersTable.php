@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MLS\Admin\User_Helper;
 use MLS\Helpers\OptionsHelper;
 
 /**
@@ -79,7 +80,7 @@ class InactiveUsersTable extends \WP_List_Table {
 			'cb'             => '<input type="checkbox" />',
 			'user'           => __( 'User', 'melapress-login-security' ),
 			'roles'          => __( 'Roles', 'melapress-login-security' ),
-			'locked_reason'  => __( 'Locked because of', 'melapress-login-security' ),
+			'locked_reason'  => __( 'Lock reason', 'melapress-login-security' ),
 			'inactive_since' => __( 'Inactive Since', 'melapress-login-security' ),
 			'actions'        => __( 'Actions', 'melapress-login-security' ),
 		);
@@ -109,7 +110,7 @@ class InactiveUsersTable extends \WP_List_Table {
 	 *
 	 * @since 2.0.0
 	 */
-	protected function extra_tablenav( $which ) {
+	public function extra_tablenav( $which ) {
 		$page = isset( $_GET['current_page'] ) ? (int) sanitize_key( wp_unslash( $_GET['current_page'] ) ) : 1; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( 'top' === $which ) {
 			?>
@@ -359,7 +360,7 @@ class InactiveUsersTable extends \WP_List_Table {
 	 */
 	public function column_locked_reason( $user ) {
 		$is_user_blocked = get_user_meta( $user->ID, MLS_USER_BLOCK_FURTHER_LOGINS_META_KEY, true );
-		return ( $is_user_blocked ) ? __( 'failed logins', 'melapress-login-security' ) : __( 'inactivty', 'melapress-login-security' );
+		return ( $is_user_blocked ) ? __( 'failed logins', 'melapress-login-security' ) : User_Helper::get_user_locked_reason_label( $user->ID );
 	}
 
 	/**

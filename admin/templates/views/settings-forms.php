@@ -15,11 +15,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 $sidebar_required = false;
 
-/* @free:start */
+// @free:start
 
 // Override in free edition.
 $sidebar_required = true;
-/* @free:end */
+// @free:end
 
 $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 $mls        = melapress_login_security();
@@ -87,9 +87,9 @@ $mls        = melapress_login_security();
 	</form>
 
 	<?php
-	/* @free:start */
+	// @free:start
 	require_once MLS_PATH . 'admin/templates/views/upgrade-sidebar.php';
-	/* @free:end */
+	// @free:end
 
 	?>
 

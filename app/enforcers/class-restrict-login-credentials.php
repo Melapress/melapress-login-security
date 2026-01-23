@@ -52,8 +52,8 @@ class Restrict_Login_Credentials {
 			<tbody>
 
 				<tr valign="top">
-					<h3><?php esc_html_e( 'User attempts to log in using restricted credentials', 'melapress-login-security' ); ?></h3>
-					<p class="description"><?php esc_html_e( 'This warning is shown when a user attempts to log in with credentials restricted by an active Login Security Policy.', 'melapress-login-security' ); ?></p>
+					<h3><?php esc_html_e( 'Restricted credentials used', 'melapress-login-security' ); ?></h3>
+					<p class="description"><?php esc_html_e( 'Shown when a user attempts to log in using credentials blocked by an active Login Security Policy.', 'melapress-login-security' ); ?></p>
 				</tr>
 
 				<tr valign="top">
@@ -194,7 +194,7 @@ class Restrict_Login_Credentials {
 						<div style="margin-top: 30px;">
 							<p class="description" style="margin-bottom: 10px; display: block;">
 								<?php
-									$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notification templates', 'ppw-wp' ) . '</a>';
+									$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notices templates', 'ppw-wp' ) . '</a>';
 								?>
 								<?php
 								/* translators: %s: link to settings. */
