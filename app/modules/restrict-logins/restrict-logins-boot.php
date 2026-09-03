@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( class_exists( '\MLS\RestrictLogins' ) ) {
-	add_action( 'ppm_settings_additional_settings', array( '\MLS\RestrictLogins', 'settings_markup' ), 30, 2 );
+	add_filter( 'mls_login_policies_settings', array( '\MLS\RestrictLogins', 'settings_markup' ), 30, 2 );
 	add_action( 'ppm_message_settings_markup_footer', array( '\MLS\RestrictLogins', 'add_template_settings' ), 90 );
 	add_action( 'show_user_profile', array( '\MLS\RestrictLogins', 'add_user_profile_field' ), 10 );
 	add_action( 'edit_user_profile', array( '\MLS\RestrictLogins', 'add_user_profile_field' ), 10 );

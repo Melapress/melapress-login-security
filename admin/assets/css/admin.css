@@ -2,3 +2,40 @@
 .toplevel_page_mls-policies div.wp-menu-image.svg {
   background-size: 20px 20px !important;
 }
+
+/* Known devices - user profile section */
+#mls-known-devices-table .mls-known-device-row td {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+#mls-known-devices-table .mls-device-name {
+  font-weight: 600;
+  margin-right: 8px;
+}
+
+#mls-known-devices-table .mls-device-last-seen {
+  color: #666;
+  font-style: italic;
+  font-size: 13px;
+}
+
+#mls-known-devices-table .mls-device-actions {
+  margin-left: auto;
+}
+
+#mls-known-devices-table .mls-device-actions .button {
+  margin-left: 4px;
+}
+
+#mls-known-devices-table .mls-rename-input {
+  max-width: 300px;
+}
+
+#mls-known-devices-table .mls-no-devices-row td {
+  padding: 12px 10px;
+}

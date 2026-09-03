@@ -6,6 +6,11 @@
  * @since 2.0.0
  */
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 ?>
 
 <div class="wrap ppm-wrap">

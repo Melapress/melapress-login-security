@@ -17,45 +17,48 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use MLS\Validators\Validator;
 
-/**
- * Calls the proper validator method based on provided rules
- *
- * @since 2.0.0
- */
-class Validator_Factory {
+if ( ! class_exists( '\MLS\Utilities\Validator_Factory' ) ) {
 
 	/**
-	 * Calls Validator method based on given rules and returns the result
-	 *
-	 * Expects the following format for rules @see MLS_Options::$default_options_validation_rules
-	 * 'typeRule' => [
-	 *               ['number', 'inset' ]
-	 *               [ 'min', 'max', 'set' ]
-	 *           ]
-	 *
-	 * @param mixed $value - Value to validate.
-	 * @param array $rules - Applicable rule.
-	 *
-	 * @return bool
+	 * Calls the proper validator method based on provided rules
 	 *
 	 * @since 2.0.0
 	 */
-	public static function validate( $value, array $rules ) {
+	class Validator_Factory {
 
-		if ( isset( $rules['typeRule'] ) ) {
-			if ( 'number' === $rules['typeRule'] ) {
-				$min = (int) ( $rules['min'] ?? 0 );
-				$max = ( $rules['max'] ?? null );
+		/**
+		 * Calls Validator method based on given rules and returns the result
+		 *
+		 * Expects the following format for rules @see MLS_Options::$default_options_validation_rules
+		 * 'typeRule' => [
+		 *               ['number', 'inset' ]
+		 *               [ 'min', 'max', 'set' ]
+		 *           ]
+		 *
+		 * @param mixed $value - Value to validate.
+		 * @param array $rules - Applicable rule.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.0.0
+		 */
+		public static function validate( $value, array $rules ) {
 
-				return Validator::validate_integer( $value, $min, $max );
+			if ( isset( $rules['typeRule'] ) ) {
+				if ( 'number' === $rules['typeRule'] ) {
+					$min = (int) ( $rules['min'] ?? 0 );
+					$max = ( $rules['max'] ?? null );
+
+					return Validator::validate_integer( $value, $min, $max );
+				}
+				if ( 'inset' === $rules['typeRule'] ) {
+					$range = $rules['set'] ?? array();
+
+					return Validator::validate_in_set( $value, $range );
+				}
 			}
-			if ( 'inset' === $rules['typeRule'] ) {
-				$range = $rules['set'] ?? array();
 
-				return Validator::validate_in_set( $value, $range );
-			}
+			return true;
 		}
-
-		return true;
 	}
 }

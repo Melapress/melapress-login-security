@@ -82,6 +82,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			// @free:end
 
 			add_action( 'wp_ajax_dismiss_mls_update_notice', array( __CLASS__, 'dismiss_update_notice' ) );
+			add_action( 'wp_ajax_dismiss_mls_feature_highlight', array( __CLASS__, 'dismiss_feature_highlight' ) );
 			add_action( 'wp_ajax_mls_begin_migration', array( __CLASS__, 'begin_migration' ) );
 			add_action( 'wp_ajax_mls_get_migration_status', array( __CLASS__, 'get_migration_status' ) );
 
@@ -92,6 +93,35 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 				add_filter( 'mls_settings_page_content_tabs', array( __CLASS__, 'messages_settings_tab' ), 10, 1 );
 			}
 			// @free:end
+		}
+
+		/**
+		 * The network menu icon, as a data URI.
+		 *
+		 * The icon used to be read and encoded inline on every menu registration
+		 * with no check that the file was there. A missing or unreadable asset
+		 * handed false to base64_encode(), which is deprecated on PHP 8.1+ and
+		 * produced a broken icon rather than a recognisable fallback.
+		 *
+		 * @return string A data URI, or a dashicon name when the asset is unavailable.
+		 *
+		 * @since 2.4.0
+		 */
+		private static function menu_icon(): string {
+			static $icon = null;
+
+			if ( null !== $icon ) {
+				return $icon;
+			}
+
+			$path = MLS_PATH . 'assets/images/plugin-icon.svg';
+			$svg  = is_readable( $path ) ? file_get_contents( $path ) : false; // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+
+			$icon = ( false === $svg || '' === $svg )
+				? 'dashicons-shield'
+				: ' data:image/svg+xml;base64,' . base64_encode( $svg );
+
+			return $icon;
 		}
 
 		/**
@@ -112,21 +142,21 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 				'manage_network_options',
 				MLS_MENU_SLUG,
 				array( __CLASS__, 'screen' ),
-				' data:image/svg+xml;base64,' . base64_encode( file_get_contents( MLS_PATH . 'assets/images/plugin-icon.svg' ) ),
+				self::menu_icon(),
 				99
 			);
 
 			add_action( "load-$hook_name", array( __CLASS__, 'admin_enqueue_scripts' ) );
 			add_action( "admin_head-$hook_name", array( __CLASS__, 'process' ) );
 
-			add_submenu_page( MLS_MENU_SLUG, __( 'Login Security Policies', 'melapress-login-security' ), __( 'Login Security Policies', 'melapress-login-security' ), 'manage_options', MLS_MENU_SLUG, array( __CLASS__, 'screen' ) );
+			add_submenu_page( MLS_MENU_SLUG, __( 'Login Security Policies', 'melapress-login-security' ), __( 'Login Security Policies', 'melapress-login-security' ), 'manage_network_options', MLS_MENU_SLUG, array( __CLASS__, 'screen' ) );
 
 			// Add admin submenu page.
 			$hook_submenu = add_submenu_page(
 				MLS_MENU_SLUG,
 				__( 'Help & Contact Us', 'melapress-login-security' ),
 				__( 'Help & Contact Us', 'melapress-login-security' ),
-				'manage_options',
+				'manage_network_options',
 				'mls-help',
 				array(
 					__CLASS__,
@@ -140,7 +170,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 				MLS_MENU_SLUG,
 				__( 'Settings', 'melapress-login-security' ),
 				__( 'Settings', 'melapress-login-security' ),
-				'manage_options',
+				'manage_network_options',
 				'mls-settings',
 				array(
 					__CLASS__,
@@ -156,7 +186,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 				MLS_MENU_SLUG,
 				__( 'Forms & Placement', 'melapress-login-security' ),
 				__( 'Forms & Placement', 'melapress-login-security' ),
-				'manage_options',
+				'manage_network_options',
 				'mls-forms',
 				array(
 					__CLASS__,
@@ -173,7 +203,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 				MLS_MENU_SLUG,
 				__( 'Login page hardening', 'melapress-login-security' ),
 				__( 'Login page hardening', 'melapress-login-security' ),
-				'manage_options',
+				'manage_network_options',
 				'mls-hide-login',
 				array(
 					__CLASS__,
@@ -187,7 +217,7 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 
 
 			// @free:start
-			$hook_upgrade_submenu = add_submenu_page( MLS_MENU_SLUG, esc_html__( 'Premium Features ➤', 'melapress-login-security' ), esc_html__( 'Premium Features ➤', 'melapress-login-security' ), 'manage_options', 'mls-upgrade', array( __CLASS__, 'ppm_display_upgrade_page' ), 3 );
+			$hook_upgrade_submenu = add_submenu_page( MLS_MENU_SLUG, esc_html__( 'Premium Features ➤', 'melapress-login-security' ), esc_html__( 'Premium Features ➤', 'melapress-login-security' ), 'manage_network_options', 'mls-upgrade', array( __CLASS__, 'ppm_display_upgrade_page' ), 3 );
 			add_action( "load-$hook_upgrade_submenu", array( __CLASS__, 'help_page_enqueue_scripts' ) );
 			// @free:end
 		}

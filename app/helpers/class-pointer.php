@@ -25,14 +25,14 @@ if ( ! class_exists( '\MLS\Pointer' ) ) {
 	class Pointer {
 
 		/**
-		 * Constructor.
+		 * Init hooks.
 		 *
 		 * @return void
 		 *
 		 * @since 2.0.0
 		 */
-		public function __construct() {
-			add_action( 'admin_enqueue_scripts', array( $this, 'init_pointers' ) );
+		public static function init() {
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'init_pointers' ) );
 		}
 
 		/**
@@ -42,7 +42,7 @@ if ( ! class_exists( '\MLS\Pointer' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function init_pointers() {
+		public static function init_pointers() {
 			$pointers = array(
 				array(
 					'id'       => 'password_policy_manager_after_install',
@@ -59,5 +59,5 @@ if ( ! class_exists( '\MLS\Pointer' ) ) {
 			new \MLS\WP_Admin_Pointer( $pointers );
 		}
 	}
-	new \MLS\Pointer();
+	\MLS\Pointer::init();
 }

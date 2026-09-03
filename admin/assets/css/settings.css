@@ -167,11 +167,17 @@ div#reset-container input#_mls_global_reset_button {
 /**
  * InactiveUsersTable styles
  */
-.tablenav.top #mls_inactive_check_now:not(:first-child) {
-	margin-left: -10px;
+.tablenav.top #mls_refresh_lock_status {
+	vertical-align: middle;
+	line-height: 2;
+	min-height: 31px;
+	height: auto;
+	margin: 1px 8px 0 0;
 }
 
-#ppm-expiry-unit {
+/* Was #ppm-expiry-unit, an id shared by four different selects — so the rule
+   only ever styled whichever one appeared first in the document. */
+.mls-expiry-unit {
 	position: relative;
 	top: -2px;
 }
@@ -272,14 +278,21 @@ div#reset-container input#_mls_global_reset_button {
 }
 
 .premium-link {
-    background: #dd2b0f;
+    background: #dd2b10;
     color: #fff !important;
     padding: 8px 12px;
     font-weight: bold;
     text-decoration: none;
     border-radius: 5px;
     margin-top: 15px;
-    display: inline-block;¢
+    display: inline-block;
+}
+
+/* The darker red from the logo, so every upgrade button behaves the same. */
+.premium-link:hover,
+.premium-link:focus {
+    background: #7a262a;
+    color: #fff !important;
 }
 
 .c4wp-pro-features-ul li {
@@ -1670,4 +1683,41 @@ body.wp-admin.rtl .ui-datepicker {
 
 .toplevel_page_mls-policies div.wp-menu-image.svg {
   background-size: 20px 20px !important;
+}
+
+/* Policy Group Styles */
+.mls-policy-group {
+  margin-bottom: 20px;
+  border: 1px solid #c3c4c7;
+  background: #fff;
+}
+
+.mls-policy-group-header {
+  padding: 12px 15px;
+  background: #f6f7f7;
+  border-bottom: 1px solid #c3c4c7;
+}
+
+.mls-policy-group-header label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mls-policy-group-header strong {
+  font-size: 14px;
+}
+
+.mls-policy-group-content {
+  padding: 0 15px 15px;
+}
+
+.mls-policy-group-content.mls-policy-group-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.mls-policy-group-content.mls-policy-group-disabled * {
+  color: #a7aaad;
 }

@@ -32,8 +32,9 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 	 */
 	class User_Helper {
 
-		const USER_LOCKED_REASON = 'mls_locked_reason';
-		const USER_LOCKED_META   = 'mls_locked';
+		const USER_LOCKED_REASON     = 'mls_locked_reason';
+		const USER_LOCKED_META       = 'mls_locked';
+		const USER_LOCKED_SINCE_META = 'mls_locked_since';
 
 		/**
 		 * Valid reasons for locking a user.
@@ -52,21 +53,16 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function init() {
-			// $inactive_feature_enabled = \MLS\Helpers\OptionsHelper::should_inactive_users_feature_be_active( true );
-			// if ( isset( $master_policy->failed_login_policies_enabled ) && \MLS\Helpers\OptionsHelper::string_to_bool( $master_policy->failed_login_policies_enabled ) ) {
-			// $inactive_feature_enabled = true;
-			// }
+			\add_filter( 'user_row_actions', array( __CLASS__, 'add_quick_user_action' ), 10, 2 );
+			\add_filter( 'bulk_actions-users', array( __CLASS__, 'register_bulk_actions' ) );
+			\add_filter( 'handle_bulk_actions-users', array( __CLASS__, 'handle_bulk_actions' ), 10, 3 );
+			\add_action( 'admin_notices', array( __CLASS__, 'display_admin_notices' ) );
 
-			// if ( $inactive_feature_enabled ) {
-				\add_filter( 'user_row_actions', array( __CLASS__, 'add_quick_user_action' ), 10, 2 );
-				\add_filter( 'bulk_actions-users', array( __CLASS__, 'register_bulk_actions' ) );
-				\add_filter( 'handle_bulk_actions-users', array( __CLASS__, 'handle_bulk_actions' ), 10, 3 );
-				\add_action( 'admin_notices', array( __CLASS__, 'display_admin_notices' ) );
+			\add_action( 'mls_user_locked_due_to_inactivity_unlocked', array( __CLASS__, 'unlock_user' ) );
 
-				\add_action( 'mls_user_locked_due_to_inactivity_unlocked', array( __CLASS__, 'unlock_user' ) );
-
-				\add_filter( 'authenticate', array( __CLASS__, 'check_user_is_locked' ), 999999, 3 );
-			// }
+			// The gate that makes a lock mean anything. Without it the lock state
+			// is recorded and then ignored at login.
+			\add_filter( 'authenticate', array( __CLASS__, 'check_user_is_locked' ), 999999, 3 );
 		}
 
 		/**
@@ -81,7 +77,31 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function check_user_is_locked( $user, $username, $password ) {
+			// When password validation fails, $user is a WP_Error with no roles.
+			// Resolve the user from $username so locked accounts still see the lock message.
 			if ( ! isset( $user->roles ) ) {
+				if ( empty( $username ) ) {
+					return $user;
+				}
+
+				$looked_up = \get_user_by( 'login', $username );
+				if ( ! $looked_up ) {
+					$looked_up = \get_user_by( 'email', $username );
+				}
+
+				if ( ! $looked_up ) {
+					return $user;
+				}
+
+				if ( \MLS_Core::is_user_exempted( $looked_up->ID ) ) {
+					return $user;
+				}
+
+				$lock_error = self::get_lock_error( $looked_up->ID );
+				if ( $lock_error ) {
+					return $lock_error;
+				}
+
 				return $user;
 			}
 
@@ -89,19 +109,88 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 				return $user;
 			}
 
-			if ( self::is_user_locked( $user->ID ) ) {
-				$error_content = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_locked_failure_message' ), $user->ID );
-				$error_message = new \WP_Error( 'ppm_login_error', $error_content );
-
-				/**
-				 * Fire of action for others to observe.
-				 */
-				do_action( 'mls_user_login_blocked_due_to_locked_status', $user->ID );
-
-				return $error_message;
+			$lock_error = self::get_lock_error( $user->ID );
+			if ( $lock_error ) {
+				return $lock_error;
 			}
 
 			return $user;
+		}
+
+		/**
+		 * Return a WP_Error with the appropriate lock message, or null if not locked.
+		 *
+		 * @param int $user_id User ID.
+		 *
+		 * @return \WP_Error|null
+		 *
+		 * @since 2.4.0
+		 */
+		private static function get_lock_error( int $user_id ) {
+			/*
+			 * Request scope, not 'any'.
+			 *
+			 * This is only ever called from check_user_is_locked(), an
+			 * `authenticate` filter, so its answer decides a login — and the
+			 * predicate's own contract says of 'any': "Never use it to decide a
+			 * login." Passing it here reinstated the account-wide lockout that the
+			 * per-source throttle exists to avoid: any single source that burned
+			 * the allowance locked the account for **everybody**, so an
+			 * unauthenticated attacker could deny a known username access to its
+			 * own account from anywhere, and the owner was refused even with the
+			 * correct password.
+			 *
+			 * Only the failed-login branch is scope-dependent. A manual lock set by
+			 * an administrator and an inactivity lock are both deliberate,
+			 * account-level states and are still returned regardless of source.
+			 *
+			 * The Locked Users screen keeps using 'any', which is what it is for —
+			 * an administrator has to be able to see and clear a lockout that a
+			 * different source caused.
+			 */
+			$lock_type = OptionsHelper::is_user_locked_by_any_mechanism( $user_id );
+			if ( ! $lock_type ) {
+				return null;
+			}
+
+			switch ( $lock_type ) {
+				case 'failed_logins':
+					/*
+					 * Two different states share this lock type, and they need
+					 * different wording.
+					 *
+					 * The per-source throttle is scoped to a device or network and
+					 * lifts by itself, which is what the default message says. A
+					 * lock carried over from 2.3.x is account-level and does not
+					 * lift, so that message would tell the user to wait or change
+					 * network when what they actually need is the account unlocked.
+					 *
+					 * The error code stays the same either way: the security
+					 * prompt and the plugin's own refusal handling key off it.
+					 */
+					$template  = \MLS\Failed_Logins::has_legacy_account_lock( $user_id )
+						? 'account_locked_failed_logins_message'
+						: 'user_exceeded_failed_logins_count_message';
+					$error_key = MLS_PREFIX . '_login_attempts_exceeded';
+					break;
+				case 'inactivity':
+					$template  = 'inactive_user_account_locked_message';
+					$error_key = 'inactive_user';
+					break;
+				default: // manual.
+					$template  = 'user_locked_failure_message';
+					$error_key = 'ppm_login_error';
+					break;
+			}
+
+			$error_content = \MLS\EmailAndMessageStrings::replace_email_strings(
+				\MLS\EmailAndMessageStrings::get_email_template_setting( $template ),
+				$user_id
+			);
+
+			do_action( 'mls_user_login_blocked_due_to_locked_status', $user_id );
+
+			return new \WP_Error( $error_key, $error_content );
 		}
 
 		/**
@@ -123,7 +212,7 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 				return $actions;
 			}
 
-			$is_inactive = self::is_user_locked( $user->ID );
+			$is_inactive = (bool) OptionsHelper::is_user_locked_by_any_mechanism( $user->ID, 'any' );
 			$action      = $is_inactive ? 'unlock' : 'lock';
 			$label       = $is_inactive ? \esc_html__( 'Unlock', 'melapress-login-security' ) : \esc_html__( 'Lock', 'melapress-login-security' );
 
@@ -216,9 +305,6 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 			}
 
 			if ( 'mls_unlock_users' === $doaction ) {
-				$failed_logins = class_exists( '\MLS\Failed_Logins' ) ? new \MLS\Failed_Logins() : null;
-
-				$inactive_users = OptionsHelper::get_inactive_users();
 
 				foreach ( $user_ids as $user_id ) {
 					$user_id = (int) $user_id;
@@ -227,25 +313,11 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 						continue;
 					}
 
-					// Clear inactive data and remove from site option array.
-					self::unlock_user( $user_id );
-					self::remove_user_locked_reason( $user_id );
-
-					// Clear failed login data if available.
-					if ( $failed_logins && method_exists( $failed_logins, 'clear_failed_login_data' ) ) {
-						$failed_logins->clear_failed_login_data( $user_id, false );
-					}
-
-					// Add to global inactive users array for admin UI display.
-					if ( in_array( $user_id, $inactive_users, true ) ) {
-						$inactive_users = array_diff( $inactive_users, array( $user_id ) );
-					}
+					// R1 — Single unlock: fully clear ALL lock types.
+					OptionsHelper::fully_unlock_user( $user_id );
 
 					++$processed;
 				}
-
-				// Update the site option with all locked users.
-				OptionsHelper::set_inactive_users_array( $inactive_users );
 
 				$redirect_to = add_query_arg( 'mls_unlocked', $processed, $redirect_to );
 			}
@@ -264,6 +336,7 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 */
 		public static function lock_user( $user_id ) {
 			\update_user_meta( $user_id, self::USER_LOCKED_META, true );
+			\update_user_meta( $user_id, self::USER_LOCKED_SINCE_META, time() );
 		}
 
 		/**
@@ -277,6 +350,7 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 */
 		public static function unlock_user( $user_id ) {
 			\delete_user_meta( $user_id, self::USER_LOCKED_META );
+			\delete_user_meta( $user_id, self::USER_LOCKED_SINCE_META );
 		}
 
 		/**
@@ -301,8 +375,13 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 */
 		public static function get_user_locked_reasons() {
 			self::$user_locked_reasons = array(
-				'manual' => __( 'locked', 'melapress-login-security' ),
+				'manual'        => __( 'locked', 'melapress-login-security' ),
+				'failed_logins' => __( 'failed login attempts', 'melapress-login-security' ),
 			);
+
+			if ( class_exists( '\MLS\InactiveUsers' ) ) {
+				self::$user_locked_reasons['inactivity'] = __( 'inactivity', 'melapress-login-security' );
+			}
 
 			return self::$user_locked_reasons;
 		}
@@ -312,21 +391,23 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 *
 		 * @param int $user The user ID.
 		 *
-		 * @return string The label for the reason.
+		 * @return string|false The label for the reason, or false if the user is not locked.
 		 *
 		 * @since 2.0.0
 		 */
 		public static function get_user_locked_reason_label( $user ) {
-			$reasons = self::get_user_locked_reasons();
+			$reasons  = self::get_user_locked_reasons();
+			$detected = OptionsHelper::is_user_locked_by_any_mechanism( (int) $user, 'any' );
 
-			$reason_data = (array) self::get_user_locked_reason( (int) $user );
-			$reason_data = reset( $reason_data );
-			if ( ! is_array( $reason_data ) || ! isset( $reason_data['reason'] ) ) {
-				return __( 'inactivity', 'melapress-login-security' );
+			if ( false === $detected ) {
+				return false;
 			}
 
-			if ( isset( $reason_data['reason'] ) && isset( $reasons[ $reason_data['reason'] ] ) ) {
+			// Check stored reason metadata (only set for manual locks).
+			$reason_data = (array) self::get_user_locked_reason( (int) $user );
+			$reason_data = reset( $reason_data );
 
+			if ( is_array( $reason_data ) && isset( $reason_data['reason'], $reasons[ $reason_data['reason'] ] ) ) {
 				if ( isset( $reason_data['user_id'] ) ) {
 					$locked_by_user = get_user_by( 'id', (int) $reason_data['user_id'] );
 					if ( $locked_by_user ) {
@@ -342,7 +423,8 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 				return $reasons[ $reason_data['reason'] ];
 			}
 
-			return __( 'inactivity', 'melapress-login-security' );
+			// No stored reason or unknown key — use the detected mechanism.
+			return isset( $reasons[ $detected ] ) ? $reasons[ $detected ] : __( 'locked', 'melapress-login-security' );
 		}
 
 		/**
@@ -393,9 +475,27 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function display_admin_notices() {
-			// Check if we're on the users page.
+			// Check if we're on the users page or a user profile page.
 			$screen = \get_current_screen();
-			if ( ! $screen || 'users' !== $screen->id ) {
+			if ( ! $screen ) {
+				return;
+			}
+
+			// Handle lock/unlock notices on user profile pages.
+			if ( in_array( $screen->id, array( 'user-edit', 'profile' ), true ) ) {
+				if ( isset( $_GET['mls_user_locked'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					echo '<div class="notice notice-success is-dismissible"><p>';
+					\esc_html_e( 'User has been locked.', 'melapress-login-security' );
+					echo '</p></div>';
+				}
+				if ( isset( $_GET['mls_user_unlocked'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					echo '<div class="notice notice-success is-dismissible"><p>';
+					\esc_html_e( 'User has been unlocked.', 'melapress-login-security' );
+					echo '</p></div>';
+				}
+			}
+
+			if ( 'users' !== $screen->id ) {
 				return;
 			}
 
@@ -429,18 +529,8 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 					}
 				} elseif ( 'mls_unlock_user' === $action && \wp_verify_nonce( $nonce, 'mls_unlock_user_' . $user_id ) ) {
 					if ( \current_user_can( 'edit_user', $user_id ) ) {
-						self::unlock_user( $user_id );
-
-						$failed_logins = class_exists( '\MLS\Failed_Logins' ) ? new \MLS\Failed_Logins() : null;
-						if ( $failed_logins && method_exists( $failed_logins, 'clear_failed_login_data' ) ) {
-							$failed_logins->clear_failed_login_data( $user_id, false );
-						}
-
-						$inactive_users = OptionsHelper::get_inactive_users();
-						if ( in_array( $user_id, $inactive_users, true ) ) {
-							$inactive_users = array_diff( $inactive_users, array( $user_id ) );
-							OptionsHelper::set_inactive_users_array( $inactive_users );
-						}
+						// R1 — Single unlock: fully clear ALL lock types.
+						OptionsHelper::fully_unlock_user( $user_id );
 
 						echo '<div class="notice notice-success is-dismissible"><p>';
 						\esc_html_e( 'User has been unlocked.', 'melapress-login-security' );

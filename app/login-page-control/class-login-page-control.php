@@ -58,6 +58,18 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 */
 		public function init() {
 			$mls = melapress_login_security();
+
+			// Independent of the custom login URL: the IP allowlist has to hold
+			// for every authentication entry point, not just the login page.
+			// Priority 50 puts this after the built-in credential providers so
+			// a successful password check cannot overwrite the refusal.
+			add_filter( 'authenticate', array( __CLASS__, 'enforce_login_ip_restriction' ), 50, 3 );
+
+			// Same reasoning for country blocking: it was applied only while
+			// rendering the login page, so XML-RPC and Application Passwords
+			// went round it entirely.
+			add_filter( 'authenticate', array( __CLASS__, 'enforce_login_geo_restriction' ), 51, 3 );
+
 			if ( isset( $mls->options->mls_setting->custom_login_url ) && ! empty( $mls->options->mls_setting->custom_login_url ) ) {
 				add_filter( 'site_url', array( $this, 'login_control_site_url' ), 10, 4 );
 				add_filter( 'network_site_url', array( $this, 'login_control_network_site_url' ), 10, 3 );
@@ -120,7 +132,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.0.0
 		 */
 		public function insert_banner_markup() {
-			echo self::gdpr_banner_markup( true ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo /*wp_kses_post*/( self::gdpr_banner_markup( true ) );
 		}
 
 		/**
@@ -148,7 +160,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			$current_banner_content = isset( $mls->options->mls_setting->gdpr_banner_message ) && ! empty( $mls->options->mls_setting->gdpr_banner_message ) ? $mls->options->mls_setting->gdpr_banner_message : esc_html__( 'By logging in to this website you are consenting this website to process the IP address and browser information for security purposes.', 'melapress-login-security' );
 			$custom_css             = apply_filters( 'mls_gdpr_banner_styling', '' );
 
-			$markup  = '<div id="mls_gdpr_banner">' . $current_banner_content . '</div>';
+			$markup  = '<div id="mls_gdpr_banner">' . wp_kses_post( $current_banner_content ) . '</div>';
 			$markup .= '<style type="text/css">';
 
 			if ( $style_needed ) {
@@ -171,7 +183,6 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				}
 				';
 			}
-			$markup .= $current_banner_content;
 
 			$markup .= $custom_css;
 
@@ -454,7 +465,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			$mls                    = melapress_login_security();
 			$current_banner_content = isset( $mls->options->mls_setting->gdpr_banner_message ) && ! empty( $mls->options->mls_setting->gdpr_banner_message ) ? $mls->options->mls_setting->gdpr_banner_message : esc_html__( 'By logging in to this website you are consenting this website to process the IP address and browser information for security purposes.', 'melapress-login-security' );
 
-			$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-upgrade', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'Upgrading to premium', 'ppw-wp' ) . '</a>';
+			$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-upgrade', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'Upgrading to premium', 'melapress-login-security' ) . '</a>';
 			$desc              = wp_sprintf( /* translators: %s: Link to settings. */ esc_html__( 'To customize the notification displayed to users should they fail a prompt and a lot more, why not consider %s today.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) );
 
 			?>
@@ -661,11 +672,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
 			$slug        = isset( $mls_setting['custom_login_url'] ) ? $mls_setting['custom_login_url'] : '';
 
-			if ( is_multisite() && \is_plugin_active_for_network( MLS_BASENAME ) ) {
-				return $slug;
-			} else {
-				return $slug;
-			}
+			return $slug;
 		}
 
 		/**
@@ -675,15 +682,221 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
+		/**
+		 * Refuse authentication outright from an IP outside the allowlist.
+		 *
+		 * `redirect_user()` guards the login *page*, but it only arms itself for
+		 * wp-login.php requests. Authentication also happens over XML-RPC, the
+		 * REST API and anything else calling `wp_authenticate()`, none of which
+		 * render that page. Enforcing here means the allowlist holds whatever
+		 * door the request came through.
+		 *
+		 * Hooked before WordPress checks the password so a blocked address
+		 * cannot use the response to tell valid credentials from invalid ones.
+		 *
+		 * @param null|\WP_User|\WP_Error $user     - Current authentication result.
+		 * @param string                  $username - Submitted username.
+		 * @param string                  $password - Submitted password.
+		 *
+		 * @return null|\WP_User|\WP_Error
+		 *
+		 * @since 2.4.0
+		 */
+		public static function enforce_login_ip_restriction( $user, $username, $password ) {
+			// Nothing is being attempted — leave the chain alone.
+			if ( empty( $username ) && empty( $password ) ) {
+				return $user;
+			}
+
+			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+
+			$enabled = isset( $mls_setting['enable_login_allowed_ips'] )
+				&& \MLS\Helpers\OptionsHelper::string_to_bool( $mls_setting['enable_login_allowed_ips'] );
+
+			if ( ! $enabled || empty( $mls_setting['restrict_login_allowed_ips'] ) ) {
+				return $user;
+			}
+
+			$ip = self::get_client_ip();
+
+			if ( '' === $ip ) {
+				return self::unresolved_source_verdict( $user, 'ip' );
+			}
+
+			if ( ! self::is_ip_blocked( $ip ) ) {
+				return $user;
+			}
+
+			// The bypass slug is an intentional escape hatch — honour it here too.
+			$request = isset( $_SERVER['REQUEST_URI'] )
+				? wp_parse_url( rawurldecode( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) )
+				: '';
+
+			if ( self::is_login_ip_bypass_request( $request ) ) {
+				return $user;
+			}
+
+			/**
+			 * Fire off action for others to observe.
+			 */
+			do_action( 'mls_login_blocked_due_to_ip_restrictions', $username, $ip );
+
+			return new \WP_Error(
+				'mls_login_ip_restricted',
+				__( '<strong>ERROR</strong>: Logins are not permitted from this IP address.', 'melapress-login-security' )
+			);
+		}
+
+		/**
+		 * Refuse authentication from a blocked country, on every channel.
+		 *
+		 * Country blocking used to be applied only in redirect_user(), which
+		 * runs for the login page. Everything else that authenticates —
+		 * XML-RPC, Application Passwords, anything calling wp_authenticate() —
+		 * never consulted it, so a source in a blocked country could simply
+		 * change endpoint. The IP allowlist was already enforced here; this
+		 * brings the geo rule to the same door.
+		 *
+		 * @param null|\WP_User|\WP_Error $user     User or error so far.
+		 * @param string                  $username Submitted username.
+		 * @param string                  $password Submitted password.
+		 *
+		 * @return null|\WP_User|\WP_Error
+		 *
+		 * @since 2.4.0
+		 */
+		public static function enforce_login_geo_restriction( $user, $username, $password ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+			// Nothing is being attempted — leave the chain alone.
+			if ( empty( $username ) && empty( $password ) ) {
+				return $user;
+			}
+
+			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+
+			$configured = ! empty( $mls_setting['login_geo_countries'] )
+				&& isset( $mls_setting['login_geo_method'] )
+				&& 'default' !== $mls_setting['login_geo_method'];
+
+			if ( ! $configured ) {
+				return $user;
+			}
+
+			$ip = self::get_client_ip();
+
+			if ( '' === $ip ) {
+				return self::unresolved_source_verdict( $user, 'country' );
+			}
+
+			// The bypass slug is an intentional escape hatch — honour it here too.
+			$request = isset( $_SERVER['REQUEST_URI'] )
+				? wp_parse_url( rawurldecode( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) )
+				: '';
+
+			if ( self::is_login_ip_bypass_request( $request ) ) {
+				return $user;
+			}
+
+			if ( ! self::is_country_blocked_cached( $ip ) ) {
+				return $user;
+			}
+
+			/**
+			 * Fire off action for others to observe.
+			 */
+			do_action( 'mls_login_blocked_due_to_geo_restrictions', $username, $ip );
+
+			return new \WP_Error(
+				'mls_login_geo_restricted',
+				__( '<strong>ERROR</strong>: Logins are not permitted from your location.', 'melapress-login-security' )
+			);
+		}
+
+		/**
+		 * Country lookup for an address, cached.
+		 *
+		 * is_blocked_country() performs an outbound HTTP request every time it
+		 * is called. On the login page that was one request per page view; on
+		 * the authentication filter it would be one per attempt, which hands an
+		 * attacker an amplifier — every guess against xmlrpc.php would make the
+		 * site issue a request of its own.
+		 *
+		 * The verdict for an address is therefore cached. Failures are not
+		 * cached, so a lookup outage does not pin a wrong answer in place, and
+		 * is_blocked_country() already fails open on error rather than locking
+		 * everybody out when the provider is unreachable.
+		 *
+		 * @param string $ip Address to resolve.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.4.0
+		 */
+		public static function is_country_blocked_cached( $ip ) {
+			$ip = (string) $ip;
+
+			if ( '' === $ip ) {
+				return false;
+			}
+
+			$cache_key = 'mls_geo_' . substr( hash_hmac( 'sha256', $ip, wp_salt() ), 0, 24 );
+			$cached    = get_transient( $cache_key );
+
+			if ( 'blocked' === $cached ) {
+				return true;
+			}
+
+			if ( 'allowed' === $cached ) {
+				return false;
+			}
+
+			$blocked = (bool) self::is_blocked_country( true, true, $ip );
+
+			set_transient( $cache_key, $blocked ? 'blocked' : 'allowed', 6 * HOUR_IN_SECONDS );
+
+			return $blocked;
+		}
+
+		/**
+		 * Is this request using the configured bypass slug for the login IP
+		 * restriction?
+		 *
+		 * Shared by the two places that need the answer so they cannot drift
+		 * apart. Both halves are guarded on a non-empty slug: without that, an
+		 * unconfigured slug reduces the query-string branch to `isset( $_GET[''] )`,
+		 * which is only safe because PHP happens to discard empty parameter
+		 * names — not something to rest an access control on.
+		 *
+		 * @param array|string $request - Parsed request URI.
+		 *
+		 * @return boolean
+		 *
+		 * @since 2.4.0
+		 */
+		public static function is_login_ip_bypass_request( $request ) {
+			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$slug        = isset( $mls_setting['restrict_login_bypass_slug'] ) ? $mls_setting['restrict_login_bypass_slug'] : '';
+
+			if ( empty( $slug ) ) {
+				return false;
+			}
+
+			if ( is_array( $request ) && isset( $request['path'] ) && untrailingslashit( $request['path'] ) === home_url( $slug, 'relative' ) ) {
+				return true;
+			}
+
+			// Plain permalinks: the slug arrives as a valueless query argument.
+			if ( ! get_option( 'permalink_structure' ) && isset( $_GET[ $slug ] ) && empty( $_GET[ $slug ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				return true;
+			}
+
+			return false;
+		}
+
 		private function restrict_login_bypass_slug() {
 			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
 			$slug        = isset( $mls_setting['restrict_login_bypass_slug'] ) ? $mls_setting['restrict_login_bypass_slug'] : '';
 
-			if ( is_multisite() && \is_plugin_active_for_network( MLS_BASENAME ) ) {
-				return $slug;
-			} else {
-				return $slug;
-			}
+			return $slug;
 		}
 
 		/**
@@ -717,11 +930,11 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			global $pagenow;
 
 			if ( ! empty( $mls_setting['custom_login_url'] ) ) {
-				if ( ! is_multisite() && ( strpos( $request_string, 'wp-signup.php' ) !== false || strpos( $request_string, 'wp-activate.php' ) !== false ) ) {
+				if ( ! is_multisite() && ( strpos( (string) $request_string, 'wp-signup.php' ) !== false || strpos( (string) $request_string, 'wp-activate.php' ) !== false ) ) {
 					wp_die( esc_html__( 'This feature is not enabled.', 'melapress-login-security' ) );
 				}
 
-				if ( ( strpos( $request_string, 'wp-login.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-login', 'relative' ) ) ) && ! is_admin() ) {
+				if ( ( strpos( (string) $request_string, 'wp-login.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-login', 'relative' ) ) ) && ! is_admin() ) {
 					$this->is_login_page    = true;
 					$_SERVER['REQUEST_URI'] = $this->context_trailingslashit( '/' . str_repeat( '-/', 10 ) );
 					$pagenow                = 'index.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -729,7 +942,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				} elseif ( ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === home_url( $this->custom_login_slug(), 'relative' ) ) || ( ! get_option( 'permalink_structure' ) && isset( $_GET[ $this->custom_login_slug() ] ) && empty( $_GET[ $this->custom_login_slug() ] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$pagenow = 'wp-login.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-				} elseif ( ( strpos( $request_string, 'wp-register.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-register', 'relative' ) ) ) && ! is_admin() ) {
+				} elseif ( ( strpos( (string) $request_string, 'wp-register.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-register', 'relative' ) ) ) && ! is_admin() ) {
 					$this->is_login_page    = true;
 					$_SERVER['REQUEST_URI'] = $this->context_trailingslashit( '/' . str_repeat( '-/', 10 ) );
 					$pagenow                = 'index.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -747,7 +960,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				}
 			} elseif ( isset( $mls_setting['enable_login_allowed_ips'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls_setting['enable_login_allowed_ips'] ) && isset( $mls_setting['restrict_login_allowed_ips'] ) && ! empty( $mls_setting['restrict_login_allowed_ips'] ) ) {
 				if ( ! empty( $this->restrict_login_bypass_slug() ) ) {
-					if ( ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === home_url( $this->restrict_login_bypass_slug(), 'relative' ) ) || ( ! get_option( 'permalink_structure' ) && isset( $_GET[ $this->restrict_login_bypass_slug() ] ) && empty( $_GET[ $this->restrict_login_bypass_slug() ] ) ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					if ( self::is_login_ip_bypass_request( $request ) ) {
 						$this->is_ip_check_required = true;
 						$pagenow                    = 'wp-login.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 					}
@@ -768,37 +981,43 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			$request     = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( rawurldecode( sanitize_text_field( $_SERVER['REQUEST_URI'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 			if ( $this->is_geo_check_required ) {
-				$is_blocked = self::is_blocked_country( true, true, self::sanitize_incoming_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				// Cached: this used to issue an outbound lookup on every render
+				// of the login page.
+				$is_blocked = self::is_country_blocked_cached( self::get_client_ip() );
 
 				if ( $is_blocked ) {
 					if ( 'deny_to_url' === $mls_setting['login_geo_action'] && ! empty( $mls_setting['login_geo_redirect_url'] ) ) {
-						wp_safe_redirect( '/' . rtrim( $mls_setting['login_geo_redirect_url'], '/' ) );
+						wp_safe_redirect( '/' . rtrim( \MLS\Helpers\OptionsHelper::sanitize_login_redirect_path( $mls_setting['login_geo_redirect_url'] ), '/' ) );
 					} else {
 						wp_safe_redirect( '/' );
 					}
-					die();
+					exit;
 				}
 			}
 
-			if ( $this->is_ip_check_required && isset( $_SERVER['REMOTE_ADDR'] ) ) {
-				$is_ip_blocked = self::is_ip_blocked( self::sanitize_incoming_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( $this->is_ip_check_required && '' !== self::get_client_ip() ) {
+				$is_ip_blocked = self::is_ip_blocked( self::get_client_ip() );
 
-				if ( $is_ip_blocked && ! isset( $_REQUEST['wp-submit'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					if ( ( ! empty( $this->restrict_login_bypass_slug() ) && ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === home_url( $this->restrict_login_bypass_slug(), 'relative' ) ) ) || ( ! get_option( 'permalink_structure' ) && isset( $_GET[ $this->restrict_login_bypass_slug() ] ) && empty( $_GET[ $this->restrict_login_bypass_slug() ] ) ) ) {  // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				// The check deliberately applies to submissions as well as page
+				// views. Exempting requests that carry `wp-submit` would exempt
+				// every real login attempt — an attacker does not need the form
+				// this restriction hides, only the POST it produces.
+				if ( $is_ip_blocked ) {
+					if ( self::is_login_ip_bypass_request( $request ) ) {
 						global $error, $interim_login, $action, $user_login;
 						@include_once ABSPATH . 'wp-login.php'; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-						die;
+						exit;
 					} else {
 						if ( isset( $_REQUEST['action'] ) && 'logout' === $_REQUEST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 							return;
 						}
 						if ( ! empty( $mls_setting['restrict_login_redirect_url'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-							wp_safe_redirect( '/' . rtrim( $mls_setting['restrict_login_redirect_url'], '/' ) );
+							wp_safe_redirect( '/' . rtrim( \MLS\Helpers\OptionsHelper::sanitize_login_redirect_path( $mls_setting['restrict_login_redirect_url'] ), '/' ) );
 						} else {
 							header( 'HTTP/1.0 403 Forbidden' );
-							die();
+							exit;
 						}
-						die();
+						exit;
 					}
 				}
 			}
@@ -810,23 +1029,46 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 					} else {
 						wp_safe_redirect( '/' . rtrim( $mls_setting['custom_login_redirect'], '/' ) );
 					}
-					die();
+					exit;
 				}
 
 				if ( 'wp-login.php' === $pagenow && $request['path'] !== $this->context_trailingslashit( $request['path'] ) && get_option( 'permalink_structure' ) ) {
-					wp_safe_redirect( $this->context_trailingslashit( $this->custom_login_url() ) . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . wp_unslash( $_SERVER['QUERY_STRING'] ) : '' ) );
-					die;
+					wp_safe_redirect( $this->context_trailingslashit( $this->custom_login_url() ) . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) : '' ) );
+					exit;
 
 				} elseif ( $this->is_login_page ) {
+					/*
+					 * The query string comes off the parsed URL, not off the URL
+					 * string. This read `$referer['query']` while `$referer` was
+					 * still the raw string — a non-numeric offset on a string,
+					 * which `empty()` reports as empty without complaint. The
+					 * condition was therefore never true and the whole branch was
+					 * unreachable, so a multisite user finishing activation was
+					 * sent to the redirect below instead of being activated.
+					 *
+					 * The key is also checked before it is used now, rather than
+					 * after: `wpmu_activate_signup()` used to be called with an
+					 * undefined index.
+					 */
 					$referer       = wp_get_referer();
-					$referer_parse = wp_parse_url( $referer );
+					$referer_parse = $referer ? wp_parse_url( $referer ) : false;
+					$referer_query = array();
 
-					if ( $referer && strpos( $referer, 'wp-activate.php' ) !== false && $referer_parse && ! empty( $referer['query'] ) ) {
-						parse_str( $referer['query'], $referer );
-						$result = wpmu_activate_signup( $referer['key'] );
-						if ( ! empty( $referer['key'] ) && is_wp_error( $result ) && ( $result->get_error_code() === 'already_active' || $result->get_error_code() === 'blog_taken' ) ) {
-							wp_safe_redirect( $this->custom_login_url() . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . wp_unslash( $_SERVER['QUERY_STRING'] ) : '' ) );
-							die;
+					if ( $referer_parse && ! empty( $referer_parse['query'] ) ) {
+						parse_str( (string) $referer_parse['query'], $referer_query );
+					}
+
+					if ( $referer
+						&& false !== strpos( (string) $referer, 'wp-activate.php' )
+						&& ! empty( $referer_query['key'] )
+						&& is_multisite()
+						&& function_exists( 'wpmu_activate_signup' ) ) {
+
+						$result = wpmu_activate_signup( sanitize_text_field( $referer_query['key'] ) );
+
+						if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'already_active', 'blog_taken' ), true ) ) {
+							wp_safe_redirect( $this->custom_login_url() . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) : '' ) );
+							exit;
 						}
 					} else {
 						if ( empty( $mls_setting['custom_login_redirect'] ) || ! $mls_setting['custom_login_redirect'] ) {
@@ -834,7 +1076,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 						} else {
 							wp_safe_redirect( '/' . rtrim( $mls_setting['custom_login_redirect'], '/' ) );
 						}
-						die();
+						exit;
 					}
 
 					$this->load_login_template();
@@ -842,7 +1084,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				} elseif ( 'wp-login.php' === $pagenow ) {
 					global $error, $interim_login, $action, $user_login, $errors;
 					@include_once ABSPATH . 'wp-login.php'; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-					die;
+					exit;
 				}
 			}
 		}
@@ -903,14 +1145,15 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.0.0
 		 */
 		public function login_control_login_url_filter( $url, $scheme = null ) {
-			if ( strpos( $url, 'wp-login.php' ) !== false ) {
+			if ( strpos( (string) $url, 'wp-login.php' ) !== false ) {
 				if ( is_ssl() ) {
 					$scheme = 'https';
 				}
 				$args = explode( '?', $url );
 				if ( isset( $args[1] ) ) {
 					parse_str( $args[1], $args );
-					$url = add_query_arg( $args, $this->custom_login_url( $scheme ) );
+					$args = array_map( 'rawurlencode', $args );
+					$url  = add_query_arg( $args, $this->custom_login_url( $scheme ) );
 				} else {
 					$url = $this->custom_login_url( $scheme );
 				}
@@ -1026,6 +1269,14 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 
 			$denied_countries = ! empty( $target_countries ) ? explode( ',', $target_countries ) : array();
 
+			/*
+			 * Short timeout and bounded redirects. This runs on an
+			 * unauthenticated login request, so WordPress's five-second default
+			 * would let a slow or degraded upstream hold a PHP worker for
+			 * five seconds per attempt — a cheaper way to exhaust the pool than
+			 * attacking the site directly. The result is cached either way, so a
+			 * lookup that does not answer quickly is not worth waiting for.
+			 */
 			$response = wp_safe_remote_get(
 				esc_url_raw(
 					sprintf(
@@ -1034,6 +1285,10 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 						$iplocate_api_key
 					),
 					'https'
+				),
+				array(
+					'timeout'     => (int) apply_filters( 'mls_geolocation_request_timeout', 2 ),
+					'redirection' => 1,
 				)
 			);
 
@@ -1093,11 +1348,24 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		private static function prepare_ip( $ip, $cut_end = true ) {
 			$separator = ( self::check_ip_format( $ip ) ? '.' : ':' );
 
-			return str_replace(
-				( $cut_end ? strrchr( $ip, $separator ) : strstr( $ip, $separator ) ),
-				'',
-				$ip
-			);
+			/*
+			 * Cut at the separator rather than substituting the tail.
+			 *
+			 * This used str_replace() to remove strrchr()'s result, which
+			 * replaces *every* occurrence of that text and not just the trailing
+			 * one. Any address whose last group also appears earlier came out
+			 * mangled: 8.8.8.8 became "8", and 192.168.1.168 became "192.1", so
+			 * the lookup was sent "8.0" and "192.1.0". The provider answered 400
+			 * and is_blocked_country() fails open on error, which meant the
+			 * country policy silently let those addresses through.
+			 */
+			$position = $cut_end ? strrpos( $ip, $separator ) : strpos( $ip, $separator );
+
+			if ( false === $position ) {
+				return $ip;
+			}
+
+			return substr( $ip, 0, $position );
 		}
 
 		/**
@@ -1143,9 +1411,55 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
+		/**
+		 * The address this request came from, as the plugin should count it.
+		 *
+		 * `REMOTE_ADDR` is the default and the only value taken from the request,
+		 * because it is the socket peer and cannot be spoofed. A forwarded-for
+		 * header can be, so none is read here: trusting one would let any caller
+		 * choose which rate-limit bucket to land in, which defeats the limit.
+		 *
+		 * That is correct for a site that terminates its own connections, and
+		 * wrong for one behind a CDN or load balancer, where REMOTE_ADDR is the
+		 * proxy and every visitor therefore shares a single bucket — one
+		 * attacker's failures then consume the allowance for everybody. The
+		 * `mls_client_ip` filter exists for that deployment.
+		 *
+		 * A site using it MUST resolve the address from a header its own edge
+		 * sets and overwrites, after confirming the request really arrived from
+		 * that edge. Returning a raw `X-Forwarded-For` value is worse than
+		 * changing nothing.
+		 *
+		 * @return string Sanitised address, or an empty string if none is known.
+		 *
+		 * @since 2.4.0
+		 */
+		public static function get_client_ip() {
+			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? self::sanitize_incoming_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+
+			/**
+			 * Filters the address used for rate limiting and IP policies.
+			 *
+			 * Only for deployments behind a trusted proxy. The value must already
+			 * have been verified as coming from that proxy; it is re-validated as
+			 * an address here but nothing else can be checked about it.
+			 *
+			 * @since 2.4.0
+			 *
+			 * @param string $ip Address derived from REMOTE_ADDR.
+			 */
+			$filtered = (string) apply_filters( 'mls_client_ip', $ip );
+
+			// A filter that returns something which is not an address is ignored
+			// rather than allowed to create a bucket of its own.
+			$filtered = self::sanitize_incoming_ip( $filtered );
+
+			return '' !== $filtered ? $filtered : $ip;
+		}
+
 		public static function sanitize_incoming_ip( $raw_ip ) {
 
-			if ( strpos( $raw_ip, ',' ) !== false ) {
+			if ( strpos( (string) $raw_ip, ',' ) !== false ) {
 				$ips    = explode( ',', $raw_ip );
 				$raw_ip = trim( $ips[0] );
 			}
@@ -1172,15 +1486,91 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public static function is_ip_blocked( $ip ) {
-			$mls         = melapress_login_security();
-			$allowed_ips = explode( ',', $mls->options->mls_setting->restrict_login_allowed_ips );
+		/**
+		 * What to do when the source address cannot be resolved.
+		 *
+		 * A restriction keyed on the source cannot be applied without one. This
+		 * permits the login, which is the behaviour that has always shipped:
+		 * failing closed here would lock every user out of a site whose proxy or
+		 * server stopped passing an address, with no route back in.
+		 *
+		 * Previously that happened silently. It is now explicit, observable and
+		 * overridable, so a deployment that would rather fail closed can.
+		 *
+		 * @param \WP_User|\WP_Error|null $user        - The verdict so far.
+		 * @param string                  $restriction - 'ip' or 'country'.
+		 *
+		 * @return \WP_User|\WP_Error|null
+		 *
+		 * @since 2.4.0
+		 */
+		private static function unresolved_source_verdict( $user, string $restriction ) {
+			/**
+			 * Whether to allow a login when the source address is unknown.
+			 *
+			 * @param bool   $allow       Default true.
+			 * @param string $restriction Which restriction could not be applied.
+			 */
+			$allow = (bool) \apply_filters( 'mls_allow_login_when_source_unresolved', true, $restriction );
 
-			if ( ! $ip || in_array( $ip, $allowed_ips, true ) ) {
+			\do_action( 'mls_login_source_unresolved', $restriction, $allow );
+
+			if ( $allow ) {
+				return $user;
+			}
+
+			return 'country' === $restriction
+				? new \WP_Error( 'mls_login_geo_restricted', \esc_html__( 'Logins are not permitted from your country.', 'melapress-login-security' ) )
+				: new \WP_Error( 'mls_login_ip_restricted', \esc_html__( 'Logins are not permitted from this IP address.', 'melapress-login-security' ) );
+		}
+
+		public static function is_ip_blocked( $ip ) {
+			$ip = trim( (string) $ip );
+
+			if ( '' === $ip ) {
 				return false;
 			}
 
-			return true;
+			return ! in_array( $ip, self::allowed_ips(), true );
+		}
+
+		/**
+		 * The configured allowlist, normalised.
+		 *
+		 * Read from the option rather than from the in-memory options object.
+		 * enforce_login_ip_restriction() already reads the option directly, so
+		 * taking the comparison list from the object meant the two halves of one
+		 * decision could disagree — the enable flag current, the list stale — for
+		 * the remainder of a request in which the setting had just been saved.
+		 *
+		 * Entries are cast, trimmed and validated here. A stored value can arrive
+		 * from a legacy option, an import or a filter without passing through the
+		 * admin save path that trims it, and handing null to explode() is
+		 * deprecated on PHP 8.1+.
+		 *
+		 * @return string[] Valid IP addresses, in the order configured.
+		 *
+		 * @since 2.4.0
+		 */
+		private static function allowed_ips(): array {
+			$mls_setting = \get_site_option( MLS_PREFIX . '_setting' );
+			$raw         = is_array( $mls_setting ) && isset( $mls_setting['restrict_login_allowed_ips'] )
+				? (string) $mls_setting['restrict_login_allowed_ips']
+				: '';
+
+			$allowed = array();
+
+			foreach ( explode( ',', $raw ) as $candidate ) {
+				$candidate = trim( $candidate, " \t\n\r\0\x0B/" );
+
+				if ( '' === $candidate || ! filter_var( $candidate, FILTER_VALIDATE_IP ) ) {
+					continue;
+				}
+
+				$allowed[] = $candidate;
+			}
+
+			return $allowed;
 		}
 	}
 }

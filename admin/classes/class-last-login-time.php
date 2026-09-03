@@ -125,7 +125,7 @@ if ( ! class_exists( '\MLS\Admin\UserLastLoginTime' ) ) {
 		 */
 		public static function add_users_dashboard_column( $columns ) {
 			$new_columns = array(
-				'mls-last-login' => esc_html__( 'Last login time', 'text_domain' ),
+				'mls-last-login' => esc_html__( 'Last login time', 'melapress-login-security' ),
 			);
 			return array_merge( $columns, $new_columns );
 		}

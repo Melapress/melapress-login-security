@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace MLS;
 
+use MLS\Helpers\OptionsHelper;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -31,11 +33,11 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function init() {
+		public static function init() {
 			// Redirect login page.
-			add_action( 'validate_password_reset', array( $this, 'ppm_validate_password_reset' ), 10, 2 );
-			add_action( 'user_profile_update_errors', array( $this, 'ppm_new_user_errors' ), 10 );
-			add_filter( 'login_redirect', array( $this, 'override_login_redirects' ), 1000, 3 );
+			add_action( 'validate_password_reset', array( __CLASS__, 'ppm_validate_password_reset' ), 10, 2 );
+			add_action( 'user_profile_update_errors', array( __CLASS__, 'ppm_new_user_errors' ), 10 );
+			add_filter( 'login_redirect', array( __CLASS__, 'override_login_redirects' ), 1000, 3 );
 		}
 
 		/**
@@ -49,7 +51,7 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function override_login_redirects( $redirect_to, $requested_redirect_to, $user ) {
+		public static function override_login_redirects( $redirect_to, $requested_redirect_to, $user ) {
 			if ( ! empty( $redirect_to ) && is_a( $user, '\WP_User' ) ) {
 				if ( get_user_meta( $user->ID, 'mls_temp_user', true ) ) {
 					return $redirect_to;
@@ -57,7 +59,6 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 
 				$reset            = new \MLS\Reset_Passwords();
 				$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
-				$mls              = \MLS_Core::get_instance();
 
 				if ( $verify_reset_key ) {
 					if ( isset( $verify_reset_key->errors['invalid_key'] ) || empty( $user->user_activation_key ) ) {
@@ -68,7 +69,7 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 						$verify_reset_key->user_login = $user->user_login;
 					}
 
-					$mls->handle_user_redirection( $verify_reset_key, false, true );
+					\MLS_Core::handle_user_redirection( $verify_reset_key, false, true );
 				}
 			}
 
@@ -85,7 +86,7 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_validate_password_reset( $error, $user ) {
+		public static function ppm_validate_password_reset( $error, $user ) {
 			// Get user reset key.
 			$reset            = new \MLS\Reset_Passwords();
 			$verify_reset_key = $reset->ppm_get_user_reset_key( $user, 'new-user' );
@@ -96,7 +97,7 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 				// Logout current user.
 				wp_logout();
 				// Login notice.
-				add_filter( 'login_message', array( $this, 'ppm_retrieve_password_message' ) );
+				add_filter( 'login_message', array( __CLASS__, 'ppm_retrieve_password_message' ) );
 			}
 		}
 
@@ -107,7 +108,7 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_retrieve_password_message() {
+		public static function ppm_retrieve_password_message() {
 			return wp_sprintf( '<p class="message reset-pass">%s</p>', __( 'To ensure you use a strong password, you are required to change your password before you login for the first time.', 'melapress-login-security' ) );
 		}
 
@@ -120,7 +121,43 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_new_user_errors( $errors ) {
+		/**
+		 * Whether a role is exempt from password policies.
+		 *
+		 * "Do not enforce password & login policies for this role" is stored as
+		 * enforce_password, a name that reads as its own opposite: a truthy value
+		 * means the policies do not apply.
+		 *
+		 * Everywhere else the exemption is reached through
+		 * MLS_Core::is_user_exempted(), which resolves it from an account's roles.
+		 * That is no help while a user is being created: there is no account to ask
+		 * about until the password has already been judged, so nothing consulted
+		 * the exemption and an exempt role could not be given a password the
+		 * site-wide policy would refuse. The role comes from the submitted form
+		 * instead, and get_role_options() resolves inheritance the same way
+		 * is_user_exempted() does, so a role inheriting an exempt site-wide policy
+		 * is exempt too.
+		 *
+		 * @param string $role Role slug from the request.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.4.0
+		 */
+		public static function role_is_exempt( $role ) {
+			$role = \sanitize_key( (string) $role );
+
+			if ( '' === $role ) {
+				return false;
+			}
+
+			$options = OptionsHelper::get_role_options( $role );
+
+			return \property_exists( $options, 'enforce_password' )
+				&& OptionsHelper::string_to_bool( $options->enforce_password );
+		}
+
+		public static function ppm_new_user_errors( $errors ) {
 
 			// Ignore nonce check as we are only using this as a flag.
 			if ( isset( $_POST['from'] ) && 'profile' === $_POST['from'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -133,20 +170,44 @@ if ( ! class_exists( '\MLS\New_User_Register' ) ) {
 			$user_settings = $mls->options->users_options;
 			$role_setting  = $mls->options->setting_options;
 
-			$options_master_switch    = \MLS\Helpers\OptionsHelper::string_to_bool( $options->master_switch );
-			$settings_master_switch   = \MLS\Helpers\OptionsHelper::string_to_bool( $user_settings->master_switch );
-			$inherit_policies_setting = \MLS\Helpers\OptionsHelper::string_to_bool( $user_settings->inherit_policies );
+			$options_master_switch    = OptionsHelper::string_to_bool( $options->master_switch );
+			$settings_master_switch   = OptionsHelper::string_to_bool( $user_settings->master_switch );
+			$inherit_policies_setting = OptionsHelper::string_to_bool( $user_settings->inherit_policies );
 			$post_array               = filter_input_array( INPUT_POST );
 
 			$is_needed  = ( $options_master_switch || ( $settings_master_switch || ! $inherit_policies_setting ) );
 			$post_array = filter_input_array( INPUT_POST );
 
 			if ( $is_needed && isset( $post_array['pass1'] ) && ! empty( $post_array['pass1'] ) ) {
+				/*
+				 * Judge the password against the policy of the role being created,
+				 * not of the administrator doing the creating.
+				 *
+				 * MLS_Regex compiles its rules for the current user, which on
+				 * user-new.php is whoever is logged in. There is no account to point
+				 * it at yet, so the role from the request is what it has to go on.
+				 * Without this, an Editor policy of twenty characters was enforced
+				 * to the administrator's twelve and the new user was created.
+				 *
+				 * Only on creation: an edit already runs through
+				 * Password_Check::validate_for_user(), which points the rules at the
+				 * account being edited.
+				 */
+				if ( isset( $post_array['action'] ) && 'createuser' === $post_array['action'] && ! empty( $post_array['role'] ) ) {
+					$target_role = \sanitize_key( $post_array['role'] );
+
+					if ( self::role_is_exempt( $target_role ) ) {
+						return $errors;
+					}
+
+					\MLS\MLS_Regex::init_for_role( $target_role );
+				}
+
 				$pwd_check          = new \MLS\Password_Check();
 				$does_violate_rules = $pwd_check->does_violate_rules( $post_array['pass1'] );
 
 				if ( $does_violate_rules ) {
-					$errors->add( 'ppm_password_error', __( 'Password does not meet policy requirements.' ) );
+					$errors->add( 'ppm_password_error', __( 'Password does not meet policy requirements.', 'melapress-login-security' ) );
 				}
 			}
 
