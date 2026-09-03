@@ -35,24 +35,6 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 		private $options;
 
 		/**
-		 * Password hint messages.
-		 *
-		 * @var MLS_Messages Instance of MLS_Messages
-		 *
-		 * @since 2.0.0
-		 */
-		private $msgs;
-
-		/**
-		 * Plugin regex.
-		 *
-		 * @var MLS_Regex Instance of MLS_Regex
-		 *
-		 * @since 2.0.0
-		 */
-		private $regex;
-
-		/**
 		 * User Options
 		 *
 		 * @var object $role_options Role specific settings.
@@ -71,8 +53,6 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 		public function __construct() {
 			$mls           = melapress_login_security();
 			$this->options = $mls->options;
-			$this->msgs    = $mls->msgs;
-			$this->regex   = $mls->regex;
 		}
 
 		/**
@@ -95,7 +75,12 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			}
 
 			$userid = get_current_user_id();
-			$userid = isset( $_GET['user_id'] ) ? sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) : $userid;
+			if ( isset( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$candidate = absint( $_GET['user_id'] );
+				if ( $candidate && is_admin() && current_user_can( 'edit_user', $candidate ) ) {
+					$userid = $candidate;
+				}
+			}
 
 			if ( 0 === $userid ) {
 				list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
@@ -144,6 +129,17 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			self::$role_options = $options;
 
 			$is_feature_active = isset( $options['activate_password_policies'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['activate_password_policies'] ) ? true : false;
+
+			// user-new.php hooks must be registered based on the master policy, not the
+			// current user's role, because the new user may have a different role.
+			$master_options              = MLS_Options::get_default_options();
+			$is_feature_active_for_new   = isset( $master_options['activate_password_policies'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $master_options['activate_password_policies'] );
+			if ( $is_feature_active_for_new ) {
+				add_action( 'load-user-new.php', array( $this, 'user_new' ) );
+				add_action( 'admin_print_styles-user-new.php', array( $this, 'localise' ) );
+				add_action( 'admin_print_styles-user-new.php', array( $this, 'add_admin_css' ) );
+			}
+
 			if ( ! $is_feature_active ) {
 
 				$is_feature_active_security_prompt = isset( $options['enable_security_questions'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['enable_security_questions'] ) ? true : false;
@@ -164,19 +160,21 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				add_action( 'load-profile.php', array( $this, 'load_profile' ) );
 			}
 
-			// add new user screen.
-			add_action( 'load-user-new.php', array( $this, 'user_new' ) );
+			// user-new hooks already registered above via master policy check.
+			if ( ! $is_feature_active_for_new ) {
+				add_action( 'load-user-new.php', array( $this, 'user_new' ) );
+				add_action( 'admin_print_styles-user-new.php', array( $this, 'localise' ) );
+				add_action( 'admin_print_styles-user-new.php', array( $this, 'add_admin_css' ) );
+			}
 
 			// localise js objects.
 			add_action( 'admin_print_styles-user-edit.php', array( $this, 'localise' ) );
 			add_action( 'admin_print_styles-profile.php', array( $this, 'localise' ) );
-			add_action( 'admin_print_styles-user-new.php', array( $this, 'localise' ) );
 			add_action( 'validate_password_reset', array( $this, 'localise' ), 10, 2 );
 
 			// Add styles for the various forms.
 			add_action( 'admin_print_styles-user-edit.php', array( $this, 'add_admin_css' ) );
 			add_action( 'admin_print_styles-profile.php', array( $this, 'add_admin_css' ) );
-			add_action( 'admin_print_styles-user-new.php', array( $this, 'add_admin_css' ) );
 			add_action( 'validate_password_reset', array( $this, 'add_frontend_css' ) );
 
 			if ( isset( $mls->options->mls_setting->enable_wp_reset_form ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_reset_form ) ) {
@@ -246,16 +244,16 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 
 				wp_register_script( 'password-strength-meter', MLS_PLUGIN_URL . 'assets/js/password-strength-meter.js', array( 'jquery', 'zxcvbn-async' ), MLS_VERSION, 1 );
 
-				wp_localize_script( 'password-strength-meter', 'pws_l10n', $this->msgs->pws_l10n );
-				wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( \wp_json_encode( $this->regex ), true ) );
+				wp_localize_script( 'password-strength-meter', 'pws_l10n', \MLS\MLS_Messages::$pws_l10n );
+				wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', \MLS\MLS_Regex::get_rules() );
 				wp_localize_script( 'password-strength-meter', 'ppmUserDetails', array( 'current_user_login' => $current_user->user_login ) );
 
 				wp_enqueue_script( 'ppm-user-profile', MLS_PLUGIN_URL . 'assets/js/custom-form.js', array( 'jquery', 'password-strength-meter', 'wp-util' ), MLS_VERSION, 1 );
 
-				wp_localize_script( 'ppm-user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
-				wp_localize_script( 'ppm-user-profile', 'pwsL10n', $this->msgs->user_profile_l10n );
+				wp_localize_script( 'ppm-user-profile', 'user_profile_l10n', \MLS\MLS_Messages::$user_profile_l10n );
+				wp_localize_script( 'ppm-user-profile', 'pwsL10n', \MLS\MLS_Messages::$user_profile_l10n );
 				wp_localize_script( 'ppm-user-profile', 'myacPwsL10n', array( 'disable_enforcement' => false ) );
-				wp_localize_script( 'user-profile', 'pwsL10n', $this->msgs->user_profile_l10n );
+				wp_localize_script( 'user-profile', 'pwsL10n', \MLS\MLS_Messages::$user_profile_l10n );
 
 				// Variables to check shortly.
 				$element_to_apply_form_js_to      = $custom_form['element'];
@@ -274,9 +272,9 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 					)
 				);
 
-				wp_localize_script( 'ppm-user-profile', 'ppmErrors', $this->msgs->error_strings );
-				wp_localize_script( 'ppm-user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
-				wp_localize_script( 'ppm-user-profile', 'ppmPolicyRules', json_decode( \wp_json_encode( $this->regex ), true ) );
+				wp_localize_script( 'ppm-user-profile', 'ppmErrors', \MLS\MLS_Messages::$error_strings );
+				wp_localize_script( 'ppm-user-profile', 'ppmJSErrors', \MLS\MLS_Messages::$js_error_strings );
+				wp_localize_script( 'ppm-user-profile', 'ppmPolicyRules', \MLS\MLS_Regex::get_rules() );
 
 				add_filter( 'password_hint', array( $this, 'password_hint' ) );
 
@@ -334,9 +332,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 		 * @since 2.0.0
 		 */
 		public function user_new() {
-			global $user_id;
-
-			$this->modify_user_scripts( $user_id );
+			$this->modify_user_scripts( false );
 		}
 
 		/**
@@ -376,7 +372,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				return;
 			}
 
-			if ( 0 === $user_id ) {
+			if ( 0 === $user_id && 'load-user-new.php' !== \current_action() ) {
 				return;
 			}
 
@@ -419,18 +415,16 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 
 			wp_register_script( 'password-strength-meter', MLS_PLUGIN_URL . "assets/js/password-strength-meter$suffix.js", array( 'jquery', 'zxcvbn-async' ), MLS_VERSION, 1 );
 
-			wp_localize_script( 'password-strength-meter', 'pws_l10n', $this->msgs->pws_l10n );
-			wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', json_decode( \wp_json_encode( $this->regex ), true ) );
-			wp_localize_script( 'password-strength-meter', 'ppmUserDetails', array( 'current_user_login' => $current_user->user_login ) );
-
-			wp_add_inline_script( 'password-strength-meter', 'jQuery(document).ready(function() { jQuery(\'.pw-weak\').remove();});' );
+			wp_localize_script( 'password-strength-meter', 'pws_l10n', \MLS\MLS_Messages::$pws_l10n );
+		wp_localize_script( 'password-strength-meter', 'ppmPolicyRules', \MLS\MLS_Regex::get_rules() );
+		wp_localize_script( 'password-strength-meter', 'ppmUserDetails', array( 'current_user_login' => $current_user->user_login ) );
 
 			wp_register_script( 'user-profile', MLS_PLUGIN_URL . "assets/js/user-profile$suffix.js", array( 'jquery', 'password-strength-meter', 'wp-util' ), MLS_VERSION, 1 );
 
-			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
+			wp_localize_script( 'user-profile', 'user_profile_l10n', \MLS\MLS_Messages::$user_profile_l10n );
 
-			wp_localize_script( 'user-profile', 'ppmErrors', $this->msgs->error_strings );
-			wp_localize_script( 'user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
+			wp_localize_script( 'user-profile', 'ppmErrors', \MLS\MLS_Messages::$error_strings );
+			wp_localize_script( 'user-profile', 'ppmJSErrors', \MLS\MLS_Messages::$js_error_strings );
 			wp_localize_script(
 				'user-profile',
 				'ppmSettings',
@@ -462,7 +456,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				return;
 			}
 
-			if ( 0 === $user_id ) {
+			if ( 0 === $user_id && 'admin_print_styles-user-new.php' !== \current_action() ) {
 				return;
 			}
 
@@ -507,9 +501,9 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 
 			add_filter( 'password_hint', array( $this, 'password_hint' ) );
 
-			wp_localize_script( 'user-profile', 'user_profile_l10n', $this->msgs->user_profile_l10n );
-			wp_localize_script( 'user-profile', 'ppmErrors', $this->msgs->error_strings );
-			wp_localize_script( 'user-profile', 'ppmJSErrors', $this->msgs->js_error_strings );
+			wp_localize_script( 'user-profile', 'user_profile_l10n', \MLS\MLS_Messages::$user_profile_l10n );
+			wp_localize_script( 'user-profile', 'ppmErrors', \MLS\MLS_Messages::$error_strings );
+			wp_localize_script( 'user-profile', 'ppmJSErrors', \MLS\MLS_Messages::$js_error_strings );
 		}
 
 		/**
@@ -563,7 +557,8 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			<strong><?php esc_html_e( 'Hints for a strong password', 'melapress-login-security' ); ?>:</strong>
 				<ul>
 					<?php
-					unset( $this->msgs->error_strings['history'] );
+					$hint_errors = \MLS\MLS_Messages::$error_strings;
+					unset( $hint_errors['history'] );
 
 					$is_needed                   = isset( self::$role_options['rules']['exclude_special_chars'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( self::$role_options['rules']['exclude_special_chars'] );
 					$do_we_have_chars_to_exclude = isset( self::$role_options['excluded_special_chars'] ) && ! empty( self::$role_options['excluded_special_chars'] );
@@ -572,16 +567,16 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 					 * Edge case when all special characters are excluded in the excluded characters
 					 * can return false positive when new password is set
 					 */
-					if ( ! \MLS\Helpers\OptionsHelper::string_to_bool( self::$role_options['rules']['special_chars'] ) && isset( $this->msgs->error_strings['special_chars'] ) ) {
-						unset( $this->msgs->error_strings['special_chars'] );
+					if ( ! \MLS\Helpers\OptionsHelper::string_to_bool( self::$role_options['rules']['special_chars'] ) && isset( $hint_errors['special_chars'] ) ) {
+						unset( $hint_errors['special_chars'] );
 					}
 
 					if ( ! $is_needed || ! $do_we_have_chars_to_exclude ) {
 						// doesn't have any characters excluded.
-						unset( $this->msgs->error_strings['exclude_special_chars'] );
+						unset( $hint_errors['exclude_special_chars'] );
 					}
 
-					foreach ( array_filter( $this->msgs->error_strings ) as $key => $error ) {
+					foreach ( array_filter( $hint_errors ) as $key => $error ) {
 						?>
 						<li class="<?php echo esc_attr( $key ); ?>"><?php echo wp_kses_post( $error ); ?></li>
 						<?php

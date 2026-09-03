@@ -41,7 +41,7 @@ jQuery( document ).ready( function( $ ) {
 		if ( $( this ).hasClass( 'process-end' ) ) {
 			return;
 		}
-		$.post( options.global_ajax_url, { action: 'ppm_ajax_session_expired' }, function( data, textStatus, xhr ) {} );
+		$.post( options.global_ajax_url, { action: 'ppm_ajax_session_expired', _ajax_nonce: options.session_expired_nonce }, function( data, textStatus, xhr ) {} );
 
 		$( '#ppm-wp-dialog' ).html( '<p>' + ppmwpGlobalStrings.emailResetInstructions + '</p><a href="javascript:;" class="button-primary process-end reset">' + ppmwpGlobalStrings.submitOK + '</a>' );
 		$( '#ppm-wp-dialog' ).dialog( {
@@ -85,8 +85,26 @@ jQuery( document ).ready( function( $ ) {
 		}
 
 	} );
+
+	var shouldWarnForShortPassword = function() {
+		var minLengthField = $( '#ppm-min-length' );
+
+		if ( ! minLengthField.length || minLengthField.hasClass( 'force-submit' ) ) {
+			return false;
+		}
+
+		var minLength = parseInt( minLengthField.val(), 10 );
+
+		return ! Number.isNaN( minLength ) && minLength < 6;
+	};
+
 	// save ppm-wp setting form
 	$( '#ppm-wp-settings' ).submit( function( event ) {
+		if ( shouldWarnForShortPassword() ) {
+			PassWordLengthPolicy();
+			return false;
+		}
+
 		// Reset all user process.
 		if ( $( this ).hasClass( 'ppm_reset_all' ) ) {
 			return true;

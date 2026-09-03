@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace MLS;
 
+use MLS\Emailer;
 use MLS\TemporaryLogins\Temporary_Logins;
 
 // Exit if accessed directly.
@@ -102,6 +103,44 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		}
 
 		/**
+		 * User IDs that a role-wide password reset must leave alone.
+		 *
+		 * The exemption list used to be read through a `$mls` variable that was
+		 * never assigned in that scope. `isset()` on an undefined variable is
+		 * simply false and raises no warning, so the list silently resolved to
+		 * empty and every exempted account — typically service accounts,
+		 * integrations and break-glass administrators — had its password reset
+		 * along with the rest of the role.
+		 *
+		 * Pulled out of the handler so the behaviour is reachable from a test
+		 * without going through the AJAX entry point.
+		 *
+		 * @param bool $include_self Whether the acting user is being reset too.
+		 *
+		 * @return array List of user IDs to exclude.
+		 *
+		 * @since 2.4.0
+		 */
+		public static function get_exempted_user_ids( $include_self = false ) {
+			$mls            = melapress_login_security();
+			$exempted_users = array();
+
+			if ( isset( $mls->options->mls_setting->exempted['users'] )
+				&& ! empty( $mls->options->mls_setting->exempted['users'] )
+				&& \is_array( $mls->options->mls_setting->exempted['users'] ) ) {
+				$exempted_users = $mls->options->mls_setting->exempted['users'];
+			}
+
+			$exempted_users = array_map( 'absint', $exempted_users );
+
+			if ( ! $include_self ) {
+				$exempted_users[] = get_current_user_id();
+			}
+
+			return array_values( array_unique( array_filter( $exempted_users ) ) );
+		}
+
+		/**
 		 * Process global resets.
 		 *
 		 * @return void
@@ -113,7 +152,9 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : false;
 
 			// Check nonce.
-			if ( ! current_user_can( 'manage_options' ) || empty( $nonce ) || ! $nonce || ! wp_verify_nonce( $nonce, 'mls_mass_reset' ) ) {
+			// Network-scoped: reset_all() queries with blog_id => 0 and queues a
+			// reset for every account on the network, including super admins.
+			if ( ! \MLS\Helpers\OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! $nonce || ! wp_verify_nonce( $nonce, 'mls_mass_reset' ) ) {
 				wp_send_json_error( esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 
@@ -121,8 +162,8 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 
 			$reset_type    = isset( $_POST['reset_type'] ) ? sanitize_text_field( wp_unslash( $_POST['reset_type'] ) ) : false;
 			$role          = isset( $_POST['role'] ) ? sanitize_text_field( wp_unslash( $_POST['role'] ) ) : false;
-			$file_text     = isset( $_POST['file_text'] ) ? wp_unslash( $_POST['file_text'] ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			$users         = isset( $_POST['users'] ) ? wp_unslash( $_POST['users'] ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$file_text     = isset( $_POST['file_text'] ) ? sanitize_text_field( wp_unslash( $_POST['file_text'] ) ) : false;
+			$users         = isset( $_POST['users'] ) ? array_map( 'absint', (array) wp_unslash( $_POST['users'] ) ) : false;
 			$include_self  = isset( $_POST['include_self'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['include_self'] ) ) ? true : false;
 			$send_reset    = isset( $_POST['send_reset'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['send_reset'] ) ) ? true : false;
 			$kill_sessions = isset( $_POST['kill_sessions'] ) && 'true' === sanitize_text_field( wp_unslash( $_POST['kill_sessions'] ) ) ? true : false;
@@ -140,14 +181,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 					self::reset_all( true, $kill_sessions, $send_reset, true, $reset_when );
 				}
 			} elseif ( 'reset-role' === $reset_type ) {
-				$exempted_users = array();
-				if ( isset( $mls->options->mls_setting->exempted['users'] ) && ! empty( $mls->options->mls_setting->exempted['users'] ) && \is_array( $mls->options->mls_setting->exempted['users'] ) ) {
-					$exempted_users = $mls->options->mls_setting->exempted['users'];
-				}
-
-				if ( ! $include_self ) {
-					array_push( $exempted_users, get_current_user_id() );
-				}
+				$exempted_users = self::get_exempted_user_ids( $include_self );
 
 				// exclude exempted roles and users.
 				// $user_args = array(
@@ -174,7 +208,8 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 					self::reset_user( $user_id, $kill_sessions, $send_reset, $reset_when );
 				}
 			} elseif ( 'reset-csv' === $reset_type ) {
-				$users       = explode( ',', $file_text );
+				$users       = array_map( 'absint', explode( ',', $file_text ) );
+				$users       = array_filter( $users );
 				$reset_count = 0;
 				foreach ( $users as $user_id ) {
 					$user = get_userdata( $user_id );
@@ -208,6 +243,17 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		public static function reset_user( $user_id, $kill_sessions = false, $send_reset = false, $reset_when = '' ) {
 			$user = get_user_by( 'ID', $user_id );
 
+			/*
+			 * get_user_by() returns false for an account that no longer exists,
+			 * and this runs from cron and from bulk actions where the user can
+			 * be deleted between the list being built and the row being handled.
+			 * `$user->ID` on false is a warning in PHP 8 and the reset silently
+			 * targets nothing.
+			 */
+			if ( ! $user instanceof \WP_User ) {
+				return;
+			}
+
 			if ( get_user_meta( $user_id, 'mls_temp_user', true ) ) {
 				return;
 			}
@@ -219,8 +265,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			}
 
 			if ( $kill_sessions ) {
-				$mls = melapress_login_security();
-				$mls->ppm_user_session_destroy( $user->ID );
+				\MLS_Core::ppm_user_session_destroy( $user->ID );
 			}
 
 			if ( $send_reset ) {
@@ -330,7 +375,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 				if ( $is_global_reset ) {
 					if ( $kill_sessions ) {
 						update_user_meta( $user_id, MLS_PASSWORD_EXPIRED_META_KEY, 1 );
-						$mls->ppm_user_session_destroy( $user_id, false );
+						\MLS_Core::ppm_user_session_destroy( $user_id, false );
 					}
 					if ( $is_delayed ) {
 						self::delayed_reset( $user_id );
@@ -341,7 +386,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 				} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 					// update user's expired status 1.
 					if ( \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->terminate_session_password ) ) {
-						$mls->ppm_user_session_destroy( $user_id );
+						\MLS_Core::ppm_user_session_destroy( $user_id );
 					} else {
 						self::delayed_reset( $user_id );
 					}
@@ -363,6 +408,31 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
+		/**
+		 * Whether an email the administrator has switched off should be sent.
+		 *
+		 * These checkboxes live on the Email templates screen and are stored in
+		 * the plugin settings. Every other sender in the plugin reads them from
+		 * there; this one read them from the role policy, where the keys are not
+		 * declared and so never present. isset() was false every time, the guard
+		 * could not fire, and the message went out however the box was left.
+		 *
+		 * @param string $setting - Settings key for the switch.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.4.0
+		 */
+		private static function email_is_muted( string $setting ): bool {
+			$settings = melapress_login_security()->options->mls_setting;
+
+			if ( ! isset( $settings->$setting ) ) {
+				return false;
+			}
+
+			return \MLS\Helpers\OptionsHelper::string_to_bool( $settings->$setting );
+		}
+
 		public static function send_reset_email( $user_id, $by, $return_on_fail = false, $is_delayed = false ) {
 			// Check if message has already been sent.
 			$email_sent_count = (int) get_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, true );
@@ -402,7 +472,10 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			if ( ! is_wp_error( $key ) ) {
 				if ( 'admin' === $by ) {
 					if ( $is_delayed ) {
-						if ( isset( $role_options->disable_user_password_reset_email ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->disable_user_password_reset_email ) ) {
+						// Paired with `user_delayed_reset_email_subject` below, and
+						// grouped with it on the settings screen. This branch used
+						// to consult the *immediate* switch instead.
+						if ( self::email_is_muted( 'disable_user_delayed_password_reset_email' ) ) {
 							return;
 						}
 						/* translators: Password reset email subject. 1: Site name */
@@ -411,7 +484,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 						$content = \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_delayed_reset_email_body' );
 						$message = \MLS\EmailAndMessageStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 					} else {
-						if ( isset( $role_options->disable_user_delayed_password_reset_email ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->disable_user_delayed_password_reset_email ) ) {
+						if ( self::email_is_muted( 'disable_user_password_reset_email' ) ) {
 							return;
 						}
 						/* translators: Password reset email subject. 1: Site name */
@@ -421,7 +494,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 						$message = \MLS\EmailAndMessageStrings::replace_email_strings( $content, $user_id, array( 'reset_url' => esc_url_raw( network_site_url( "$login_page?action=rp&key=$key&login=" . rawurlencode( $user_login ), 'login' ) ) ) );
 					}
 				} else {
-					if ( isset( $role_options->disable_user_pw_expired_email ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->disable_user_pw_expired_email ) ) {
+					if ( self::email_is_muted( 'disable_user_pw_expired_email' ) ) {
 						return;
 					}
 					$title   = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_password_expired_email_subject' ), $user_id );
@@ -431,25 +504,90 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			}
 
 			// Only send the email if allowed in settings.
-			if ( $is_delayed && isset( $role_options->disable_user_password_reset_email ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->disable_user_password_reset_email ) ) {
-				return;
-			} elseif ( ! $is_delayed && isset( $role_options->disable_user_delayed_password_reset_email ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->disable_user_delayed_password_reset_email ) ) {
-				return;
-			}
+			/*
+			 * The pair that stood here repeated the checks above and crossed them
+			 * the same way — delayed against the immediate switch and back again.
+			 * Each branch now consults its own switch, from the store the setting
+			 * is actually written to, so there is nothing left for this to do.
+			 */
 
-			if ( $message && ! \MLS\Emailer::send_email( $user_email, wp_specialchars_decode( $title ), $message ) ) {
+			if ( $message && ! Emailer::send_email( $user_email, wp_specialchars_decode( $title ), $message ) ) {
 				$fail_message = __( 'The email could not be sent.', 'melapress-login-security' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'melapress-login-security' );
 				// Remove flag so we can try again.
 				delete_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY );
+
 				if ( $return_on_fail ) {
 					return $fail_message;
-				} else {
-					wp_die( wp_kses_post( $fail_message ) );
 				}
+
+				/*
+				 * Report it; do not end the request.
+				 *
+				 * This used to call wp_die(). Almost nothing here is an
+				 * interactive request: expire() reaches this from admin_init
+				 * through reset_by_id(), so on a host whose mail() does not work
+				 * — a wholly ordinary state — the first admin page an expired
+				 * user opened returned a blank 500 while the same session could
+				 * still load every other page. A site cannot be taken down
+				 * because it failed to send a notification.
+				 */
+				self::report_email_failure( $user_id, $fail_message );
+
+				return false;
 			}
 
 			// Update usermeta so we know we have sent a message.
 			update_user_meta( $user_id, MLS_EXPIRED_EMAIL_SENT_META_KEY, $email_sent_count + 1 );
+		}
+
+		/**
+		 * Make a failed notification visible without ending the request.
+		 *
+		 * Logged for whoever is looking after the site, offered as an action for
+		 * anything that wants to react, and shown once on screen when there is a
+		 * screen to show it on — the person in front of it may well be the one
+		 * waiting for the email.
+		 *
+		 * @param int    $user_id - Account the message was for.
+		 * @param string $message - What went wrong.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.0
+		 */
+		private static function report_email_failure( $user_id, $message ) {
+			/**
+			 * Fires when a password notification could not be sent.
+			 *
+			 * @param int    $user_id - Account the message was for.
+			 * @param string $message - Failure description.
+			 *
+			 * @since 2.4.0
+			 */
+			\do_action( 'mls_password_email_failed', (int) $user_id, $message );
+
+			if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					sprintf(
+						'Melapress Login Security: password notification to user %d could not be sent.',
+						(int) $user_id
+					)
+				);
+			}
+
+			if ( ! \is_admin() || \wp_doing_ajax() || \wp_doing_cron() ) {
+				return;
+			}
+
+			\add_action(
+				'admin_notices',
+				static function () use ( $message ) {
+					printf(
+						'<div class="notice notice-error"><p>%s</p></div>',
+						\wp_kses_post( $message )
+					);
+				}
+			);
 		}
 
 		/**
@@ -479,13 +617,23 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 
 			$mls = melapress_login_security();
 
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 
-			if ( $message && ! \MLS\Emailer::send_email( $user_data->user_email, wp_specialchars_decode( $title ), $message, $headers ) ) {
-				wp_die( esc_html__( 'The email could not be sent.', 'melapress-login-security' ) . "<br />\n" . esc_html__( 'Possible reason: your host may have disabled the mail() function.', 'melapress-login-security' ) );
+			if ( $message && ! Emailer::send_email( $user_data->user_email, wp_specialchars_decode( $title ), $message, $headers ) ) {
+				// Reported rather than fatal, for the same reason as above: the
+				// global reset has already happened by the time this runs, so
+				// ending the request here would hide a completed action behind a
+				// blank page.
+				self::report_email_failure(
+					$user_data->ID,
+					__( 'The email could not be sent.', 'melapress-login-security' ) . "<br />\n" . __( 'Possible reason: your host may have disabled the mail() function.', 'melapress-login-security' )
+				);
+
+				return false;
 			}
+
 			return true;
 		}
 
@@ -814,7 +962,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			}
 
 			// Check if user is currently considered to be 'locked'.
-			$is_user_blocked = get_user_meta( $user_id, MLS_USER_BLOCK_FURTHER_LOGINS_META_KEY, true );
+			$is_user_blocked = \MLS\Failed_Logins::has_active_lock_event( $user_id );
 
 			$options = get_site_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
 
@@ -841,11 +989,9 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		public static function count_users(): int {
 			global $wpdb;
 
-			$query             =
-					'SELECT count(ID) as users FROM ' . $wpdb->users;
-					$db_result = $wpdb->get_results( $query, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$db_result = $wpdb->get_var( "SELECT COUNT(ID) FROM {$wpdb->users}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-			return (int) $db_result[0]['users'];
+			return (int) $db_result;
 		}
 	}
 }

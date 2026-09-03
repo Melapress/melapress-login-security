@@ -200,7 +200,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 					return '<a href="#" aria-label="' . esc_html__( 'Copy link to clipboard', 'melapress-login-security' ) . '" class="hint--top hint--rounded" data-mls-copy-link="' . $item['actions']['login_link'] . '"><span class="dashicons dashicons-admin-links"></span></a>' . ' ' . '<a href="#" aria-label="' . esc_html__( 'Email link to user', 'melapress-login-security' ) . '" class="hint--top hint--rounded" data-user-id="' . $item['user_id'] . '" data-mls-email-temp-link="' . $item['actions']['email_address'] . '" data-nonce="' . esc_attr( wp_create_nonce( MLS_PREFIX . '-email-login' ) ) . '"><span class="dashicons dashicons-email-alt"></span></a>'; // phpcs:ignore Generic.Strings.UnnecessaryStringConcat.Found
 
 				default:
-					return print_r( $item, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+					return '';
 			}
 		}
 
@@ -381,6 +381,10 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 				case 'delete':
 					if ( isset( $post_array['user_ids'] ) ) {
 						foreach ( $post_array['user_ids'] as $user_id ) {
+							$user_id = absint( $user_id );
+							if ( ! current_user_can( 'edit_user', $user_id ) || ( is_multisite() && is_super_admin( $user_id ) ) ) {
+								continue;
+							}
 							if ( Temporary_Logins::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
 								Temporary_Logins::delete_user( $user_id );
 							}
@@ -393,6 +397,10 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins_Table' ) ) {
 				case 'reactivate':
 					if ( isset( $post_array['user_ids'] ) ) {
 						foreach ( $post_array['user_ids'] as $user_id ) {
+							$user_id = absint( $user_id );
+							if ( ! current_user_can( 'edit_user', $user_id ) || ( is_multisite() && is_super_admin( $user_id ) ) ) {
+								continue;
+							}
 							if ( Temporary_Logins::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
 								if ( ! empty( get_user_meta( $user_id, 'mls_temp_user_expired', true ) ) ) {
 									delete_user_meta( $user_id, 'mls_temp_user_expired' );

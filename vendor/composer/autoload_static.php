@@ -7,14 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
 {
     public static $prefixLengthsPsr4 = array (
-        'M' => 
+        'M' =>
         array (
             'MLS\\' => 4,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'MLS\\' => 
+        'MLS\\' =>
         array (
             0 => __DIR__ . '/../..' . '/app',
             1 => __DIR__ . '/../..' . '/admin',
@@ -23,6 +23,7 @@ class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'MLS\\Abstract_Migration' => __DIR__ . '/../..' . '/app/Utilities/class-abstract-migration.php',
         'MLS\\Admin\\Admin' => __DIR__ . '/../..' . '/admin/class-mls-admin.php',
         'MLS\\Admin\\Network_Admin' => __DIR__ . '/../..' . '/admin/class-mls-multisite-admin.php',
         'MLS\\Admin\\Upgrade_Notice' => __DIR__ . '/../..' . '/admin/classes/class-upgrade-notices.php',
@@ -30,6 +31,7 @@ class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
         'MLS\\Admin\\User_Helper' => __DIR__ . '/../..' . '/admin/classes/class-user-helper.php',
         'MLS\\Ajax\\AjaxInterface' => __DIR__ . '/../..' . '/app/ajax/class-ajaxinterface.php',
         'MLS\\Ajax\\UnlockInactiveUser' => __DIR__ . '/../..' . '/app/modules/failed-logins/class-unlock-inactive-user-ajax.php',
+        'MLS\\Api_Login_Guard' => __DIR__ . '/../..' . '/app/enforcers/class-api-login-guard.php',
         'MLS\\Apply_Timestamp_For_Users_Process' => __DIR__ . '/../..' . '/app/helpers/class-apply-timestamp-for-users-process.php',
         'MLS\\Check_User_Expiry' => __DIR__ . '/../..' . '/app/enforcers/class-check-user-expiry.php',
         'MLS\\Crons\\CronInterface' => __DIR__ . '/../..' . '/app/crons/class-croninterface.php',
@@ -43,6 +45,10 @@ class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
         'MLS\\Helpers\\SettingsImporter' => __DIR__ . '/../..' . '/app/helpers/class-settings-importer.php',
         'MLS\\Helpers\\Settings_Helper' => __DIR__ . '/../..' . '/app/helpers/class-settings-helper.php',
         'MLS\\Helpers\\UserImporter' => __DIR__ . '/../..' . '/app/helpers/class-user-importer.php',
+        'MLS\\Licensing\\EDD_License_Page' => __DIR__ . '/../..' . '/app/Licensing/class-edd-license-page.php',
+        'MLS\\Licensing\\EDD_Network_Licensing' => __DIR__ . '/../..' . '/app/Licensing/class-edd-network-licensing.php',
+        'MLS\\Licensing\\EDD_Plan' => __DIR__ . '/../..' . '/app/Licensing/class-edd-plan.php',
+        'MLS\\Licensing\\EDD_Plugin_Updater' => __DIR__ . '/../..' . '/app/Licensing/class-edd-plugin-updater.php',
         'MLS\\Licensing\\EDD_Provider' => __DIR__ . '/../..' . '/app/Licensing/class-edd-provider.php',
         'MLS\\Licensing\\Freemius_Provider' => __DIR__ . '/../..' . '/app/Licensing/class-freemius-provider.php',
         'MLS\\Licensing\\Licensing_Factory' => __DIR__ . '/../..' . '/app/Licensing/class-licensing-factory.php',
@@ -53,16 +59,18 @@ class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
         'MLS\\MLS_Options' => __DIR__ . '/../..' . '/app/policies/class-mls-options.php',
         'MLS\\MLS_Regex' => __DIR__ . '/../..' . '/app/policies/class-mls-regex.php',
         'MLS\\Migrate_UserMeta_BG_Process' => __DIR__ . '/../..' . '/app/helpers/class-migrate-usermeta-bg-process.php',
+        'MLS\\Migration' => __DIR__ . '/../..' . '/app/Utilities/class-migration.php',
         'MLS\\New_User_Register' => __DIR__ . '/../..' . '/app/enforcers/class-new-user.php',
         'MLS\\Password_Check' => __DIR__ . '/../..' . '/app/enforcers/class-password-check.php',
         'MLS\\Password_Gen' => __DIR__ . '/../..' . '/app/helpers/class-wp-password-gen.php',
         'MLS\\Password_History' => __DIR__ . '/../..' . '/app/helpers/class-password-history.php',
         'MLS\\Pointer' => __DIR__ . '/../..' . '/app/helpers/class-pointer.php',
+        'MLS\\Require_Current_Password' => __DIR__ . '/../..' . '/app/enforcers/class-require-current-password.php',
         'MLS\\Reset_Passwords' => __DIR__ . '/../..' . '/app/enforcers/class-reset-passwords.php',
         'MLS\\Reset_User_PW_Process' => __DIR__ . '/../..' . '/app/enforcers/class-wp-reset-bg-process.php',
+        'MLS\\Rest_User_Guard' => __DIR__ . '/../..' . '/app/enforcers/class-rest-user-guard.php',
         'MLS\\RestrictLogins' => __DIR__ . '/../..' . '/app/modules/restrict-logins/class-restrict-logins.php',
         'MLS\\Restrict_Login_Credentials' => __DIR__ . '/../..' . '/app/enforcers/class-restrict-login-credentials.php',
-        'MLS\\Security_Prompt' => __DIR__ . '/../..' . '/app/modules/class-security-prompt.php',
         'MLS\\Shortcodes' => __DIR__ . '/../..' . '/app/enforcers/class-shortcodes.php',
         'MLS\\TemporaryLogins\\Temporary_Logins' => __DIR__ . '/../..' . '/app/modules/temporary-logins/class-temporary-logins.php',
         'MLS\\TemporaryLogins\\Temporary_Logins_Table' => __DIR__ . '/../..' . '/app/modules/temporary-logins/class-temporary-logins-table.php',
@@ -70,7 +78,7 @@ class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
         'MLS\\User_Profile' => __DIR__ . '/../..' . '/app/enforcers/class-user-profile.php',
         'MLS\\Utilities\\Validator_Factory' => __DIR__ . '/../..' . '/app/Utilities/class-validator-factory.php',
         'MLS\\Validators\\Validator' => __DIR__ . '/../..' . '/app/Validators/class-validator.php',
-        'MLS\\Views\\Tables\\InactiveUsersTable' => __DIR__ . '/../..' . '/app/modules/failed-logins/InactiveUsersTable.php',
+        'MLS\\Views\\Tables\\Inactive_Users_Table' => __DIR__ . '/../..' . '/app/modules/failed-logins/class-inactive-users-table.php',
         'MLS\\WP_Admin_Pointer' => __DIR__ . '/../..' . '/app/helpers/class-wp-admin-pointer.php',
         'MLS_Core' => __DIR__ . '/../..' . '/app/class-melapress-login-security.php',
         'WP_Async_Request' => __DIR__ . '/..' . '/deliciousbrains/wp-background-processing/classes/wp-async-request.php',

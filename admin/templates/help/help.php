@@ -21,7 +21,7 @@ require_once 'sidebar.php';
 	<div class="title">
 		<h2><?php esc_html_e( 'Getting Started', 'melapress-login-security' ); ?></h2>
 	</div>
-	<p><?php esc_html_e( 'It is easy to get started with the MelaPress Login Security. Simply enable and configure the password policies you want to enforce. Below are a few links of guides to help you get started:', 'ppm-wpp' ); ?></p>
+	<p><?php esc_html_e( 'It is easy to get started with the MelaPress Login Security. Simply enable and configure the password policies you want to enforce. Below are a few links of guides to help you get started:', 'melapress-login-security' ); ?></p>
 	<ul>
 		<li><?php echo wp_sprintf( '<a href="%1$s" target="_blank">%2$s</a>', esc_url( 'https://melapress.com/support/kb/melapress-login-security-getting-started/?utm_source=plugins&utm_medium=link&utm_campaign=mls' ), esc_html__( 'Getting started with MelaPress Login Security', 'melapress-login-security' ) ); ?></li>
 		<li><?php echo wp_sprintf( '<a href="%1$s" target="_blank">%2$s</a>', esc_url( 'https://melapress.com/support/kb/melapress-login-security-configure-different-password-policies-wordpress-user-roles/?utm_source=plugins&utm_medium=link&utm_campaign=mls' ), esc_html__( 'Configure different password policies for different user roles', 'melapress-login-security' ) ); ?></li>

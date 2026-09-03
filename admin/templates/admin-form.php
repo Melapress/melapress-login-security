@@ -122,35 +122,24 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 							</fieldset>
 						</td>
 					</tr>
-					<?php endif; ?>
 					<tr valign="top" class="master-switch">
 						<th scope="row">
-							<?php echo esc_html( $master_switch_title ); ?>
+							<?php esc_html_e( 'Inherit login security policies', 'melapress-login-security' ); ?>
 						</th>
 						<td>
 							<fieldset>
-								<legend class="screen-reader-text">
-									<span>
-										<?php esc_html_e( 'Password Length', 'melapress-login-security' ); ?>
-									</span>
-								</legend>
-								<label for="ppm-min-length">
+								<label for="ppm_master_switch">
 									<?php
-									if ( isset( $_GET['role'] ) && in_array( wp_unslash( $_GET['role'] ), array_keys( $roles ), true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-										$master_key = self::$setting_tab->inherit_policies;
-									} else {
-										$master_key = self::$setting_tab->master_switch;
-									}
+									$master_key = self::$setting_tab->inherit_policies;
 									?>
 									<input type="checkbox" id="ppm_master_switch" name="mls_options[master_switch]"
 											value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( $master_key ) ); ?>>
-									<?php if ( isset( $_GET['role'] ) && in_array( wp_unslash( $_GET['role'] ), array_keys( $roles ), true ) ) :  // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 									<input type="hidden" name="mls_options[inherit_policies]" value="<?php echo esc_attr( self::$setting_tab->inherit_policies ); ?>" id="inherit_policies">
-									<?php endif; ?>
 								</label>
 							</fieldset>
 						</td>
 					</tr>
+					<?php endif; ?>
 				</tbody>
 			</table>
 		</div>
@@ -158,12 +147,58 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 		<div class="clear">&nbsp;</div>
 
 		<?php wp_nonce_field( MLS_PREFIX . '_nonce_form', MLS_PREFIX . '_nonce' ); ?>
+		<!-- Keep master_switch value for backward compat when on site-wide tab -->
+		<?php if ( empty( $current_tab ) ) : ?>
+			<input type="hidden" name="mls_options[master_switch]" value="1" id="ppm_master_switch_hidden">
+		<?php endif; ?>
 		<div class="mls-settings">
-			<table class="form-table">
-				<tbody>
-					<?php require_once MLS_PATH . 'admin/templates/form-table.php'; ?>
-				</tbody>
-			</table>
+			<!-- Password Policies Group -->
+			<div class="mls-policy-group" id="mls-password-policies-group">
+				<div class="mls-policy-group-header">
+					<label for="mls_enable_password_policies_group">
+						<input type="checkbox" id="mls_enable_password_policies_group" name="mls_options[enable_password_policies_group]"
+							value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$setting_tab->enable_password_policies_group ) ); ?>
+							class="mls-policy-group-toggle" data-target=".mls-password-policies-content">
+						<strong><?php esc_html_e( 'Password policies', 'melapress-login-security' ); ?></strong>
+					</label>
+				</div>
+				<div class="mls-password-policies-content mls-policy-group-content">
+					<table class="form-table">
+						<tbody>
+							<?php require_once MLS_PATH . 'admin/templates/form-table.php'; ?>
+							<?php
+							$password_markup = apply_filters( 'mls_password_policies_settings', '', self::$setting_tab );
+							echo wp_kses( $password_markup, OptionsHelper::get_allowed_kses_args() );
+							?>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<?php
+			?>
+
+			<!-- Login Policies Group -->
+			<div class="mls-policy-group" id="mls-login-policies-group">
+				<div class="mls-policy-group-header">
+					<label for="mls_enable_login_policies_group">
+						<input type="checkbox" id="mls_enable_login_policies_group" name="mls_options[enable_login_policies_group]"
+							value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$setting_tab->enable_login_policies_group ) ); ?>
+							class="mls-policy-group-toggle" data-target=".mls-login-policies-content">
+						<strong><?php esc_html_e( 'Login policies', 'melapress-login-security' ); ?></strong>
+					</label>
+				</div>
+				<div class="mls-login-policies-content mls-policy-group-content">
+					<table class="form-table">
+						<tbody>
+							<?php
+							$login_markup = apply_filters( 'mls_login_policies_settings', '', self::$setting_tab );
+							echo wp_kses( $login_markup, OptionsHelper::get_allowed_kses_args() );
+							?>
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 		<?php
 		// we DON'T want this submit button on the inactive users page.

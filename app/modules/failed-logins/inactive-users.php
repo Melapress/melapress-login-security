@@ -13,12 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// list table should be defined by here but just incase check first.
-if ( ! class_exists( '\WP_List_Table' ) ) {
-	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
-}
-require_once MLS_PATH . 'app/modules/failed-logins/InactiveUsersTable.php';
-
 $sidebar_required = false;
 $master_policy    = \MLS\Helpers\OptionsHelper::get_master_policy_options();
 
@@ -51,9 +45,12 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 			);
 			?>
 		</p>
-		<form method="post">
+		<?php
+		$table = new \MLS\Views\Tables\Inactive_Users_Table();
+		?>
+		<form method="get">
+			<input type="hidden" name="page" value="<?php echo esc_attr( isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '' ); ?>" />
 			<?php
-			$table = new \MLS\Views\Tables\InactiveUsersTable();
 			$table->display();
 			?>
 		</form>
@@ -72,9 +69,12 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 			);
 			?>
 		</p>
-		<form method="post">
+		<?php
+		$table = new \MLS\Views\Tables\Inactive_Users_Table();
+		?>
+		<form method="get">
+			<input type="hidden" name="page" value="<?php echo esc_attr( isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '' ); ?>" />
 			<?php
-			$table = new \MLS\Views\Tables\InactiveUsersTable();
 			$table->display();
 			?>
 		</form>

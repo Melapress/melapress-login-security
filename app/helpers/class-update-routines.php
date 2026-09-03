@@ -150,15 +150,22 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 
 			// Gather any possible entries for this plugin from the options table.
 			global $wpdb;
+			/*
+			 * Underscore-delimited and LIKE-escaped: this loop renames what it
+			 * finds and deletes the original, so an over-broad match rewrites
+			 * keys belonging to WordPress or to another plugin.
+			 */
+			$legacy_like = $wpdb->esc_like( 'ppmwp_' ) . '%';
+
 			if ( is_multisite() ) {
 				$prepared_query = $wpdb->prepare(
 					"SELECT `meta_key` FROM `{$wpdb->sitemeta}` WHERE `meta_key` LIKE %s ORDER BY `meta_key` ASC",
-					'ppmwp%'
+					$legacy_like
 				);
 			} else {
 				$prepared_query = $wpdb->prepare(
 					"SELECT `option_name` FROM `{$wpdb->options}` WHERE `option_name` LIKE %s ORDER BY `option_name` ASC",
-					'ppmwp%'
+					$legacy_like
 				);
 			}
 			$results = $wpdb->get_results( $prepared_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

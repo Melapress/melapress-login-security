@@ -98,21 +98,27 @@ jQuery( document ).ready( function() {
 					if ( result.success ) {
 						wasSuccess = true;
 						if ( do_import == 'true' && typeof result.data['import_confirmation'] != 'undefined' ) {
-							var markup = '<span style="color: green;"> ' + result.data['import_confirmation']  + '</span>';
+							var $markup = jQuery( '<span>' ).css( 'color', 'green' ).text( ' ' + result.data['import_confirmation'] );
 						} else {
-							var markup = '<span style="color: green;" class="dashicons dashicons-yes-alt"></span>';
+							var $markup = jQuery( '<span>' ).css( 'color', 'green' ).addClass( 'dashicons dashicons-yes-alt' );
 						}
-						jQuery( '[data-wpws-option-name="'+ option_name +'"]' ).append( markup )
+						jQuery( '[data-wpws-option-name="'+ option_name +'"]' ).append( $markup );
 					} else {
-						if ( 'not_found' == result.data['failure_reason_type'] ) {
-							var helpText = wpws_import_data.notFoundMessage;
-						} else if ( 'not_supported' == result.data['failure_reason_type'] ) {
-							var helpText = wpws_import_data.notSupportedMessage;
-						} else if ( 'check_restrict_access' == result.data['failure_reason_type'] ) {
-							var helpText = wpws_import_data.restrictAccessMessage;
+						var data = result.data || {};
+						var failureType = data['failure_reason_type'] || 'not_supported';
+						var helpText = wpws_import_data.notSupportedMessage;
+						if ( 'not_found' == failureType ) {
+							helpText = wpws_import_data.notFoundMessage;
+						} else if ( 'check_restrict_access' == failureType ) {
+							helpText = wpws_import_data.restrictAccessMessage;
 						}
-						var helpLink = "<a href='" + wpws_import_data.helpPage + "'>"+ wpws_import_data.helpLinkText +"</a>";
-						jQuery( '[data-wpws-option-name="'+ option_name +'"]' ).append( '<span style="color: red;" class="dashicons dashicons-info"> <span>' + result.data['failure_reason'] + '</span> <a href="#" class="toolip" data-help="' + result.data['failure_reason_type'] + '" data-help-text="' + helpText + ' ' + helpLink +'">' + wpws_import_data.helpMessage + '</a></span>' );
+						var failureReason = data['failure_reason'] || '';
+						var $errorSpan = jQuery( '<span>' ).css( 'color', 'red' ).addClass( 'dashicons dashicons-info' );
+						var $reasonSpan = jQuery( '<span>' ).text( ' ' + failureReason + ' ' );
+						var $helpLink = jQuery( '<a>' ).attr({ href: '#', 'class': 'toolip', 'data-help': failureType, 'data-help-text': helpText + ' ' }).text( wpws_import_data.helpMessage );
+						$helpLink.append( jQuery( '<a>' ).attr( 'href', wpws_import_data.helpPage ).text( wpws_import_data.helpLinkText ) );
+						$errorSpan.append( $reasonSpan ).append( $helpLink );
+						jQuery( '[data-wpws-option-name="'+ option_name +'"]' ).append( $errorSpan );
 					}
 
 					var countNeeded = jQuery( '[data-wpws-option-name]' ).length;
@@ -167,15 +173,15 @@ jQuery( document ).ready( function() {
 				var resultsObj = JSON.parse( result );
 				for (var i = 0; i < resultsObj.length; i++) {
 					if ( resultsObj[i] != "" ) {
-						var row = '';
-
 						var option_name = ( resultsObj[i].option_name ) ? resultsObj[i].option_name : resultsObj[i].meta_key;
 						var option_value = ( resultsObj[i].option_value ) ? resultsObj[i].option_value : resultsObj[i].meta_value;
-						var cols = "<li data-wpws-option-name=" + option_name + "><div>" + option_name.replace( key + '_', '' ).replaceAll( '_', ' ' ).replaceAll( '-', ' ' ) + "</div></li>";
-						row += cols;
+
+						var $li = jQuery( '<li>' ).attr( 'data-wpws-option-name', option_name );
+						var displayName = option_name.replace( key + '_', '' ).replaceAll( '_', ' ' ).replaceAll( '-', ' ' );
+						$li.append( jQuery( '<div>' ).text( displayName ) );
 
 						if ( do_import == 'false' ) {
-							document.getElementById( 'wpws-settings-file-output' ).innerHTML += row;
+							jQuery( '#wpws-settings-file-output' ).append( $li );
 							checkSettingPreImport( option_name, option_value, 'false' );
 						} else {
 							checkSettingPreImport( option_name, option_value, 'true' );

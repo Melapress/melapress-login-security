@@ -106,6 +106,10 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 */
 		public $default_options = array(
 			'master_switch'                             => 'no',
+			'enable_password_policies_group'            => 'no',
+			'enable_session_policies_group'             => 'no',
+			'enable_device_policies_group'              => 'no',
+			'enable_login_policies_group'               => 'no',
 			'activate_password_policies'                => 'no',
 			'activate_password_expiration_policies'     => 'no',
 			'activate_password_recycle_policies'        => 'no',
@@ -113,6 +117,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'min_length'                                => 8,
 			'password_history'                          => 1,
 			'inherit_policies'                          => 'yes',
+			'recognized_device_duration'                => '1_year',
 			'password_expiry'                           => array(
 				'value' => 0,
 				'unit'  => 'months',
@@ -135,6 +140,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				'exclude_special_chars' => 'no',
 			),
 			'change_initial_password'                   => 'no',
+			'require_current_password'                  => 'no',
 			'timed_logins'                              => 'no',
 			'timed_logins_schedule'                     => array(
 				'monday'    => array(
@@ -240,6 +246,10 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'enable_device_policies'                    => 'no',
 			'enable_device_policies_admin_alerts'       => 'no',
 			'enable_security_questions'                 => 'no',
+			'require_sq_password_reset'                 => 'no',
+			'require_sq_unlock_account'                 => 'no',
+			'require_sq_email_change'                   => 'no',
+			'sq_email_change_exclude_admins'            => 'yes',
 			'enabled_questions'                         => array(),
 			'device_policies_prompt_email_content'      => '',
 			'device_policies_admin_alert_email_content' => '',
@@ -248,6 +258,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'min_answered_needed_count'                 => 3,
 			'password_reset_request_disabled_message'   => '',
 			'user_exceeded_failed_logins_count_message' => '',
+			'account_locked_failed_logins_message'      => '',
 			'password_expired_message'                  => '',
 			'inactive_user_account_locked_message'      => '',
 			'inactive_user_account_locked_reset_disabled_message' => '',
@@ -266,6 +277,10 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 		private static $default_plugin_options = array(
 			'master_switch'                             => 'no',
+			'enable_password_policies_group'            => 'no',
+			'enable_session_policies_group'             => 'no',
+			'enable_device_policies_group'              => 'no',
+			'enable_login_policies_group'               => 'no',
 			'activate_password_policies'                => 'no',
 			'activate_password_expiration_policies'     => 'no',
 			'activate_password_recycle_policies'        => 'no',
@@ -273,6 +288,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'min_length'                                => 8,
 			'password_history'                          => 1,
 			'inherit_policies'                          => 'yes',
+			'recognized_device_duration'                => '1_year',
 			'password_expiry'                           => array(
 				'value' => 0,
 				'unit'  => 'months',
@@ -295,6 +311,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				'exclude_special_chars' => 'no',
 			),
 			'change_initial_password'                   => 'no',
+			'require_current_password'                  => 'no',
 			'timed_logins'                              => 'no',
 			'timed_logins_schedule'                     => array(
 				'monday'    => array(
@@ -400,6 +417,10 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'enable_device_policies'                    => 'no',
 			'enable_device_policies_admin_alerts'       => 'no',
 			'enable_security_questions'                 => 'no',
+			'require_sq_password_reset'                 => 'no',
+			'require_sq_unlock_account'                 => 'no',
+			'require_sq_email_change'                   => 'no',
+			'sq_email_change_exclude_admins'            => 'yes',
 			'enabled_questions'                         => array(),
 			'device_policies_prompt_email_content'      => '',
 			'device_policies_admin_alert_email_content' => '',
@@ -408,6 +429,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'min_answered_needed_count'                 => 3,
 			'password_reset_request_disabled_message'   => '',
 			'user_exceeded_failed_logins_count_message' => '',
+			'account_locked_failed_logins_message'      => '',
 			'password_expired_message'                  => '',
 			'inactive_user_account_locked_message'      => '',
 			'inactive_user_account_locked_reset_disabled_message' => '',
@@ -435,6 +457,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'min_length'               => array(
 				'typeRule' => 'number',
 				'min'      => '1',
+				'max'      => '128',
 			),
 			'password_expiry'          => array(
 				'value' => array(
@@ -477,7 +500,12 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			),
 			'failed_login_reset_hours' => array(
 				'typeRule' => 'number',
+				'min'      => '5',
+			),
+			'restrict_login_ip_count'  => array(
+				'typeRule' => 'number',
 				'min'      => '1',
+				'max'      => '10',
 			),
 		);
 
@@ -490,7 +518,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 */
 		public $default_setting = array(
 			'send_summary_email'                         => 'yes',
-			'send_summary_email_day'                     => 'Sunday',
+			'send_summary_email_day'                     => 'sunday',
 			'exempted'                                   => array(
 				'users' => array(),
 			),
@@ -554,6 +582,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'disable_user_unlocked_reset_needed_email'   => 'no',
 			'disable_device_policies_prompt_email'       => 'no',
 			'disable_device_policies_prompt_admin_email' => 'no',
+			'disable_multiple_sessions_email'            => 'no',
 			'disable_user_imported_email'                => 'no',
 			'disable_user_imported_forced_reset_email'   => 'no',
 			'disable_user_unlocked_email'                => 'no',
@@ -575,6 +604,8 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'user_user_imported_email_body'              => '',
 			'user_imported_forced_reset_email_subject'   => '',
 			'user_user_imported_forced_reset_email_body' => '',
+			'multiple_sessions_email_subject'            => '',
+			'multiple_sessions_email_body'               => '',
 			'password_reset_login_failed_username_not_known' => '',
 		);
 
@@ -587,6 +618,10 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 */
 		public static $policy_boolean_options = array(
 			'master_switch',
+			'enable_password_policies_group',
+			'enable_session_policies_group',
+			'enable_device_policies_group',
+			'enable_login_policies_group',
 			'enforce_password',
 			'change_initial_password',
 			'timed_logins',
@@ -608,6 +643,11 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'timed_logins_auto_logout',
 			'activate_password_expiration_policies',
 			'enable_device_policies_admin_alerts',
+			'require_sq_password_reset',
+			'require_sq_unlock_account',
+			'require_sq_email_change',
+			'sq_email_change_exclude_admins',
+			'require_current_password',
 		);
 
 		/**
@@ -655,6 +695,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'disable_user_unlocked_reset_needed_email',
 			'disable_device_policies_prompt_email',
 			'disable_device_policies_prompt_admin_email',
+			'disable_multiple_sessions_email',
 			'disable_user_imported_email',
 			'disable_user_imported_forced_reset_email',
 			'disable_user_unlocked_email',
@@ -680,8 +721,11 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'device_policies_admin_alert_email_content',
 			'device_policies_prompt_email_subject',
 			'device_policies_admin_alert_email_subject',
+			'multiple_sessions_email_subject',
+			'multiple_sessions_email_body',
 			'password_reset_request_disabled_message',
 			'user_exceeded_failed_logins_count_message',
+			'account_locked_failed_logins_message',
 			'password_expired_message',
 			'inactive_user_account_locked_message',
 			'inactive_user_account_locked_reset_disabled_message',
@@ -693,6 +737,25 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'login_failed_account_not_known',
 			'login_failed_username_not_known',
 			'login_failed_password_incorrect',
+			'user_unlocked_email_body',
+			'user_unblocked_email_body',
+			'user_reset_next_login_email_body',
+			'user_reset_email_subject',
+			'user_reset_email_body',
+			'user_delayed_reset_email_subject',
+			'user_delayed_reset_email_body',
+			'user_password_expired_email_subject',
+			'user_password_expired_email_body',
+			'user_unlocked_email_subject',
+			'user_unlocked_reset_needed_email_subject',
+			'user_unlocked_reset_needed_email_body',
+			'user_imported_email_subject',
+			'user_user_imported_email_body',
+			'user_imported_forced_reset_email_subject',
+			'user_user_imported_forced_reset_email_body',
+			'password_reset_login_failed_username_not_known',
+			'login_geo_blocked_message',
+			'gdpr_banner_message',
 		);
 
 		/**
@@ -789,12 +852,27 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			// Store ppm class object.
 			$this->mls = melapress_login_security();
 			// Default policy.
-			$this->inherit                     = get_site_option( MLS_PREFIX . '_options', $this->default_options );
+			$this->inherit = get_site_option( MLS_PREFIX . '_options', $this->default_options );
+
+			// The option exists but is not an array — stored empty, truncated,
+			// or written by something that did not expect this shape. Assigning
+			// an offset on it is a TypeError under PHP 8, thrown on `init`,
+			// which takes down every page of the site rather than degrading.
+			// Fall back to the defaults instead.
+			if ( ! is_array( $this->inherit ) ) {
+				$this->inherit = $this->default_options;
+			}
+
 			$this->inherit['inherit_policies'] = 'yes';
 			$this->inherit                     = wp_parse_args( $this->inherit, $this->default_options );
 
 			// PPM setting option.
 			$this->mls_setting = get_site_option( MLS_PREFIX . '_setting', $this->default_setting );
+			if ( ! is_array( $this->mls_setting ) && ! is_object( $this->mls_setting ) ) {
+				// Same reasoning: wp_parse_args() would otherwise run parse_str()
+				// over a stray string and produce nonsense settings.
+				$this->mls_setting = $this->default_setting;
+			}
 			if ( $this->mls_setting ) {
 				$this->mls_setting = (object) wp_parse_args( $this->mls_setting, $this->default_setting );
 			}
@@ -831,9 +909,9 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				// If check multisite installed OR not.
 				if ( is_multisite() ) {
 					// Get user by ID.
-					$blog_id = $this->mls->ppm_mu_get_blog_by_user_id( $user_id );
+					$blog_id = \MLS_Core::ppm_mu_get_blog_by_user_id( $user_id );
 					// Passing an include will limit the User_Query.
-					$user_by_id = ( ! wp_doing_cron() ) ? $this->mls->ppm_mu_user_by_blog_id(
+					$user_by_id = ( ! wp_doing_cron() ) ? \MLS_Core::ppm_mu_user_by_blog_id(
 						$blog_id,
 						array(
 							'include' => $user_id,
@@ -916,9 +994,9 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			 * but it does not accepts any parameters and relies on the globals - refactoring everything
 			 * into controller and separate everything would be better approach
 			 */
-			if ( isset( $_POST['ppm_usr'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $_POST['ppm_usr'] ) && is_admin() && \current_user_can( 'edit_users' ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-				$user = get_user_by( 'login', sanitize_user( wp_unslash( $_POST['ppm_usr'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				$user = \get_user_by( 'login', \sanitize_user( \wp_unslash( $_POST['ppm_usr'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 				if ( false !== $user ) {
 					$_REQUEST['user_id'] = $user->ID;
 				}
@@ -927,7 +1005,13 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			/**
 			 * Tries to exctract the proper user id - that is called when forms are submitted
 			 */
-			$get_user_id = isset( $_REQUEST['user_id'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['user_id'] ) ) : get_current_user_id(); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$get_user_id = get_current_user_id();
+			if ( isset( $_REQUEST['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$candidate_user_id = absint( $_REQUEST['user_id'] );
+				if ( $candidate_user_id && is_admin() && current_user_can( 'edit_user', $candidate_user_id ) ) {
+					$get_user_id = $candidate_user_id;
+				}
+			}
 
 			/**
 			 * Get user ID Default 0.
@@ -943,10 +1027,10 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			// If check user resetpassword key exists OR not.
 			if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ) {
 
-				$username = strstr( sanitize_text_field( wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ), ':', true );
+				$username = strstr( \sanitize_text_field( \wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ), ':', true );
 
 				// Get user data by login.
-				$user_obj = get_user_by( 'login', $username );
+				$user_obj = \get_user_by( 'login', $username );
 				if ( $user_obj ) {
 					$user_id = $user_obj->ID;
 				}
@@ -957,7 +1041,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			}
 
 			// If check user ID.
-			if ( ! $user_id || wp_doing_cron() ) {
+			if ( ! $user_id || \wp_doing_cron() ) {
 				// If we have no ID, grab the default settings.
 				$this->users_options = (object) get_site_option( MLS_PREFIX . '_options', $this->default_options );
 				return $this->users_options;
@@ -966,8 +1050,8 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			// If check multisite installed OR not.
 			if ( is_multisite() ) {
 				// Get user by ID.
-				$blog_id    = $this->mls->ppm_mu_get_blog_by_user_id( $user_id );
-				$user_by_id = $this->mls->ppm_mu_user_by_blog_id(
+				$blog_id    = \MLS_Core::ppm_mu_get_blog_by_user_id( $user_id );
+				$user_by_id = \MLS_Core::ppm_mu_user_by_blog_id(
 					$blog_id,
 					array(
 						'include' => $user_id,
@@ -984,7 +1068,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				}
 			} else {
 				// Get userdata by user id.
-				$userdata = get_userdata( $user_id );
+				$userdata = \get_userdata( $user_id );
 				// Get user role.
 				$roles     = \MLS\Helpers\OptionsHelper::prioritise_roles( $userdata->roles );
 				$user_role = ( is_array( $roles ) ) ? reset( $roles ) : array();
@@ -996,28 +1080,42 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			// Override current role if this is being called via the user-new.php admin screen
 			// This means we can then apply the policy for the role submitted, rather than current_user.
 			if ( isset( $_POST['action'] ) && 'createuser' === $_POST['action'] && isset( $_POST['role'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				$post_array   = filter_input_array( INPUT_POST );
-				$current_role = ! empty( $post_array['role'] ) ? '_' . $post_array['role'] : '';
+				$post_array = filter_input_array( INPUT_POST );
+
+				// Bare role slug, exactly as the branch above leaves it. It used to
+				// carry a leading underscore that the option name below adds for
+				// itself, so the lookup asked for mls__editor_options, no such row
+				// existed, and get_site_option() handed back the default it was
+				// given — the site-wide policy. A role with a stricter policy of its
+				// own was therefore enforced only to the site-wide floor whenever a
+				// user was created from user-new.php, with nothing on screen to say
+				// the role's own policy had been passed over.
+				$current_role = ! empty( $post_array['role'] ) ? \sanitize_key( $post_array['role'] ) : '';
 			}
 
-			$settings = \get_site_option( MLS_PREFIX . '_' . $current_role . '_options', self::get_default_options() );
+			// Built in one place rather than by concatenating around a value that
+			// may or may not already hold a separator. With no role to go on this
+			// is the site-wide policy, which is also what the fallback resolves to.
+			$policy_option = '' !== $current_role
+				? MLS_PREFIX . '_' . $current_role . '_options'
+				: MLS_PREFIX . '_options';
+
+			$settings = \get_site_option( $policy_option, self::get_default_options() );
 			if ( ( ! empty( $settings ) && 0 === \MLS\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) || 'user-new.php' === $pagenow ) {
 
 				// Get current user setting.
-				$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
+				$this->users_options = (object) \wp_parse_args( $settings, $this->inherit );
 
 			} elseif ( ! empty( $settings ) ) {
 
 				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) {
 					// Get current user setting.
-					$this->users_options = (object) wp_parse_args( self::get_default_options(), $this->inherit );
+					$this->users_options = (object) \wp_parse_args( self::get_default_options(), $this->inherit );
 				} else {
-					$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
-					// God knows.
-					// $this->users_options->enforce_password = 1;
+					$this->users_options = (object) \wp_parse_args( $settings, $this->inherit );
 				}
 			} else {
-				$this->users_options = (object) wp_parse_args( $settings, $this->inherit );
+				$this->users_options = (object) \wp_parse_args( $settings, $this->inherit );
 			}
 
 			return $this->users_options;
@@ -1033,14 +1131,14 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		public function mls_save_setting( $options ) {
 
 			if ( isset( $options['from_email'] ) && $options['from_email'] ) {
-				$options['from_email'] = sanitize_email( $options['from_email'] );
+				$options['from_email'] = \sanitize_email( $options['from_email'] );
 			}
 
 			if ( isset( $options['custom_login_url'] ) && $options['custom_login_url'] ) {
-				$options['custom_login_url'] = esc_attr( rtrim( $options['custom_login_url'], '/' ) );
+				$options['custom_login_url'] = \esc_attr( rtrim( $options['custom_login_url'], '/' ) );
 			}
 			if ( isset( $options['custom_login_redirect'] ) && $options['custom_login_redirect'] ) {
-				$options['custom_login_redirect'] = esc_attr( rtrim( $options['custom_login_redirect'], '/' ) );
+				$options['custom_login_redirect'] = \esc_attr( rtrim( $options['custom_login_redirect'], '/' ) );
 			}
 
 			$mls_setting = wp_parse_args( $options, $this->mls_setting );
@@ -1056,7 +1154,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 			$this->mls_setting = (object) $mls_setting;
 
-			return update_site_option( MLS_PREFIX . '_setting', $mls_setting );
+			return \update_site_option( MLS_PREFIX . '_setting', $mls_setting );
 		}
 
 		/**
@@ -1081,9 +1179,9 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			/**
 			 * Fire of action for others to observe.
 			 */
-			do_action( 'mls_policies_updated', $this->options, get_site_option( MLS_PREFIX . $tab_role . '_options', false ) );
+			\do_action( 'mls_policies_updated', $this->options, \get_site_option( MLS_PREFIX . $tab_role . '_options', false ) );
 
-			return update_site_option( MLS_PREFIX . $tab_role . '_options', $this->options );
+			return \update_site_option( MLS_PREFIX . $tab_role . '_options', $this->options );
 		}
 
 		/**
@@ -1133,7 +1231,14 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		}
 
 		public static function get_default_options() {
-			return \get_site_option( MLS_PREFIX . '_options', self::$default_plugin_options );
+			$options = \get_site_option( MLS_PREFIX . '_options', self::$default_plugin_options );
+
+			// Callers treat this as an array and index straight into it, and it
+			// is also passed as the *default* to other get_site_option() calls,
+			// so a stored value of the wrong shape propagates far beyond here.
+			// An empty or corrupt option is a plausible database state; it
+			// should not be able to fatal every request.
+			return is_array( $options ) ? $options : self::$default_plugin_options;
 		}
 
 
@@ -1149,7 +1254,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		 */
 		public static function get_all_users_data( $method, $users_args ) {
 			if ( 'get_users' === $method ) {
-				return get_users( $users_args );
+				return \get_users( $users_args );
 			}
 
 			// method is "query", let's build the SQL query ourselves.
@@ -1163,55 +1268,45 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 			// If we want to grab users with a specific role.
 			if ( isset( $users_args['role__in'] ) && ! empty( $users_args['role__in'] ) ) {
-				$roles  = array_map( 'esc_sql', (array) $users_args['role__in'] );
-				$select = '
-					SELECT  ID, user_login
-					FROM    ' . $wpdb->users . ' u INNER JOIN ' . $wpdb->usermeta . ' um
-					ON      u.ID = um.user_id
-					WHERE   um.meta_key LIKE \'' . esc_sql( $wpdb->base_prefix ) . '%capabilities\'' .
-					' AND     (
-			';
-				$i      = 1;
-				foreach ( $roles as $role ) {
-					$select .= ' um.meta_value    LIKE    \'%"' . esc_sql( $role ) . '"%\' ';
-					if ( $i < count( $roles ) ) {
-						$select .= ' OR ';
-					}
-					++$i;
-				}
-				$select .= ' ) ';
-
-				$excluded_users = ( ! empty( $users_args['excluded_users'] ) ) ? array_map( 'esc_sql', $users_args['excluded_users'] ) : array();
-
-				$excluded_users = array_map(
-					function ( $excluded_user ) {
-						return '"' . esc_sql( $excluded_user ) . '"';
-					},
-					$excluded_users
+				$roles = array_map( 'sanitize_key', (array) $users_args['role__in'] );
+				$select = $wpdb->prepare(
+					'SELECT ID, user_login
+					FROM ' . $wpdb->users . ' u INNER JOIN ' . $wpdb->usermeta . ' um
+					ON u.ID = um.user_id
+					WHERE um.meta_key LIKE %s',
+					$wpdb->base_prefix . '%capabilities'
 				);
 
+				// Build role LIKE conditions with prepare.
+				$role_conditions = array();
+				foreach ( $roles as $role ) {
+					$role_conditions[] = $wpdb->prepare( 'um.meta_value LIKE %s', '%"' . $wpdb->esc_like( $role ) . '"%' );
+				}
+				$select .= ' AND ( ' . implode( ' OR ', $role_conditions ) . ' )';
+
+				// Exclude users using integer-cast IDs and prepare placeholders.
+				$excluded_users = ( ! empty( $users_args['excluded_users'] ) ) ? array_map( 'absint', $users_args['excluded_users'] ) : array();
+				$excluded_users = array_filter( $excluded_users );
+
 				if ( ! empty( $excluded_users ) ) {
-					$select .= '
-						AND user_id NOT IN ( ' . implode( ',', $excluded_users ) . ' )
-				';
+					$placeholders = implode( ',', array_fill( 0, count( $excluded_users ), '%d' ) );
+					$select      .= $wpdb->prepare( " AND user_id NOT IN ( $placeholders )", $excluded_users ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 				}
 
 				$skip_existing_2fa_users = ( ! empty( $users_args['skip_existing_2fa_users'] ) ) ? (bool) $users_args['skip_existing_2fa_users'] : false;
 
 				if ( $skip_existing_2fa_users ) {
-					$select .= '
-				AND u.ID NOT IN (
-				  SELECT DISTINCT user_id FROM  ' . $wpdb->usermeta . ' WHERE meta_key = \'wp_2fa_enabled_methods\'
-				)
-				';
+					$select .= ' AND u.ID NOT IN (
+						SELECT DISTINCT user_id FROM ' . $wpdb->usermeta . ' WHERE meta_key = \'wp_2fa_enabled_methods\'
+					)';
 				}
 			}
 
 			if ( $batch_size ) {
-				$select .= ' LIMIT ' . $batch_size . ' OFFSET ' . $offset;
+				$select .= $wpdb->prepare( ' LIMIT %d OFFSET %d', $batch_size, $offset );
 			}
 
-			return $wpdb->get_results( $select );
+			return $wpdb->get_results( $select ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
 	}
 

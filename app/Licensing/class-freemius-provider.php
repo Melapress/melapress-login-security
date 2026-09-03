@@ -17,16 +17,54 @@ declare(strict_types=1);
 
 namespace MLS\Licensing;
 
-use MLS\MLS_Core;
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 
 	/**
 	 * Freemius licensing provider implementation.
 	 *
+	 * All plugin-specific values are sourced from Licensing_Factory constants
+	 * — no direct coupling to plugin globals.
+	 *
 	 * @since 2.0.0
 	 */
 	class Freemius_Provider implements Licensing_Provider {
+
+		/**
+		 * Freemius premium option name.
+		 *
+		 * References the canonical constant in Licensing_Factory.
+		 *
+		 * @var string
+		 * @since 4.0.0
+		 */
+		public const FS_WP2FAP_OPTION = Licensing_Factory::FREEMIUS_PREMIUM_OPTION;
+
+		/**
+		 * Timestamp of the last conclusive "licensed" answer from the SDK.
+		 *
+		 * @var string
+		 */
+		public const FS_LAST_VALID_OPTION = 'mls_fs_license_last_valid';
+
+		/**
+		 * How long a previously licensed site keeps working while the SDK says
+		 * otherwise. Same reasoning, and the same window, as the EDD provider.
+		 *
+		 * @var int
+		 */
+		public const CHECK_GRACE_PERIOD = 7 * DAY_IN_SECONDS;
+
+		/**
+		 * How soon to retry after an inconclusive sync.
+		 *
+		 * @var int
+		 */
+		public const CHECK_RETRY_INTERVAL = HOUR_IN_SECONDS;
 
 		/**
 		 * Cache for availability check.
@@ -58,7 +96,15 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			// Initialize Freemius SDK and helper.
 			add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_to_external_pricing_page' ), 9 );
 			add_action( 'admin_init', array( __CLASS__, 'maybe_sync_premium_license' ) );
-			add_action( 'melapress_login_security_freemius_loaded', array( __CLASS__, 'adjust_freemius_strings' ) );
+
+			// Intercept Freemius disconnect form submissions early (during admin_menu,
+			// which fires BEFORE WordPress's page access check in menu.php). The form
+			// posts to admin.php?page=mls-policies-account which may no longer be a
+			// registered page, causing "not allowed" errors.
+			$menu_hook = \is_multisite() ? 'network_admin_menu' : 'admin_menu';
+			add_action( $menu_hook, array( __CLASS__, 'maybe_handle_freemius_disconnect' ), 1 );
+
+			add_action( Licensing_Factory::FREEMIUS_INTERNAL_SLUG . '_freemius_loaded', array( __CLASS__, 'adjust_freemius_strings' ) );
 
 			self::add_filter( 'connect_message', array( __CLASS__, 'change_connect_message' ), 10, 6 );
 			self::add_filter(
@@ -87,6 +133,9 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			);
 
 			self::add_action( 'after_account_plan_sync', array( __CLASS__, 'sync_premium_license' ), 10, 1 );
+			self::add_action( 'after_account_delete', array( __CLASS__, 'on_account_disconnect' ) );
+			self::add_action( 'after_network_account_delete', array( __CLASS__, 'on_account_disconnect' ) );
+			self::add_action( 'after_license_deactivation', array( __CLASS__, 'on_license_deactivation' ) );
 			self::add_action(
 				'after_premium_version_activation',
 				array(
@@ -94,20 +143,29 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 					'on_premium_version_activation',
 				)
 			);
+			self::add_filter(
+				'plugin_icon',
+				function ( $plugin_icon ) {
+					return Licensing_Factory::PLUGIN_PATH . Licensing_Factory::PLUGIN_ICON_PATH;
+				}
+			);
 
 			self::add_filter(
 				'pricing_url',
 				function ( $url ) {
-					return 'https://melapress.com/wordpress-login-security/pricing/?&utm_source=plugin&utm_medium=mls&utm_campaign=pricing_url';
+					return Licensing_Factory::FREEMIUS_PRICING_URL;
 				}
 			);
 
 			self::add_action( 'is_submenu_visible', array( __CLASS__, 'hide_submenu_items' ), 10, 2 );
 			self::add_filter( 'default_to_anonymous_feedback', '__return_true' );
 			self::add_filter( 'show_deactivation_feedback_form', '__return_false' );
-
-			// Initialize user licensing.
-			// User_Licensing::init(); // Not used in MLS
+			self::add_action(
+				'connect/before',
+				function () {
+					echo '<style>.fs-freemium-licensing { display: none !important; }</style>';
+				}
+			);
 		}
 
 		/**
@@ -117,16 +175,68 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 * @since 3.2.0
 		 */
 		public static function has_active_valid_license(): bool {
+			if ( self::sdk_reports_valid_license() ) {
+				return true;
+			}
+
+			// The SDK install record may not exist yet, or may not be readable in
+			// this context, causing is_registered() to return false on a site that
+			// is in fact licensed. Fall back to the cached premium status written
+			// by sync_premium_license() rather than treating the site as
+			// unlicensed.
+			if ( \is_multisite() ) {
+				$main_blog_id    = \get_main_site_id();
+				$current_blog_id = \get_current_blog_id();
+
+				// For subsites, check the main site's option.
+				if ( $current_blog_id !== $main_blog_id ) {
+					if ( 'yes' === \get_blog_option( $main_blog_id, self::FS_WP2FAP_OPTION, 'no' ) ) {
+						return true;
+					}
+				} elseif ( \is_network_admin() ) {
+					// In network admin context (main site), check the local option.
+					if ( 'yes' === \get_option( self::FS_WP2FAP_OPTION, 'no' ) ) {
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			// Single site: the same fallback the multisite branch has always had.
+			// Without it is_premium() can report true while this method reports
+			// false, which registers the "activate your license" page on a
+			// licensed site.
+			return 'yes' === \get_option( self::FS_WP2FAP_OPTION, 'no' );
+		}
+
+		/**
+		 * What the Freemius SDK itself says, with no fallback.
+		 *
+		 * Kept separate from has_active_valid_license() on purpose.
+		 * sync_premium_license() writes the cached flag that method falls back
+		 * to, so asking it would make the flag decide its own next value: once
+		 * 'yes', always 'yes', and a license that expired or was deactivated
+		 * would never be noticed. This is the question sync has to ask.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.4.0
+		 */
+		private static function sdk_reports_valid_license(): bool {
 			if ( ! self::is_available() ) {
 				return false;
 			}
 
-			$fs = self::melapress_login_security_freemius();
-			if ( null === $fs ) {
+			$fs = self::plugin_freemius();
+
+			// plugin_freemius() returns false, not null, when the SDK could not be
+			// loaded — calling a method on that would be fatal.
+			if ( ! is_object( $fs ) ) {
 				return false;
 			}
 
-			return $fs->is_registered() && $fs->has_active_valid_license();
+			return (bool) ( $fs->is_registered() && $fs->has_active_valid_license() );
 		}
 
 		/**
@@ -140,7 +250,7 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return false;
 			}
 
-			return self::melapress_login_security_freemius();
+			return self::plugin_freemius();
 		}
 
 		/**
@@ -154,9 +264,7 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return false;
 			}
 
-			return 'yes' === get_option( 'fs_mls_premium' );
-
-			return false;
+			return 'yes' === get_option( self::FS_WP2FAP_OPTION );
 		}
 
 		/**
@@ -170,18 +278,40 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return false;
 			}
 
-			$fs = self::melapress_login_security_freemius();
+			$fs = self::plugin_freemius();
 			if ( null === $fs ) {
 				return false;
 			}
 
-			return $fs->is_registered();
+			$is_registered = $fs->is_registered();
+
+			// On multisite, the per-site or network install may not exist yet.
+			// Check the main site's premium status as a proxy for registration.
+			if ( ! $is_registered && \is_multisite() ) {
+				$main_blog_id    = \get_main_site_id();
+				$current_blog_id = \get_current_blog_id();
+
+				if ( $current_blog_id !== $main_blog_id ) {
+					$main_site_premium = \get_blog_option( $main_blog_id, self::FS_WP2FAP_OPTION, 'no' );
+					if ( 'yes' === $main_site_premium ) {
+						$is_registered = true;
+					}
+				} elseif ( \is_network_admin() ) {
+					// In network admin context, check the local option directly.
+					if ( 'yes' === \get_option( self::FS_WP2FAP_OPTION, 'no' ) ) {
+						$is_registered = true;
+					}
+				}
+			}
+
+			return $is_registered;
 		}
 
 		/**
 		 * Get the Freemius license object.
 		 *
 		 * @return mixed License object or null.
+		 *
 		 * @since 3.2.0
 		 */
 		public static function get_license() {
@@ -189,12 +319,32 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return null;
 			}
 
-			$fs = self::melapress_login_security_freemius();
+			$fs = self::plugin_freemius();
 			if ( null === $fs ) {
 				return null;
 			}
 
 			return $fs->_get_license();
+		}
+
+		/**
+		 * Check if the current license is a free license.
+		 *
+		 * @return bool True if it's a trial, false otherwise.
+		 *
+		 * @since 2.4.1
+		 */
+		public static function is_free(): bool {
+			if ( ! self::is_available() ) {
+				return false;
+			}
+
+			$fs = self::plugin_freemius();
+			if ( null === $fs ) {
+				return false;
+			}
+
+			return $fs->is_free_plan();
 		}
 
 		/**
@@ -212,10 +362,10 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			/**
 			 * If the quota of the license is null, that in terms of freemius means unlimited - set the quota to the maximum integer which is allowed by the PHP
 			 */
-			if ( null === self::melapress_login_security_freemius()->_get_license()->quota ) {
+			if ( null === self::plugin_freemius()->_get_license()->quota ) {
 				$quota = PHP_INT_MAX;
 			} else {
-				$quota = (int) self::melapress_login_security_freemius()->_get_license()->quota;
+				$quota = (int) self::plugin_freemius()->_get_license()->quota;
 			}
 
 			return $quota;
@@ -232,10 +382,6 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return false;
 			}
 
-			if ( class_exists( '\WP2FA\Freemius\User_Licensing' ) ) {
-				return User_Licensing::quota_check();
-			}
-
 			return false;
 		}
 
@@ -247,12 +393,12 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 */
 		public static function get_pricing_url(): string {
 			if ( ! self::is_available() ) {
-				return 'https://melapress.com/wordpress-2fa/pricing/';
+				return Licensing_Factory::FALLBACK_PRICING_URL;
 			}
 
-			$fs = self::melapress_login_security_freemius();
+			$fs = self::plugin_freemius();
 			if ( null === $fs ) {
-				return 'https://melapress.com/wordpress-2fa/pricing/';
+				return Licensing_Factory::FALLBACK_PRICING_URL;
 			}
 
 			return $fs->pricing_url();
@@ -266,12 +412,12 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 */
 		public static function get_account_url(): string {
 			if ( ! self::is_available() ) {
-				return 'https://melapress.com/account/';
+				return Licensing_Factory::FALLBACK_ACCOUNT_URL;
 			}
 
-			$fs = self::melapress_login_security_freemius();
+			$fs = self::plugin_freemius();
 			if ( null === $fs ) {
-				return 'https://melapress.com/account/';
+				return Licensing_Factory::FALLBACK_ACCOUNT_URL;
 			}
 
 			return $fs->get_account_url();
@@ -288,18 +434,31 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return false;
 			}
 
-			if ( class_exists( '\MLS\Freemius\Freemius_Helper' ) ) {
-				Freemius_Helper::sync_premium_license();
-				return true;
+			$option_name = self::FS_WP2FAP_OPTION;
+			$old_value   = get_option( $option_name );
+
+			// determine new value via Freemius SDK.
+			$new_value = self::has_active_valid_license() ? 'yes' : 'no';
+
+			// update the db option only if the value changed.
+			if ( $new_value !== $old_value ) {
+				\update_option( $option_name, $new_value );
 			}
 
-			return false;
+			// always update the transient to extend the expiration window.
+			\set_transient( $option_name, $new_value, DAY_IN_SECONDS );
+
+			return true;
 		}
 
 		/**
-		 * Activate a license key (Freemius handles this through its UI).
+		 * Activate a license key via Freemius SDK.
 		 *
-		 * @param string $license_key The license key to activate.
+		 * Uses the Freemius SDK's opt_in/install methods to activate
+		 * a license key programmatically without requiring the Freemius
+		 * connect UI.
+		 *
+		 * @param string $license_key The license key to activate (sk_ prefixed).
 		 * @return bool|array True on success, array with error info on failure.
 		 * @since 3.2.0
 		 */
@@ -307,13 +466,71 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			if ( ! self::is_available() ) {
 				return array(
 					'success' => false,
-					'message' => 'Freemius is not available.',
+					'message' => \__( 'Freemius is not available.', 'melapress-login-security' ),
 				);
 			}
 
-			// Freemius SDK handles activation through its own UI/API.
-			// This method is here for interface compliance.
-			// Actual activation happens through Freemius account connection.
+			$fs = self::plugin_freemius();
+			if ( null === $fs || false === $fs ) {
+				return array(
+					'success' => false,
+					'message' => \__( 'Could not initialize Freemius SDK.', 'melapress-login-security' ),
+				);
+			}
+
+			$license_key = trim( $license_key );
+
+			if ( empty( $license_key ) ) {
+				return array(
+					'success' => false,
+					'message' => \__( 'License key is required.', 'melapress-login-security' ),
+				);
+			}
+
+			// If the site is already registered with Freemius, use install_with_current_user.
+			// Otherwise, use opt_in which handles new registrations.
+
+			// On multisite, pass network sites so the SDK performs a network-level
+			// activation. An empty array causes a site-level-only install which
+			// makes the SDK show its connect page on the next network admin load.
+			$sites = array();
+			if ( \is_multisite() && method_exists( $fs, 'get_sites_for_network_level_optin' ) ) {
+				$sites = $fs->get_sites_for_network_level_optin();
+			}
+
+			if ( $fs->is_registered() ) {
+				$result = $fs->install_with_current_user( $license_key, false, $sites, false );
+			} else {
+				$current_user = \wp_get_current_user();
+				$result       = $fs->opt_in(
+					$current_user->user_email,
+					$current_user->first_name,
+					$current_user->last_name,
+					$license_key,
+					false,  // is_uninstall
+					false,  // trial_plan_id
+					false,  // is_disconnected
+					null,   // is_marketing_allowed
+					$sites, // sites - pass network sites on multisite for network-level activation
+					false   // redirect - IMPORTANT: don't redirect/exit
+				);
+			}
+
+			// Check if activation was successful.
+			if ( is_object( $result ) && isset( $result->error ) ) {
+				$error_message = isset( $result->error->message )
+					? $result->error->message
+					: \__( 'License activation failed.', 'melapress-login-security' );
+
+				return array(
+					'success' => false,
+					'message' => $error_message,
+				);
+			}
+
+			// Sync premium license status after successful activation.
+			self::sync_premium_license();
+
 			return true;
 		}
 
@@ -328,8 +545,22 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return false;
 			}
 
-			// Freemius SDK handles deactivation through its own UI/API.
-			// This would typically be done through melapress_login_security_freemius()->deactivate_license().
+			// $fs = self::plugin_freemius();
+			// if ( null === $fs || false === $fs ) {
+			// 	return false;
+			// }
+
+			// if ( ! $fs->is_registered() ) {
+			// 	return false;
+			// }
+
+			// // Use Freemius SDK's delete_account method to disconnect.
+			// $fs->delete_account_event();
+
+			// // Clear local premium status.
+			// \update_option( self::FS_WP2FAP_OPTION, 'no' );
+			// \delete_transient( self::FS_WP2FAP_OPTION );
+
 			return true;
 		}
 
@@ -354,17 +585,8 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return self::$is_available;
 			}
 
-
 			// Include Freemius SDK.
-			$freemius_path = MLS_PATH . DIRECTORY_SEPARATOR . implode(
-				DIRECTORY_SEPARATOR,
-				array(
-					'vendor',
-					'freemius',
-					'wordpress-sdk',
-					'start.php',
-				)
-			);
+			$freemius_path = self::get_freemius_path();
 
 			if ( ! file_exists( $freemius_path ) ) {
 				return (bool) self::$is_available;
@@ -383,12 +605,12 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 */
 		public static function get_plugin_basename(): string {
 			if ( ! self::is_available() ) {
-				return plugin_basename( WP_2FA_FILE );
+				return plugin_basename( Licensing_Factory::PLUGIN_FILE );
 			}
 
-			$fs = self::melapress_login_security_freemius();
+			$fs = self::plugin_freemius();
 			if ( null === $fs ) {
-				return plugin_basename( WP_2FA_FILE );
+				return plugin_basename( Licensing_Factory::PLUGIN_FILE );
 			}
 
 			return $fs->get_plugin_basename();
@@ -409,8 +631,8 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return;
 			}
 
-			$fs = self::melapress_login_security_freemius();
-			if ( null === $fs || ( false === $fs ) || ! method_exists( $fs, 'add_filter' ) ) {
+			$fs = self::plugin_freemius();
+			if ( null === $fs ) {
 				return;
 			}
 
@@ -432,8 +654,8 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return;
 			}
 
-			$fs = self::melapress_login_security_freemius();
-			if ( null === $fs || ( false === $fs ) || ! method_exists( $fs, 'add_filter' ) ) {
+			$fs = self::plugin_freemius();
+			if ( null === $fs ) {
 				return;
 			}
 
@@ -447,7 +669,7 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 *
 		 * @return mixed|null Freemius instance or null when unavailable.
 		 */
-		private static function melapress_login_security_freemius() {
+		private static function plugin_freemius() {
 			if ( ! self::is_available() ) {
 				return null;
 			}
@@ -457,17 +679,8 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			}
 
 			self::$freemius_instance = \false;
-
-			// Include Freemius SDK.
-			$freemius_path = MLS_PATH . DIRECTORY_SEPARATOR . implode(
-				DIRECTORY_SEPARATOR,
-				array(
-					'vendor',
-					'freemius',
-					'wordpress-sdk',
-					'start.php',
-				)
-			);
+			// Use helper to get Freemius SDK path.
+			$freemius_path = self::get_freemius_path();
 
 			if ( ! file_exists( $freemius_path ) ) {
 				return self::$freemius_instance;
@@ -476,8 +689,8 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			require_once $freemius_path;
 
 			if ( function_exists( 'fs_dynamic_init' ) ) {
-				if ( ! defined( 'WP_FS__PRODUCT_4028_MULTISITE' ) ) {
-					define( 'WP_FS__PRODUCT_4028_MULTISITE', true );
+				if ( ! defined( 'WP_FS__PRODUCT_' . Licensing_Factory::FREEMIUS_PLUGIN_ID . '_MULTISITE' ) ) {
+					define( 'WP_FS__PRODUCT_' . Licensing_Factory::FREEMIUS_PLUGIN_ID . '_MULTISITE', true );
 				}
 
 				// Trial arguments.
@@ -487,33 +700,33 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				);
 
 				// Check anonymous mode.
-				$freemius_state = get_site_option( 'melapress_login_security_freemius_state', 'anonymous' );
+				$freemius_state = get_site_option( Licensing_Factory::FREEMIUS_INTERNAL_SLUG . '_freemius_state', 'anonymous' );
 				$is_anonymous   = 'anonymous' === $freemius_state || 'skipped' === $freemius_state;
 				$is_premium     = true;
 				$is_anonymous   = ( $is_premium ? false : $is_anonymous );
 
 				self::$freemius_instance = \fs_dynamic_init(
 					array(
-						'id'              => 4028,
-						'slug'            => 'melapress-login-security',
-						'premium_slug'    => 'melapress-login-security-premium',
-						'type'            => 'plugin',
-						'public_key'      => 'pk_9abad03ceb8172d40170994a44140',
-						'premium_suffix'  => '(Premium)',
-						'is_premium'      => true,
-						'is_premium_only' => false,
-						'has_addons'      => false,
-						'has_paid_plans'  => true,
-						'trial'           => $trial_args,
-						'has_affiliation' => false,
-						'menu'            => array(
-							'slug'        => 'mls-policies',
+						'id'                  => Licensing_Factory::FREEMIUS_PLUGIN_ID,
+						'slug'                => Licensing_Factory::FREEMIUS_SLUG,
+						'type'                => 'plugin',
+						'public_key'          => Licensing_Factory::FREEMIUS_PUBLIC_KEY,
+						'premium_suffix'      => '(Premium)',
+						'is_premium'          => true,
+						// If your plugin is a serviceware, set this option to false.
+						'has_premium_version' => true,
+						'has_addons'          => false,
+						'has_paid_plans'      => true,
+						'has_affiliation'     => false,
+						'trial'               => $trial_args,
+						'menu'                => array(
+							'slug'        => Licensing_Factory::MENU_SLUG,
 							'support'     => false,
 							'affiliation' => false,
 							'network'     => true,
 						),
-						'anonymous_mode'  => $is_anonymous,
-						'is_live'         => true,
+						'anonymous_mode'      => $is_anonymous,
+						'is_live'             => true,
 					)
 				);
 
@@ -522,25 +735,39 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				 *
 				 * @since 2.0.0
 				 */
-				do_action( 'melapress_login_security_loaded' );
-
-				// Signal that SDK was initiated.
-				do_action( 'melapress_login_security_freemius_loaded' );
+				do_action( Licensing_Factory::FREEMIUS_INTERNAL_SLUG . '_freemius_loaded' );
 			}
 
 			return self::$freemius_instance;
 		}
 
 		/**
-		 * Resource cautious function to check if the premium license is active and valid.
+		 * Get Freemius SDK file path.
+		 *
+		 * @return string
+		 */
+		private static function get_freemius_path(): string {
+			return Licensing_Factory::PLUGIN_PATH . DIRECTORY_SEPARATOR . implode(
+				DIRECTORY_SEPARATOR,
+				array(
+					'third-party',
+					'freemius',
+					'wordpress-sdk',
+					'start.php',
+				)
+			);
+		}
+
+		/**
+		 * Resource cautious function to check if the premium license is active and valid. It only checks if WordPress
+		 * option "fs_wp2fap" is present and set to true.
+		 *
+		 * Function is intended for quick check during initial stages of plugin bootstrap, especially on front-end.
 		 *
 		 * @return boolean
 		 */
 		public static function is_premium_freemius() {
-			if ( ! function_exists( 'melapress_login_security_freemius' ) ) {
-				return false;
-			}
-			return melapress_login_security_freemius()->can_use_premium_code();
+			return 'yes' === get_option( self::FS_WP2FAP_OPTION );
 		}
 
 		/**
@@ -555,7 +782,7 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				return;
 			}
 
-			$freemius_transient = get_transient( 'fs_mls_premium' );
+			$freemius_transient = get_transient( self::FS_WP2FAP_OPTION );
 			if ( false === $freemius_transient || ! in_array( $freemius_transient, array( 'yes', 'no' ) ) ) {
 				// transient expired or invalid.
 				self::sync_premium_license();
@@ -571,19 +798,154 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 * @see WP2FA\Freemius\Freemius_Helper::maybe_sync_premium_license()
 		 */
 		public static function sync_premium_license() {
-			$option_name = 'fs_mls_premium';
-			$old_value   = get_option( $option_name );
+			$option_name = self::FS_WP2FAP_OPTION;
+			$old_value   = \get_option( $option_name );
 
-			// determine new value via Freemius SDK.
-			$new_value = self::melapress_login_security_freemius()->is_registered() && self::melapress_login_security_freemius()->has_active_valid_license() ? 'yes' : 'no';
+			// The SDK, not has_active_valid_license() — see sdk_reports_valid_license().
+			if ( self::sdk_reports_valid_license() ) {
+				\update_option( self::FS_LAST_VALID_OPTION, time() );
 
-			// update the db option only if the value changed.
-			if ( $new_value !== $old_value ) {
-				update_option( $option_name, $new_value );
+				if ( 'yes' !== $old_value ) {
+					\update_option( $option_name, 'yes' );
+				}
+
+				\set_transient( $option_name, 'yes', DAY_IN_SECONDS );
+
+				return;
 			}
 
-			// always update the transient to extend the expiration window.
-			set_transient( $option_name, $new_value, DAY_IN_SECONDS );
+			/*
+			 * A negative answer does not immediately unlicense the site.
+			 *
+			 * This runs on admin_init, and the first admin load after an upgrade is
+			 * exactly when the SDK is most likely to answer badly — which is the
+			 * shape of the reported "licensed 2.3 becomes unlicensed on 2.4". Once
+			 * the flag is written as 'no' the site is unlicensed for good, because
+			 * the flag is also what the fallback in has_active_valid_license()
+			 * reads.
+			 *
+			 * So a previously licensed site is honoured for CHECK_GRACE_PERIOD and
+			 * retried sooner, giving a real sync time to succeed. Same trade, and
+			 * the same window, as the EDD provider's check.
+			 */
+			if ( 'yes' === $old_value && ! self::grace_period_expired() ) {
+				\set_transient( $option_name, 'yes', self::CHECK_RETRY_INTERVAL );
+
+				return;
+			}
+
+			if ( 'no' !== $old_value ) {
+				\update_option( $option_name, 'no' );
+			}
+
+			\set_transient( $option_name, 'no', DAY_IN_SECONDS );
+		}
+
+		/**
+		 * Whether the grace period for a previously licensed site has run out.
+		 *
+		 * On a site that predates this bookkeeping the window starts at the first
+		 * negative answer rather than counting as already expired — which is the
+		 * upgrade case this exists for.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.4.0
+		 */
+		private static function grace_period_expired(): bool {
+			$last_valid = (int) \get_option( self::FS_LAST_VALID_OPTION, 0 );
+
+			if ( $last_valid <= 0 ) {
+				$last_valid = time();
+				\update_option( self::FS_LAST_VALID_OPTION, $last_valid );
+			}
+
+			return ( time() - $last_valid ) > self::CHECK_GRACE_PERIOD;
+		}
+
+		/**
+		 * Intercept Freemius disconnect form submission before WordPress's page
+		 * access check runs. The disconnect form posts to
+		 * admin.php?page=mls-policies-account which may not be a registered page
+		 * (the unified licensing system removes it). This handler fires during
+		 * admin_menu (before the access check in menu.php line 375) so we can
+		 * process the disconnect and redirect to the correct page.
+		 *
+		 * @return void
+		 * @since 3.3.0
+		 */
+		public static function maybe_handle_freemius_disconnect() {
+			if ( ! isset( $_POST['fs_action'] ) || 'delete_account' !== $_POST['fs_action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				return;
+			}
+
+			// Only act when the request targets the (potentially removed) account page.
+			$menu_slug = Licensing_Factory::MENU_SLUG;
+			if ( ! isset( $_GET['page'] ) || $menu_slug . '-account' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				return;
+			}
+
+			// Verify nonce (Freemius uses 'delete_account' as nonce action).
+			if ( ! \check_admin_referer( 'delete_account' ) ) {
+				return;
+			}
+
+			// Let the Freemius SDK process the account deletion.
+			$fs = self::plugin_freemius();
+			if ( $fs && \is_object( $fs ) && \method_exists( $fs, 'delete_account_event' ) ) {
+				$fs->delete_account_event();
+			}
+
+			// Clean up provider data.
+			\delete_option( Licensing_Factory::PROVIDER_OPTION );
+			\update_option( self::FS_WP2FAP_OPTION, 'no' );
+			\delete_transient( self::FS_WP2FAP_OPTION );
+
+			// Redirect to the plugin's main page.
+			$admin_url = \is_multisite() ? \network_admin_url( 'admin.php?page=' . $menu_slug ) : \admin_url( 'admin.php?page=' . $menu_slug );
+			\wp_safe_redirect( $admin_url );
+			exit;
+		}
+
+		/**
+		 * Called when the Freemius account is disconnected (deleted).
+		 *
+		 * Clears the provider preference so the unified license page shows
+		 * on next page load, allowing the user to activate with either provider.
+		 * Redirects to the plugin's default page to avoid landing on the
+		 * non-existent mls-policies-account page.
+		 *
+		 * Hooked to: after_account_delete, after_network_account_delete.
+		 *
+		 * @return void
+		 * @since 3.3.0
+		 */
+		public static function on_account_disconnect() {
+			\delete_option( Licensing_Factory::PROVIDER_OPTION );
+			\update_option( self::FS_WP2FAP_OPTION, 'no' );
+			\delete_transient( self::FS_WP2FAP_OPTION );
+
+			$menu_slug = Licensing_Factory::MENU_SLUG;
+			$admin_url = \is_multisite() ? \network_admin_url( 'admin.php?page=' . $menu_slug ) : \admin_url( 'admin.php?page=' . $menu_slug );
+			\wp_safe_redirect( $admin_url );
+			exit;
+		}
+
+		/**
+		 * Called when the Freemius license is deactivated (but account remains connected).
+		 *
+		 * Clears the provider preference and premium status so the unified license
+		 * page shows on next page load.
+		 *
+		 * Hooked to: after_license_deactivation.
+		 *
+		 * @return void
+		 * @since 3.3.0
+		 */
+		public static function on_license_deactivation() {
+			// \delete_option( Licensing_Factory::PROVIDER_OPTION );
+			\update_option( self::FS_WP2FAP_OPTION, 'no' );
+			\delete_transient( self::FS_WP2FAP_OPTION );
 		}
 
 		/**
@@ -609,7 +971,7 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			$result .= ',<br>';
 			$result .= esc_html__( 'Never miss an important update! Opt-in to our security and feature updates notifications, and non-sensitive diagnostic tracking with freemius.com.', 'melapress-login-security' ) .
 			$result .= '<br /><br /><strong>' . esc_html__( 'Note: ', 'melapress-login-security' ) . '</strong>';
-			$result .= esc_html__( 'NO ACTIVITY LOG ACTIVITY & DATA IS SENT BACK TO OUR SERVERS.', 'melapress-login-security' );
+			$result .= esc_html( Licensing_Factory::OPTIN_DISCLAIMER );
 
 			return $result;
 		}
@@ -640,11 +1002,11 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 				esc_html__( 'Please help us improve %1$s! If you opt-in, some non-sensitive data about your usage of %2$s will be sent to %3$s, a diagnostic tracking service we use. If you skip this, that\'s okay! %2$s will still work just fine.', 'melapress-login-security' ) .
 				'<strong>' . $plugin_title . '</strong>',
 				'<strong>' . $plugin_title . '</strong>',
-				'<a href="https://melapress.com/wordpress-login-security/?&utm_source=plugin&utm_medium=mls&utm_campaign=optin_message" target="_blank" tabindex="1">freemius.com</a>',
+				'<a href="' . esc_url( Licensing_Factory::FREEMIUS_OPTIN_URL ) . '" target="_blank" tabindex="1">freemius.com</a>',
 				'<strong>' . $plugin_title . '</strong>'
 			);
 			$result .= '<br /><br /><strong>' . esc_html__( 'Note: ', 'melapress-login-security' ) . '</strong>';
-			$result .= esc_html__( 'NO ACTIVITY LOG ACTIVITY & DATA IS SENT BACK TO OUR SERVERS.', 'melapress-login-security' );
+			$result .= esc_html( Licensing_Factory::OPTIN_DISCLAIMER );
 
 			return $result;
 		}
@@ -669,6 +1031,10 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function can_show_admin_notice( $show, $msg ) {
+			if ( isset( $msg['id'] ) && 'connect_account' === $msg['id'] ) {
+				return false;
+			}
+
 			return current_user_can( 'manage_options' );
 		}
 
@@ -708,6 +1074,11 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 */
 		public static function limited_license_activation_error( $error ) {
 			$site_count = null;
+
+			if ( is_object( $error ) && property_exists( $error, 'message' ) ) {
+				$error = $error->message;
+			}
+
 			preg_match( '!\d+!', $error, $site_count );
 
 			// Check if this is an expired error.
@@ -730,8 +1101,9 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function maybe_redirect_to_external_pricing_page() {
-			if ( array_key_exists( 'page', $_GET ) && 'wp-2fa-policies-pricing' === \wp_unslash( $_GET['page'] ) ) { // phpcs:ignore
-				\wp_redirect( 'https://melapress.com/wordpress-2fa/pricing/?&utm_source=plugin&utm_medium=wp2fa&utm_campaign=redirect_to_external_price_page' );
+			$pricing_page = Licensing_Factory::MENU_SLUG . '-pricing';
+			if ( array_key_exists( 'page', $_GET ) && $pricing_page === \wp_unslash( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				\wp_redirect( Licensing_Factory::FREEMIUS_PRICING_REDIRECT_URL ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- intentional external redirect to configured URL.
 				exit;
 			}
 		}
@@ -743,15 +1115,19 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 */
 		public static function adjust_freemius_strings() {
 			// only update these messages if using premium plugin.
-			if ( ( ! self::melapress_login_security_freemius()->is_premium() ) || ( ! method_exists( self::melapress_login_security_freemius(), 'override_il8n' ) ) ) {
+			if ( ( ! self::plugin_freemius()->is_premium() ) || ( ! method_exists( self::plugin_freemius(), 'override_il8n' ) ) ) {
 				return;
 			}
 
-			self::melapress_login_security_freemius()->override_i18n(
+			self::plugin_freemius()->override_i18n(
 				array(
-					/* translators: plugin version */
-					'few-plugin-tweaks' => __( 'You need to activate the license key to use WP 2FA - Two-factor authentication for WordPress (Premium). %2$s', 'wp-2fa' ),
-					'optin-x-now'       => __( 'Activate the license key now', 'wp-2fa' ),
+					/* translators: %2$s: activation link */
+					'few-plugin-tweaks' => sprintf(
+						/* translators: 1: plugin name, 2: activation link */
+						__( 'You need to activate the license key to use %1$s. %%2$s', 'melapress-login-security' ),
+						Licensing_Factory::PLUGIN_NAME
+					),
+					'optin-x-now'       => __( 'Activate the license key now', 'melapress-login-security' ),
 				)
 			);
 		}

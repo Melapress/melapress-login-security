@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace MLS;
 
+use MLS\Emailer;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -135,12 +137,23 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				$message .= __( 'Please visit the following URL to reset your password so you can log in to the website: {reset_url}.', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'If you have any questions or require assistance please contact the website administrator on {admin_email}.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'user_imported' === $template || 'user_imported_email_body' === $template ) {
+				/*
+				 * A link, not a password. This template used to carry
+				 * `Password: {user_password}`, which put the account's actual
+				 * password into an email — plaintext in transit unless every hop
+				 * happens to negotiate TLS, and then resident in the mailbox,
+				 * the sending log and any archive indefinitely. It also cannot
+				 * be revoked once sent. WordPress itself stopped doing this in
+				 * 4.3 and sends a password-set link instead; this now matches.
+				 *
+				 * `{user_password}` still resolves — to an empty string — so a
+				 * template customised before this change cannot start printing
+				 * a password again.
+				 */
 				$message  = __( 'Hello', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'The user {user_login_name} with the email address {user_email} has been created on the website {home_url}.', 'melapress-login-security' ) . "\n\n";
-				$message .= __( 'You may log in with the following credentials:', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'Username: {user_login_name}', 'melapress-login-security' ) . "\n\n";
-				$message .= __( 'Password: {user_password}', 'melapress-login-security' ) . "\n\n";
-				$message .= __( 'It is highly recommended to change your password once you log in.', 'melapress-login-security' ) . "\n\n";
+				$message .= __( 'To set your password and log in, visit the following URL: {reset_url}', 'melapress-login-security' ) . "\n\n";
 				$message .= __( 'If you have any questions or require assistance please contact the website administrator on {admin_email}.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'user_imported_forced_reset' === $template || 'user_imported_forced_reset_email_body' === $template ) {
 				$message  = __( 'Hello,', 'melapress-login-security' ) . "\n\n";
@@ -172,13 +185,24 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 			} elseif ( 'restrict_login_ip_login_blocked_message' === $template ) {
 				$message = __( 'Logins from this IP address are not allowed. Please contact the website administrator ( {admin_email} ) for further information.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'failed_logins_login_blocked_message' === $template ) {
-				$message = __( 'Your user account has surpassed the maximum allowed number of failed login attempts and it has been locked.', 'melapress-login-security' ) . "\n\n";
-			} elseif ( 'failed_logins_login_blocked_message' === $template ) {
-				$message = __( 'Incorrect answer provided', 'melapress-login-security' ) . "\n\n";
+				$message = __( 'There have been too many failed login attempts for your account. Further attempts from the device or network involved are temporarily blocked.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'security_prompt_response_failure_message' === $template ) {
 				$message = __( 'Incorrect answer provided', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'user_exceeded_failed_logins_count_message' === $template ) {
-				$message = __( 'Your account has surpassed the allowed number of login attempts and can no longer log in.', 'melapress-login-security' ) . "\n\n";
+				$message = __( 'Too many failed login attempts. Access from the device or network involved is temporarily blocked.', 'melapress-login-security' ) . "\n\n";
+			} elseif ( 'account_locked_failed_logins_message' === $template ) {
+				/*
+				 * The account-level counterpart of the message above.
+				 *
+				 * That one describes the per-source throttle: it is scoped to a
+				 * device or network and it lifts on its own. This one is for an
+				 * account that is locked outright — which is the state a site
+				 * carries over from 2.3.x, where the failed-login policy set an
+				 * account-wide flag. Telling that user their "device or network"
+				 * is "temporarily" blocked is wrong twice over, and sends them to
+				 * wait or switch networks instead of getting the account unlocked.
+				 */
+				$message = __( 'Your account has been locked after too many failed login attempts. Please contact the website administrator ( {admin_email} ) to unlock your user account.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'login_failed_account_not_known' === $template ) {
 				$message = __( 'The account details provided were not recognized.', 'melapress-login-security' ) . "\n\n";
 			} elseif ( 'login_failed_username_not_known' === $template ) {
@@ -210,7 +234,7 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 
 			$mls        = melapress_login_security();
 			$user       = get_userdata( $user_id );
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
 
 			if ( ! is_a( $user, '\WP_User' ) ) {
 				// These are the strings we are going to search for, as well as there respective replacements.
@@ -224,6 +248,8 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 					'{reset_url}'            => ( ! empty( $args ) && isset( $args['reset_url'] ) ) ? sanitize_text_field( $args['reset_url'] ) : '',
 					'{password}'             => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
 					'{device_ip}'            => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
+					'{new_session_ip}'       => ( ! empty( $args ) && isset( $args['new_session_ip'] ) ) ? sanitize_text_field( $args['new_session_ip'] ) : '',
+					'{event_time}'           => ( ! empty( $args ) && isset( $args['event_time'] ) ) ? sanitize_text_field( $args['event_time'] ) : '',
 					'{clear_sessions_link}'  => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
 					'{remaining_time}'       => ( ! empty( $args ) && isset( $args['remaining_time'] ) ) ? sanitize_text_field( $args['remaining_time'] ) : '',
 					'{temporary_login_link}' => ( ! empty( $args ) && isset( $args['temporary_login_link'] ) ) ? wp_kses_post( $args['temporary_login_link'] ) : '',
@@ -250,6 +276,8 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 				'{password}'             => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
 				'{user_password}'        => ( ! empty( $args ) && isset( $args['password'] ) ) ? sanitize_text_field( $args['password'] ) : '',
 				'{device_ip}'            => ( ! empty( $args ) && isset( $args['device_ip'] ) ) ? sanitize_text_field( $args['device_ip'] ) : '',
+				'{new_session_ip}'       => ( ! empty( $args ) && isset( $args['new_session_ip'] ) ) ? sanitize_text_field( $args['new_session_ip'] ) : '',
+				'{event_time}'           => ( ! empty( $args ) && isset( $args['event_time'] ) ) ? sanitize_text_field( $args['event_time'] ) : '',
 				'{clear_sessions_link}'  => ( ! empty( $args ) && isset( $args['clear_sessions_link'] ) ) ? self::linkify_link( sanitize_text_field( $args['clear_sessions_link'] ) ) : '',
 				'{remaining_time}'       => ( ! empty( $args ) && isset( $args['remaining_time'] ) ) ? sanitize_text_field( $args['remaining_time'] ) : '',
 				'{temporary_login_link}' => ( ! empty( $args ) && isset( $args['temporary_login_link'] ) ) ? wp_kses_post( $args['temporary_login_link'] ) : '',

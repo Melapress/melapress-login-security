@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use MLS\Validators\Validator;
+use MLS\Helpers\OptionsHelper;
 
 /**
  * Handles password checks.
@@ -59,22 +60,6 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 		private $options;
 
 		/**
-		 * Text strings.
-		 *
-		 * @var object Instance of MLS_Messages
-		 *
-		 * @since 2.0.0
-		 */
-		private $msgs;
-
-		/**
-		 * Regex tests.
-		 *
-		 * @var object Instance of MLS_Regex
-		 */
-		private $regex;
-
-		/**
 		 * Initialise instances of policy classes
 		 *
 		 * @return void
@@ -85,8 +70,6 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 			$mls = melapress_login_security();
 
 			$this->options = $mls->options->users_options;
-			$this->msgs    = $mls->msgs;
-			$this->regex   = $mls->regex;
 		}
 
 		/**
@@ -98,15 +81,21 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 		 */
 		public function hook() {
 			$mls = melapress_login_security();
-			if ( isset( $mls->options->mls_setting->enable_wp_reset_form ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_reset_form ) ) {
+			if ( isset( $mls->options->mls_setting->enable_wp_reset_form ) && OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_reset_form ) ) {
 				// hook into password reset.
 				add_action( 'validate_password_reset', array( $this, 'validate_reset' ), 0, 2 );
 			}
 
-			if ( isset( $mls->options->mls_setting->enable_wp_profile_form ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_profile_form ) ) {
+			if ( isset( $mls->options->mls_setting->enable_wp_profile_form ) && OptionsHelper::string_to_bool( $mls->options->mls_setting->enable_wp_profile_form ) ) {
 				// hook into user profile edit, new screens.
 				add_action( 'user_profile_update_errors', array( $this, 'edit_user' ), 0, 3 );
 			}
+
+			// `user_profile_update_errors` only fires from edit_user(), which is
+			// wp-admin only. The REST users controller writes the password
+			// straight through wp_update_user(), so it needs covering
+			// separately or the policy simply does not apply there.
+			Rest_User_Guard::hook_password_policy();
 		}
 
 		/**
@@ -195,6 +184,18 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 				return;
 			}
 
+			// The hook target is authoritative. Never reuse a policy selected from
+			// request globals during bootstrap, because profile.php can carry an
+			// unrelated user_id query parameter.
+			$target_user = get_user_by( 'ID', $user_id );
+			if ( ! $target_user instanceof \WP_User ) {
+				return;
+			}
+
+			$this->options = OptionsHelper::get_preferred_role_options( $target_user->roles );
+			\MLS\MLS_Regex::init_for_user( (int) $target_user->ID );
+			$this->violations = array();
+
 			// if the password validates with the rules, all good, return.
 			if ( $this->is_password_ok( $password, $user_id ) ) {
 				return;
@@ -216,7 +217,7 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 				case 'reset-form':
 				case 'reset-form-return':
 					foreach ( $this->violations as $violation ) {
-						$errors->add( 'password-strength-issue-' . $violation, $this->msgs->error_strings[ $violation ] );
+						$errors->add( 'password-strength-issue-' . $violation, \MLS\MLS_Messages::$error_strings[ $violation ] );
 					}
 					break;
 
@@ -224,7 +225,7 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 				case 'user-edit':
 					foreach ( $this->violations as $violation ) {
 						/* translators: %s: Current violations for desired password. */
-						$errors->add( 'pass', sprintf( __( '<strong>ERROR</strong>: New password %s', 'melapress-login-security' ), lcfirst( $this->msgs->error_strings[ $violation ] ) ), array( 'form-field' => 'pass1' ) );
+						$errors->add( 'pass', sprintf( __( '<strong>ERROR</strong>: New password %s', 'melapress-login-security' ), lcfirst( \MLS\MLS_Messages::$error_strings[ $violation ] ) ), array( 'form-field' => 'pass1' ) );
 					}
 					break;
 			}
@@ -302,7 +303,7 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 				return;
 			}
 
-			$is_feature_active = isset( $this->options->activate_password_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->options->activate_password_policies ) ? true : false;
+			$is_feature_active = isset( $this->options->activate_password_policies ) && OptionsHelper::string_to_bool( $this->options->activate_password_policies ) ? true : false;
 			if ( ! $is_feature_active ) {
 				return false;
 			}
@@ -310,14 +311,14 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 			// the regexes that the password failed to match against.
 			$failed_regexes = array();
 			foreach ( $this->options->rules as $key => $rule ) {
-				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $rule ) && ! isset( $successful_regexes[ $key ] ) ) {
+				if ( OptionsHelper::string_to_bool( $rule ) && ! isset( $successful_regexes[ $key ] ) ) {
 					$failed_regexes[ $key ] = true;
 				}
 			}
 
 			// since the regex check earlier was skipped then we need to check.
 			// excluded special characters here to ensure we don't have any.
-			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $this->options->rules['exclude_special_chars'] ) && isset( $this->options->excluded_special_chars ) ) {
+			if ( OptionsHelper::string_to_bool( $this->options->rules['exclude_special_chars'] ) && isset( $this->options->excluded_special_chars ) ) {
 				$excluded_chars_array = str_split( html_entity_decode( str_replace( '&pound', '£', $this->options->excluded_special_chars ), 0, 'UTF-8' ), 1 );
 				foreach ( $excluded_chars_array as $char ) {
 					// remove any chars from the allowed list.
@@ -333,7 +334,7 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 			 * Edge case when all special characters are excluded in the excluded characters
 			 * can return false positive when new password is set.
 			 */
-			if ( ! \MLS\Helpers\OptionsHelper::string_to_bool( $this->options->rules['special_chars'] ) && isset( $failed_regexes['special_chars'] ) ) {
+			if ( ! OptionsHelper::string_to_bool( $this->options->rules['special_chars'] ) && isset( $failed_regexes['special_chars'] ) ) {
 				unset( $failed_regexes['special_chars'] );
 			}
 
@@ -425,8 +426,8 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 		private function match_rules( $password ) {
 			$result = array();
 
-			// convert regexes to an array.
-			$rules = json_decode( wp_json_encode( $this->regex ), true );
+			// get active rules from the static class.
+			$rules = \MLS\MLS_Regex::get_rules();
 
 			foreach ( $rules as $rule => $regex ) {
 
@@ -444,7 +445,7 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 				}
 
 				// only check if the policy is enabled.
-				if ( isset( $this->options->rules ) && \MLS\Helpers\OptionsHelper::string_to_bool( $this->options->rules[ $rule ] ) ) {
+				if ( isset( $this->options->rules ) && OptionsHelper::string_to_bool( $this->options->rules[ $rule ] ) ) {
 
 					$matches = array();
 					// set the result of pattern matching to a new element with the rule namespace as key.
@@ -482,14 +483,15 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 			}
 
 			$user         = get_user_by( 'id', $user_id );
-			$role_options = \MLS\Helpers\OptionsHelper::get_preferred_role_options( $user->roles );
+			$role_options = OptionsHelper::get_preferred_role_options( $user->roles );
 
-			$new_password_history = array_slice( array_reverse( $password_history ), 0, $role_options->password_history + 1 );
-			$is_feature_active    = (\property_exists( $role_options, 'activate_password_recycle_policies' ) && isset( $role_options->activate_password_recycle_policies ) && \MLS\Helpers\OptionsHelper::string_to_bool( $role_options->activate_password_recycle_policies )) ? true : false;
+			$is_feature_active = ( \property_exists( $role_options, 'activate_password_recycle_policies' ) && isset( $role_options->activate_password_recycle_policies ) && OptionsHelper::string_to_bool( $role_options->activate_password_recycle_policies ) ) ? true : false;
 
 			if ( ! $is_feature_active ) {
 				return false;
 			}
+
+			$new_password_history = array_slice( array_reverse( $password_history ), 0, (int) $role_options->password_history + 1 );
 
 			foreach ( $new_password_history as $event ) {
 				// check against old password.
@@ -503,5 +505,4 @@ if ( ! class_exists( '\MLS\Password_Check' ) ) {
 			return false;
 		}
 	}
-
 }

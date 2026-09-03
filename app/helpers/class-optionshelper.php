@@ -125,7 +125,47 @@ class OptionsHelper {
 	public static function get_plugin_is_enabled() {
 		$global_settings = self::get_master_policy_options();
 
-		return is_object( $global_settings ) && isset( $global_settings->master_switch ) ? self::string_to_bool( $global_settings->master_switch ) : false;
+		if ( ! is_object( $global_settings ) ) {
+			return false;
+		}
+
+		// Check if any policy group is enabled.
+		if ( isset( $global_settings->enable_password_policies_group ) && self::string_to_bool( $global_settings->enable_password_policies_group ) ) {
+			return true;
+		}
+		if ( isset( $global_settings->enable_session_policies_group ) && self::string_to_bool( $global_settings->enable_session_policies_group ) ) {
+			return true;
+		}
+		if ( isset( $global_settings->enable_device_policies_group ) && self::string_to_bool( $global_settings->enable_device_policies_group ) ) {
+			return true;
+		}
+		if ( isset( $global_settings->enable_login_policies_group ) && self::string_to_bool( $global_settings->enable_login_policies_group ) ) {
+			return true;
+		}
+
+		// Backward compat: fall back to master_switch.
+		return isset( $global_settings->master_switch ) ? self::string_to_bool( $global_settings->master_switch ) : false;
+	}
+
+	/**
+	 * Checks if a specific policy group is enabled.
+	 *
+	 * @param string $group The group key: 'password', 'session', 'device', or 'login'.
+	 *
+	 * @return bool
+	 *
+	 * @since 2.6.0
+	 */
+	public static function is_policy_group_enabled( $group ) {
+		$global_settings = self::get_master_policy_options();
+
+		if ( ! is_object( $global_settings ) ) {
+			return false;
+		}
+
+		$key = 'enable_' . $group . '_policies_group';
+
+		return isset( $global_settings->$key ) ? self::string_to_bool( $global_settings->$key ) : false;
 	}
 
 	/**
@@ -138,6 +178,91 @@ class OptionsHelper {
 	 *
 	 * @since 2.0.0
 	 */
+	/**
+	 * Clean a login-redirect target, which is stored as a path and not a URL.
+	 *
+	 * Both redirect settings on the login-page screen are paths relative to the
+	 * site root: the field is rendered inside site_url() with a trailing slash,
+	 * and the redirect is built as '/' . rtrim( $value, '/' ). Passing them
+	 * through esc_url_raw() turned a bare "reception" into
+	 * "http://reception" — esc_url() adds a scheme to anything that has none —
+	 * and the resulting redirect target, "//http://reception", is one
+	 * wp_safe_redirect() rejects, so the feature stopped working on the first
+	 * save after upgrading.
+	 *
+	 * A leading slash is removed for the same reason: '/' . '/x' is '//x', which
+	 * a browser reads as a host and wp_safe_redirect() refuses.
+	 *
+	 * Anything pointing off-site is dropped rather than stored. That was the
+	 * point of validating these fields in the first place, and a redirect to
+	 * another host could never work here anyway.
+	 *
+	 * @param string $value - Raw value from the form or from the database.
+	 *
+	 * @return string Path relative to the site root, without a leading slash.
+	 *
+	 * @since 2.4.0
+	 */
+	public static function sanitize_login_redirect_path( $value ) {
+		$value = trim( (string) $value );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		// Strip control characters and anything that cannot appear in a path.
+		$value = preg_replace( '/[\x00-\x1F\x7F\s]+/', '', $value );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$has_scheme = (bool) preg_match( '#^[a-z][a-z0-9+.\-]*:#i', $value );
+
+		// A scheme-relative "//host/path" is off-site as far as a browser cares.
+		if ( $has_scheme || 0 === strpos( $value, '//' ) ) {
+			if ( $has_scheme && ! preg_match( '#^https?://#i', $value ) ) {
+				// javascript:, data: and friends are never a redirect target.
+				return '';
+			}
+
+			$parts = \wp_parse_url( $value );
+			$host  = isset( $parts['host'] ) ? strtolower( $parts['host'] ) : '';
+			$home  = strtolower( (string) \wp_parse_url( \home_url(), PHP_URL_HOST ) );
+			$path  = isset( $parts['path'] ) ? $parts['path'] : '';
+
+			if ( '' === $host || $host === $home ) {
+				// Already this site; the path is the part that means anything.
+				$value = $path;
+			} elseif ( false === strpos( $host, '.' ) && 'localhost' !== $host ) {
+				/*
+				 * Not a hostname, so this is a path an earlier build mangled:
+				 * esc_url_raw() turned "reception" into "http://reception",
+				 * which parses with "reception" as the host and no path. Joining
+				 * the two back together returns what was typed, and the value is
+				 * only ever used as a path below, so recovering it cannot point
+				 * anywhere off this site.
+				 */
+				$value = $host . $path;
+			} else {
+				// A real host that is not this one. Refusing it is the whole
+				// point of validating these fields.
+				return '';
+			}
+
+			if ( isset( $parts['query'] ) && '' !== $parts['query'] ) {
+				$value .= '?' . $parts['query'];
+			}
+		}
+
+		$value = ltrim( $value, '/' );
+
+		// No traversal, and no backslashes for a browser to normalise.
+		$value = str_replace( array( '..', '\\' ), '', $value );
+
+		return $value;
+	}
+
 	public static function get_role_options( $role = '' ) {
 		// $mls     = melapress_login_security();
 		// $options = ( isset( melapress_login_security()->options ) ) ? melapress_login_security()->options->get_role_options( $role ) : array();
@@ -145,8 +270,17 @@ class OptionsHelper {
 		$options = \get_site_option( MLS_PREFIX . '_' . $role . '_options', MLS_Options::get_default_options() );
 
 		if ( self::string_to_bool( $options['master_switch'] ) ) {
-			// Get current user setting.
-			$options = \wp_parse_args( MLS_Options::get_default_options() );
+			/*
+			 * master_switch on a role record means "inherit the site-wide
+			 * policy" — it is what the "Inherit login security policies"
+			 * checkbox writes — so the site-wide policy is what applies and the
+			 * role's own stored values are deliberately not used.
+			 *
+			 * This was written as wp_parse_args() with a single argument, which
+			 * merges nothing and returns its input unchanged. Same result, but
+			 * it read as though defaults were being combined with something.
+			 */
+			$options = MLS_Options::get_default_options();
 		}
 
 		return (object) $options;
@@ -181,25 +315,85 @@ class OptionsHelper {
 			$value = (int) $setting_options->password_expiry['value'];
 			$unit  = ( isset( $setting_options->password_expiry['unit'] ) ) ? $setting_options->password_expiry['unit'] : false;
 		}
-		// multiply the value by the unit to get a time in seconds.
+		return self::duration_in_seconds( $value, $unit );
+	}
+
+	/**
+	 * A value-and-unit pair as a number of seconds.
+	 *
+	 * Both the expiry period and the notification lead time are stored as a
+	 * number plus an independent unit, so the numbers alone are not comparable:
+	 * 5 days is longer than 2 months only if you ignore the units, which is the
+	 * mistake this exists to prevent.
+	 *
+	 * @param int|string $value - The number.
+	 * @param string     $unit  - hours, days, weeks or months. Anything else is treated as seconds.
+	 *
+	 * @return int Seconds.
+	 *
+	 * @since 2.4.0
+	 */
+	/**
+	 * Hold the expiry-notification lead time inside the expiry period.
+	 *
+	 * Both settings are a number plus an independent unit, so comparing the
+	 * numbers alone is meaningless — an expiry of 2 months with a notification
+	 * 5 days before it used to read as 5 >= 2 and get rewritten to "2 days".
+	 * Any configuration whose notification number exceeded the expiry number
+	 * was affected, which is most of them once expiry is set in months.
+	 *
+	 * Nothing is clamped when there is no expiry period. That case used to zero
+	 * the notification on *any* save of the policies page, including a save made
+	 * for an unrelated setting.
+	 *
+	 * @param int|string $notify_value - Notification lead number.
+	 * @param string     $notify_unit  - Notification lead unit.
+	 * @param int|string $expiry_value - Expiry period number.
+	 * @param string     $expiry_unit  - Expiry period unit.
+	 *
+	 * @return array|null array( 'value' => int, 'unit' => string ) when it has to be pulled back, null when it is already inside the period.
+	 *
+	 * @since 2.4.0
+	 */
+	public static function clamped_expiry_notification( $notify_value, $notify_unit, $expiry_value, $expiry_unit ) {
+		$expiry_seconds = self::duration_in_seconds( $expiry_value, $expiry_unit );
+
+		// No expiry period to measure against.
+		if ( $expiry_seconds <= 0 ) {
+			return null;
+		}
+
+		if ( self::duration_in_seconds( $notify_value, $notify_unit ) < $expiry_seconds ) {
+			return null;
+		}
+
+		/*
+		 * Notify no earlier than the moment the password expires. The unit travels
+		 * with the number: copying only the number is what turned "2 months" into
+		 * "2 days".
+		 */
+		return array(
+			'value' => (int) $expiry_value,
+			'unit'  => (string) $expiry_unit,
+		);
+	}
+
+	public static function duration_in_seconds( $value, $unit ): int {
+		$value = (int) $value;
+
 		switch ( $unit ) {
 			case 'hours':
-				$expiry_time = $value * HOUR_IN_SECONDS;
-				break;
+				return $value * HOUR_IN_SECONDS;
 			case 'days':
-				$expiry_time = $value * DAY_IN_SECONDS;
-				break;
+				return $value * DAY_IN_SECONDS;
 			case 'weeks':
-				$expiry_time = $value * WEEK_IN_SECONDS;
-				break;
+				return $value * WEEK_IN_SECONDS;
 			case 'months':
-				$expiry_time = $value * MONTH_IN_SECONDS;
-				break;
+				return $value * MONTH_IN_SECONDS;
 			default:
-				// assume seconds.
-				$expiry_time = $value;
+				// Assume seconds.
+				return $value;
 		}
-		return $expiry_time;
 	}
 
 	/**
@@ -420,7 +614,18 @@ class OptionsHelper {
 	 */
 	public static function get_inactive_user_time( $user_id = 0 ) {
 		$blocked_time = get_user_meta( $user_id, MLS_PREFIX . '_blocked_since', true );
-		return ( $blocked_time ) ? $blocked_time : get_user_meta( $user_id, MLS_PREFIX . '_last_activity', true );
+		if ( $blocked_time ) {
+			return $blocked_time;
+		}
+
+		if ( class_exists( '\MLS\Admin\User_Helper' ) ) {
+			$manual_time = get_user_meta( $user_id, \MLS\Admin\User_Helper::USER_LOCKED_SINCE_META, true );
+			if ( $manual_time ) {
+				return $manual_time;
+			}
+		}
+
+		return get_user_meta( $user_id, MLS_PREFIX . '_last_activity', true );
 	}
 
 	/**
@@ -569,6 +774,86 @@ class OptionsHelper {
 	}
 
 	/**
+	 * Turn stored role-order entries into real role slugs.
+	 *
+	 * The priority list used to be saved as display names, and the slug was
+	 * reconstructed from one by lowercasing it and turning spaces into
+	 * underscores. That is right only when a role's slug happens to be its
+	 * lowercased name, which is true of the core roles and of very little else:
+	 * a role registered as add_role( 'mls_seo_mgr', 'SEO Manager' ) normalised
+	 * to `seo_manager`, matched nothing, and was silently dropped from the
+	 * ordering — so the other role a user held won, and its policies applied
+	 * instead. Renamed or localised role names failed the same way.
+	 *
+	 * Entries are now resolved rather than guessed at: a slug is taken as it
+	 * stands, a display name is looked up against the registered roles, and the
+	 * old transformation survives only as a last resort for anything that
+	 * matches neither. Installations still holding display names therefore keep
+	 * working without a migration.
+	 *
+	 * @param array|string $entries - Stored order, as slugs or display names.
+	 *
+	 * @return array Role slugs, in the order given.
+	 *
+	 * @since 2.4.0
+	 */
+	public static function resolve_role_slugs( $entries ) {
+		if ( is_string( $entries ) ) {
+			$entries = explode( ',', $entries );
+		}
+
+		if ( ! is_array( $entries ) ) {
+			return array();
+		}
+
+		$role_names = array();
+
+		if ( function_exists( 'wp_roles' ) ) {
+			$roles_object = \wp_roles();
+
+			if ( is_object( $roles_object ) && method_exists( $roles_object, 'get_names' ) ) {
+				$role_names = (array) $roles_object->get_names();
+			}
+		}
+
+		// Display name => slug, matched without regard to case.
+		$by_name = array();
+
+		foreach ( $role_names as $slug => $name ) {
+			$by_name[ strtolower( (string) $name ) ] = $slug;
+		}
+
+		$resolved = array();
+
+		foreach ( $entries as $entry ) {
+			$entry = trim( (string) $entry );
+
+			if ( '' === $entry ) {
+				continue;
+			}
+
+			if ( isset( $role_names[ $entry ] ) ) {
+				$resolved[] = $entry;
+				continue;
+			}
+
+			$lookup = strtolower( $entry );
+
+			if ( isset( $by_name[ $lookup ] ) ) {
+				$resolved[] = $by_name[ $lookup ];
+				continue;
+			}
+
+			// Neither a slug nor a name this site knows. Fall back to the old
+			// transformation so an entry for a role that is not registered right
+			// now — deactivated plugin, say — behaves as it always did.
+			$resolved[] = str_replace( ' ', '_', $lookup );
+		}
+
+		return array_values( array_unique( $resolved ) );
+	}
+
+	/**
 	 * Takes the array of roles a user has and sorts them into our own priority.
 	 *
 	 * @param array $roles - Rule array.
@@ -590,12 +875,7 @@ class OptionsHelper {
 			return $roles;
 		}
 
-		$preferred_roles = array_map(
-			function ( $role ) {
-				return str_replace( ' ', '_', strtolower( $role ) );
-			},
-			$preferred_roles
-		);
+		$preferred_roles = self::resolve_role_slugs( $preferred_roles );
 
 		$processing_needed = self::string_to_bool( $mls->options->mls_setting->users_have_multiple_roles );
 		// Only do this if we want to.
@@ -671,6 +951,165 @@ class OptionsHelper {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Checks whether a user is currently locked by any mechanism.
+	 *
+	 * Returns the lock source string if locked, or false if not locked.
+	 * Possible return values: 'manual', 'failed_logins', 'inactivity', or false.
+	 *
+	 * @param int $user_id The user ID to check.
+	 *
+	 * @return string|false The lock source, or false if not locked.
+	 *
+	 * @since 2.0.0
+	 */
+	/**
+	 * Whether the current user may perform a write whose blast radius is the
+	 * whole network.
+	 *
+	 * `manage_options` is a role capability every subsite administrator holds.
+	 * Several handlers reachable from the network admin do network-scoped work
+	 * — resetting every password on the network, running a migration across
+	 * network options and usermeta, deleting a network option — and gating
+	 * those on `manage_options` means the capability check is doing none of the
+	 * work. What has been holding is the nonce, and a nonce proves where a
+	 * request came from, not what its sender is entitled to do.
+	 *
+	 * On single site the two are equivalent, so this changes nothing there.
+	 *
+	 * @return bool
+	 *
+	 * @since 2.4.0
+	 */
+	public static function current_user_can_manage_scope() {
+		if ( is_multisite() ) {
+			return current_user_can( 'manage_network_options' );
+		}
+
+		return current_user_can( 'manage_options' );
+	}
+
+	public static function is_user_locked_by_any_mechanism( $user_id = 0, $scope = 'request' ) {
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		// Check manual lock first (highest priority / stickiest).
+		if ( class_exists( '\MLS\Admin\User_Helper' ) && \MLS\Admin\User_Helper::is_user_locked( $user_id ) ) {
+			return 'manual';
+		}
+
+		// Check failed-login lock.
+		//
+		// Two different questions, and conflating them is a bug either way.
+		//
+		//  'request' — is this account locked out for the source making *this*
+		//              request? The only safe basis for an authentication
+		//              decision, and the default for that reason. Answering
+		//              "any" here would let an attacker who has tripped their
+		//              own throttle suppress attempt counting for every other
+		//              source, including the account holder's.
+		//
+		//  'any'     — is this account locked out from anywhere? What an
+		//              administrator needs in order to see the lockout and
+		//              clear it. Never use it to decide a login.
+		//
+		// This used to read an account-wide meta flag that nothing writes any
+		// more, so it always answered "not locked" and the Locked Users screen
+		// went blank.
+		//
+		// The scope split governs the *per-source* throttle only. A lock left
+		// behind by 2.3.x is an account-level state and is honoured in both
+		// scopes — see has_legacy_account_lock().
+		if ( class_exists( '\MLS\Failed_Logins' ) ) {
+			/*
+			 * The account-wide flag written by 2.3.x is an account-level state and
+			 * is honoured in both scopes.
+			 *
+			 * The scope distinction above exists because the *per-source* throttle
+			 * must not let one source lock an account for everyone. It does not
+			 * apply to this flag: nothing writes it any more, so an attacker
+			 * cannot create it, and it is what the Locked Users screen shows and
+			 * clears. Folding it into the request-scoped branch meant a site that
+			 * upgraded mid-lockout displayed the account as locked while allowing
+			 * it to log in.
+			 */
+			if ( \MLS\Failed_Logins::has_legacy_account_lock( $user_id ) ) {
+				return 'failed_logins';
+			}
+
+			/*
+			 * Request scope asks is_source_locked_out(), not is_source_throttled().
+			 *
+			 * The attempt counter is a transient, and on multisite transients are
+			 * per-blog, so the counter alone let a locked-out user log in on any
+			 * other site in the network. is_source_locked_out() also consults the
+			 * lock record, which is user meta and therefore network-wide, matched
+			 * on the same (account, source) key — so the lock follows the user
+			 * across sites without becoming an account-wide lock that an attacker
+			 * could trip for somebody else.
+			 */
+			$locked_out = ( 'any' === $scope )
+				? \MLS\Failed_Logins::has_active_lock_event( $user_id )
+				: \MLS\Failed_Logins::is_source_locked_out( $user_id );
+
+			if ( $locked_out ) {
+				return 'failed_logins';
+			}
+		}
+
+		// Check inactivity lock.
+		if ( self::is_user_inactive( $user_id ) ) {
+			return 'inactivity';
+		}
+
+		return false;
+	}
+
+	/**
+	 * Fully unlocks a user by clearing ALL lock types at once.
+	 *
+	 * This ensures a single unlock action restores access regardless of how
+	 * many policies would otherwise apply (R1 requirement).
+	 *
+	 * @param int    $user_id            The user ID to unlock.
+	 * @param string $unlock_reason_label Short label for the unlock reason (e.g. 'blocked', 'inactive', 'manual').
+	 *
+	 * @return void
+	 *
+	 * @since 2.0.0
+	 */
+	public static function fully_unlock_user( $user_id = 0, $unlock_reason_label = 'unlocked' ) {
+		if ( ! $user_id ) {
+			return;
+		}
+
+		// 1. Clear failed-login lock data.
+		if ( class_exists( '\MLS\Failed_Logins' ) ) {
+			\MLS\Failed_Logins::clear_failed_login_data( $user_id, false );
+		}
+
+		// 2. Clear inactivity lock data.
+		self::clear_inactive_data_about_user( $user_id, false );
+
+		// 3. Clear manual lock data.
+		if ( class_exists( '\MLS\Admin\User_Helper' ) ) {
+			\MLS\Admin\User_Helper::unlock_user( $user_id );
+			\MLS\Admin\User_Helper::remove_user_locked_reason( $user_id );
+		}
+
+		// 4. Reset last activity time so inactivity timer starts fresh.
+		update_user_meta( $user_id, MLS_PREFIX . '_last_activity', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+
+		// 5. Reset last expiry time.
+		self::set_user_last_expiry_time( current_time( 'timestamp' ), $user_id ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+
+		// 6. Mark as recently unlocked.
+		update_user_meta( $user_id, MLS_PREFIX . '_recently_unlocked', true );
+		update_user_meta( $user_id, MLS_PREFIX . '_recently_unlocked_time', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+		update_user_meta( $user_id, MLS_PREFIX . '_recently_unlocked_reason', $unlock_reason_label );
 	}
 
 	/**
@@ -978,11 +1417,11 @@ class OptionsHelper {
 	 * @since 2.1.0
 	 */
 	public static function sanitize_yes_no_input( $value ) {
-		if ( 'yes' === $value || 'no' === $value ) {
-			return $value;
-		} else {
-			return 'no';
+		if ( 'yes' === $value || true === $value || 1 === $value || '1' === $value ) {
+			return 'yes';
 		}
+
+		return 'no';
 	}
 
 	/**
@@ -1002,7 +1441,7 @@ class OptionsHelper {
 			$processed_value = self::sanitize_yes_no_input( $value );
 
 		} elseif ( in_array( $setting_key, MLS_Options::$textarea_settings, true ) ) {
-			$processed_value = wp_kses_post( sanitize_textarea_field( $value ) );
+			$processed_value = wp_kses_post( $value );
 
 		} elseif ( is_array( $value ) ) {
 			$processed_value = array();
@@ -1030,7 +1469,7 @@ class OptionsHelper {
 				case 'ui_rules':
 					$processed_value['history']               = self::sanitize_yes_no_input( $value['history'] );
 					$processed_value['username']              = self::sanitize_yes_no_input( $value['username'] );
-					$processed_value['length']                = self::strip_all_but_numeric( $value['length'] );
+					$processed_value['length']                = self::sanitize_yes_no_input( $value['length'] );
 					$processed_value['numeric']               = self::sanitize_yes_no_input( $value['numeric'] );
 					$processed_value['mix_case']              = self::sanitize_yes_no_input( $value['mix_case'] );
 					$processed_value['special_chars']         = self::sanitize_yes_no_input( $value['special_chars'] );
@@ -1038,7 +1477,7 @@ class OptionsHelper {
 					break;
 
 				case 'rules':
-					$processed_value['length']                = self::strip_all_but_numeric( $value['length'] );
+					$processed_value['length']                = self::sanitize_yes_no_input( $value['length'] );
 					$processed_value['numeric']               = self::sanitize_yes_no_input( $value['numeric'] );
 					$processed_value['upper_case']            = self::sanitize_yes_no_input( $value['upper_case'] );
 					$processed_value['lower_case']            = self::sanitize_yes_no_input( $value['lower_case'] );
@@ -1067,15 +1506,15 @@ class OptionsHelper {
 					);
 
 					foreach ( $days as $day ) {
-						if ( isset( $value[ $day ] ) ) {
+						if ( isset( $value[ $day ] ) && is_array( $value[ $day ] ) ) {
 							$processed_value[ $day ] = array(
-								'enable'        => self::strip_all_but_numeric( $value[ $day ]['enable'] ),
-								'from_hr'       => self::strip_all_but_numeric( $value[ $day ]['from_hr'] ),
-								'from_min'      => self::strip_all_but_numeric( $value[ $day ]['from_min'] ),
-								'from_am_or_pm' => ( 'am' === $value[ $day ]['from_am_or_pm'] || 'pm' === $value[ $day ]['from_am_or_pm'] ) ? $value[ $day ]['from_am_or_pm'] : 'pm',
-								'to_hr'         => self::strip_all_but_numeric( $value[ $day ]['to_hr'] ),
-								'to_min'        => self::strip_all_but_numeric( $value[ $day ]['to_min'] ),
-								'to_am_or_pm'   => ( 'am' === $value[ $day ]['to_am_or_pm'] || 'pm' === $value[ $day ]['to_am_or_pm'] ) ? $value[ $day ]['to_am_or_pm'] : 'pm',
+								'enable'        => self::sanitize_yes_no_input( $value[ $day ]['enable'] ?? 'no' ),
+								'from_hr'       => self::strip_all_but_numeric( $value[ $day ]['from_hr'] ?? '9' ),
+								'from_min'      => self::strip_all_but_numeric( $value[ $day ]['from_min'] ?? '00' ),
+								'from_am_or_pm' => ( isset( $value[ $day ]['from_am_or_pm'] ) && in_array( $value[ $day ]['from_am_or_pm'], array( 'am', 'pm' ), true ) ) ? $value[ $day ]['from_am_or_pm'] : 'am',
+								'to_hr'         => self::strip_all_but_numeric( $value[ $day ]['to_hr'] ?? '5' ),
+								'to_min'        => self::strip_all_but_numeric( $value[ $day ]['to_min'] ?? '00' ),
+								'to_am_or_pm'   => ( isset( $value[ $day ]['to_am_or_pm'] ) && in_array( $value[ $day ]['to_am_or_pm'], array( 'am', 'pm' ), true ) ) ? $value[ $day ]['to_am_or_pm'] : 'pm',
 							);
 						}
 					}
@@ -1104,10 +1543,14 @@ class OptionsHelper {
 					}
 
 					$role_names = array_values( $wp_roles->get_names() );
+					$role_slugs = array_keys( $wp_roles->get_names() );
 
-					foreach ( $value as $index => $input_role_name ) {
-						if ( in_array( $input_role_name, $role_names, true ) ) {
-							$processed_value[ $index ] = $input_role_name;
+					foreach ( $value as $input_role_name ) {
+						if ( '' === $input_role_name ) {
+							continue;
+						}
+						if ( in_array( $input_role_name, $role_names, true ) || in_array( $input_role_name, $role_slugs, true ) ) {
+							$processed_value[] = $input_role_name;
 						}
 					}
 
@@ -1116,8 +1559,451 @@ class OptionsHelper {
 				default:
 					$processed_value = false;
 			}
+		} elseif ( ! is_array( $value ) ) {
+			// Handle numeric settings.
+			$numeric_settings = array(
+				'min_length',
+				'password_history',
+				'failed_login_attempts',
+				'failed_login_reset_attempts',
+				'failed_login_reset_hours',
+				'restrict_login_ip_count',
+				'notify_password_expiry_days',
+				'min_answered_needed_count',
+				'password_expiry_email_limit_count',
+			);
+
+			// Handle plain text/string settings.
+			$text_settings = array(
+				'send_summary_email_day',
+				'use_custom_from_email',
+				'from_email',
+				'from_display_name',
+				'excluded_special_chars',
+				'custom_login_url',
+				'custom_login_redirect',
+				'restrict_login_allowed_ips',
+				'restrict_login_redirect_url',
+				'restrict_login_bypass_slug',
+				'password_expiry_email_limit',
+				'restrict_login_credentials',
+				'failed_login_unlock_setting',
+				'notify_password_expiry_unit',
+				'login_geo_method',
+				'login_geo_action',
+				'login_geo_countries',
+				'login_geo_redirect_url',
+				'iplocate_api_key',
+				'currently_editing_role',
+				'recognized_device_duration',
+			);
+
+			if ( in_array( $setting_key, $numeric_settings, true ) ) {
+				$processed_value = self::strip_all_but_numeric( $value );
+			} elseif ( in_array( $setting_key, $text_settings, true ) ) {
+				$processed_value = \sanitize_text_field( $value );
+			}
 		}
 
 		return $processed_value;
+	}
+
+	/**
+	 * The option and user-meta key prefixes this plugin owns.
+	 *
+	 * `ppmwp_` is the pre-2.0 name and is still present on sites upgraded from
+	 * WP Password Policy Manager. MLS_PREFIX is one or the other, so the list is
+	 * deduplicated.
+	 *
+	 * The trailing underscore matters. Matching on `mls` alone also matched
+	 * every key in the table-prefix namespace of a site whose prefix begins with
+	 * those three letters — on the development site, prefix `mlst_`, that was
+	 * `mlst_user_roles` in the options table and `mlst_capabilities` plus
+	 * `mlst_user_level` for every user. Underscore-delimited, none of them match.
+	 *
+	 * @return string[]
+	 *
+	 * @since 2.4.0
+	 */
+	public static function owned_key_prefixes() {
+		return array_values(
+			array_unique(
+				array(
+					MLS_PREFIX . '_',
+					'mls_',
+					'ppmwp_',
+				)
+			)
+		);
+	}
+
+	/**
+	 * Whether a key belongs to WordPress rather than to this plugin.
+	 *
+	 * Core namespaces a handful of option and user-meta keys with the site's
+	 * table prefix. A site whose table prefix is exactly `mls_` — plausible
+	 * enough, MLS is also Multiple Listing Service — puts those keys inside this
+	 * plugin's own prefix, where the delimiter cannot separate them. They are
+	 * named explicitly instead.
+	 *
+	 * Deleting them would remove the site's role definitions and every user's
+	 * capabilities; exporting them would carry them into a settings file.
+	 *
+	 * @param string $key Option name or meta key.
+	 *
+	 * @return bool
+	 *
+	 * @since 2.4.0
+	 */
+	public static function is_reserved_key( $key ) {
+		global $wpdb;
+
+		$reserved = array(
+			'user_roles',
+			'capabilities',
+			'user_level',
+			'user-settings',
+			'user-settings-time',
+			'dashboard_quick_press_last_post_id',
+			'autosave_draft_ids',
+		);
+
+		$prefixes = array_unique(
+			array_filter(
+				array(
+					(string) $wpdb->prefix,
+					(string) $wpdb->base_prefix,
+				)
+			)
+		);
+
+		foreach ( $prefixes as $prefix ) {
+			if ( 0 !== strpos( (string) $key, $prefix ) ) {
+				continue;
+			}
+
+			// Per-blog user meta is {base_prefix}{blog_id}_capabilities.
+			$suffix = preg_replace( '/^\\d+_/', '', substr( (string) $key, strlen( $prefix ) ) );
+
+			if ( in_array( $suffix, $reserved, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Options holding a credential, which must neither leave nor enter a site.
+	 *
+	 * A settings file is downloaded, emailed, attached to support tickets and
+	 * committed to repositories. These belong to one installation's licence and
+	 * are useless anywhere else even if they were safe to move.
+	 *
+	 * @return string[]
+	 *
+	 * @since 2.4.0
+	 */
+	public static function credential_option_names() {
+		return array(
+			'mls_edd_license_key',
+			'mls_edd_license_data',
+		);
+	}
+
+	/**
+	 * Options that describe *this installation* rather than its configuration.
+	 *
+	 * Everything here is either meaningless on another site or actively harmful
+	 * when written there, so none of it is exported and none of it is accepted on
+	 * import. The reasons differ and are worth keeping written down:
+	 *
+	 * `_inactive_users` is a list of **user IDs**. Import it elsewhere and
+	 * whoever happens to hold those IDs on the target is marked inactive —
+	 * possibly an administrator.
+	 *
+	 * `_activation` is the fallback "last password change" baseline for any user
+	 * with no password history, read by Check_User_Expiry::should_password_expire(),
+	 * the inactive-users background process and the reports table. Importing
+	 * another site's timestamp changes whether users' passwords count as expired.
+	 *
+	 * `_plugin_version` is the migration gate — Migration::$version_option_name.
+	 * Writing a newer value than the target has actually reached would skip its
+	 * migrations permanently. `_active_version`, `_group_toggles_migrated` and the
+	 * `_migration_*` family are the same hazard in smaller form.
+	 *
+	 * The licensing status keys are an installation's entitlement state, not
+	 * settings.
+	 *
+	 * @return string[]
+	 *
+	 * @since 2.4.0
+	 */
+	public static function non_portable_option_names() {
+		$names = array(
+			'mls_edd_license_status',
+			'mls_edd_premium',
+			'mls_licensing_provider',
+
+			/*
+			 * When this installation last saw a valid licence.
+			 *
+			 * It is licence bookkeeping, not configuration: it opens the grace
+			 * window that keeps a site working through a failed check. Carried
+			 * into another site it would describe a licence that site never had,
+			 * and carried back in later it would describe a moment that has
+			 * nothing to do with the receiving install.
+			 *
+			 * Nothing is lost by dropping it. Both providers re-stamp it on the
+			 * next successful activation or check, and the grace test seeds it
+			 * from the current time when it finds nothing — so a site without it
+			 * gets a full window rather than an expired one.
+			 */
+			'mls_edd_license_last_valid',
+			'mls_fs_license_last_valid',
+		);
+
+		// Both spellings: `ppmwp_` is the pre-2.0 prefix and the importer still
+		// accepts several of these names under it.
+		foreach ( array( 'mls', 'ppmwp' ) as $prefix ) {
+			$names[] = $prefix . '_activation';
+			$names[] = $prefix . '_active_version';
+			$names[] = $prefix . '_plugin_version';
+			$names[] = $prefix . '_inactive_users';
+			$names[] = $prefix . '_group_toggles_migrated';
+
+			// One-shot and dismissal flags: post-activation redirect, update and
+			// promotional notices, and whether this site's administrator has
+			// dismissed them. None of it is configuration.
+			$names[] = $prefix . '_redirect_to_settings';
+			$names[] = $prefix . '_update_notice_needed';
+			$names[] = $prefix . '_feature_highlight_needed';
+			$names[] = $prefix . '_show_update_notice';
+			$names[] = $prefix . '_extra_event_banner';
+			$names[] = $prefix . '_extra_event_banner_dismissed';
+			$names[] = $prefix . '_extra_event_banner_end_date';
+			$names[] = $prefix . '_extra_event_banner_super_dismissed';
+
+			$names[] = $prefix . '_200_migration_complete';
+			$names[] = $prefix . '_migration_started';
+			$names[] = $prefix . '_migration_status';
+			$names[] = $prefix . '_migration_required';
+		}
+
+		$names[] = 'ppm_migration_required';
+
+		return array_values( array_unique( $names ) );
+	}
+
+	/**
+	 * Whether an option may cross between sites in a settings file.
+	 *
+	 * One predicate for both directions, so the export cannot omit something the
+	 * import would still accept, or the reverse.
+	 *
+	 * @param string $option_name Option or network-meta name.
+	 *
+	 * @return bool
+	 *
+	 * @since 2.4.0
+	 */
+	public static function is_portable_option( $option_name ) {
+		$option_name = (string) $option_name;
+
+		if ( in_array( $option_name, self::credential_option_names(), true ) ) {
+			return false;
+		}
+
+		if ( in_array( $option_name, self::non_portable_option_names(), true ) ) {
+			return false;
+		}
+
+		// Belongs to WordPress, not to this plugin.
+		return ! self::is_reserved_key( $option_name );
+	}
+
+	/**
+	 * Setting keys that hold a secret and must never leave the site.
+	 *
+	 * These live inside the settings array, so filtering an export by option
+	 * name cannot reach them. The IP-geolocation API key is billable and was
+	 * being written verbatim into the settings file an administrator downloads
+	 * and, routinely, shares or commits.
+	 *
+	 * @return string[]
+	 *
+	 * @since 2.4.0
+	 */
+	public static function secret_setting_keys() {
+		return array(
+			'iplocate_api_key',
+		);
+	}
+
+	/**
+	 * Strip secret settings out of an exported value.
+	 *
+	 * @param mixed $value Option value, of any shape.
+	 *
+	 * @return mixed
+	 *
+	 * @since 2.4.0
+	 */
+	public static function redact_secret_settings( $value ) {
+		$secrets = self::secret_setting_keys();
+
+		if ( is_array( $value ) ) {
+			foreach ( $value as $key => $inner ) {
+				if ( in_array( (string) $key, $secrets, true ) ) {
+					unset( $value[ $key ] );
+					continue;
+				}
+
+				$value[ $key ] = self::redact_secret_settings( $inner );
+			}
+
+			return $value;
+		}
+
+		if ( is_object( $value ) ) {
+			foreach ( get_object_vars( $value ) as $key => $inner ) {
+				if ( in_array( (string) $key, $secrets, true ) ) {
+					unset( $value->$key );
+					continue;
+				}
+
+				$value->$key = self::redact_secret_settings( $inner );
+			}
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Add one to a counter held in a transient, without losing concurrent hits.
+	 *
+	 * Every rate limit in the plugin used to read a transient, add one in PHP
+	 * and write it back. Two requests that arrive together both read the same
+	 * number and both write the same number plus one, so the counter advances by
+	 * one instead of two. An attacker sending requests in parallel therefore gets
+	 * roughly as many extra attempts as they are willing to open connections —
+	 * which is precisely the thing a rate limit is supposed to stop, and it costs
+	 * them nothing to do.
+	 *
+	 * The increment happens in the store instead. With an external object cache
+	 * that is `wp_cache_incr()`, which is atomic; without one the transient is a
+	 * row in the options table and MySQL adds one to it in a single statement.
+	 * Neither can lose a hit.
+	 *
+	 * @param string $transient Transient name, without the `_transient_` prefix.
+	 * @param int    $window    Lifetime in seconds, applied when seeding.
+	 *
+	 * @return int The counter's value after this call.
+	 *
+	 * @since 2.4.0
+	 */
+	public static function increment_counter( $transient, $window, $network_wide = false ) {
+		$window = max( 60, (int) $window );
+
+		/*
+		 * $network_wide stores the counter as a site transient.
+		 *
+		 * On multisite a plain transient lives in the current blog's options
+		 * table, so a per-blog counter means the configured allowance is spent
+		 * again on every site — three attempts on a three-site network is nine.
+		 * A site transient lives in sitemeta, so the allowance is what the
+		 * administrator actually set. On single site the two are the same store
+		 * under a different prefix, so behaviour there is unchanged.
+		 */
+		$getter      = $network_wide ? 'get_site_transient' : 'get_transient';
+		$setter      = $network_wide ? 'set_site_transient' : 'set_transient';
+		$cache_group = $network_wide ? 'site-transient' : 'transient';
+
+		if ( \wp_using_ext_object_cache() ) {
+			// The getter reads this same group when an object cache is in use.
+			$value = \wp_cache_incr( $transient, 1, $cache_group );
+
+			if ( false !== $value ) {
+				return (int) $value;
+			}
+
+			// Nothing to increment, or a pre-2.4.0 list rather than a count.
+			$existing = $getter( $transient );
+			$seed     = is_array( $existing ) ? count( $existing ) + 1 : 1;
+
+			$setter( $transient, $seed, $window );
+
+			return $seed;
+		}
+
+		global $wpdb;
+
+		// Also discards the row if it has expired, so the counter restarts.
+		$current = $getter( $transient );
+
+		/*
+		 * Not a number means either nothing is stored yet, or the value was
+		 * written by a version that kept a list rather than a count — the
+		 * failed-login counter held an array of timestamps until 2.4.0, and
+		 * those transients are still live when a site updates. `option_value + 1`
+		 * against a serialized array is an error under strict SQL mode, so the
+		 * counter is restarted from what is there instead.
+		 */
+		if ( false === $current || ! is_numeric( $current ) ) {
+			$seed = is_array( $current ) ? count( $current ) + 1 : 1;
+
+			$setter( $transient, $seed, $window );
+
+			return $seed;
+		}
+
+		$option = ( $network_wide ? '_site_transient_' : '_transient_' ) . $transient;
+
+		/*
+		 * A network-wide counter on multisite lives in sitemeta, not options —
+		 * update_site_option() writes there. The single-site case is the options
+		 * table either way, only the prefix differs.
+		 */
+		if ( $network_wide && \is_multisite() ) {
+			$network_id = \get_current_network_id();
+
+			$updated = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					"UPDATE `{$wpdb->sitemeta}` SET `meta_value` = `meta_value` + 1 WHERE `meta_key` = %s AND `site_id` = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					$option,
+					$network_id
+				)
+			);
+
+			if ( ! $updated ) {
+				$setter( $transient, (int) $current + 1, $window );
+
+				return (int) $current + 1;
+			}
+
+			// get_network_option() caches under "{network id}:{option}".
+			\wp_cache_delete( $network_id . ':' . $option, 'site-options' );
+
+			return (int) $getter( $transient );
+		}
+
+		$updated = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"UPDATE `{$wpdb->options}` SET `option_value` = `option_value` + 1 WHERE `option_name` = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$option
+			)
+		);
+
+		if ( ! $updated ) {
+			$setter( $transient, (int) $current + 1, $window );
+
+			return (int) $current + 1;
+		}
+
+		// Transients that carry an expiry are never autoloaded, so only this
+		// one entry needs invalidating.
+		\wp_cache_delete( $option, 'options' );
+
+		return (int) $getter( $transient );
 	}
 }

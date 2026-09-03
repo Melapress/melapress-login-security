@@ -2,11 +2,11 @@
 Plugin URI: https://melapress.com/wordpress-login-security/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
-Requires at least: 5.0
-Tested up to: 6.6.2
+Requires at least: 5.5
+Tested up to: 7.0
 Tags: brute force, login, limit logins, limit login attempts, login security
-Stable tag: 2.2.0
-Requires PHP: 7.3
+Stable tag: 2.4.0
+Requires PHP: 8.0
 
 Implement WordPress login and password security policies with ease to beef up the security and managemet of your users & website.
 

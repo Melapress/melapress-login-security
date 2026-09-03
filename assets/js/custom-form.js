@@ -44,9 +44,14 @@
 				var isIt = window.location.href.split("error=password_reset_empty&");
 				var isItReally = isIt[1].split('&')[0];
 				var errorArray = isItReally.split(',');
+				var allowedClasses = ['mix_case', 'upper_case', 'lower_case', 'numeric', 'special_chars', 'length', 'username', 'history'];
 				jQuery( '.pmpro-login .pmpro_error' ).html( '' );
 				jQuery.each( errorArray, function ( index, value ) {
-					var errText = jQuery( '.pass-strength-result .' + jQuery.trim( value ) ).text();
+					var trimmedValue = jQuery.trim( value );
+					if ( allowedClasses.indexOf( trimmedValue ) === -1 ) {
+						return;
+					}
+					var errText = jQuery( '.pass-strength-result .' + trimmedValue ).text();
 					if ( 'undefined' !== typeof errText ) {
 						jQuery( '.pmpro-login .pmpro_error' ).append( errText + '<br>' );					
 					}
@@ -61,9 +66,14 @@
 				var isIt = window.location.href.split("error=mls_error&");
 				var isItReally = isIt[1].split('&')[0];
 				var errorArray = isItReally.split(',');
+				var allowedClasses = ['mix_case', 'upper_case', 'lower_case', 'numeric', 'special_chars', 'length', 'username', 'history'];
 				jQuery( '.profilepress-myaccount-change-password' ).prepend( '<div class="profilepress-myaccount-alert pp-alert-danger" role="alert"></div>' );
 				jQuery.each( errorArray, function ( index, value ) {
-					var errText = jQuery( '.pass-strength-result .' + jQuery.trim( value ) ).text();
+					var trimmedValue = jQuery.trim( value );
+					if ( allowedClasses.indexOf( trimmedValue ) === -1 ) {
+						return;
+					}
+					var errText = jQuery( '.pass-strength-result .' + trimmedValue ).text();
 					if ( 'undefined' !== typeof errText ) {
 						jQuery( '.profilepress-myaccount-alert' ).append( errText + '<br>' );					
 					}

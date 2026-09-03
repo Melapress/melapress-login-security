@@ -8,12 +8,17 @@
 
 declare(strict_types=1);
 
+use MLS\Reset_Passwords;
 use MLS\Security_Prompt;
 use MLS\Device_Detection;
+use MLS\Multiple_Sessions;
 use MLS\Sessions_Manager;
 use MLS\Helpers\OptionsHelper;
+use MLS\Admin\UserLastLoginTime;
+use MLS\Require_Current_Password;
+use MLS\Api_Login_Guard;
+use MLS\Restrict_Login_Credentials;
 use MLS\Licensing\Licensing_Factory;
-use MLS\Reset_Passwords;
 use MLS\TemporaryLogins\Temporary_Logins;
 
 // Exit if accessed directly.
@@ -38,24 +43,6 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 * @since 2.0.0
 		 */
 		public $options;
-
-		/**
-		 * Password Policy regex.
-		 *
-		 * @var object instance of MLS_Regex
-		 *
-		 * @since 2.0.0
-		 */
-		public $regex;
-
-		/**
-		 * Policy Policy Message.
-		 *
-		 * @var object instance of MLS_Messages
-		 *
-		 * @since 2.0.0
-		 */
-		public $msgs;
 
 		/**
 		 * Store the single instance.
@@ -134,17 +121,12 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				// initialise options.
 				$this->options = new \MLS\MLS_Options();
 
-				// initialise rule regexes.
-				$this->regex = new \MLS\MLS_Regex();
-				// initialise strings.
-				$this->msgs = new \MLS\MLS_Messages();
-
 				// Load plugin's text language files.
-				\add_action( 'init', array( $this, 'localise' ) );
+				\add_action( 'init', array( __CLASS__, 'localise' ) );
 				// Init.
 				\add_action( 'init', array( $this, 'init' ) );
 				// Admin init.
-				\add_action( 'admin_init', array( $this, 'ppm_overwrite_admin_menu' ) );
+				//\add_action( 'admin_init', array( __CLASS__, 'ppm_overwrite_admin_menu' ) );
 
 			}
 
@@ -160,10 +142,9 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			\add_action( 'wp_loaded', array( $login_control, 'redirect_user' ) );
 
 			if ( class_exists( '\MLS\Failed_Logins' ) ) {
-				$failed_logins = new \MLS\Failed_Logins();
-				\add_action( 'init', array( $failed_logins, 'init' ) );
-				\add_action( 'wp_login_failed', array( $failed_logins, 'failed_login_check' ), 1, 2 );
-				\add_action( 'authenticate', array( $failed_logins, 'pre_login_check' ), 20, 3 );
+				\add_action( 'init', array( '\MLS\Failed_Logins', 'init' ) );
+				\add_action( 'wp_login_failed', array( '\MLS\Failed_Logins', 'failed_login_check' ), 1, 2 );
+				\add_action( 'authenticate', array( '\MLS\Failed_Logins', 'pre_login_check' ), 20, 3 );
 				\add_action( 'admin_menu', array( '\MLS\Failed_Logins', 'add_locked_users_admin_menu' ), 20, 3 );
 			}
 
@@ -215,10 +196,6 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 * @since 2.0.0
 		 */
 		public function register_dependencies() {
-			require_once MLS_PATH . 'app/crons/class-croninterface.php';
-			require_once MLS_PATH . 'app/ajax/class-ajaxinterface.php';
-			require_once MLS_PATH . 'app/helpers/class-optionshelper.php';
-			require_once MLS_PATH . 'app/helpers/class-emailstrings.php';
 			$this->hooks();
 		}
 
@@ -252,9 +229,8 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			// priority so that users can add new characters.
 			\add_filter( 'mls_filter_allowed_special_chars', array( $this, 'remove_excluded_special_chars_from_allowed' ), 15, 1 );
 
-			$this->history = new \MLS\Password_History();
-			\add_action( 'user_register', array( $this->history, 'user_register' ) );
-			\add_action( 'mls_apply_forced_reset_usermeta', array( $this->history, 'apply_forced_reset_usermeta' ) );
+			\add_action( 'user_register', array( '\MLS\Password_History', 'user_register' ) );
+			\add_action( 'mls_apply_forced_reset_usermeta', array( '\MLS\Password_History', 'apply_forced_reset_usermeta' ) );
 
 			if ( \is_admin() ) {
 				// Hide all unrelated to the plugin notices on the plugin admin pages.
@@ -274,7 +250,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function get_special_chars( $return_escaped = false ) {
+		public static function get_special_chars( $return_escaped = false ) {
 			return ( $return_escaped ) ? '[,.!@#$%^&*()_?£"\\-\\+=~;:€<>\\[\\]]' : '[.,!@#$%^&*()_?£"-+=~;:€<>]';
 		}
 
@@ -290,7 +266,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 */
 		public function get_allowed_special_chars() {
 			// get list of removed characters from option.
-			$allowed_chars = $this->get_special_chars();
+			$allowed_chars = self::get_special_chars();
 			// run characters string through filter where chars can be added/removed.
 			$special_chars_string = \apply_filters_deprecated( 'ppwmp_filter_allowed_special_chars', array( $allowed_chars ), '1.4.0', 'mls_filter_allowed_special_chars' );
 			$special_chars_string = \apply_filters( 'mls_filter_allowed_special_chars', $special_chars_string );
@@ -332,7 +308,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_overwrite_admin_menu() {
+		public static function ppm_overwrite_admin_menu() {
 			global $submenu;
 
 			if ( isset( $submenu['mls-policies'] ) ) {
@@ -396,27 +372,23 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$role_setting = $mls->options->setting_options;
 
 			if ( null !== $user_settings ) {
-				$this->msgs->init();
+				\MLS\MLS_Messages::init();
 			}
 
-			$this->regex->init();
+			\MLS\MLS_Regex::init();
 			// Call password history class.
-			$history = new \MLS\Password_History();
-			$history->after_password_reset();
+			\MLS\Password_History::after_password_reset();
 
 			// Call password expire class.
 			$expire = new \MLS\Check_User_Expiry();
 			$expire->ppm_authenticate_user();
 
 			// Check change initial password setting is enabled OR not.
-			$new_user = new \MLS\New_User_Register();
-			$new_user->init();
+			\MLS\New_User_Register::init();
 
-			$new_user = new \MLS\User_Profile();
-			$new_user->init();
+			\MLS\User_Profile::init();
 
-			$shortcodes = new \MLS\Shortcodes();
-			$shortcodes->init();
+			\MLS\Shortcodes::init();
 
 			$login_control = new \MLS\Login_Page_Control();
 			$login_control->init();
@@ -424,14 +396,33 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$settings_import_export = new \MLS\Helpers\SettingsImporter();
 			$settings_import_export->init();
 
-			\MLS\Restrict_Login_Credentials::get_instance();
-			\MLS\Admin\UserLastLoginTime::init();
+			Restrict_Login_Credentials::init();
+
+			/*
+			 * Applies the login policies above to Basic-auth Application
+			 * Passwords, which do not pass through wp_authenticate() and so never
+			 * reached the `authenticate` filter. Registered in both editions
+			 * because the IP allowlist and country restriction ship in both.
+			 */
+			Api_Login_Guard::init();
+
+			UserLastLoginTime::init();
+
+			/*
+			 * Both editions. This registers the `authenticate` callback that turns
+			 * a lock into a refusal, and the free build ships the profile "Lock
+			 * user" button that sets one — so gating this on premium meant an
+			 * administrator could lock an account in the free edition and the user
+			 * could still log in. Reproduced before this change.
+			 */
+			\MLS\Admin\User_Helper::init();
+
 			Temporary_Logins::init();
 
 			\do_action( 'mls_extension_init' );
 
 			// call ppm history all hook.
-			$history->hook();
+			\MLS\Password_History::hook();
 
 			$options_master_switch    = OptionsHelper::string_to_bool( $this->options->master_switch );
 			$settings_master_switch   = OptionsHelper::string_to_bool( $user_settings->master_switch );
@@ -576,7 +567,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function localise() {
+		public static function localise() {
 			load_plugin_textdomain( 'melapress-login-security', false, dirname( MLS_BASENAME ) . '/languages/' );
 		}
 
@@ -600,6 +591,127 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function ppm_deactivation() {
+			self::unschedule_crons();
+		}
+
+		/**
+		 * Cron events this plugin schedules.
+		 *
+		 * @return string[]
+		 *
+		 * @since 2.4.0
+		 */
+		private static function scheduled_cron_hooks() {
+			return array(
+				'mls_send_summary_email',
+				'mls_inactive_users_check',
+				'mls_device_detection_login_token_cleanup',
+				'mls_hash_security_answers',
+			);
+		}
+
+		/**
+		 * Drop the plugin's scheduled events.
+		 *
+		 * This is the whole of what deactivation does. Leaving events behind
+		 * means WordPress keeps trying to fire callbacks that are no longer
+		 * loaded; removing them is reversible, because activation reschedules.
+		 *
+		 * Deleting stored data is *not* reversible, and used to happen here —
+		 * a user who deactivated to troubleshoot, or whose plugin was
+		 * deactivated automatically during an upgrade, lost every policy and
+		 * every user's password history with no warning and no way back. The
+		 * setting that governs deletion says "upon uninstall", so deletion now
+		 * happens only there. See self::cleanup().
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.0
+		 */
+		public static function unschedule_crons() {
+			foreach ( self::scheduled_cron_hooks() as $hook ) {
+				\wp_clear_scheduled_hook( $hook );
+			}
+		}
+
+		/**
+		 * Determine whether the current request is a genuine plugin uninstall.
+		 *
+		 * Three different uninstall paths have to be recognised, because the
+		 * plugin no longer ships an uninstall.php file:
+		 *
+		 * 1. WordPress fires `uninstall_{basename}` for callbacks registered
+		 *    through register_uninstall_hook(). It does NOT define
+		 *    WP_UNINSTALL_PLUGIN on that path.
+		 * 2. Freemius runs its own `after_uninstall` action from inside that
+		 *    same `uninstall_{basename}` action, and defines
+		 *    WP_FS__UNINSTALL_MODE before doing so.
+		 * 3. WP_UNINSTALL_PLUGIN is kept as a safety net for any host or tool
+		 *    that still drives an uninstall.php style flow.
+		 *
+		 * @return bool $is_uninstalling - True when the plugin is being uninstalled.
+		 *
+		 * @since 2.4.1
+		 */
+		private static function is_uninstalling(): bool {
+			if ( defined( 'WP_UNINSTALL_PLUGIN' ) || defined( 'WP_FS__UNINSTALL_MODE' ) ) {
+				return true;
+			}
+
+			if ( defined( 'MLS_BASENAME' ) && \doing_action( 'uninstall_' . MLS_BASENAME ) ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		/**
+		 * Uninstall entry point for the plugin.
+		 *
+		 * Freemius does not allow an uninstall.php file in the plugin folder, so
+		 * this method is the single named callback that both the Freemius
+		 * `after_uninstall` action and our own register_uninstall_hook() point at.
+		 *
+		 * License data (key, status, cached data) is ALWAYS cleared regardless of
+		 * the "Delete database data upon uninstall" setting, because keeping a
+		 * remote activation slot occupied on a site where the plugin no longer
+		 * exists is not useful. The clear_history setting only governs plugin
+		 * operational data (policies, user meta, password history), which is
+		 * handled by cleanup().
+		 *
+		 * The licensing provider is read at run time rather than baked into the
+		 * stored callback, so switching provider never leaves stale cleanup logic
+		 * behind.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.1
+		 */
+		public static function uninstall() {
+			if ( ! self::is_uninstalling() ) {
+				return;
+			}
+
+			/*
+			 * Core already gates the uninstall flow on `delete_plugins`, so this
+			 * is a second line rather than the only one — and it must not be the
+			 * thing that makes `wp plugin uninstall` a no-op, because there is no
+			 * current user on the command line.
+			 */
+			if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) && ! \current_user_can( 'activate_plugins' ) ) {
+				return;
+			}
+
+			$provider = \get_option( 'mls_licensing_provider', '' );
+
+			if ( 'edd' === $provider && class_exists( '\MLS\Licensing\EDD_Provider' ) ) {
+				// Remotely deactivate the license to free the activation slot.
+				\MLS\Licensing\EDD_Provider::deactivate_license();
+
+				// Always clear local license data regardless of the clear_history setting.
+				\MLS\Licensing\EDD_Provider::clear_local_license_data();
+			}
+
 			self::cleanup();
 		}
 
@@ -611,7 +723,24 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function cleanup() {
-			if ( ! \current_user_can( 'activate_plugins' ) ) {
+			/*
+			 * Uninstall only. This deletes data permanently; deactivation is a
+			 * routine, reversible act and must not reach here. Freemius calls
+			 * this method directly through its `after_uninstall` action, so the
+			 * check cannot rely on WP_UNINSTALL_PLUGIN alone.
+			 */
+			if ( ! self::is_uninstalling() ) {
+				return;
+			}
+
+			/*
+			 * Core already gates the uninstall flow on `delete_plugins`, so this
+			 * is a second line rather than the only one — and it must not be the
+			 * thing that makes `wp plugin uninstall` a no-op, because there is no
+			 * current user on the command line and this is now the only point at
+			 * which the administrator's "delete data" choice is honoured.
+			 */
+			if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) && ! \current_user_can( 'activate_plugins' ) ) {
 				return;
 			}
 
@@ -636,18 +765,63 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 */
 		public static function clear_options() {
 			global $wpdb;
+
 			if ( \is_multisite() ) {
-				$prepared_query = $wpdb->prepare(
-					"DELETE FROM `{$wpdb->sitemeta}` WHERE `meta_key` LIKE %s ORDER BY `meta_key` ASC",
-					'mls%'
-				);
+				$table  = $wpdb->sitemeta;
+				$column = 'meta_key';
 			} else {
-				$prepared_query = $wpdb->prepare(
-					"DELETE FROM `{$wpdb->options}` WHERE `option_name` LIKE %s ORDER BY `option_name` ASC",
-					'mls%'
-				);
+				$table  = $wpdb->options;
+				$column = 'option_name';
 			}
-			$wpdb->query( $prepared_query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+			foreach ( self::owned_key_prefixes() as $prefix ) {
+				$candidates = $wpdb->get_col(
+					$wpdb->prepare(
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table and column are literals chosen above.
+						"SELECT `{$column}` FROM `{$table}` WHERE `{$column}` LIKE %s ORDER BY `{$column}` ASC",
+						$wpdb->esc_like( $prefix ) . '%'
+					)
+				); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+				foreach ( (array) $candidates as $key ) {
+					if ( self::is_reserved_key( $key ) ) {
+						continue;
+					}
+
+					if ( \is_multisite() ) {
+						\delete_site_option( $key );
+					} else {
+						\delete_option( $key );
+					}
+				}
+			}
+		}
+
+		/**
+		 * The key prefixes this plugin owns.
+		 *
+		 * Defined once in OptionsHelper so the reserved-key list cannot drift
+		 * between the callers that delete keys and the ones that export them.
+		 *
+		 * @return string[]
+		 *
+		 * @since 2.4.0
+		 */
+		private static function owned_key_prefixes() {
+			return \MLS\Helpers\OptionsHelper::owned_key_prefixes();
+		}
+
+		/**
+		 * Whether a key belongs to WordPress rather than to this plugin.
+		 *
+		 * @param string $key Option name or meta key.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.4.0
+		 */
+		private static function is_reserved_key( $key ) {
+			return \MLS\Helpers\OptionsHelper::is_reserved_key( $key );
 		}
 
 		/**
@@ -678,8 +852,24 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 */
 		public static function clear_usermeta() {
 			global $wpdb;
-			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->usermeta WHERE meta_key LIKE %s", array( 'ppmwp_%' ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->usermeta WHERE meta_key LIKE %s", array( 'mls_%' ) ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+			foreach ( self::owned_key_prefixes() as $prefix ) {
+				$candidates = $wpdb->get_col(
+					$wpdb->prepare(
+						"SELECT DISTINCT `meta_key` FROM `{$wpdb->usermeta}` WHERE `meta_key` LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						$wpdb->esc_like( $prefix ) . '%'
+					)
+				); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+				foreach ( (array) $candidates as $key ) {
+					if ( self::is_reserved_key( $key ) ) {
+						continue;
+					}
+
+					// Delete for every user, and invalidate the meta cache with it.
+					\delete_metadata( 'user', 0, $key, '', true );
+				}
+			}
 		}
 
 		/**
@@ -737,7 +927,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_user_session_destroy( $user_id ) {
+		public static function ppm_user_session_destroy( $user_id ) {
 			// get all sessions for user with ID $user_id.
 			$sessions = WP_Session_Tokens::get_instance( $user_id );
 			// we have got the sessions, destroy them all!
@@ -754,7 +944,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_mu_user_by_blog_id( $blog_id = 0, $extra_query = array() ) {
+		public static function ppm_mu_user_by_blog_id( $blog_id = 0, $extra_query = array() ) {
 			// Default query for get blog users.
 			$user_query = array(
 				'blog_id' => $blog_id,
@@ -775,7 +965,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_mu_get_blog_by_user_id( $user_id = 0 ) {
+		public static function ppm_mu_get_blog_by_user_id( $user_id = 0 ) {
 			$blog_info = get_active_blog_for_user( $user_id );
 			// If check user blog object.
 			if ( $blog_info ) {
@@ -825,6 +1015,21 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$slices      = ceil( $total_users / $batch_size );
 			$users       = array();
 
+			/*
+			 * One processor, filled across every slice, dispatched once.
+			 *
+			 * The processor used to be constructed *inside* the non-empty check
+			 * and then dispatched outside it, so a slice that came back empty —
+			 * which happens whenever users are deleted between the count and the
+			 * query, and on the first slice whenever the count is stale — reached
+			 * `$background_process->save()` with the variable never assigned.
+			 * That is a fatal, not a notice: "Call to a member function save() on
+			 * null". It also built a fresh processor and dispatched a separate
+			 * background request per hundred users.
+			 */
+			$background_process = new \MLS\Apply_Timestamp_For_Users_Process();
+			$queued             = false;
+
 			for ( $count = 0; $count < $slices; $count++ ) {
 				$args  = array(
 					'number' => $batch_size,
@@ -833,11 +1038,15 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				);
 				$users = \get_users( $args );
 
-				if ( ! empty( $users ) ) {
-					$background_process = new \MLS\Apply_Timestamp_For_Users_Process();
-					$background_process->push_to_queue( $users );
+				if ( empty( $users ) ) {
+					continue;
 				}
 
+				$background_process->push_to_queue( $users );
+				$queued = true;
+			}
+
+			if ( $queued ) {
 				$background_process->save()->dispatch();
 			}
 		}
@@ -853,9 +1062,20 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function handle_user_redirection( $verify_reset_key, $send_json_after = false, $exit_on_over = false ) {
+		public static function handle_user_redirection( $verify_reset_key, $send_json_after = false, $exit_on_over = false ) {
 
-			if ( $verify_reset_key ) {
+			/*
+			 * Both fields are attached to the object by the caller. If either is
+			 * missing the redirect would go to `?action=rp&key=&login=`, which
+			 * cannot work — better to do nothing and let the normal flow
+			 * continue than to send the user to a dead reset link.
+			 *
+			 * Note these are dynamic properties on a WP_User or a WP_Error. That
+			 * is not a PHP 8.2 deprecation here: WordPress marks both classes
+			 * `#[AllowDynamicProperties]` (since 6.4), verified against the
+			 * bundled core.
+			 */
+			if ( $verify_reset_key && ! empty( $verify_reset_key->reset_key ) && ! empty( $verify_reset_key->user_login ) ) {
 				$redirect_to = \add_query_arg(
 					array(
 						'action' => 'rp',
@@ -1065,7 +1285,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			if ( ! empty( $mls_options ) ) {
 				foreach ( $mls_options as $option => $value ) {
 					$sysinfo .= 'Option: ' . $option . "\n";
-					$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+					$sysinfo .= 'Value: ' . self::redact_sysinfo_value( $option, $value ) . "\n\n";
 				}
 			}
 
@@ -1079,7 +1299,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				if ( ! empty( $role_options ) ) {
 					foreach ( $role_options as $option => $value ) {
 						$sysinfo .= 'Option: ' . $option . "\n";
-						$sysinfo .= 'Value: ' . print_r( $value, true ) . "\n\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+						$sysinfo .= 'Value: ' . self::redact_sysinfo_value( $option, $value ) . "\n\n";
 					}
 				}
 			}
@@ -1087,6 +1307,46 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			$sysinfo .= "\n" . '### System Info → End ###' . "\n\n";
 
 			return $sysinfo;
+		}
+
+		/**
+		 * Render a settings value for the System Info report, hiding the ones
+		 * that are secrets.
+		 *
+		 * System Info exists to be copied into support tickets and public forum
+		 * posts. Two of the stored settings defeat the login restrictions on
+		 * their own if disclosed that way, and — unlike a password — nobody
+		 * would think to rotate them afterwards:
+		 *
+		 *  - restrict_login_bypass_slug: a URL that deliberately bypasses the
+		 *    login IP allowlist, needing no credential at all.
+		 *  - restrict_login_allowed_ips: the allowlist itself, which tells an
+		 *    attacker exactly which addresses are worth spoofing or pivoting
+		 *    through.
+		 *
+		 * Whether the feature is switched on stays visible, because that is
+		 * what support actually needs to know.
+		 *
+		 * @param string $option Option name.
+		 * @param mixed  $value  Stored value.
+		 *
+		 * @return string Value for display, redacted where appropriate.
+		 *
+		 * @since 2.4.0
+		 */
+		private static function redact_sysinfo_value( $option, $value ) {
+			$secret_options = array(
+				'restrict_login_bypass_slug',
+				'restrict_login_allowed_ips',
+			);
+
+			if ( in_array( $option, $secret_options, true ) ) {
+				return ( '' === $value || null === $value || array() === $value )
+					? '(not set)'
+					: '[redacted]';
+			}
+
+			return print_r( $value, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		}
 
 	}

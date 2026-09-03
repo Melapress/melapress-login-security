@@ -9,128 +9,150 @@
 
 namespace Deactivation_Feedback_Server;
 
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! class_exists( '\Deactivation_Feedback_Server\Plugin_Deactivation' ) ) {
 
-/**
- * Plugin deactivation class.
- */
-class Plugin_Deactivation {
-
 	/**
-	 * The plugin slug.
-	 *
-	 * This is used to identify and catch the deactivation trigger.
-	 *
-	 * @var string
+	 * Plugin deactivation class.
 	 */
-	const PLUGIN_SLUG = 'melapress-login-security';
+	class Plugin_Deactivation {
 
-	/**
-	 * The remote API URL to send the deactivation reason to.
-	 *
-	 * @var string
-	 */
-	const REMOTE_URL = 'https://proxytron.wpwhitesecurity.com';
+		/**
+		 * The plugin slug.
+		 *
+		 * This is used to identify and catch the deactivation trigger.
+		 *
+		 * @var string
+		 */
+		const PLUGIN_SLUG = 'melapress-login-security';
 
-	public static function plugin_slug() {
-		$premium_version_slug = 'melapress-login-security-premium/melapress-login-security-premium.php';
-		if ( is_plugin_active( $premium_version_slug ) ) {
-			return '-premium';
+		/**
+		 * The remote API URL to send the deactivation reason to.
+		 *
+		 * @var string
+		 */
+		const REMOTE_URL = 'https://proxytron.melapress.com';
+
+		public const PLUGIN_URL = \MLS_PLUGIN_URL;
+
+		/**
+		 * Get the plugin slug suffix for premium version.
+		 *
+		 * @return string
+		 */
+		public static function plugin_slug() {
+			$premium_version_slug = 'melapress-login-security-premium/melapress-login-security-premium.php';
+			if ( \is_plugin_active( $premium_version_slug ) ) {
+				if ( ! function_exists( 'get_plugin_data' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				}
+				$plugin_file  = WP_PLUGIN_DIR . '/' . $premium_version_slug;
+				$plugin_data  = array();
+				if ( file_exists( $plugin_file ) ) {
+					$plugin_data = \get_plugin_data( $plugin_file, false, false );
+				}
+				$plugin_slug    = isset( $plugin_data['slug'] ) ? $plugin_data['slug'] : sanitize_title( $plugin_data['Name'] );
+
+				return $plugin_slug;
+			}
+
+			return self::PLUGIN_SLUG;
 		}
 
-		return '';
-	}
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		\add_action( 'admin_footer', [ $this, 'maybe_add_script' ] );
-	}
-
-	/**
-	 * Maybe add the script to the admin footer.
-	 *
-	 * @return void
-	 */
-	public function maybe_add_script() {
-		// Check if we're in the plugins page.
-		if ( ! \function_exists( 'get_current_screen' ) || ! \get_current_screen() || ( 'plugins' !== \get_current_screen()->id  && 'plugins-network' !== \get_current_screen()->id ) ) {
-			return;
+		/**
+		 * Constructor.
+		 */
+		public function __construct() {
+			\add_action( 'admin_footer', array( $this, 'maybe_add_script' ) );
 		}
-		$this->the_popover();
-		$this->the_inline_script();
-		$this->the_inline_style();
-	}
 
-	/**
-	 * The popover.
-	 *
-	 * @return void
-	 */
-	protected function the_popover() {
-		$reasons = [
-			[
-				'id'                   => 'unexpected-behavior',
-				'label'                => \__( 'The plugin isn\'t working, caused issues, or has a bug', 'textdomain' ),
-				'feedback_placeholder' => \__( 'Can you briefly describe the issue?', 'textdomain' ),
-				'feedback_type'        => 'textarea',
-			],
-			// [
-			// 	'id'                   => 'wrong-feature',
-			// 	'label'                => \__( "It's not what I was looking for", 'textdomain' ),
-			// 	'feedback_placeholder' => \__( 'What were you looking for?', 'textdomain' ),
-			// 	'feedback_type'        => 'textarea',
-			// ],
-			// [
-			// 	'id'                   => 'not-working',
-			// 	'label'                => \__( 'The plugin is not working', 'textdomain' ),
-			// 	'feedback_placeholder' => \__( 'Kindly share what didn\'t work so we can fix it for future users...', 'textdomain' ),
-			// 	'feedback_type'        => 'textarea',
-			// ],
-			[
-				'id'                   => 'found-better-plugin',
-				'label'                => \__( 'I found a better alternative', 'textdomain' ),
-				'feedback_placeholder' => \__( 'Which plugin did you switch to?', 'textdomain' ),
-				'feedback_type'        => 'text',
-			],
-			[
-				'id'                   => 'missing-feature',
-				'label'                => \__( 'The plugin is missing a specific feature', 'textdomain' ),
-				'feedback_placeholder' => \__( 'What feature were you looking for?', 'textdomain' ),
-				'feedback_type'        => 'textarea',
-			],
-			[
-				'id'                   => 'hard-to-understand',
-				'label'                => \__( 'The plugin is too hard to set up or understand', 'textdomain' ),
-				'feedback_placeholder' => \__( 'Can you tell us a bit more about this?', 'textdomain' ),
-				'feedback_type'        => 'text',
-			],
-			[
-				'id'                   => 'temporary-deactivation',
-				'label'                => \__( 'This is a temporary deactivation', 'textdomain' ),
-				'feedback_type'        => false,
+		/**
+		 * Maybe add the script to the admin footer.
+		 *
+		 * @return void
+		 */
+		public function maybe_add_script() {
+			// Check if we're in the plugins page.
+			if ( ! \function_exists( 'get_current_screen' ) || ! \get_current_screen() || ( 'plugins' !== \get_current_screen()->id && 'plugins-network' !== \get_current_screen()->id ) ) {
+				return;
+			}
+			$this->the_popover();
+			$this->the_inline_script();
+			$this->the_inline_style();
+		}
+
+		/**
+		 * The popover.
+		 *
+		 * @return void
+		 */
+		protected function the_popover() {
+			$reasons = array(
+				array(
+					'id'                   => 'unexpected-behavior',
+					'label'                => \__( 'The plugin isn\'t working, caused issues, or has a bug', 'melapress-login-security' ),
+					'feedback_placeholder' => \__( 'Can you briefly describe the issue?', 'melapress-login-security' ),
+					'feedback_type'        => 'textarea',
+				),
+				// [
+				// 'id'                   => 'wrong-feature',
+				// 'label'                => \__( "It's not what I was looking for", 'melapress-login-security' ),
+				// 'feedback_placeholder' => \__( 'What were you looking for?', 'melapress-login-security' ),
+				// 'feedback_type'        => 'textarea',
+				// ],
+				// [
+				// 'id'                   => 'not-working',
+				// 'label'                => \__( 'The plugin is not working', 'melapress-login-security' ),
+				// 'feedback_placeholder' => \__( 'Kindly share what didn\'t work so we can fix it for future users...', 'melapress-login-security' ),
+				// 'feedback_type'        => 'textarea',
+				// ],
+				array(
+					'id'                   => 'found-better-plugin',
+					'label'                => \__( 'I found a better alternative', 'melapress-login-security' ),
+					'feedback_placeholder' => \__( 'Which plugin did you switch to?', 'melapress-login-security' ),
+					'feedback_type'        => 'text',
+				),
+				array(
+					'id'                   => 'missing-feature',
+					'label'                => \__( 'The plugin is missing a specific feature', 'melapress-login-security' ),
+					'feedback_placeholder' => \__( 'What feature were you looking for?', 'melapress-login-security' ),
+					'feedback_type'        => 'textarea',
+				),
+				array(
+					'id'                   => 'hard-to-understand',
+					'label'                => \__( 'The plugin is too hard to set up or understand', 'melapress-login-security' ),
+					'feedback_placeholder' => \__( 'Can you tell us a bit more about this?', 'melapress-login-security' ),
+					'feedback_type'        => 'text',
+				),
+				array(
+					'id'                   => 'temporary-deactivation',
+					'label'                => \__( 'This is a temporary deactivation', 'melapress-login-security' ),
+					'feedback_type'        => false,
+					'feedback_placeholder' => false,
+				),
+			);
+
+			// Randomize the order of the reasons.
+			\shuffle( $reasons );
+
+			// Add the "other" reason at the end.
+			$reasons[] = array(
+				'id'                   => 'other',
+				'label'                => \__( 'Other', 'melapress-login-security' ),
 				'feedback_placeholder' => false,
-			],
-		];
+				'feedback_type'        => false,
+			);
 
-		// Randomize the order of the reasons.
-		\shuffle( $reasons );
-
-		// Add the "other" reason at the end.
-		$reasons[] = [
-			'id'                   => 'other',
-			'label'                => \__( 'Other', 'textdomain' ),
-			'feedback_placeholder' => false,
-			'feedback_type'        => false,
-		];
-
-		?>
-		<div id="<?php echo \esc_attr( self::PLUGIN_SLUG ); ?>-popover" popover>
+			?>
+		<div id="<?php echo \esc_attr( self::plugin_slug() ); ?>-popover" popover>
 			<div style="text-align: center; margin-bottom: 1.5rem;">
-			<img src="https://melapress.com/wp-content/uploads/2023/06/melapress-login-security-logo-full-colour-horiz.svg" alt="<?php echo \esc_attr( 'Plugin Logo', 'textdomain' ); ?>" style="width: 150px; margin-bottom: 1rem;"> </div>
-			<h1><?php \esc_html_e( "We're sorry to see you go", 'textdomain' ); ?></h1>
-			<p><?php \esc_html_e( 'If you have a moment, please let us know why you are deactivating this plugin:', 'textdomain' ); ?></p>
+			<img src="<?php echo \esc_url( self::PLUGIN_URL . 'assets/images/password-policy-manager.png' ); ?>" alt="<?php echo \esc_attr( 'Plugin Logo', 'melapress-login-security' ); ?>" style="width: 50px; margin-bottom: 1rem;"> </div>
+			<h1><?php \esc_html_e( "We're sorry to see you go", 'melapress-login-security' ); ?></h1>
+			<p><?php \esc_html_e( 'If you have a moment, please let us know why you are deactivating this plugin:', 'melapress-login-security' ); ?></p>
 			<form>
 				<?php foreach ( $reasons as $reason ) : ?>
 					<div class="reason-wrapper" data-reason="<?php echo \esc_attr( $reason['id'] ); ?>">
@@ -167,171 +189,175 @@ class Plugin_Deactivation {
 				<?php endforeach; ?>
 
 				<div class="actions">
-					<button type="button" class="submit"><?php \esc_html_e( 'Submit & Deactivate', 'textdomain' ); ?></button>
-					<button type="button" class="dismiss"><?php \esc_html_e( 'Skip & Deactivate', 'textdomain' ); ?></button>
+					<button type="button" class="submit"><?php \esc_html_e( 'Submit & Deactivate', 'melapress-login-security' ); ?></button>
+					<button type="button" class="dismiss"><?php \esc_html_e( 'Skip & Deactivate', 'melapress-login-security' ); ?></button>
 				</div>
 			</form>
 		</div>
-		<?php
-	}
+			<?php
+		}
 
-	/**
-	 * The inline script.
-	 *
-	 * @return void
-	 */
-	protected function the_inline_script() {
-		?>
-		<script>
-			// A helper function to make AJAX requests.
-			const deactivatePluginFeedbackAjaxRequest = ( { url, data, action } ) => {
-				const http = new XMLHttpRequest();
-				http.open( 'POST', url, true );
-				http.onreadystatechange = () => {
-					let response;
-					try {
-						response = JSON.parse( http.response );
-					} catch ( e ) {}
-					return action( response );
-				};
-				const dataForm = new FormData();
-				for ( let [ key, value ] of Object.entries( data ) ) {
-					dataForm.append( key, value );
-				}
-				http.send( dataForm );
-			}
-
-			// Add an event listener to the deactivate button.
-			let deactivateButton = document.getElementById( 'deactivate-<?php echo \esc_attr( self::PLUGIN_SLUG .self::plugin_slug()); ?>' );
-			if ( !deactivateButton ) {
-				deactivateButton = document.getElementById( 'deactivate-<?php echo \esc_attr( self::PLUGIN_SLUG); ?>' );
-			}
-			const deactivationPopover = document.getElementById( '<?php echo \esc_attr( self::PLUGIN_SLUG ); ?>-popover' );
-			if ( deactivateButton && deactivationPopover ) {
-				deactivateButton.addEventListener( 'click', function( e ) {
-					e.preventDefault();
-					deactivationPopover.showPopover();
-				} );
-
-				// Show/hide the feedback fields based on the selected reason.
-				deactivationPopover.querySelectorAll( '.reason-wrapper' ).forEach( function( reasonWrapper ) {
-					reasonWrapper.addEventListener( 'click', function( changeEvent ) {
-						const feedbackWrapper = reasonWrapper.querySelector( '.feedback-wrapper' );
-						// Hide any existing feedback fields.
-						deactivationPopover.querySelectorAll( '.feedback-wrapper' ).forEach( function( feedbackWrapper ) {
-							feedbackWrapper.style.display = 'none';
-						} );
-						if ( feedbackWrapper ) {
-							reasonWrapper.querySelector( '.feedback-wrapper' ).style.display = 'block';
+		/**
+		 * The inline script.
+		 *
+		 * @return void
+		 */
+		protected function the_inline_script() {
+			?>
+			<script>
+				(function() {
+					// A helper function to make AJAX requests.
+					const deactivatePluginFeedbackAjaxRequest = ( { url, data, action } ) => {
+						const http = new XMLHttpRequest();
+						http.open( 'POST', url, true );
+						http.onreadystatechange = () => {
+							let response;
+							try {
+								response = JSON.parse( http.response );
+							} catch ( e ) {}
+							return action( response );
+						};
+						const dataForm = new FormData();
+						for ( let [ key, value ] of Object.entries( data ) ) {
+							dataForm.append( key, value );
 						}
-					} );
-				} );
+						http.send( dataForm );
+					}
 
-				// Handle clicking on the dismiss button.
-				deactivationPopover.querySelector( 'button.dismiss' ).addEventListener( 'click', function( dismissEvent ) {
-					dismissEvent.preventDefault();
-					window.location.href = deactivateButton.href;
-				} );
+					// Add an event listener to the deactivate button.
+					const deactivateButton = document.getElementById( 'deactivate-<?php echo \esc_attr( self::plugin_slug() ); ?>' );
+					
+					const deactivationPopover = document.getElementById( '<?php echo \esc_attr( self::plugin_slug() ); ?>-popover' );
+					if ( deactivateButton && deactivationPopover ) {
+						deactivateButton.addEventListener( 'click', function( e ) {
+							e.preventDefault();
+							deactivationPopover.showPopover();
+						} );
 
-				// Handle clicking on the submit button.
-				deactivationPopover.querySelector( 'button.submit' ).addEventListener( 'click', function( submitEvent ) {
-					submitEvent.preventDefault();
-					const requestData = {
-						action: 'plugin_deactivation',
-						plugin: '<?php echo \esc_attr( self::PLUGIN_SLUG.self::plugin_slug() ); ?>',
-						site: '<?php echo \esc_attr( get_site_url() ); ?>',
-					};
-					deactivatePluginFeedbackAjaxRequest( {
-						// Get a nonce from the remote server.
-						url: '<?php echo \esc_url( self::REMOTE_URL ); ?>/?rest_route=/deactivation-feedback-server/v1/get-nonce',
-						data: requestData,
-						action: ( response ) => {
-							response = response || {};
-							// Add the nonce to the request data, and build the data object for the feedback.
-							requestData.nonce = response.nonce;
-							const formData = new FormData( deactivationPopover.querySelector( 'form' ) );
-							requestData.reason = formData.get( 'reason' );
-							const feedbackEl = document.getElementById( `deactivate-plugin-reason-${requestData.reason}-feedback` );
-							requestData.feedback = feedbackEl ? feedbackEl.value : '';
+						// Show/hide the feedback fields based on the selected reason.
+						deactivationPopover.querySelectorAll( '.reason-wrapper' ).forEach( function( reasonWrapper ) {
+							reasonWrapper.addEventListener( 'click', function( changeEvent ) {
+								const radio = reasonWrapper.querySelector( 'input[type="radio"]' );
+								if ( radio ) {
+									radio.checked = true;
+								}
+								const feedbackWrapper = reasonWrapper.querySelector( '.feedback-wrapper' );
+								// Hide any existing feedback fields.
+								deactivationPopover.querySelectorAll( '.feedback-wrapper' ).forEach( function( feedbackWrapper ) {
+									feedbackWrapper.style.display = 'none';
+								} );
+								if ( feedbackWrapper ) {
+									reasonWrapper.querySelector( '.feedback-wrapper' ).style.display = 'block';
+								}
+							} );
+						} );
 
-							// Make the request to the remote server to submit the feedback.
+						// Handle clicking on the dismiss button.
+						deactivationPopover.querySelector( 'button.dismiss' ).addEventListener( 'click', function( dismissEvent ) {
+							dismissEvent.preventDefault();
+							window.location.href = deactivateButton.href;
+						} );
+
+						// Handle clicking on the submit button.
+						deactivationPopover.querySelector( 'button.submit' ).addEventListener( 'click', function( submitEvent ) {
+							submitEvent.preventDefault();
+							const requestData = {
+								action: 'plugin_deactivation',
+								plugin: '<?php echo \esc_attr( self::plugin_slug() ); ?>',
+								site: '<?php echo \esc_attr( get_site_url() ); ?>',
+							};
 							deactivatePluginFeedbackAjaxRequest( {
-								url: '<?php echo \esc_url( self::REMOTE_URL ); ?>/?rest_route=/deactivation-feedback-server/v1/submit-feedback',
+								// Get a nonce from the remote server.
+								url: '<?php echo \esc_url( self::REMOTE_URL ); ?>/?rest_route=/deactivation-feedback-server/v1/get-nonce',
 								data: requestData,
 								action: ( response ) => {
-									window.location.href = deactivateButton.href;
+									response = response || {};
+									// Add the nonce to the request data, and build the data object for the feedback.
+									requestData.nonce = response.nonce;
+									const formData = new FormData( deactivationPopover.querySelector( 'form' ) );
+									requestData.reason = formData.get( 'reason' );
+									const feedbackEl = document.getElementById( `deactivate-plugin-reason-${requestData.reason}-feedback` );
+									requestData.feedback = feedbackEl ? feedbackEl.value : '';
+
+									// Make the request to the remote server to submit the feedback.
+									deactivatePluginFeedbackAjaxRequest( {
+										url: '<?php echo \esc_url( self::REMOTE_URL ); ?>/?rest_route=/deactivation-feedback-server/v1/submit-feedback',
+										data: requestData,
+										action: ( response ) => {
+											window.location.href = deactivateButton.href;
+										},
+									} );
 								},
 							} );
-						},
-					} );
 
-					// Submit the form.
-					deactivationPopover.hidePopover();
-				} );
-			}
-		</script>
-		<?php
-	}
+							// Submit the form.
+							deactivationPopover.hidePopover();
+						} );
+					}
+				})();
+			</script>
+			<?php
+		}
 
-	/**
-	 * The inline style.
-	 *
-	 * @return void
-	 */
-	protected function the_inline_style() {
-		?>
-		<style>
-			#<?php echo \esc_attr( self::PLUGIN_SLUG ); ?>-popover {
-				border: 1px solid #ccc;
-				padding: 2rem;
-				border-radius: 8px;
+		/**
+		 * The inline style.
+		 *
+		 * @return void
+		 */
+		protected function the_inline_style() {
+			?>
+			<style>
+				#<?php echo \esc_attr( self::plugin_slug() ); ?>-popover {
+					border: 1px solid #ccc;
+					padding: 2rem;
+					border-radius: 8px;
 
-				form {
-					display: flex;
-					flex-direction: column;
-					gap: 1rem;
-
-					.reason-wrapper {
+					form {
 						display: flex;
-						gap: 1rem;
 						flex-direction: column;
+						gap: 1rem;
 
-						.feedback-wrapper {
-							display: none;
+						.reason-wrapper {
+							display: flex;
+							gap: 1rem;
+							flex-direction: column;
 
-							textarea, input {
-								width: 100%;
-								border: 1px solid #ccc;
-								border-radius: 4px;
-								padding: 0.5rem;
+							.feedback-wrapper {
+								display: none;
+
+								textarea, input {
+									width: 100%;
+									border: 1px solid #ccc;
+									border-radius: 4px;
+									padding: 0.5rem;
+								}
+							}
+						}
+
+						.actions {
+							display: flex;
+							gap: 1rem;
+						}
+
+						button {
+							padding: 0.5rem 1rem;
+							border-radius: 4px;
+							border: 1px solid #ccc;
+							background-color: #40D3F0;
+							cursor: pointer;
+							color: #fff;
+							margin: 0;
+
+							&.dismiss {
+								background-color: #fff;
+								cursor: pointer;
+								color: #000;
 							}
 						}
 					}
-
-					.actions {
-						display: flex;
-						gap: 1rem;
-					}
-
-					button {
-						padding: 0.5rem 1rem;
-						border-radius: 4px;
-						border: 1px solid #ccc;
-						background-color: #7A262A;
-						cursor: pointer;
-						color: #fff;
-						margin: 0;
-
-						&.dismiss {
-							background-color: #fff;
-							cursor: pointer;
-							color: #000;
-						}
-					}
 				}
-			}
-		</style>
-		<?php
+			</style>
+			<?php
+		}
 	}
-}
 }
