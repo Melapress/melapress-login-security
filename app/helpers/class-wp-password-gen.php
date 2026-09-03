@@ -56,9 +56,8 @@ if ( ! class_exists( '\MLS\Password_Gen' ) ) {
 		 */
 		public function ajax_generate() {
 
-			// add strong function.
+			// Only expose to authenticated users to reduce attack surface.
 			add_action( 'wp_ajax_generate-password', array( $this, '_generate' ), 0 );
-			add_action( 'wp_ajax_nopriv_generate-password', array( $this, '_generate' ), 0 );
 		}
 
 		/**

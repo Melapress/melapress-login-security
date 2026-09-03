@@ -75,7 +75,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 								<div class="restrict-login-option" style="margin-top: 30px;">
 									<p class="description" style="margin-bottom: 10px; display: block;">
 										<?php
-											$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notices templates', 'ppw-wp' ) . '</a>';
+											$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notices templates', 'melapress-login-security' ) . '</a>';
 										?>
 										<?php echo wp_kses_post( wp_sprintf( /* translators: %s: Link to settings. */ __( 'To customize the notification displayed to users when a login is blocked due to restrictions, please visit the %s plugin settings.', 'melapress-login-security' ), wp_kses_post( $messages_settings ) ) ); ?>
 									</p>
@@ -240,21 +240,55 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 						} );
 					});
 
+					/*
+					 * Built from nodes, not from a concatenated HTML string. The
+					 * previous version interpolated each stored value straight
+					 * into markup and assigned it to innerHTML — unquoted in the
+					 * attribute and unescaped in the text — so a value that was
+					 * not an IP address executed as script. Values are validated
+					 * server side now as well; this is the second half.
+					 */
 					function mls_build_ip_list() {
 						jQuery( '#mls_user_ip_list' ).remove();
-						var inputText = jQuery( '[name="mls_user_ips"]' ).val().trim();
-						if ( inputText.length > 0 ) {
-							var temp = inputText.split(", ");
-							var str = '';
-							jQuery.each(temp, function(i,v) {
-								str += "<div data-mls-user-ip-item="+v+"><span data-edit-ip>"+v+"<span class='dashicons dashicons-edit'></span></span><span data-remove-ip><span class='dashicons dashicons-no'></span><span></div>";
-							});
-							var div = document.createElement('div');
-							div.innerHTML = str.trim();
-							jQuery( div ).attr( 'id', 'mls_user_ip_list' );
 
-							jQuery('[name="mls_user_ips"]' ).after( div );
+						var inputText = jQuery( '[name="mls_user_ips"]' ).val().trim();
+						if ( ! inputText.length ) {
+							return;
 						}
+
+						var wrapper = document.createElement( 'div' );
+						wrapper.id = 'mls_user_ip_list';
+
+						inputText.split( ',' ).forEach( function ( value ) {
+							value = value.trim();
+							if ( ! value.length ) {
+								return;
+							}
+
+							var item = document.createElement( 'div' );
+							item.setAttribute( 'data-mls-user-ip-item', value );
+
+							var edit = document.createElement( 'span' );
+							edit.setAttribute( 'data-edit-ip', '' );
+							edit.appendChild( document.createTextNode( value ) );
+
+							var editIcon = document.createElement( 'span' );
+							editIcon.className = 'dashicons dashicons-edit';
+							edit.appendChild( editIcon );
+
+							var remove = document.createElement( 'span' );
+							remove.setAttribute( 'data-remove-ip', '' );
+
+							var removeIcon = document.createElement( 'span' );
+							removeIcon.className = 'dashicons dashicons-no';
+							remove.appendChild( removeIcon );
+
+							item.appendChild( edit );
+							item.appendChild( remove );
+							wrapper.appendChild( item );
+						} );
+
+						jQuery( '[name="mls_user_ips"]' ).after( wrapper );
 					}
 				</script>
 				<style type="text/css">
@@ -305,7 +339,11 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 		 * @return void
 		 */
 		public static function save_user_profile_field( $user_id ) {
-			if ( ! current_user_can( 'manage_options' ) || ( isset( $_POST['mls_user_ips_nonce'] ) && ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mls_user_ips_nonce'] ) ), 'mls_update_users_ips' ) ) ) {
+			if ( ! isset( $_POST['mls_user_ips'] ) ) {
+				return;
+			}
+
+			if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'edit_user', $user_id ) || ! isset( $_POST['mls_user_ips_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mls_user_ips_nonce'] ) ), 'mls_update_users_ips' ) ) {
 				return;
 			}
 
@@ -314,9 +352,47 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 			}
 
 			if ( isset( $_POST['mls_user_ips'] ) ) {
-				$ips = empty( $_POST['mls_user_ips'] ) ? array() : explode( ',', sanitize_text_field( wp_unslash( $_POST['mls_user_ips'] ) ) );
-				update_user_meta( $user_id, 'mls_login_ips', $ips );
+				$submitted = empty( $_POST['mls_user_ips'] ) ? array() : explode( ',', sanitize_text_field( wp_unslash( $_POST['mls_user_ips'] ) ) );
+
+				update_user_meta( $user_id, 'mls_login_ips', self::filter_to_valid_ips( $submitted ) );
 			}
+		}
+
+		/**
+		 * Keep only entries that really are IP addresses.
+		 *
+		 * This field used to store whatever was submitted. `sanitize_text_field()`
+		 * strips tags but leaves quotes, angle-bracket-free attribute payloads and
+		 * everything else intact, and the value was then written back into the
+		 * profile page and reassembled into markup by the inline script below —
+		 * so a stored string became script in the browser of the next person to
+		 * open that profile. On multisite that crosses a privilege boundary: a
+		 * site administrator has `manage_options` for their own site, and the
+		 * profile they edit may next be opened by a super admin.
+		 *
+		 * The field cannot hold anything but an IP address, so validating here
+		 * removes the problem at the source rather than at each point of output.
+		 *
+		 * @param string[] $candidates Raw submitted values.
+		 *
+		 * @return string[] Valid, unique IP addresses.
+		 *
+		 * @since 2.4.0
+		 */
+		public static function filter_to_valid_ips( $candidates ) {
+			$valid = array();
+
+			foreach ( (array) $candidates as $candidate ) {
+				$ip = filter_var( trim( (string) $candidate ), FILTER_VALIDATE_IP );
+
+				if ( false === $ip || '' === $ip ) {
+					continue;
+				}
+
+				$valid[] = $ip;
+			}
+
+			return array_values( array_unique( $valid ) );
 		}
 
 		/**
@@ -360,7 +436,8 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 
 			if ( OptionsHelper::string_to_bool( $role_options->restrict_login_ip ) ) {
 				$stored_ips   = self::get_user_stored_ips( $user_id );
-				$user_addr    = isset( $_SERVER['REMOTE_ADDR'] ) ? \MLS\Login_Page_Control::sanitize_incoming_ip( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : false; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$user_addr    = \MLS\Login_Page_Control::get_client_ip();
+				$user_addr    = '' !== $user_addr ? $user_addr : false;
 				$error_string = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'restrict_login_ip_login_blocked_message' ), $user_id );
 
 				if ( ! $user_addr ) {
@@ -452,7 +529,7 @@ if ( ! class_exists( '\MLS\RestrictLogins' ) ) {
 			$ips          = self::get_user_stored_ips( $user_id );
 			$userdata     = get_user_by( 'id', $user_id );
 			$role_options = OptionsHelper::get_preferred_role_options( $userdata->roles );
-			$max_allowed  = (int) str_replace( '0', '', $role_options->restrict_login_ip_count );
+			$max_allowed  = (int) $role_options->restrict_login_ip_count;
 
 			if ( count( $ips ) < $max_allowed ) {
 				// IP is stored already.

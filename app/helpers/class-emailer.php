@@ -17,381 +17,483 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use MLS\Helpers\OptionsHelper;
 
-/**
- * Utility file and directory functions.
- *
- * @since 2.0.0
- */
-class Emailer {
+if ( ! class_exists( '\MLS\Emailer' ) ) {
 
 	/**
-	 * Filter the mail content type.
-	 *
-	 * @return string
+	 * Utility file and directory functions.
 	 *
 	 * @since 2.0.0
 	 */
-	public static function set_html_content_type() {
-		return 'text/html';
-	}
+	class Emailer {
 
-	/**
-	 * Send Email.
-	 *
-	 * @param string $email_address - Email Address.
-	 * @param string $subject       - Email subject.
-	 * @param string $content       - Email content.
-	 * @param string $headers       Email headers.
-	 * @param array  $attachments   Email attachments.
-	 *
-	 * @return bool
-	 *
-	 * self::send_email
-	 */
-	public static function send_email( $email_address, $subject, $content, $headers = '', $attachments = array() ) {
-
-		if ( ! empty( $headers ) ) {
-			$headers = array_merge_recursive( (array) $headers, array( 'Content-Type: ' . self::set_html_content_type() . '; charset=UTF-8' ) );
-		} else {
-			$headers = array( 'Content-Type: ' . self::set_html_content_type() . '; charset=UTF-8' );
-		}
-
-		// @see: http://codex.wordpress.org/Function_Reference/wp_mail
-		\add_filter( 'wp_mail_from', array( __CLASS__, 'custom_wp_mail_from' ), PHP_INT_MAX );
-		\add_filter( 'wp_mail_from_name', array( __CLASS__, 'custom_wp_mail_from_name' ) );
-
-		$subject = apply_filters( 'mls_emailer_subject_filter', $subject );
-		$content = apply_filters( 'mls_emailer_content_filter', wpautop( $content ) );
-
-		if ( ! self::send_plain_email() ) {
-			$result = \wp_mail( $email_address, $subject, self::wrap_email( $content ), $headers, $attachments );
-		} else {
-			$result = \wp_mail( $email_address, $subject, \wpautop( $content ), $headers, $attachments );
+		/**
+		 * Filter the mail content type.
+		 *
+		 * @return string
+		 *
+		 * @since 2.0.0
+		 */
+		public static function set_html_content_type() {
+			return 'text/html';
 		}
 
 		/**
-		 * Reset content-type to avoid conflicts.
+		 * The content type this message should be sent as.
 		 *
-		 * @see http://core.trac.wordpress.org/ticket/23578
+		 * "Send emails in plain text" had no effect: send_plain_email() below
+		 * read the setting, but nothing ever called it, and the header was built
+		 * from set_html_content_type() unconditionally.
+		 *
+		 * @return string
+		 *
+		 * @since 2.4.0
 		 */
-		\remove_filter( 'wp_mail_from', array( __CLASS__, 'custom_wp_mail_from' ), PHP_INT_MAX );
-		\remove_filter( 'wp_mail_from_name', array( __CLASS__, 'custom_wp_mail_from_name' ) );
+		public static function content_type() {
+			return self::send_plain_email() ? 'text/plain' : self::set_html_content_type();
+		}
 
-		return $result;
-	}
+		/**
+		 * Render an HTML body as plain text.
+		 *
+		 * The templates are written as text with blank lines between paragraphs
+		 * and wpautop() turns those into markup on the way out, so the job here
+		 * is mostly to undo that and keep the line breaks. Two details matter
+		 * beyond stripping tags:
+		 *
+		 * A link's destination has to survive. EmailAndMessageStrings::linkify_link()
+		 * uses the URL as the anchor text, so stripping alone keeps it — but an
+		 * anchor whose text differs would otherwise lose the address entirely,
+		 * and these messages exist to carry password reset links.
+		 *
+		 * Entities have to be decoded, or a plain-text mail arrives full of
+		 * `&amp;` — and a reset URL with query arguments is exactly where that
+		 * shows up.
+		 *
+		 * @param string $content - Body as HTML.
+		 *
+		 * @return string
+		 *
+		 * @since 2.4.0
+		 */
+		public static function to_plain_text( $content ) {
+			$content = (string) $content;
 
-	/**
-	 * Should plugin send plain or HTML email.
-	 *
-	 * @return  bool - Should send plain or not.
-	 */
-	public static function send_plain_email() {
-		$mls = melapress_login_security();
-		return OptionsHelper::string_to_bool( $mls->options->mls_setting->send_plain_text_emails );
-	}
+			// One kind of line ending, so the tidying at the end is predictable.
+			$content = str_replace( array( "\r\n", "\r" ), "\n", $content );
 
-	/**
-	 * Wrap email in nice header and footer before output.
-	 *
-	 * @param   string $content  Content to wrap.
-	 *
-	 * @return  string           Wrapped content.
-	 */
-	public static function wrap_email( $content ) {
-		$media['mls-logo']          = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mls-email-header.png';
-		$media['documentation']     = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/documentation.png';
-		$media['support']           = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/support.png';
-		$media['melapress-icon']    = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/melapress-icon.png';
-		$media['wsal-dg-footer-bg'] = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/wsal-dg-footer-bg.png';
+			$content = (string) preg_replace_callback(
+				'#<a\b[^>]*href=("|\')(.*?)\1[^>]*>(.*?)</a>#is',
+				function ( $matches ) {
+					$href = trim( html_entity_decode( $matches[2], ENT_QUOTES, 'UTF-8' ) );
+					$text = trim( wp_strip_all_tags( $matches[3] ) );
 
-		$header = '
-		<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-		<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
-		<head>
-			<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-			<title>WP Activity Log</title>
-		
-			<!--[if mso]>
-				<style>
-				  body,table,td,h2,h3,span,p {
-				  font-family: \'Quicksand\', \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif !important;
-				  }
+					if ( '' === $text ) {
+						return $href;
+					}
+
+					// Already shows where it goes.
+					if ( '' === $href || false !== strpos( $text, $href ) ) {
+						return $text;
+					}
+
+					// Parentheses rather than angle brackets: `<https://…>` reads as
+					// a tag to the strip_tags() below, which removed the address
+					// again a few lines after it was preserved.
+					return $text . ' (' . $href . ')';
+				},
+				$content
+			);
+
+			// Structure becomes whitespace: a break is one newline, the end of a
+			// block is a blank line, and a list item gains a dash.
+			$content = (string) preg_replace( '#<br\s*/?>#i', "\n", $content );
+			$content = (string) preg_replace( '#<li\b[^>]*>#i', '- ', $content );
+			$content = (string) preg_replace( '#</(p|div|li|tr|h[1-6]|blockquote)>#i', "\n\n", $content );
+
+			// Keeps newlines; the second argument is what would remove them.
+			$content = wp_strip_all_tags( $content, false );
+			$content = html_entity_decode( $content, ENT_QUOTES, 'UTF-8' );
+
+			// Artefacts of the markup rather than anything the author wrote.
+			$content = (string) preg_replace( '#[ \t]+\n#', "\n", $content );
+			$content = (string) preg_replace( '#\n{3,}#', "\n\n", $content );
+
+			return trim( $content );
+		}
+
+		/**
+		 * Send Email.
+		 *
+		 * @param string $email_address - Email Address.
+		 * @param string $subject       - Email subject.
+		 * @param string $content       - Email content.
+		 * @param string $headers       Email headers.
+		 * @param array  $attachments   Email attachments.
+		 *
+		 * @return bool
+		 *
+		 * self::send_email
+		 */
+		public static function send_email( $email_address, $subject, $content, $headers = '', $attachments = array() ) {
+
+			$content_type = self::content_type();
+
+			if ( ! empty( $headers ) ) {
+				$headers = array_merge_recursive( (array) $headers, array( 'Content-Type: ' . $content_type . '; charset=UTF-8' ) );
+			} else {
+				$headers = array( 'Content-Type: ' . $content_type . '; charset=UTF-8' );
+			}
+
+			// @see: http://codex.wordpress.org/Function_Reference/wp_mail
+			\add_filter( 'wp_mail_from', array( __CLASS__, 'custom_wp_mail_from' ), PHP_INT_MAX );
+			\add_filter( 'wp_mail_from_name', array( __CLASS__, 'custom_wp_mail_from_name' ) );
+
+			$subject = apply_filters( 'mls_emailer_subject_filter', $subject );
+			$content = apply_filters( 'mls_emailer_content_filter', wpautop( $content ) );
+
+			/*
+			 * Plain text is the last thing done to the body.
+			 *
+			 * Converting before `mls_emailer_content_filter` would change what
+			 * that filter has always received; converting after also means
+			 * markup added by a filter is stripped like any other.
+			 */
+			if ( self::send_plain_email() ) {
+				$content = self::to_plain_text( $content );
+			}
+
+			/*
+			 * Emails are sent as the body content only, with no branded wrapper.
+			 * If branded HTML is reinstated it belongs behind self::send_plain_email(),
+			 * wrapping with self::wrap_email() when that returns false.
+			 */
+			$result = \wp_mail( $email_address, $subject, $content, $headers, $attachments );
+
+			/**
+			 * Reset content-type to avoid conflicts.
+			 *
+			 * @see http://core.trac.wordpress.org/ticket/23578
+			 */
+			\remove_filter( 'wp_mail_from', array( __CLASS__, 'custom_wp_mail_from' ), PHP_INT_MAX );
+			\remove_filter( 'wp_mail_from_name', array( __CLASS__, 'custom_wp_mail_from_name' ) );
+
+			return $result;
+		}
+
+		/**
+		 * Should plugin send plain or HTML email.
+		 *
+		 * @return  bool - Should send plain or not.
+		 */
+		public static function send_plain_email() {
+			$mls = melapress_login_security();
+			return OptionsHelper::string_to_bool( $mls->options->mls_setting->send_plain_text_emails );
+		}
+
+		/**
+		 * Wrap email in nice header and footer before output.
+		 *
+		 * @param   string $content  Content to wrap.
+		 *
+		 * @return  string           Wrapped content.
+		 */
+		public static function wrap_email( $content ) {
+			$media['mls-logo']          = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mls-email-header.png';
+			$media['documentation']     = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/documentation.png';
+			$media['support']           = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/support.png';
+			$media['melapress-icon']    = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/melapress-icon.png';
+			$media['wsal-dg-footer-bg'] = trailingslashit( MLS_PLUGIN_URL ) . 'assets/images/mails/daily-notification/wsal-dg-footer-bg.png';
+
+			$header = '
+			<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+			<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+			<head>
+				<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+				<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+				<title>WP Activity Log</title>
+
+				<!--[if mso]>
+					<style>
+					  body,table,td,h2,h3,span,p {
+					  font-family: \'Quicksand\', \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif !important;
+					  }
+					</style>
+				<![endif]-->
+
+				<link rel="preconnect" href="https://fonts.googleapis.com"/>
+				<link rel="preconnect" href="https://fonts.gstatic.com"/>
+				<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet"/>
+
+				<style type="text/css">
+					html, body {
+						margin: 0 auto !important;
+						padding: 0 !important;
+						height: 100% !important;
+						width: 100% !important;
+					}
+
+					/* Override blue links in footer */
+					.footer-text a[x-apple-data-detectors] {
+						color: #ffffff !important;
+						font-size: inherit !important;
+						font-family: inherit !important;
+						font-weight: inherit !important;
+						line-height: inherit !important;
+					}
+
+					u+#body .footer-text a {
+						color: #ffffff !important;
+						font-size: inherit !important;
+						font-family: inherit !important;
+						font-weight: inherit !important;
+						line-height: inherit !important;
+					}
+
+					#MessageViewBody .footer-text a {
+						color: #ffffff !important;
+						font-size: inherit !important;
+						font-family: inherit !important;
+						font-weight: inherit !important;
+						line-height: inherit !important;
+					}
+
+					table, td {
+						border-spacing: 0;
+						mso-table-lspace: 0;
+						mso-table-rspace: 0;
+					}
+
+					img {
+						border: 0;
+						height: auto;
+						line-height: 100%;
+						outline: none;
+						text-decoration: none;
+						-ms-interpolation-mode: bicubic;
+					}
+
+					a {
+						color: #0000EE;
+						text-decoration: underline;
+					}
+
+					a:hover, a:hover img {
+						opacity: 0.5;
+						filter: alpha(opacity=50);
+						transition: opacity .2s ease-in-out;
+					}
+
+					.applelink-white a {
+						color: #ffffff !important;
+					}
+
+					/* Zebra striping for tables */
+					table.zebra-striped tr:nth-child(even) {
+					  background-color: #F0F4FE;
+					}
+
+					table.zebra-striped tr:nth-child(odd) {
+					  background-color: #ffffff;
+					}
+
+					@media only screen and (max-width: 599px), only screen and (max-device-width: 599px) {
+						.hide {
+							display: none !important;
+						}
+
+						.responsive-full {
+							width: 100% !important;
+							min-width: 100% !important;
+						}
+
+						.responsive {
+							width: 100% !important;
+							min-width: 100% !important;
+							padding-left: 30px !important;
+							padding-right: 30px !important;
+						}
+
+						.inner-td {
+							padding-bottom: 60px !important;
+						}
+
+						.responsive-image img {
+							width: 50%% !important;
+							min-width: 50%% !important;
+						}
+
+						.responsive-icon img {
+							width: 48px !important;
+							min-width: 48px !important;
+						}
+
+						.responsive-stack {
+							width: 100% !important;
+							display: block !important;
+						}
+
+						.mob-body-text {
+							font-size: 20px !important;
+							line-height: 28px !important;
+						}
+
+						.mob-title-text {
+							font-size: 40px !important;
+							line-height: 56px !important;
+						}
+
+						.center {
+							text-align: center !important;
+							padding-bottom: 15px !important;
+						}
+					}
 				</style>
-			<![endif]-->
-		
-			<link rel="preconnect" href="https://fonts.googleapis.com"/>
-			<link rel="preconnect" href="https://fonts.gstatic.com"/>
-			<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap" rel="stylesheet"/>
-		
-			<style type="text/css">
-				html, body {
-					margin: 0 auto !important;
-					padding: 0 !important;
-					height: 100% !important;
-					width: 100% !important;
-				}
-		
-				/* Override blue links in footer */
-				.footer-text a[x-apple-data-detectors] {
-					color: #ffffff !important;
-					font-size: inherit !important;
-					font-family: inherit !important;
-					font-weight: inherit !important;
-					line-height: inherit !important;
-				}
-		
-				u+#body .footer-text a {
-					color: #ffffff !important;
-					font-size: inherit !important;
-					font-family: inherit !important;
-					font-weight: inherit !important;
-					line-height: inherit !important;
-				}
-		
-				#MessageViewBody .footer-text a {
-					color: #ffffff !important;
-					font-size: inherit !important;
-					font-family: inherit !important;
-					font-weight: inherit !important;
-					line-height: inherit !important;
-				}
-		
-				table, td {
-					border-spacing: 0;
-					mso-table-lspace: 0;
-					mso-table-rspace: 0;
-				}
-		
-				img {
-					border: 0;
-					height: auto;
-					line-height: 100%;
-					outline: none;
-					text-decoration: none;
-					-ms-interpolation-mode: bicubic;
-				}
-		
-				a {
-					color: #0000EE;
-					text-decoration: underline;
-				}
-		
-				a:hover, a:hover img {
-					opacity: 0.5;
-					filter: alpha(opacity=50);
-					transition: opacity .2s ease-in-out;
-				}
-		
-				.applelink-white a {
-					color: #ffffff !important;
-				}
-				
-				/* Zebra striping for tables */
-				table.zebra-striped tr:nth-child(even) {
-				  background-color: #F0F4FE;
-				}
-				
-				table.zebra-striped tr:nth-child(odd) {
-				  background-color: #ffffff;
-				}
-		
-				@media only screen and (max-width: 599px), only screen and (max-device-width: 599px) {
-					.hide {
-						display: none !important;
-					}
-		
-					.responsive-full {
-						width: 100% !important;
-						min-width: 100% !important;
-					}
-		
-					.responsive {
-						width: 100% !important;
-						min-width: 100% !important;
-						padding-left: 30px !important;
-						padding-right: 30px !important;
-					}
-		
-					.inner-td {
-						padding-bottom: 60px !important;
-					}
-		
-					.responsive-image img {
-						width: 50%% !important;
-						min-width: 50%% !important;
-					}
-		
-					.responsive-icon img {
-						width: 48px !important;
-						min-width: 48px !important;
-					}
-		
-					.responsive-stack {
-						width: 100% !important;
-						display: block !important;
-					}
-		
-					.mob-body-text {
-						font-size: 20px !important;
-						line-height: 28px !important;
-					}
-		
-					.mob-title-text {
-						font-size: 40px !important;
-						line-height: 56px !important;
-					}
-		
-					.center {
-						text-align: center !important;
-						padding-bottom: 15px !important;
-					}
-				}
-			</style>
-		</head>
-		
-		<body style="margin:0;padding:0;min-width:100%;background-color:#ffffff;font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-size:18px;line-height:24px;color:#1A3060;font-weight: 400;" id="body" class="body">
-		<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="min-width: 100%;">
-				<tbody><tr>
-					<td align="center">
-		';
+			</head>
 
-		$wrapped                                  =
-		'<table role="presentation" width="640" border="0" cellpadding="0" cellspacing="0" role="presentation" class="responsive">
-			<tr>
-			<td align="center">
-				
-				<!-- Logo Start -->
-				<table role="presentation" width="640" border="0" cellpadding="0" cellspacing="0" role="presentation" class="responsive">
-					<tr>
-						<td style="padding: 0px;">
-							<table role="presentation" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="min-width: 100%;">
-								<tr>
-									<td style="padding: 20px 0 15px;">
-										<a href="https://melapress.com/wordpress-login-security/" style="color:#1A3060; font-weight: 700;" target="_blank">
-											<img src="' . $media['mls-logo'] . '" border="0" width="400" height="80" style="display: block;" alt="WP Activity Log"/>
-										</a>
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</table>
-				<!-- Logo End -->
-				
-				<!-- Title Start -->
-				<table role="presentation" width="640" border="0" cellpadding="0" cellspacing="0" role="presentation" class="responsive">
+			<body style="margin:0;padding:0;min-width:100%;background-color:#ffffff;font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-size:18px;line-height:24px;color:#1A3060;font-weight: 400;" id="body" class="body">
+			<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" style="min-width: 100%;">
+					<tbody><tr>
+						<td align="center">
+			';
+
+			$wrapped                                  =
+			'<table role="presentation" width="640" border="0" cellpadding="0" cellspacing="0" role="presentation" class="responsive">
+				<tr>
+				<td align="center">
+
+					<!-- Logo Start -->
+					<table role="presentation" width="640" border="0" cellpadding="0" cellspacing="0" role="presentation" class="responsive">
 						<tr>
-							<td align="center">
-								<table width="100%" cellpadding="0" cellspacing="0" border="0">
+							<td style="padding: 0px;">
+								<table role="presentation" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="min-width: 100%;">
 									<tr>
-										<td style="font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-weight: normal; font-size: 18px; line-height: 24px; color: #1A3060; text-align: left; padding-bottom: 20px;">';
-										$wrapped .= $content;
-
-		$wrapped .= '		
+										<td style="padding: 20px 0 15px;">
+											<a href="https://melapress.com/wordpress-login-security/" style="color:#1A3060; font-weight: 700;" target="_blank">
+												<img src="' . $media['mls-logo'] . '" border="0" width="400" height="80" style="display: block;" alt="WP Activity Log"/>
+											</a>
+										</td>
+									</tr>
+								</table>
 							</td>
 						</tr>
 					</table>
-				</td>
-			</tr>
-		</table>';
+					<!-- Logo End -->
 
-		$wrapped .= '</td></tr></tbody></table>
-		<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#78262a" style="min-width: 100%; background-image: url(' . $media['wsal-dg-footer-bg'] . '); background-repeat: no-repeat; background-position: top center; background-position-y: -1px;">
-				<tbody><tr>
-					<td width="100%" align="center" style="padding: 105px 0 16px 0;">
-						<a href="https://melapress.com" target="_blank"><img src="' . $media['melapress-icon'] . '" width="42" height="42" border="0" style="display: block;" alt="Melapress"></a>
-					</td>
-				</tr>
-				<tr>
-					<td align="center" style="font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-size: 16px; line-height: 22px; color: #ffffff; padding-top: 25px;" class="footer-text">
-						If you\'re finding Melapress Login Security helpful, consider trying our other plugins:<br> <a href="https://melapress.com/wordpress-2fa/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer" target="_blank" style="color:#ffffff;">WP 2FA</a> and <a href="https://melapress.com/wordpress-login-security/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer" target="_blank" style="color:#ffffff;">WP Activity Log</a>.
-					</td>
-				</tr>
-				<tr>
-					<td width="100%" align="center" style="padding: 16px 0 16px;">
-						<table role="presentation" align="center" width="100%" border="0" cellpadding="0" cellspacing="0">
-							<tbody><tr>
-								<td align="center" style="font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-size: 13px; line-height: 22px; color: #E5EFB0; padding-top: 25px;" class="footer-text">
-									This email was sent by Melapress Login Security - boost WordPress security with login & password policies<br><br>
-									<a href="https://melapress.com/wordpress-activity-log/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer_byline" target="_blank" style="color: #E5EFB0;">Melapress Login Security</a> is developed and maintained by <a href="https://melapress.com/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer_byline" target="_blank" style="color: #E5EFB0;">Melapress</a>.<br><span style="white-space: nowrap;">Melapress Blaak 520 Rotterdam,</span> <span style="white-space: nowrap;">Zuid-Holland 3011 TA Netherlands</span>
+					<!-- Title Start -->
+					<table role="presentation" width="640" border="0" cellpadding="0" cellspacing="0" role="presentation" class="responsive">
+							<tr>
+								<td align="center">
+									<table width="100%" cellpadding="0" cellspacing="0" border="0">
+										<tr>
+											<td style="font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-weight: normal; font-size: 18px; line-height: 24px; color: #1A3060; text-align: left; padding-bottom: 20px;">';
+											$wrapped .= $content;
+
+			$wrapped .= '		
 								</td>
 							</tr>
-						</tbody></table>
+						</table>
 					</td>
 				</tr>
-			</tbody></table>';
+			</table>';
 
-		$footer = '</body></html>';
+			$wrapped .= '</td></tr></tbody></table>
+			<table role="presentation" width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#78262a" style="min-width: 100%; background-image: url(' . $media['wsal-dg-footer-bg'] . '); background-repeat: no-repeat; background-position: top center; background-position-y: -1px;">
+					<tbody><tr>
+						<td width="100%" align="center" style="padding: 105px 0 16px 0;">
+							<a href="https://melapress.com" target="_blank"><img src="' . $media['melapress-icon'] . '" width="42" height="42" border="0" style="display: block;" alt="Melapress"></a>
+						</td>
+					</tr>
+					<tr>
+						<td align="center" style="font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-size: 16px; line-height: 22px; color: #ffffff; padding-top: 25px;" class="footer-text">
+							If you\'re finding Melapress Login Security helpful, consider trying our other plugins:<br> <a href="https://melapress.com/wordpress-2fa/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer" target="_blank" style="color:#ffffff;">WP 2FA</a> and <a href="https://melapress.com/wordpress-login-security/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer" target="_blank" style="color:#ffffff;">WP Activity Log</a>.
+						</td>
+					</tr>
+					<tr>
+						<td width="100%" align="center" style="padding: 16px 0 16px;">
+							<table role="presentation" align="center" width="100%" border="0" cellpadding="0" cellspacing="0">
+								<tbody><tr>
+									<td align="center" style="font-family: \'Helvetica Neue\', Helvetica, Arial, \'Lucida Grande\', sans-serif; font-size: 13px; line-height: 22px; color: #E5EFB0; padding-top: 25px;" class="footer-text">
+										This email was sent by Melapress Login Security - boost WordPress security with login & password policies<br><br>
+										<a href="https://melapress.com/wordpress-activity-log/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer_byline" target="_blank" style="color: #E5EFB0;">Melapress Login Security</a> is developed and maintained by <a href="https://melapress.com/?utm_source=wpal_email&amp;utm_medium=email&amp;utm_campaign=product_email&amp;utm_content=cta_footer_byline" target="_blank" style="color: #E5EFB0;">Melapress</a>.<br><span style="white-space: nowrap;">Melapress Blaak 520 Rotterdam,</span> <span style="white-space: nowrap;">Zuid-Holland 3011 TA Netherlands</span>
+									</td>
+								</tr>
+							</tbody></table>
+						</td>
+					</tr>
+				</tbody></table>';
 
-		return $header . $wrapped . $footer;
-	}
+			$footer = '</body></html>';
 
-	/**
-	 * Return if there is a from-email in the setting or the original passed.
-	 *
-	 * @param string $original_email_from – Original passed.
-	 *
-	 * @return string
-	 *
-	 * @since 2.1.0
-	 */
-	public static function custom_wp_mail_from( $original_email_from ) {
-		$mls        = melapress_login_security();
-		$use_email  = $mls->options->mls_setting->use_custom_from_email;
-		$email_from = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
-		if ( ! empty( $email_from ) && 'custom_email' === $use_email ) {
-			return $email_from;
-		} else {
-			return $original_email_from;
+			return $header . $wrapped . $footer;
 		}
-	}
 
-	/**
-	 * Return if there is a display-name in the setting or the original passed.
-	 *
-	 * @param string $original_email_from_name – Original passed.
-	 *
-	 * @return string
-	 *
-	 * @since 2.1.0
-	 */
-	public static function custom_wp_mail_from_name( $original_email_from_name ) {
-		$mls             = melapress_login_security();
-		$use_email       = $mls->options->mls_setting->use_custom_from_email;
-		$email_from_name = $mls->options->mls_setting->from_display_name;
-		if ( ! empty( $email_from_name ) && 'custom_email' === $use_email ) {
-			return $email_from_name;
-		} else {
-			if ( ! empty( self::get_default_email_address() ) ) {
-				return self::get_default_email_address();
+		/**
+		 * Return if there is a from-email in the setting or the original passed.
+		 *
+		 * @param string $original_email_from – Original passed.
+		 *
+		 * @return string
+		 *
+		 * @since 2.1.0
+		 */
+		public static function custom_wp_mail_from( $original_email_from ) {
+			$mls        = melapress_login_security();
+			$use_email  = $mls->options->mls_setting->use_custom_from_email;
+			$email_from = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : self::get_default_email_address();
+
+			if ( ! empty( $email_from ) && 'custom_email' === $use_email ) {
+				return $email_from;
+			} else {
+				return $original_email_from;
+			}
+		}
+
+		/**
+		 * Return if there is a display-name in the setting or the original passed.
+		 *
+		 * @param string $original_email_from_name – Original passed.
+		 *
+		 * @return string
+		 *
+		 * @since 2.1.0
+		 */
+		public static function custom_wp_mail_from_name( $original_email_from_name ) {
+			$mls             = melapress_login_security();
+			$use_email       = $mls->options->mls_setting->use_custom_from_email;
+			$email_from_name = $mls->options->mls_setting->from_display_name;
+			if ( ! empty( $email_from_name ) && 'custom_email' === $use_email ) {
+				return $email_from_name;
+			} else {
+				if ( ! empty( self::get_default_email_address() ) ) {
+					return self::get_default_email_address();
+				}
+
+				return $original_email_from_name;
+			}
+		}
+
+		/**
+		 * Builds and returns the default email address used for the "from" email address when email is send
+		 *
+		 * @return string
+		 *
+		 * @since 2.1.0
+		 */
+		public static function get_default_email_address(): string {
+			$sitename = \wp_parse_url( \network_home_url(), PHP_URL_HOST );
+
+			$from_email = '';
+
+			if ( null !== $sitename ) {
+				$from_email = 'mls@';
+				if ( \str_starts_with( $sitename, 'www.' ) ) {
+					$sitename = substr( $sitename, 4 );
+				}
+
+				$from_email .= $sitename;
 			}
 
-			return $original_email_from_name;
+			return sanitize_email( $from_email );
 		}
-	}
-
-	/**
-	 * Builds and returns the default email address used for the "from" email address when email is send
-	 *
-	 * @return string
-	 *
-	 * @since 2.1.0
-	 */
-	public static function get_default_email_address(): string {
-		$sitename = \wp_parse_url( \network_home_url(), PHP_URL_HOST );
-
-		$from_email = '';
-
-		if ( null !== $sitename ) {
-			$from_email = 'mls@';
-			if ( \str_starts_with( $sitename, 'www.' ) ) {
-				$sitename = substr( $sitename, 4 );
-			}
-
-			$from_email .= $sitename;
-		}
-
-		return $from_email;
 	}
 }

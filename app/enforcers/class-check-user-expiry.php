@@ -101,6 +101,7 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 		 * @since 2.0.0
 		 */
 		public function ppm_ajax_session_expired() {
+			check_ajax_referer( 'mls_session_expired' );
 			$user_id = get_current_user_id();
 			$this->expire( $user_id );
 			exit;
@@ -170,6 +171,9 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			if ( is_a( $user, '\WP_User' ) ) {
 				// This user is exempt, so lets stop here.
 				if ( \MLS_Core::is_user_exempted( $user->ID ) ) {
+					// An exemption added after the account was flagged leaves the same
+					// stale state behind as switching the policy off does.
+					self::release_expiry_state( $user->ID );
 					return $user;
 				}
 
@@ -178,6 +182,31 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 				$is_feature_active = isset( $role_options->activate_password_expiration_policies ) && OptionsHelper::string_to_bool( $role_options->activate_password_expiration_policies ) ? true : false;
 
 				if ( ! $is_feature_active ) {
+					/*
+					 * Nothing may be refused on behalf of a policy that is switched
+					 * off, including an account expire() flagged while it was still
+					 * on.
+					 *
+					 * This branch used to re-read MLS_PASSWORD_EXPIRED_META_KEY and
+					 * refuse anyway. Turning password expiry off therefore released
+					 * nobody: every account already flagged stayed locked out by a
+					 * policy that no longer existed, each attempt promising a reset
+					 * email that only helps if the site can send mail. The
+					 * expired-passwords report still lists them, but as expired
+					 * rather than as stranded, and offers no way to let them back in.
+					 *
+					 * The refusal was premium-only, but the clean-up is not: the free
+					 * build never refused here, and it should not carry a flag that
+					 * would bite the moment the policy came back on either.
+					 *
+					 * Cleared as the account presents itself rather than swept when
+					 * the policy is saved, because the scope can narrow with no save
+					 * at all: a role change, a new exemption, another role's policy
+					 * taking precedence. The same treatment the "about to expire"
+					 * notice already gives its own flag.
+					 */
+					self::release_expiry_state( $user->ID );
+
 					return $user;
 				}
 
@@ -216,8 +245,70 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 				$user_password['password'] = $user->data->user_pass;
 			}
 
-			// the password is not okay.
-			if ( $password && is_a( $user, '\WP_User' ) && ! wp_check_password( $password, $user_password['password'], $user->ID ) ) {
+			/*
+			 * Matched against the recorded password *or* the one actually on the
+			 * account.
+			 *
+			 * The history entry is checked first and for a good reason: expire()
+			 * replaces `user_pass` with a random value, so a user typing their
+			 * genuine, newly expired password would otherwise be told it was
+			 * wrong instead of that it had expired. That is the case this branch
+			 * exists for.
+			 *
+			 * Checking *only* the history was the mistake. History is written by
+			 * this plugin's own hooks, so any password change that does not go
+			 * through them — `wp_set_password()`, `wp user update --user_pass`,
+			 * another plugin, a direct database edit — leaves the recorded hash
+			 * stale, and the account's real, current password was then refused
+			 * with "the password you entered is incorrect". A security plugin
+			 * locking someone out of their own account with a misleading message,
+			 * and a password reset only helps if the reset path happens to update
+			 * the history too.
+			 *
+			 * Accepting the current password as well cannot weaken anything:
+			 * core's wp_authenticate_username_password() checks it against
+			 * `user_pass` immediately after this filter returns.
+			 */
+			$has_user = is_a( $user, '\WP_User' );
+
+			$password_matches = ! $password || ! $has_user
+				|| wp_check_password( $password, $user_password['password'], $user->ID )
+				|| wp_check_password( $password, $user->data->user_pass, $user->ID );
+
+			/*
+			 * A lock reports itself whatever was typed into the password field.
+			 *
+			 * The expired flag used to be read after the check below, so a wrong
+			 * password produced "the password you entered is incorrect" and the
+			 * expiry was never mentioned: the one account state the person needed
+			 * to know about was the one the login page would not tell them, and a
+			 * typo left them working on the wrong problem. Every other lock in the
+			 * plugin says what it is regardless — failed logins, inactivity and an
+			 * administrator's lock are all reported ahead of any password check,
+			 * and LockMessageWordingTest holds them to it.
+			 *
+			 * Saying the same thing either way is also what keeps this from being
+			 * an oracle: the wording cannot be used to tell a right password from a
+			 * wrong one on a locked account.
+			 */
+
+			// @free:start
+			if ( $has_user && get_user_meta( $user->ID, MLS_PASSWORD_EXPIRED_META_KEY, true ) ) {
+				return new \WP_Error(
+					'password-expired',
+					sprintf(
+						/* translators: %s: user name */
+						__( '<strong>ERROR</strong>: The password you entered for the username %s has expired.', 'melapress-login-security' ),
+						'<strong>' . $user->user_login . '</strong>'
+					) .
+					' <a href="' . wp_lostpassword_url() . '">' .
+					__( 'Get a new password.', 'melapress-login-security' ) .
+					'</a>'
+				);
+			}
+			// @free:end
+
+			if ( ! $password_matches ) {
 				return new \WP_Error(
 					'incorrect_password',
 					sprintf(
@@ -230,26 +321,6 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 					'</a>'
 				);
 			}
-
-
-			// @free:start
-			if ( is_a( $user, '\WP_User' ) ) {
-				// check if it password expired flag is existing.
-				if ( get_user_meta( $user->ID, MLS_PASSWORD_EXPIRED_META_KEY, true ) ) {
-					return new \WP_Error(
-						'password-expired',
-						sprintf(
-							/* translators: %s: user name */
-							__( '<strong>ERROR</strong>: The password you entered for the username %s has expired.', 'melapress-login-security' ),
-							'<strong>' . $user->user_login . '</strong>'
-						) .
-						' <a href="' . wp_lostpassword_url() . '">' .
-						__( 'Get a new password.', 'melapress-login-security' ) .
-						'</a>'
-					);
-				}
-			}
-			// @free:end
 
 			$mls = melapress_login_security();
 			if ( is_a( $user, '\WP_User' ) ) {
@@ -297,6 +368,28 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			// save the last expiry time in an easy to access meta as this is
 			// used/modified by the inactive users feature.
 			$last_expiry = OptionsHelper::set_user_last_expiry_time( current_time( 'timestamp' ), $user_id ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+		}
+
+		/**
+		 * Drop expiry state an account is carrying from a policy that no longer
+		 * applies to it.
+		 *
+		 * Password expiry is enforced by a flag on the account, not by changing the
+		 * password: reset_by_id() records the current password in the history and
+		 * sets MLS_PASSWORD_EXPIRED_META_KEY, and it is that flag the login refuses.
+		 * So removing it is all that releasing an account takes — the password the
+		 * user already has keeps working.
+		 *
+		 * @param int $user_id User ID.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.0
+		 */
+		public static function release_expiry_state( $user_id ) {
+			delete_user_meta( $user_id, MLS_PASSWORD_EXPIRED_META_KEY );
+			delete_user_meta( $user_id, MLS_PREFIX . '_pw_expires_soon' );
+			delete_user_meta( $user_id, MLS_PREFIX . '_pw_expires_soon_notice_dismissed' );
 		}
 
 		/**
@@ -444,10 +537,10 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 		public static function dismiss_password_expiry_soon_notice() {
 			// Grab POSTed data.
 			$nonce   = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : false;
-			$user_id = isset( $_POST['user_id'] ) ? sanitize_text_field( wp_unslash( $_POST['user_id'] ) ) : false;
+			$user_id = get_current_user_id();
 
 			// Check nonce.
-			if ( empty( $nonce ) || ! $nonce || ! wp_verify_nonce( $nonce, 'mls_dismiss_pw_notice_nonce' ) ) {
+			if ( ! $user_id || empty( $nonce ) || ! $nonce || ! wp_verify_nonce( $nonce, 'mls_dismiss_pw_notice_nonce' ) ) {
 				wp_send_json_error( esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 

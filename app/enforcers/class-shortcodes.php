@@ -38,14 +38,14 @@ if ( ! class_exists( '\MLS\Shortcodes' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function init() {
+		public static function init() {
 			// Only load further if needed.
 			if ( ! OptionsHelper::get_plugin_is_enabled() ) {
 				return;
 			}
 
-			add_shortcode( 'ppmwp-custom-form', array( $this, 'custom_form_shortcode' ) );
-			add_shortcode( 'mls-custom-form', array( $this, 'mls_custom_form_shortcode' ) );
+			add_shortcode( 'ppmwp-custom-form', array( __CLASS__, 'custom_form_shortcode' ) );
+			add_shortcode( 'mls-custom-form', array( __CLASS__, 'mls_custom_form_shortcode' ) );
 		}
 
 		/**
@@ -58,7 +58,7 @@ if ( ! class_exists( '\MLS\Shortcodes' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function custom_form_shortcode( $atts ) {
+		public static function custom_form_shortcode( $atts ) {
 			$shortcode_attributes = shortcode_atts(
 				array(
 					'element'          => '',
@@ -83,7 +83,7 @@ if ( ! class_exists( '\MLS\Shortcodes' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function mls_custom_form_shortcode( $atts ) {
+		public static function mls_custom_form_shortcode( $atts ) {
 			$shortcode_attributes = shortcode_atts(
 				array(
 					'element'          => '',

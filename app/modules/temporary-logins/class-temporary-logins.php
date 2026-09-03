@@ -22,7 +22,7 @@ use MLS\Emailer;
  *
  * @since 2.1.0
  */
-if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
+if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 	/**
 	 * Declare SessionsManager Class
@@ -32,6 +32,15 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 	class Temporary_Logins {
 
 		public const TEMP_USER_META_KEY = 'mls_temp_user';
+
+		/** Prefix for the short-lived option used to serialize bearer-token use. */
+		private const LOGIN_LOCK_PREFIX = 'mls_temp_login_lock_';
+
+		/** Failed token lookups allowed from one source address per window. */
+		private const MAX_TOKEN_ATTEMPTS = 20;
+
+		/** How long failed token lookups are counted for, in seconds. */
+		private const TOKEN_ATTEMPT_WINDOW = 15 * MINUTE_IN_SECONDS;
 
 		/**
 		 * Init hooks.
@@ -45,7 +54,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 			\add_action( 'admin_init', array( __CLASS__, 'monitor_admin_actions' ) );
 			\add_action( 'admin_menu', array( __CLASS__, 'replace_admin_link' ), 11 );
 			// Integration: attempt to hook into WP 2FA checks to allow skipping 2FA for temporary users.
-			\add_action( 'init', array( __CLASS__, 'integrate_wp2fa' ) );
+			self::integrate_wp2fa();
 		}
 
 		/**
@@ -142,35 +151,39 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				return;
 			}
 
-			$user_id  = \sanitize_text_field( \wp_unslash( $_REQUEST['user_id'] ) );
+			$user_id  = absint( $_REQUEST['user_id'] );
+			$target   = get_user_by( 'ID', $user_id );
+			if ( ! $target || ! current_user_can( 'edit_user', $user_id ) || ( is_multisite() && is_super_admin( $user_id ) ) || ! self::is_valid_temp_user( $target ) ) {
+				return;
+			}
 			$base_url = \menu_page_url( 'mls-temporary-logins', false );
 
 			if ( 'delete_link' === $_REQUEST['action'] ) {
 
-				if ( self::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
+				if ( self::is_valid_temp_user( $target ) ) {
 
 					self::delete_user( $user_id );
 					add_action( 'admin_notices', array( __CLASS__, 'user_deleted_notice' ) );
 
-					wp_redirect( $base_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+					wp_safe_redirect( $base_url, 302 );
 				}
 				exit();
 
 			} elseif ( 'disable_link' === $_REQUEST['action'] ) {
-				if ( self::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
+				if ( self::is_valid_temp_user( $target ) ) {
 					update_user_meta( $user_id, 'mls_temp_user_expired', self::get_current_gmt_timestamp() );
 					add_action( 'admin_notices', array( __CLASS__, 'user_disabled_notice' ) );
 
-					wp_redirect( $base_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+					wp_safe_redirect( $base_url, 302 );
 				}
 				exit();
 
 			} elseif ( 'enable_link' === $_REQUEST['action'] ) {
-				if ( self::is_valid_temp_user( \get_user_by( 'ID', $user_id ) ) ) {
+				if ( self::is_valid_temp_user( $target ) ) {
 					delete_user_meta( $user_id, 'mls_temp_user_expired' );
 					add_action( 'admin_notices', array( __CLASS__, 'user_reenabled_notice' ) );
 
-					wp_redirect( $base_url, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+					wp_safe_redirect( $base_url, 302 );
 				}
 				exit();
 			}
@@ -303,7 +316,16 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 
 			// Are we currently editing an existing tempoary user?
 			if ( isset( $_GET['user_id'] ) && isset( $_GET['action'] ) && 'edit_link' === $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$user = get_user_by( 'ID', sanitize_text_field( wp_unslash( $_GET['user_id'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$user_id = absint( $_GET['user_id'] );
+				$user    = get_user_by( 'ID', $user_id ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+				if ( ! $user || ! current_user_can( 'edit_user', $user_id ) || ( is_multisite() && is_super_admin( $user_id ) ) || ! self::is_valid_temp_user( $user ) ) {
+					wp_die(
+						esc_html__( 'You cannot edit this temporary login.', 'melapress-login-security' ),
+						esc_html__( 'Permission Denied', 'melapress-login-security' ),
+						array( 'response' => 403 )
+					);
+				}
 
 				$form_values = array(
 					'user_id'                       => $user->ID,
@@ -590,10 +612,46 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 
 			$post_array = filter_input_array( INPUT_POST );
 			$data       = array();
+			$allowed_fields = array(
+				'user_id',
+				'user_first_name',
+				'user_last_name',
+				'user_email',
+				'role',
+				'login_expire',
+				'expire_number',
+				'expire_from_now_denominator',
+				'expire_from_login_number',
+				'expire_from_login_denominator',
+				'custom_date',
+				'custom_time',
+				'max_logins',
+				'login_count',
+				'redirect_to',
+				'locale',
+				'send_email',
+				'skip_2fa',
+				'mls-create-login-nonce',
+				'mls-edit-login-nonce',
+			);
 
-			foreach ( $post_array['form_data'] as $index => $posted_setting ) {
-				$data[ $posted_setting['name'] ] = $posted_setting['value'];
+			if ( empty( $post_array['form_data'] ) || ! is_array( $post_array['form_data'] ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Invalid request.', 'melapress-login-security' ) ) );
 			}
+
+			foreach ( $post_array['form_data'] as $posted_setting ) {
+				if ( ! is_array( $posted_setting ) || ! isset( $posted_setting['name'], $posted_setting['value'] ) || ! is_scalar( $posted_setting['name'] ) || ! is_scalar( $posted_setting['value'] ) ) {
+					continue;
+				}
+
+				$name = sanitize_key( $posted_setting['name'] );
+				if ( in_array( $name, $allowed_fields, true ) ) {
+					$data[ $name ] = $posted_setting['value'];
+				}
+			}
+
+			$data['user_id'] = isset( $data['user_id'] ) ? absint( $data['user_id'] ) : 0;
+			$data            = self::validate_login_data( $data );
 
 			$nonce         = isset( $data['mls-create-login-nonce'] ) ? $data['mls-create-login-nonce'] : false;
 			$edit_nonce    = isset( $data['mls-edit-login-nonce'] ) ? $data['mls-edit-login-nonce'] : false;
@@ -640,6 +698,38 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 		}
 
 		/**
+		 * Allowlist and bound all temporary-login form values.
+		 *
+		 * @param array $data Submitted form values.
+		 * @return array
+		 */
+		private static function validate_login_data( array $data ): array {
+			$expiry_modes = array( 'expire_from_now', 'expire_from_first_use', 'custom_expiry' );
+			$units        = array( 'hour', 'day', 'week', 'month' );
+			$redirects    = array( 'wp_dashboard', 'system_default', 'home_page' );
+
+			$data['login_expire']                  = isset( $data['login_expire'] ) && in_array( $data['login_expire'], $expiry_modes, true ) ? $data['login_expire'] : 'expire_from_now';
+			$data['expire_from_now_denominator']   = isset( $data['expire_from_now_denominator'] ) && in_array( $data['expire_from_now_denominator'], $units, true ) ? $data['expire_from_now_denominator'] : 'day';
+			$data['expire_from_login_denominator'] = isset( $data['expire_from_login_denominator'] ) && in_array( $data['expire_from_login_denominator'], $units, true ) ? $data['expire_from_login_denominator'] : 'day';
+			$data['expire_number']                 = isset( $data['expire_number'] ) ? min( 3650, max( 1, absint( $data['expire_number'] ) ) ) : 1;
+			$data['expire_from_login_number']      = isset( $data['expire_from_login_number'] ) ? min( 3650, max( 1, absint( $data['expire_from_login_number'] ) ) ) : 1;
+			$data['max_logins']                    = isset( $data['max_logins'] ) ? min( 10000, max( 1, absint( $data['max_logins'] ) ) ) : 5;
+			$data['login_count']                   = isset( $data['login_count'] ) ? min( $data['max_logins'], absint( $data['login_count'] ) ) : 0;
+			$data['redirect_to']                   = isset( $data['redirect_to'] ) && in_array( $data['redirect_to'], $redirects, true ) ? $data['redirect_to'] : 'wp_dashboard';
+			$data['custom_date']                   = isset( $data['custom_date'] ) ? sanitize_text_field( $data['custom_date'] ) : '';
+			$data['custom_time']                   = isset( $data['custom_time'] ) ? sanitize_text_field( $data['custom_time'] ) : '';
+
+			if ( 'custom_expiry' === $data['login_expire'] && ( ! preg_match( '/^\d{1,2}\/\d{1,2}\/\d{4}$/', $data['custom_date'] ) || ! preg_match( '/^(?:[01]\d|2[0-3]):[0-5]\d$/', $data['custom_time'] ) ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Please provide a valid expiry date and time.', 'melapress-login-security' ) ) );
+			}
+
+			$locale         = isset( $data['locale'] ) ? sanitize_text_field( $data['locale'] ) : get_locale();
+			$data['locale'] = preg_match( '/^[A-Za-z][A-Za-z0-9_@-]{1,19}$/', $locale ) ? $locale : get_locale();
+
+			return $data;
+		}
+
+		/**
 		 * Create a new user
 		 *
 		 * @param array $data - New user data.
@@ -651,7 +741,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 			$nonce = isset( $data['mls-create-login-nonce'] ) ? $data['mls-create-login-nonce'] : false;
 
 			// Check nonce.
-			if ( ! current_user_can( 'manage_options' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
+			if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'create_users' ) || ! current_user_can( 'promote_users' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
 				wp_send_json_error( array( 'message' => esc_html__( 'Nonce check failed.', 'melapress-login-security' ) ) );
 			}
 
@@ -677,7 +767,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				$time = ! empty( $data['custom_time'] ) ? $data['custom_time'] : '';
 			}
 
-			$max_login_limit = ! empty( $data['max_logins'] ) ? $data['max_logins'] : 5;
+			$max_login_limit = ! empty( $data['max_logins'] ) ? max( 1, absint( $data['max_logins'] ) ) : 5;
 
 			$send_email = ! empty( $data['send_email'] ) ? $data['send_email'] : false;
 
@@ -686,9 +776,13 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 			$first_name  = isset( $data['user_first_name'] ) ? sanitize_text_field( $data['user_first_name'] ) : '';
 			$last_name   = isset( $data['user_last_name'] ) ? sanitize_text_field( $data['user_last_name'] ) : '';
 			$email       = isset( $data['user_email'] ) ? sanitize_email( $data['user_email'] ) : '';
-			$role        = ! empty( $data['role'] ) ? $data['role'] : 'subscriber';
+			$role        = ! empty( $data['role'] ) ? sanitize_key( $data['role'] ) : 'subscriber';
 			$redirect_to = ! empty( $data['redirect_to'] ) ? sanitize_text_field( $data['redirect_to'] ) : 'wp_dashboard';
 			$skip_2fa    = ! empty( $data['skip_2fa'] ) ? 1 : 0;
+
+			if ( ! array_key_exists( $role, get_editable_roles() ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'You cannot assign the requested role.', 'melapress-login-security' ) ) );
+			}
 
 			$user_args = array(
 				'first_name' => $first_name,
@@ -709,39 +803,48 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 
 			} else {
 
-				if ( is_multisite() && ! empty( $data['super_admin'] ) && 'on' === $data['super_admin'] ) {
-					grant_super_admin( $user_id );
-					$sites = get_sites( array( 'deleted' => '0' ) );
-
-					if ( ! empty( $sites ) && count( $sites ) > 0 ) {
-						foreach ( $sites as $site ) {
-							if ( ! is_user_member_of_blog( $user_id, $site->blog_id ) ) {
-								add_user_to_blog( $site->blog_id, $user_id, 'administrator' );
-							}
-						}
-					}
-				}
+				/*
+				 * Temporary accounts must never become network super administrators.
+				 * Even a current super admin can create a normal account and promote it
+				 * later through WordPress's dedicated, audited network-admin workflow.
+				 */
 
 				$locale = ! empty( $data['locale'] ) ? $data['locale'] : 'en_US';
 
 				self::check_and_install_language( $locale );
 
-				update_user_meta( $user_id, self::TEMP_USER_META_KEY, true );
-				update_user_meta( $user_id, 'mls_temp_user_created_on', self::get_current_gmt_timestamp() );
-				update_user_meta( $user_id, 'mls_temp_user_expires_on', self::get_user_expire_time( $expiry_option, $date, $time ) );
-				update_user_meta( $user_id, 'mls_temp_user_expires_on_date', $date );
-				update_user_meta( $user_id, 'mls_temp_user_max_login_limit', $max_login_limit );
-				update_user_meta( $user_id, 'mls_temp_user_token', self::generate_mls_temporary_token( $user_id ) );
-				update_user_meta( $user_id, 'mls_temp_user_redirect_to', $redirect_to );
-				update_user_meta( $user_id, 'mls_temp_user_skip_2fa', $skip_2fa );
+				\update_user_meta( $user_id, self::TEMP_USER_META_KEY, true );
+				\update_user_meta( $user_id, 'mls_temp_user_created_on', self::get_current_gmt_timestamp() );
+				\update_user_meta( $user_id, 'mls_temp_user_expires_on', self::get_user_expire_time( $expiry_option, $date, $time ) );
+				\update_user_meta( $user_id, 'mls_temp_user_expires_on_date', $date );
+				\update_user_meta( $user_id, 'mls_temp_user_max_login_limit', $max_login_limit );
+
+				if ( ! self::store_token( $user_id, self::generate_mls_temporary_token( $user_id ) ) ) {
+					// The token cannot be stored safely, so there is no login to
+					// hand out. Remove the account rather than leave a broken one.
+					if ( ! function_exists( '\wp_delete_user' ) ) {
+						require_once ABSPATH . 'wp-admin/includes/user.php';
+					}
+
+					\wp_delete_user( $user_id );
+
+					$result['errcode'] = 'token_encryption_unavailable';
+					$result['message'] = \esc_html__( 'This site cannot encrypt temporary login tokens, so the temporary login was not created. Enable the PHP sodium or OpenSSL extension and try again.', 'melapress-login-security' );
+
+					return $result;
+				}
+
+				\update_user_meta( $user_id, 'mls_temp_token_created_at', time() );
+				\update_user_meta( $user_id, 'mls_temp_user_redirect_to', $redirect_to );
+				\update_user_meta( $user_id, 'mls_temp_user_skip_2fa', $skip_2fa );
 
 				if ( (bool) $skip_2fa ) {
-					update_user_meta( $user_id, 'wp_2fa_enforcement_state', 'excluded' );
+					\update_user_meta( $user_id, 'wp_2fa_enforcement_state', 'excluded' );
 				} else {
-					delete_user_meta( $user_id, 'wp_2fa_enforcement_state' );
+					\delete_user_meta( $user_id, 'wp_2fa_enforcement_state' );
 				}
-				update_user_meta( $user_id, 'show_welcome_panel', 0 );
-				update_user_meta( $user_id, 'locale', $locale );
+				\update_user_meta( $user_id, 'show_welcome_panel', 0 );
+				\update_user_meta( $user_id, 'locale', $locale );
 
 				if ( $send_email ) {
 					self::send_login_link( sanitize_email( $email ), $user_id );
@@ -791,20 +894,26 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 		 * @since 2.1.0
 		 */
 		public static function update_user( $user_id = 0, $data = array(), $nonce = false ) {
-			if ( ! current_user_can( 'manage_options' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-edit-login' ) || ( 0 === $user_id ) ) {
+			$user_id = absint( $user_id );
+			$target  = get_user_by( 'ID', $user_id );
+			if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'edit_user', $user_id ) || ! current_user_can( 'promote_user', $user_id ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-edit-login' ) || 0 === $user_id || ! $target || ( is_multisite() && is_super_admin( $user_id ) ) || ! self::is_valid_temp_user( $target ) ) {
 				wp_send_json_error( array( 'message' => esc_html__( 'Nonce check failed.', 'melapress-login-security' ) ) );
 			}
 
 			$expiry_option   = ! empty( $data['login_expire'] ) ? $data['login_expire'] : 'expire_from_now';
-			$max_login_limit = ! empty( $data['max_logins'] ) ? $data['max_logins'] : 5;
+			$max_login_limit = ! empty( $data['max_logins'] ) ? max( 1, absint( $data['max_logins'] ) ) : 5;
 			$send_email      = ! empty( $data['send_email'] ) ? $data['send_email'] : false;
 			$first_name      = isset( $data['user_first_name'] ) ? sanitize_text_field( $data['user_first_name'] ) : '';
 			$last_name       = isset( $data['user_last_name'] ) ? sanitize_text_field( $data['user_last_name'] ) : '';
 			$email           = isset( $data['user_email'] ) ? sanitize_email( $data['user_email'] ) : '';
-			$role            = ! empty( $data['role'] ) ? $data['role'] : 'subscriber';
+			$role            = ! empty( $data['role'] ) ? sanitize_key( $data['role'] ) : 'subscriber';
 			$redirect_to     = ! empty( $data['redirect_to'] ) ? sanitize_text_field( $data['redirect_to'] ) : 'wp_dashboard';
 			$login_count     = ! empty( $data['login_count'] ) ? sanitize_text_field( $data['login_count'] ) : 0;
 			$skip_2fa        = ! empty( $data['skip_2fa'] ) ? 1 : 0;
+
+			if ( ! array_key_exists( $role, get_editable_roles() ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'You cannot assign the requested role.', 'melapress-login-security' ) ) );
+			}
 
 			// Grab date depending on desired expiry type.
 			if ( 'expire_from_now' === $expiry_option ) {
@@ -841,9 +950,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				);
 			}
 
-			if ( is_multisite() && ! empty( $data['super_admin'] ) && 'on' === $data['super_admin'] ) {
-				grant_super_admin( $user_id );
-			}
+			// Super-admin promotion is deliberately unavailable to temporary logins.
 
 			$locale = ! empty( $data['locale'] ) ? $data['locale'] : 'en_US';
 
@@ -882,29 +989,232 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 		 *
 		 * @since 2.1.0
 		 */
+		/**
+		 * Meta key holding the login token.
+		 *
+		 * @var string
+		 *
+		 * @since 2.4.0
+		 */
+		const TOKEN_META = 'mls_temp_user_token';
+
+		/**
+		 * Meta key holding the deterministic lookup hash for the token.
+		 *
+		 * The token itself is stored encrypted, and encryption is randomised,
+		 * so the ciphertext cannot be used to find the user. This keyed hash
+		 * can: it is stable for a given token and reveals nothing about it.
+		 *
+		 * @var string
+		 *
+		 * @since 2.4.0
+		 */
+		const TOKEN_LOOKUP_META = 'mls_temp_user_token_lookup';
+
+		/**
+		 * Marker identifying an encrypted token, and its format version.
+		 *
+		 * @var string
+		 *
+		 * @since 2.4.0
+		 */
+		const TOKEN_CIPHER_PREFIX = 'mlsenc1:';
+
+		/**
+		 * Key used to encrypt stored login tokens.
+		 *
+		 * Derived from the site's salts, which live in wp-config.php rather
+		 * than the database — so a leaked database dump, a user-export plugin
+		 * or SQL injection elsewhere on the site yields ciphertext rather than
+		 * working login links.
+		 *
+		 * @return string - 32 raw bytes.
+		 *
+		 * @since 2.4.0
+		 */
+		private static function token_encryption_key() {
+			return hash_hmac( 'sha256', 'mls-temporary-login-token', wp_salt( 'secure_auth' ), true );
+		}
+
+		/**
+		 * Deterministic lookup hash for a raw token.
+		 *
+		 * @param string $token - Raw token.
+		 *
+		 * @return string
+		 *
+		 * @since 2.4.0
+		 */
+		public static function token_lookup_hash( $token ) {
+			return hash_hmac( 'sha256', (string) $token, wp_salt( 'secure_auth' ) );
+		}
+
+		/**
+		 * Encrypt a token for storage.
+		 *
+		 * Returns false when the platform offers neither sodium nor AES-GCM. It
+		 * used to return the raw token instead, which quietly turned a database
+		 * read into a working set of login links — the one thing the encryption
+		 * is for — and did so silently, so nobody would know the protection was
+		 * absent. The compatibility argument for a fallback applies to reading
+		 * tokens issued before 2.4.0, which `decrypt_token()` still handles; it
+		 * does not apply here, where the token being stored is brand new.
+		 *
+		 * In practice this cannot happen: sodium has been bundled with PHP since
+		 * 7.2 and this plugin requires 8.0.
+		 *
+		 * @param string $token - Raw token.
+		 *
+		 * @return string|false Ciphertext, or false if it cannot be encrypted.
+		 *
+		 * @since 2.4.0
+		 */
+		public static function encrypt_token( $token ) {
+			$token = (string) $token;
+			$key   = self::token_encryption_key();
+
+			if ( function_exists( 'sodium_crypto_secretbox' ) ) {
+				$nonce = random_bytes( SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+
+				return self::TOKEN_CIPHER_PREFIX . base64_encode( $nonce . sodium_crypto_secretbox( $token, $nonce, $key ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			}
+
+			if ( function_exists( 'openssl_encrypt' ) && in_array( 'aes-256-gcm', openssl_get_cipher_methods(), true ) ) {
+				$iv     = random_bytes( 12 );
+				$tag    = '';
+				$cipher = openssl_encrypt( $token, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag );
+
+				if ( false !== $cipher ) {
+					return self::TOKEN_CIPHER_PREFIX . base64_encode( $iv . $tag . $cipher ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				}
+			}
+
+			return false;
+		}
+
+		/**
+		 * Decrypt a stored token.
+		 *
+		 * Anything without the marker is treated as a legacy clear text token
+		 * and returned as-is, so links issued before 2.4.0 keep working.
+		 *
+		 * @param string $stored - Stored value.
+		 *
+		 * @return string - Raw token, or empty string when it cannot be read.
+		 *
+		 * @since 2.4.0
+		 */
+		public static function decrypt_token( $stored ) {
+			$stored = (string) $stored;
+
+			if ( '' === $stored || 0 !== strpos( $stored, self::TOKEN_CIPHER_PREFIX ) ) {
+				return $stored;
+			}
+
+			$payload = base64_decode( substr( $stored, strlen( self::TOKEN_CIPHER_PREFIX ) ), true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+
+			if ( false === $payload ) {
+				return '';
+			}
+
+			$key = self::token_encryption_key();
+
+			if ( function_exists( 'sodium_crypto_secretbox_open' ) && strlen( $payload ) > SODIUM_CRYPTO_SECRETBOX_NONCEBYTES ) {
+				$nonce  = substr( $payload, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+				$cipher = substr( $payload, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+				$plain  = sodium_crypto_secretbox_open( $cipher, $nonce, $key );
+
+				if ( false !== $plain ) {
+					return $plain;
+				}
+			}
+
+			if ( function_exists( 'openssl_decrypt' ) && strlen( $payload ) > 28 ) {
+				$iv     = substr( $payload, 0, 12 );
+				$tag    = substr( $payload, 12, 16 );
+				$cipher = substr( $payload, 28 );
+				$plain  = openssl_decrypt( $cipher, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag );
+
+				if ( false !== $plain ) {
+					return $plain;
+				}
+			}
+
+			return '';
+		}
+
+		/**
+		 * Store a token for a user: encrypted value plus its lookup hash.
+		 *
+		 * @param int    $user_id - User the token belongs to.
+		 * @param string $token   - Raw token.
+		 *
+		 * @return bool True when stored; false when the token could not be
+		 *              encrypted, in which case nothing is written.
+		 *
+		 * @since 2.4.0
+		 */
+		public static function store_token( $user_id, $token ) {
+			$ciphertext = self::encrypt_token( $token );
+
+			if ( false === $ciphertext ) {
+				/*
+				 * Fail closed. Storing the token in clear text would make a
+				 * database dump directly usable as a set of login links, so the
+				 * temporary login is left without a usable token instead and the
+				 * caller reports the failure.
+				 */
+				return false;
+			}
+
+			\update_user_meta( (int) $user_id, self::TOKEN_META, $ciphertext );
+			\update_user_meta( (int) $user_id, self::TOKEN_LOOKUP_META, self::token_lookup_hash( $token ) );
+
+			return true;
+		}
+
+		/**
+		 * Raw token for a user, for display in the admin.
+		 *
+		 * @param int $user_id - User to read.
+		 *
+		 * @return string
+		 *
+		 * @since 2.4.0
+		 */
+		public static function get_raw_token( $user_id ) {
+			return self::decrypt_token( \get_user_meta( (int) $user_id, self::TOKEN_META, true ) );
+		}
+
 		public static function generate_mls_temporary_token( $user_id ) {
 			$byte_length = 64;
 
-			if ( function_exists( 'random_bytes' ) ) {
-				try {
-					return bin2hex( random_bytes( $byte_length ) );
-				} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-				}
+			// PHP 7.3+ guarantees random_bytes() availability — no weak fallback needed.
+			return bin2hex( random_bytes( $byte_length ) );
+		}
+
+		/**
+		 * Rotate the temporary login token for a user.
+		 *
+		 * Generates a new token and invalidates the old one. The new login
+		 * link must be retrieved via the admin UI or re-sent via email.
+		 *
+		 * @param int $user_id User ID.
+		 *
+		 * @return bool True when a new token was stored.
+		 *
+		 * @since 2.4.1
+		 */
+		public static function rotate_temporary_token( $user_id ) {
+			if ( ! self::store_token( $user_id, self::generate_mls_temporary_token( $user_id ) ) ) {
+				// The existing token stays in place rather than being replaced by
+				// one that could not be encrypted.
+				return false;
 			}
 
-			if ( function_exists( 'openssl_random_pseudo_bytes' ) ) {
-				$crypto_strong = false;
+			\update_user_meta( $user_id, 'mls_temp_token_created_at', time() );
 
-				$bytes = openssl_random_pseudo_bytes( $byte_length, $crypto_strong );
-				if ( true === $crypto_strong ) {
-					return bin2hex( $bytes );
-				}
-			}
-
-			$str  = $user_id . microtime() . uniqid( '', true );
-			$salt = substr( md5( $str ), 0, 32 );
-
-			return hash( 'sha256', $str . $salt );
+			return true;
 		}
 
 		/**
@@ -915,6 +1225,116 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 		 */
 		public static function get_current_gmt_timestamp() {
 			return strtotime( gmdate( 'Y-m-d H:i:s', time() ) );
+		}
+
+		/**
+		 * Check if current IP is rate limited for token attempts.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.3.0
+		 */
+		private static function is_token_rate_limited() {
+			$attempts = get_transient( self::get_rate_limit_key() );
+
+			return ( ! empty( $attempts ) && (int) $attempts >= self::MAX_TOKEN_ATTEMPTS );
+		}
+
+		/**
+		 * Record a failed token lookup attempt for rate limiting.
+		 *
+		 * Counted per source address only. There used to be a second counter
+		 * keyed on the token being tried, which could not do anything useful: a
+		 * lookup fails only when the token does not exist, so that counter
+		 * recorded attempts against tokens that were never real, and blocking
+		 * further attempts at one wrong guess stops nobody. What it did do was
+		 * let the caller choose the transient name — one new row in the options
+		 * table per distinct string tried — so the guessing that the limit exists
+		 * to stop also filled the database.
+		 *
+		 * @return void
+		 *
+		 * @since 2.3.0
+		 */
+		private static function record_failed_token_attempt() {
+			// Incremented in the store, so parallel guesses each cost an
+			// attempt. See OptionsHelper::increment_counter().
+			\MLS\Helpers\OptionsHelper::increment_counter( self::get_rate_limit_key(), self::TOKEN_ATTEMPT_WINDOW );
+		}
+
+		/**
+		 * Build the rate-limiting transient key for this request's source.
+		 *
+		 * One key per source address, so an attacker cannot choose how many
+		 * counters exist.
+		 *
+		 * @return string Transient key (max 45 chars for WP compat).
+		 *
+		 * @since 2.4.1
+		 */
+		private static function get_rate_limit_key() {
+			// The source address, via the shared resolver.
+			//
+			// The User-Agent used to be part of this key. It is supplied by the
+			// caller, so every distinct value opened a fresh counter and a
+			// single host could exhaust neither the per-token limit nor the
+			// site-wide one simply by varying a header on each request — the
+			// exact bypass the limit exists to prevent. Nothing the client
+			// controls can be part of a rate-limit key; get_client_ip() reads
+			// only REMOTE_ADDR unless the *site* has opted into a trusted-proxy
+			// resolver of its own.
+			$ip = \MLS\Login_Page_Control::get_client_ip();
+			$ip = '' !== $ip ? $ip : 'unknown';
+
+			// Keyed hash so the transient name cannot be predicted; truncated to
+			// fit the transient name limit.
+			$hash = substr( hash_hmac( 'sha256', $ip, wp_salt() ), 0, 20 );
+
+			return 'mls_tkn_att_' . $hash;
+		}
+
+		/**
+		 * Serialize use of a temporary bearer token for one user.
+		 *
+		 * add_option() is an atomic insert, unlike separate user-meta reads and
+		 * writes. A short stale-lock timeout prevents a terminated PHP request
+		 * from making the temporary account unusable indefinitely.
+		 *
+		 * @param int $user_id Temporary user ID.
+		 * @return bool
+		 */
+		private static function acquire_login_lock( $user_id ) {
+			$option_name = self::LOGIN_LOCK_PREFIX . absint( $user_id );
+			$now         = time();
+			$added       = is_multisite() ? add_site_option( $option_name, $now ) : add_option( $option_name, $now, '', false );
+
+			if ( $added ) {
+				return true;
+			}
+
+			$created_at = absint( is_multisite() ? get_site_option( $option_name, 0 ) : get_option( $option_name, 0 ) );
+			if ( $created_at && ( $now - $created_at ) > 30 ) {
+				if ( is_multisite() ) {
+					delete_site_option( $option_name );
+					return add_site_option( $option_name, $now );
+				}
+
+				delete_option( $option_name );
+				return add_option( $option_name, $now, '', false );
+			}
+
+			return false;
+		}
+
+		/** Release a temporary bearer-token lock. */
+		private static function release_login_lock( $user_id ) {
+			$option_name = self::LOGIN_LOCK_PREFIX . absint( $user_id );
+			if ( is_multisite() ) {
+				delete_site_option( $option_name );
+				return;
+			}
+
+			delete_option( $option_name );
 		}
 
 		/**
@@ -994,9 +1414,15 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 		 */
 		public static function random_username( $length = 10 ) {
 			$characters      = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+			$last_index      = strlen( $characters ) - 1;
 			$random_username = '';
+
 			for ( $i = 0; $i < $length; $i++ ) {
-				$random_username .= $characters[ rand( 0, strlen( $characters ) ) ]; // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
+				// wp_rand() rather than rand(): predictable temporary-account
+				// names help an attacker find them. The upper bound is the last
+				// index, not the length — rand( 0, strlen() ) could return one
+				// past the end, which yields an empty string and a warning.
+				$random_username .= $characters[ wp_rand( 0, $last_index ) ];
 			}
 
 			return sanitize_user( strtolower( $random_username ), true );
@@ -1061,10 +1487,13 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				AND     (
 			';
 
-			$sql     .= ' ' . $wpdb->usermeta . '.meta_key    =   \'' . self::TEMP_USER_META_KEY . '\' ';
+			$sql     .= ' ' . $wpdb->usermeta . '.meta_key = %s ';
 			$sql     .= ' ) ';
 			$sql     .= ' ORDER BY ID ';
-			$user_ids = $wpdb->get_col( $sql ); // phpcs:ignore
+
+			// Table names are trusted $wpdb properties and cannot be placeholders;
+			// the meta key is the only value, and it is prepared.
+			$user_ids = $wpdb->get_col( $wpdb->prepare( $sql, self::TEMP_USER_META_KEY ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 
 			return $user_ids;
 		}
@@ -1088,7 +1517,9 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				return '';
 			}
 
-			$mls_temp_user_token = get_user_meta( $user_id, 'mls_temp_user_token', true );
+			// Decrypted on demand so the admin can still copy the link or send
+			// it again — the stored form is ciphertext.
+			$mls_temp_user_token = self::get_raw_token( $user_id );
 			if ( empty( $mls_temp_user_token ) ) {
 				return '';
 			}
@@ -1133,6 +1564,10 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 		 * @since 2.1.2
 		 */
 		public static function is_valid_temp_user( $user ): bool {
+			if ( ! is_object( $user ) || empty( $user->ID ) ) {
+				return false;
+			}
+
 			$check = \get_user_meta( $user->ID, self::TEMP_USER_META_KEY, true );
 
 			if ( $check ) {
@@ -1156,20 +1591,48 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				return false;
 			}
 
-			$meta_key = 'mls_temp_user_token';
-
+			// Look up by the keyed hash. The token itself is stored encrypted
+			// with a randomised nonce, so the ciphertext is different every
+			// time and cannot be matched on.
 			$users = \get_users(
 				array(
-					'meta_key'   => $meta_key,
-					'meta_value' => $token,
+					'meta_key'   => self::TOKEN_LOOKUP_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value' => self::token_lookup_hash( $token ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+					'number'     => 1,
 				)
 			);
 
-			if ( empty( $users ) ) {
+			if ( ! empty( $users ) ) {
+				return $users[0];
+			}
+
+			// Links issued before 2.4.0 stored the token in clear text and have
+			// no lookup hash. Honour them once, and convert the account as we
+			// go so the clear text does not survive the visit.
+			//
+			// The stored ciphertext is explicitly not accepted here. Without
+			// this guard the legacy equality lookup matches the stored value
+			// itself, which would make a database dump directly usable as a
+			// login link — the very thing the encryption is for.
+			if ( 0 === strpos( (string) $token, self::TOKEN_CIPHER_PREFIX ) ) {
 				return false;
 			}
 
-			return $users[0];
+			$legacy = \get_users(
+				array(
+					'meta_key'   => self::TOKEN_META, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+					'meta_value' => $token, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+					'number'     => 1,
+				)
+			);
+
+			if ( empty( $legacy ) ) {
+				return false;
+			}
+
+			self::store_token( $legacy[0]->ID, $token );
+
+			return $legacy[0];
 		}
 
 		/**
@@ -1184,7 +1647,34 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 		public static function manage_temporary_logins() {
 			if ( ! empty( $_GET['mls_temp_user_token'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$mls_temp_user_token = \sanitize_key( $_GET['mls_temp_user_token'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$user                = self::get_valid_user_based_on_token( $mls_temp_user_token );
+
+				// Rate limit token attempts to prevent brute force.
+				if ( self::is_token_rate_limited() ) {
+					\wp_die(
+						\esc_html__( 'Too many login attempts. Please try again later.', 'melapress-login-security' ),
+						\esc_html__( 'Rate Limited', 'melapress-login-security' ),
+						array( 'response' => 429 )
+					);
+				}
+
+				$user = self::get_valid_user_based_on_token( $mls_temp_user_token );
+
+				/*
+				 * There used to be a `usleep( wp_rand( 50000, 150000 ) )` here,
+				 * described as a constant-time delay. A random delay is not
+				 * constant time and does not remove a timing signal — averaging
+				 * repeated samples recovers it. What it did do was hold a PHP
+				 * worker for up to 150ms per request, so anyone could tie up the
+				 * pool with unauthenticated requests far more cheaply than they
+				 * could measure the timing difference it was meant to hide. The
+				 * rate limit above is the defence that works; the token is 128
+				 * hex characters, so there is nothing here worth guessing at.
+				 */
+
+				// Track failed token attempts.
+				if ( empty( $user ) || \is_wp_error( $user ) ) {
+					self::record_failed_token_attempt();
+				}
 
 				$temporary_user = '';
 				if ( ! empty( $user ) && ! \is_wp_error( $user ) ) {
@@ -1193,6 +1683,13 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 
 				if ( ! empty( $temporary_user ) ) {
 					$temporary_user_id = $temporary_user->ID;
+					if ( ! self::acquire_login_lock( $temporary_user_id ) ) {
+						\wp_die(
+							\esc_html__( 'This temporary login is already being used. Please try again.', 'melapress-login-security' ),
+							\esc_html__( 'Login In Progress', 'melapress-login-security' ),
+							array( 'response' => 409 )
+						);
+					}
 					$do_login          = true;
 					$do_login          = apply_filters( 'mls_temporary_login_pre_check', $do_login, $temporary_user_id );
 
@@ -1206,13 +1703,35 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 					}
 
 					if ( $do_login ) {
-						$temporary_user_login = $temporary_user->login;
+						self::integrate_wp2fa();
+
+						// user_login, not login. WP_User has no `login` property and it is
+						// not in $back_compat_keys, so __get() fell through to
+						// get_user_meta( $ID, 'login' ) and returned an empty string,
+						// which was then handed to the wp_login action — so every
+						// temporary-login event reached audit logging with no username.
+						$temporary_user_login = $temporary_user->user_login;
 
 						if ( self::is_login_expired( $temporary_user_id ) ) {
+							self::record_failed_token_attempt( $mls_temp_user_token );
+							self::release_login_lock( $temporary_user_id );
 							\wp_safe_redirect( home_url() );
 							exit();
 						}
 
+						// Check absolute token lifetime (90 days max regardless of user expiry).
+						$token_created = \get_user_meta( $temporary_user_id, 'mls_temp_token_created_at', true );
+						$max_token_lifetime = 90 * DAY_IN_SECONDS;
+						if ( ! empty( $token_created ) && ( time() - absint( $token_created ) ) > $max_token_lifetime ) {
+							// Token has exceeded maximum lifetime — regenerate and redirect.
+							self::rotate_temporary_token( $temporary_user_id );
+							self::release_login_lock( $temporary_user_id );
+							\wp_safe_redirect( \home_url() );
+							exit();
+						}
+
+						// Consume the bearer URL before issuing a session cookie.
+						self::rotate_temporary_token( $temporary_user_id );
 						\update_user_meta( $temporary_user_id, 'mls_last_login', self::get_current_gmt_timestamp() );
 						\wp_set_current_user( $temporary_user_id, $temporary_user_login );
 						\wp_set_auth_cookie( $temporary_user_id );
@@ -1227,6 +1746,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 						}
 
 						\update_user_meta( $temporary_user_id, $login_count_key, $login_count );
+
 						\do_action( 'wp_login', $temporary_user_login, $temporary_user );
 						\do_action( 'mls_after_login_success', $temporary_user_id );
 					}
@@ -1234,6 +1754,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 					$request_uri     = self::get_request_uri();
 					$redirect_to_url = \apply_filters( 'mls_login_redirect', apply_filters( 'login_redirect', network_site_url( remove_query_arg( 'mls_temp_user_token', $request_uri ) ), false, $temporary_user ), $temporary_user );
 
+					self::release_login_lock( $temporary_user_id );
 				} else {
 					// User not found.
 					$redirect_to_url = \home_url();
@@ -1307,7 +1828,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				return true;
 			}
 
-			if ( $login_count > $login_limit ) {
+			if ( $login_limit && $login_count >= $login_limit ) {
 				update_user_meta( $user_id, 'mls_temp_user_expired', self::get_current_gmt_timestamp() );
 				return true;
 			}
@@ -1389,7 +1910,7 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 			$args    = array( 'temporary_login_link' => '<a href="' . esc_url( $link ) . '">' . esc_html__( 'by clicking here', 'melapress-login-security' ) . '</a>' );
 			$message = \MLS\EmailAndMessageStrings::replace_email_strings( $message, $email_user_id, $args );
 
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', wp_parse_url( network_site_url(), PHP_URL_HOST ) );
+			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
 
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
@@ -1423,14 +1944,16 @@ if ( ! class_exists( '\MLS\Temporary_Logins' ) ) {
 				return;
 			}
 
+			// Network super administrators are never managed by the temporary-login
+			// workflow, including legacy temporary accounts created by older builds.
+			if ( is_multisite() && is_super_admin( $user_id ) ) {
+				return false;
+			}
+
 			$delete_user = \wp_delete_user( $user_id, get_current_user_id() );
 
 			// Handle networks.
 			if ( is_multisite() ) {
-				if ( is_super_admin( $user_id ) ) {
-					revoke_super_admin( $user_id );
-				}
-
 				$delete_user = wpmu_delete_user( $user_id );
 			}
 

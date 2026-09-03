@@ -104,9 +104,13 @@ jQuery( document ).ready( function() {
 							},
 							success: function ( result ) {
 								if ( result.success ) {
-									jQuery( thisElem ).append( '<span class="user-import-result" data-new-user-id="'+ result.data.user_created +'"> User ID ' + result.data.user_created + ' Created. <a target="_blank" href="' + result.data.user_link + '">View Profile</a></span>' );
+									var $resultSpan = jQuery( '<span>' ).addClass( 'user-import-result' ).attr( 'data-new-user-id', result.data.user_created );
+									$resultSpan.text( ' User ID ' + result.data.user_created + ' Created. ' );
+									$resultSpan.append( jQuery( '<a>' ).attr({ target: '_blank', href: result.data.user_link }).text( 'View Profile' ) );
+									jQuery( thisElem ).append( $resultSpan );
 								} else if ( jQuery( '[data-new-user-id="'+ result.data.user_exists +'"]' ).length == 0 ) {
-									jQuery( thisElem ).append( '<span class="user-import-result error" data-new-user-id="'+ result.data.user_exists +'">Username exists</span>' );
+									var $errorSpan = jQuery( '<span>' ).addClass( 'user-import-result error' ).attr( 'data-new-user-id', result.data.user_exists ).text( 'Username exists' );
+									jQuery( thisElem ).append( $errorSpan );
 								}
 							}
 						});
@@ -126,8 +130,14 @@ jQuery( document ).ready( function() {
 					jQuery( csvArray ).each(function(index, value) {					
 						jQuery( '#wpws-users-file-output' ).append( '<li></li>' );
 						jQuery( value ).each( function( index, value ) {
-							var dataAttr = index > 0 ? "data-email-address='"+ value.replace(/\"/g,'') +"'" : "data-username='"+ value.replace(/\"/g,'') +"'" ;
-							jQuery( '#wpws-users-file-output li:last-of-type').append( '<span class="label" ' + dataAttr.replace(/\"/g,'') + '>' + value.replace(/\"/g,'') + '</span>' );
+							var cleanValue = value.replace(/"/g, '');
+							var $span = jQuery( '<span>' ).addClass( 'label' ).text( cleanValue );
+							if ( index > 0 ) {
+								$span.attr( 'data-email-address', cleanValue );
+							} else {
+								$span.attr( 'data-username', cleanValue );
+							}
+							jQuery( '#wpws-users-file-output li:last-of-type' ).append( $span );
 						});
 					});
 	

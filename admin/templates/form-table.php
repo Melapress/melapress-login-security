@@ -154,7 +154,7 @@ use MLS\Helpers\OptionsHelper;
 			?>
 			<input type="number" id="ppm-expiry-value" name="mls_options[password_expiry][value]"
 					value="<?php echo esc_attr( self::$setting_tab->password_expiry['value'] ); ?>" size="4" class="tiny-text ltr" min="0" required>
-			<select id="ppm-expiry-unit" name="mls_options[password_expiry][unit]">
+			<select id="mls-password-expiry-unit" class="mls-expiry-unit" name="mls_options[password_expiry][unit]" aria-label="<?php esc_attr_e( 'Password expiry unit', 'melapress-login-security' ); ?>">
 				<?php
 				foreach ( $units as $key => $unit ) {
 					?>
@@ -263,6 +263,10 @@ use MLS\Helpers\OptionsHelper;
 					<p class="description">
 						<?php esc_html_e( 'Enable this setting to force new users to reset their password the first time they login.', 'melapress-login-security' ); ?>
 					</p>
+					<p class="description">
+						<strong><?php esc_html_e( 'Note:', 'melapress-login-security' ); ?></strong>
+						<?php esc_html_e( 'While a user still has a pending password reset, the security question prompt is not offered on the login page. If such a user is locked out by the failed login policy, they cannot unlock the account themselves and an administrator has to unlock it for them.', 'melapress-login-security' ); ?>
+					</p>
 				</label>
 			</fieldset>
 		</td>
@@ -291,15 +295,10 @@ use MLS\Helpers\OptionsHelper;
 			<div class="disabled-reset-message-wrapper disabled" style="margin-top: 10px;">
 				<p class="description" style="margin-bottom: 10px; display: block;">
 					<?php
-						$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notices templates', 'ppw-wp' ) . '</a>';
+						$messages_settings = '<a href="' . add_query_arg( 'page', 'mls-settings#message-settings', network_admin_url( 'admin.php' ) ) . '"> ' . __( 'User notices templates', 'melapress-login-security' ) . '</a>';
 					?>
 					<?php echo wp_kses_post( wp_sprintf( /* translators: %s: Link to plugin settings. */  __( 'To customize the notification displayed to users, please visit the %s plugin settings.', 'melapress-login-security' ), $messages_settings ) ); ?>
 				</p>
 			</div>
 		</td>
 	</tr>
-	
-	<?php
-		$additional = apply_filters( 'ppm_settings_additional_settings', '', self::$setting_tab );
-		echo wp_kses( $additional, OptionsHelper::get_allowed_kses_args() );
-	?>

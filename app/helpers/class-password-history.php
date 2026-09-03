@@ -40,13 +40,13 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function hook() {
-			add_action( 'user_register', array( $this, 'user_register' ) );
-			add_action( 'invite_user', array( $this, 'ppm_invite_user' ), 10, 3 );
-			add_action( 'profile_update', array( $this, 'user_register' ) );
+		public static function hook() {
+			add_action( 'user_register', array( __CLASS__, 'user_register' ) );
+			add_action( 'invite_user', array( __CLASS__, 'ppm_invite_user' ), 10, 3 );
+			add_action( 'profile_update', array( __CLASS__, 'user_register' ) );
 
 			// Custom additional hook for users with bespoke processes for creating users.
-			add_action( 'mls_apply_forced_reset_usermeta', array( $this, 'apply_forced_reset_usermeta' ) );
+			add_action( 'mls_apply_forced_reset_usermeta', array( __CLASS__, 'apply_forced_reset_usermeta' ) );
 		}
 
 		/**
@@ -56,10 +56,37 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function after_password_reset() {
+		public static function after_password_reset() {
 			// update password history when user resets password manually.
-			add_action( 'password_reset', array( $this, 'reset_by_user' ), 10, 2 );
-			add_action( 'after_password_reset', array( $this, 'reset_by_user' ), 10, 2 );
+			add_action( 'password_reset', array( __CLASS__, 'reset_by_user' ), 10, 2 );
+			add_action( 'after_password_reset', array( __CLASS__, 'reset_by_user' ), 10, 2 );
+		}
+
+		/**
+		 * How many former passwords this account is meant to be held to.
+		 *
+		 * Reads the policy that applies to the account, matching
+		 * Password_Check::is_old_password(), and falls back to the site-wide value
+		 * when there is no user to resolve a policy from.
+		 *
+		 * @param int $user_id User ID.
+		 *
+		 * @return int
+		 *
+		 * @since 2.4.0
+		 */
+		private static function history_depth_for_user( $user_id ) {
+			$user = get_user_by( 'id', $user_id );
+
+			if ( $user instanceof \WP_User ) {
+				$role_options = \MLS\Helpers\OptionsHelper::get_preferred_role_options( $user->roles );
+
+				if ( \property_exists( $role_options, 'password_history' ) ) {
+					return (int) $role_options->password_history;
+				}
+			}
+
+			return (int) melapress_login_security()->options->password_history;
 		}
 
 		/**
@@ -67,14 +94,16 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @param  integer $user_id User ID.
 		 * @param  array   $password_event An array of the password and it's timestamp.
+		 * @param  string  $plain_password The new password in plain text, where the
+		 *                                 caller has it. Used only to recognise a
+		 *                                 password already recorded under a
+		 *                                 different salt.
 		 *
 		 * @return boolean True on success, false if failed
 		 *
 		 * @since 2.0.0
 		 */
-		public static function push( $user_id, $password_event ) {
-			$mls = melapress_login_security();
-
+		public static function push( $user_id, $password_event, $plain_password = '' ) {
 			// Not for temp users.
 			if ( isset( $_REQUEST['action'] ) && 'mls_create_login_link' === $_REQUEST['action'] ) {
 				return true;
@@ -94,10 +123,27 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 				return true;
 			}
 
-			// Ensure we don't store repeat requests.
-			foreach ( $password_history as $event ) {
-				$diff = abs( $password_event['timestamp'] - $event['timestamp'] );
-				if ( $diff < 10 ) {
+			/*
+			 * Skip a password that is already the newest entry.
+			 *
+			 * reset_by_user() is hooked to both `password_reset` and
+			 * `after_password_reset`, so a single reset_password() call records the
+			 * same password twice, and the comparison above cannot see it:
+			 * wp_hash_password() salts every call, so two hashes of one password
+			 * never match as strings.
+			 *
+			 * This used to be handled by dropping any event landing within ten
+			 * seconds of an existing one, which also dropped genuinely different
+			 * passwords. Two resets in quick succession left the second password
+			 * unrecorded — so it was absent from the history, reusable for good, and
+			 * the account's own current password was not in its history at all.
+			 * Only the caller with the plaintext in hand can tell the two cases
+			 * apart, so it passes it in.
+			 */
+			if ( '' !== $plain_password && $password_history ) {
+				$newest = $password_history[ array_key_last( $password_history ) ];
+
+				if ( ! empty( $newest['password'] ) && wp_check_password( $plain_password, $newest['password'], $user_id ) ) {
 					return true;
 				}
 			}
@@ -105,10 +151,27 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			// push new event to the end of it.
 			array_push( $password_history, $password_event );
 
-			// trim to the right size by.
-			// we're technically saving the latest password + the required history.
-			$length               = (int) $mls->options->password_history + 1;
-			$new_password_history = array_slice( $password_history, - (int) $mls->options->password_history, $length );
+			/*
+			 * Trim to the depth that will be read back.
+			 *
+			 * The depth comes from the policy that applies to this account, because
+			 * that is the one is_old_password() consults. Trimming by the site-wide
+			 * value instead meant a role with a deeper history than the site was
+			 * quietly held to the site's depth: authors told to remember four
+			 * passwords had all but the site's one thrown away before anything could
+			 * compare against them.
+			 *
+			 * Both ends of the slice have to be $length. A negative offset counts
+			 * back from the end, so an offset of -depth could only ever yield depth
+			 * entries however long the slice asked for: one of them is the password
+			 * the account is using now, leaving depth - 1 former passwords to
+			 * compare against, and none at all at a depth of 1. is_old_password()
+			 * reads back depth + 1 for exactly this reason. What gets stored is the
+			 * current password plus the required history, which is what the comment
+			 * this replaced always claimed.
+			 */
+			$length               = self::history_depth_for_user( $user_id ) + 1;
+			$new_password_history = array_slice( $password_history, - $length, $length );
 
 			// save it.
 			return update_user_meta( $user_id, MLS_PW_HISTORY_META_KEY, $new_password_history );
@@ -128,9 +191,8 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function reset_by_user( $user, $new_pass ) {
+		public static function reset_by_user( $user, $new_pass ) {
 
-			$mls = melapress_login_security();
 
 			// create a password event.
 			$password_event = array(
@@ -141,7 +203,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			);
 
 			// push current password to password history of the user.
-			self::push( $user->ID, $password_event );
+			self::push( $user->ID, $password_event, $new_pass );
 
 			update_user_meta( $user->ID, MLS_PREFIX . '_user_has_manually_reset', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 
@@ -160,7 +222,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 
 
 			// Destroy user session.
-			$mls->ppm_user_session_destroy( $user->ID );
+			\MLS_Core::ppm_user_session_destroy( $user->ID );
 		}
 
 		/**
@@ -172,7 +234,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function user_register( $user_id ) {
+		public static function user_register( $user_id ) {
 
 			$userdata = get_userdata( $user_id );
 			$password = $userdata->user_pass;
@@ -212,18 +274,18 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 						if ( ! is_wp_error( $key ) ) {
 							update_user_meta( $user_id, MLS_NEW_USER_META_KEY, $key );
 						}
-					} elseif ( $this->get_first_login_policy( $userdata->ID ) ) {
+					} elseif ( self::get_first_login_policy( $userdata->ID ) ) {
 							// Double check we are not doing profile_update to avoid
 							// https://github.com/WPWhiteSecurity/password-policy-manager/issues/239.
 						if ( ! doing_action( 'profile_update' ) ) {
-							$this->apply_forced_reset_usermeta( $user_id );
+							self::apply_forced_reset_usermeta( $user_id );
 						}
 					}
 				} else {
-					// if ( $this->get_first_login_policy( $user_id ) ) {
-					// 	$this->apply_forced_reset_usermeta( $user_id );
+					// if ( self::get_first_login_policy( $user_id ) ) {
+					// 	self::apply_forced_reset_usermeta( $user_id );
 					// }
-					add_action( 'retrieve_password_key', array( $this, 'ppm_retrieve_password_key' ), 10, 2 );
+					add_action( 'retrieve_password_key', array( __CLASS__, 'ppm_retrieve_password_key' ), 10, 2 );
 				}
 			}
 		}
@@ -256,9 +318,9 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_retrieve_password_key( $user_login, $key ) {
+		public static function ppm_retrieve_password_key( $user_login, $key ) {
 			$user = get_user_by( 'login', $user_login );
-			if ( $this->get_first_login_policy( $user->ID ) ) {
+			if ( self::get_first_login_policy( $user->ID ) ) {
 				update_user_meta( $user->ID, MLS_NEW_USER_META_KEY, $key );
 			}
 		}
@@ -273,7 +335,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function get_first_login_policy( $user_id = 0, $roles = array() ) {
+		public static function get_first_login_policy( $user_id = 0, $roles = array() ) {
 			$mls             = melapress_login_security();
 			$default_options = isset( $mls->options->inherit['master_switch'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $mls->options->inherit['master_switch'] ) ? $mls->options->inherit : array();
 			if ( ! is_multisite() || ! doing_action( 'invite_user' ) ) {
@@ -320,7 +382,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function ppm_invite_user( $user_id, $role, $newuser_key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		public static function ppm_invite_user( $user_id, $role, $newuser_key ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 			$userdata       = get_userdata( $user_id );
 			$password       = $userdata->user_pass;
 			$password_event = array(
@@ -331,7 +393,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			);
 			self::push( $user_id, $password_event );
 			// If check current running action `profile_update`.
-			if ( $this->get_first_login_policy( '', $role ) ) {
+			if ( self::get_first_login_policy( '', $role ) ) {
 				$key = get_password_reset_key( $userdata );
 				update_user_meta( $user_id, MLS_NEW_USER_META_KEY, $key );
 			}
@@ -346,7 +408,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function apply_forced_reset_usermeta( $user_id ) {
+		public static function apply_forced_reset_usermeta( $user_id ) {
 			$userdata = get_userdata( $user_id );
 			$key      = get_password_reset_key( $userdata );
 			if ( isset( $key ) && ! is_wp_error( $key ) ) {

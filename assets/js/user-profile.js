@@ -1,32 +1,10 @@
 /* global ajaxurl, pws_l10n, user_profile_l10n */
 
 /**
- * A polyfill to add array.prototype.find since it's unavailable on IE.
- *
+ * Array.prototype.find polyfill removed — all supported browsers (2020+) ship
+ * this natively. Keeping the original reference for posterity:
  * @link https://github.com/jsPolyfill/Array.prototype.find/blob/master/find.js
- * @licence Used under MIT licence.
  */
-Array.prototype.find = Array.prototype.find || function(callback) {
-	// NOTE: these are error strings directly from origin, moved to a function
-	// that can translate them but otherwise left as-is.
-	if ( this === null ) {
-		throw new TypeError( user_profile_l10n.polyfill.calledOnNull );
-	} else if ( typeof callback !== 'function' ) {
-		throw new TypeError( user_profile_l10n.polyfill.callbackNotFunction );
-	}
-
-	// Setup the interim object.
-	var list = Object( this );
-	// Makes sures is always has an positive integer as length.
-	var length  = list.length >>> 0;
-	var thisArg = arguments[1];
-	for ( var i = 0; i < length; i++ ) {
-		var element = list[i];
-		if ( callback.call( thisArg, element, i, list ) ) {
-			return element;
-		}
-	}
-};
 
 /* Taken from WP 5.7 wp-admin/js/user-profile.js */
 (function($) {

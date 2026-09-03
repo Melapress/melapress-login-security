@@ -100,7 +100,35 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 											'Saturday',
 										);
 										foreach ( $days as $day ) {
-											echo '<option value="' . esc_attr( strtolower( $day ) ) . '" ' . selected( strtolower( $day ), self::$options->mls_setting->send_summary_email_day, false ) . '>' . wp_kses_post( $day ) . '</option>';
+											/*
+											 * Both sides lowercased.
+											 *
+											 * The option values are written lowercase, but the
+											 * stored setting is only lowercase once it has been
+											 * saved through this form — the shipped default is
+											 * 'Sunday', so 'sunday' !== 'Sunday' and nothing was
+											 * ever marked selected. That went unnoticed because
+											 * Sunday is the first option and the browser shows it
+											 * anyway; with any other capitalised value stored the
+											 * dropdown would show Sunday while the cron ran on the
+											 * real day.
+											 */
+											$selected_day = isset( self::$options->mls_setting->send_summary_email_day )
+												? strtolower( (string) self::$options->mls_setting->send_summary_email_day )
+												: '';
+
+											/*
+											 * Nothing stored means the cron falls back to Sunday
+											 * (see Summary_Email), so mark Sunday rather than
+											 * leaving the browser to display the first option and
+											 * happen to be right — which is the same reliance on
+											 * luck that hid this bug.
+											 */
+											if ( '' === $selected_day ) {
+												$selected_day = 'sunday';
+											}
+
+											echo '<option value="' . esc_attr( strtolower( $day ) ) . '" ' . selected( strtolower( $day ), $selected_day, false ) . '>' . wp_kses_post( $day ) . '</option>';
 										}
 										?>
 									</select>
@@ -114,17 +142,12 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 						<tr>
 							<th>
-								<?php esc_html_e( 'Users exempted from all password policies', 'melapress-login-security' ); ?>
+								<?php esc_html_e( 'Users in this list will be exempted from all the policies.', 'melapress-login-security' ); ?>
 							</th>
 							<td>
 								<fieldset>
 									<input type="text" id="ppm-exempted" style="float: left; display: block; width: 250px;">
 									<input type="hidden" id="ppm-exempted-users" name="mls_options[exempted][users]" value="<?php echo ( isset( self::$options->mls_setting->exempted['users'] ) && ! empty( self::$options->mls_setting->exempted['users'] ) ) ? esc_attr( htmlentities( wp_json_encode( self::$options->mls_setting->exempted['users'] ), ENT_QUOTES, 'UTF-8' ) ) : ''; ?>">
-									<p class="description" style="clear:both;">
-										<?php
-										esc_html_e( 'Users in this list will be exempted from all the policies.', 'melapress-login-security' );
-										?>
-									</p>
 									<ul id="ppm-exempted-list">
 										<?php
 										if ( isset( self::$options->mls_setting->exempted['users'] ) && is_array( self::$options->mls_setting->exempted['users'] ) ) {
@@ -142,6 +165,45 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 										}
 										?>
 									</ul>
+									<?php
+									/*
+									 * What an exemption actually costs, listed only when the
+									 * list has somebody in it.
+									 *
+									 * Shown unconditionally, this is a wall of consequences for
+									 * a feature most sites never use. It is hidden here when the
+									 * list is empty and revealed by the script as soon as
+									 * somebody is added, so the warning appears exactly when it
+									 * becomes true of this site.
+									 *
+									 * The initial state is decided in PHP rather than left to
+									 * the script, so the list does not flash into view on load
+									 * and then disappear.
+									 */
+									$mls_has_exempted_users = isset( self::$options->mls_setting->exempted['users'] )
+										&& is_array( self::$options->mls_setting->exempted['users'] )
+										&& ! empty( self::$options->mls_setting->exempted['users'] );
+
+									$mls_exemption_effects = array(
+										__( 'Password rules', 'melapress-login-security' )      => __( 'can set any password, ignoring your length and character requirements.', 'melapress-login-security' ),
+										__( 'Password history', 'melapress-login-security' )    => __( 'can reuse an earlier password.', 'melapress-login-security' ),
+										__( 'Password expiry', 'melapress-login-security' )     => __( 'is never asked to change an expired password.', 'melapress-login-security' ),
+										__( 'Reset all passwords', 'melapress-login-security' ) => __( 'password and active sessions are left untouched when you use this button.', 'melapress-login-security' ),
+										__( 'Failed login lockout', 'melapress-login-security' ) => __( 'is never locked out after repeated failed login attempts.', 'melapress-login-security' ),
+										__( 'Inactivity lockout', 'melapress-login-security' )  => __( 'is never locked for being inactive.', 'melapress-login-security' ),
+										__( 'Timed logins', 'melapress-login-security' )        => __( 'can log in at any time, including outside permitted hours.', 'melapress-login-security' ),
+										__( 'IP restrictions', 'melapress-login-security' )     => __( 'can log in from any IP address, and logins are not added to their remembered IPs.', 'melapress-login-security' ),
+										__( 'Username or email', 'melapress-login-security' )   => __( 'can sign in with either, whichever one you have restricted.', 'melapress-login-security' ),
+										__( 'Security questions', 'melapress-login-security' )  => __( 'is never prompted to answer them.', 'melapress-login-security' ),
+									);
+									?>
+									<div id="mls-exemption-effects" style="clear: both;<?php echo $mls_has_exempted_users ? '' : ' display: none;'; ?>">
+										<ul>
+											<?php foreach ( $mls_exemption_effects as $mls_effect_name => $mls_effect_text ) : ?>
+												<li><b><?php echo esc_html( $mls_effect_name ); ?></b> &mdash; <?php echo esc_html( $mls_effect_text ); ?></li>
+											<?php endforeach; ?>
+										</ul>
+									</div>
 								</fieldset>
 							</td>
 						</tr>						
@@ -248,31 +310,42 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 
 									$saved_order = ( isset( self::$options->mls_setting->multiple_role_order ) && ! empty( self::$options->mls_setting->multiple_role_order ) ) ? self::$options->mls_setting->multiple_role_order : array();
 
-									// Newly added roles.
-									$new_roles = array_diff( array_values( $role_names ), $saved_order );
-									if ( ! empty( $new_roles ) ) {
-										$saved_order = $saved_order + $new_roles;
-									}
+									/*
+									 * The order is kept as role slugs.
+									 *
+									 * It used to be written out as display names, which meant the
+									 * priority a site had configured could only be turned back into
+									 * roles by guessing the slug from the name. That works for the
+									 * core roles and fails for most others, so the list is now
+									 * keyed by slug and the name is shown as the label.
+									 *
+									 * Whatever is already stored — names from an older save, slugs
+									 * from a newer one — is resolved through the same helper the
+									 * read side uses, so nothing has to be migrated.
+									 */
+									$saved_order = \MLS\Helpers\OptionsHelper::resolve_role_slugs( $saved_order );
 
-									// Removed roles.
-									$obselete_roles = array_diff( $saved_order, array_keys( $role_names ) );
-									if ( ! empty( $obselete_roles ) ) {
-										foreach ( $obselete_roles as $index => $role_to_remove ) {
-											$key = array_search( $role_to_remove, $saved_order, true );
-											if ( false !== $key ) {
-												unset( $saved_order[ $key ] );
-											}
+									// Drop entries for roles this site no longer has.
+									$saved_order = array_values( array_intersect( $saved_order, array_keys( $role_names ) ) );
+
+									// Append any role that is not in the list yet.
+									foreach ( array_keys( $role_names ) as $role_slug ) {
+										if ( ! in_array( $role_slug, $saved_order, true ) ) {
+											$saved_order[] = $role_slug;
 										}
 									}
 
-									$roles_names_array = ( ! empty( $saved_order ) && is_array( $saved_order ) ) ? $saved_order : $roles_obj->get_names();
-									$roles_list_items  = '';
+									$roles_list_items = '';
 
-									foreach ( $roles_names_array as $key => $label ) {
-										$roles_list_items .= '<li class="ui-state-default" data-role-key="' . strtolower( str_replace( ' ', '_', $label ) ) . '"><span class="dashicons dashicons-leftright"></span>' . ucwords( str_replace( '_', ' ', $label ) ) . '</li>';
+									foreach ( $saved_order as $role_slug ) {
+										$label = isset( $role_names[ $role_slug ] )
+											? translate_user_role( $role_names[ $role_slug ] )
+											: ucwords( str_replace( '_', ' ', $role_slug ) );
+
+										$roles_list_items .= '<li class="ui-state-default" data-role-key="' . esc_attr( $role_slug ) . '"><span class="dashicons dashicons-leftright"></span>' . esc_html( $label ) . '</li>';
 									}
 
-									$value_string = implode( ',', $roles_names_array );
+									$value_string = implode( ',', $saved_order );
 									?>
 
 									<div id="sortable_roles_holder" class="disabled">
@@ -306,8 +379,9 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 									<br>
 									<label for="password_expiry_email_limit_multiple">
 										<input type="radio" name="mls_options[password_expiry_email_limit]" id="password_expiry_email_limit_multiple" value="send_multiple" <?php checked( self::$options->mls_setting->password_expiry_email_limit, 'send_multiple' ); ?> />
-										<?php esc_html_e( 'Send multiple emails - send up to', 'melapress-login-security' ); ?>
-									</label>
+								<?php esc_html_e( 'Send multiple emails', 'melapress-login-security' ); ?>
+							</label>
+							<span id="password_expiry_email_limit_send_up_to" style="<?php echo ( self::$options->mls_setting->password_expiry_email_limit !== 'send_multiple' ) ? 'display: none;' : ''; ?>"><?php esc_html_e( '- send up to', 'melapress-login-security' ); ?></span>
 									<input type="number" id="password_expiry_email_limit_count" name="mls_options[password_expiry_email_limit_count]" value="<?php echo esc_attr( self::$options->mls_setting->password_expiry_email_limit_count ); ?>" min="2" max="20" style="width: 60px; margin-left: 5px; <?php echo ( self::$options->mls_setting->password_expiry_email_limit !== 'send_multiple' ) ? 'display: none;' : ''; ?>" />
 									<span id="password_expiry_email_limit_count_text" style="<?php echo ( self::$options->mls_setting->password_expiry_email_limit !== 'send_multiple' ) ? 'display: none;' : ''; ?>"><?php esc_html_e( 'emails', 'melapress-login-security' ); ?></span>
 								</fieldset>
@@ -473,9 +547,11 @@ if ( $scripts_required ) {
 		// Toggle password expiry email limit input field
 		$( 'input[name="mls_options[password_expiry_email_limit]"]' ).on( 'change', function() {
 			if ( $(this).val() === 'send_multiple' ) {
+				$( '#password_expiry_email_limit_send_up_to' ).show();
 				$( '#password_expiry_email_limit_count' ).show();
 				$( '#password_expiry_email_limit_count_text' ).show();
 			} else {
+				$( '#password_expiry_email_limit_send_up_to' ).hide();
 				$( '#password_expiry_email_limit_count' ).hide();
 				$( '#password_expiry_email_limit_count_text' ).hide();
 			}

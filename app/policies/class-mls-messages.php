@@ -25,13 +25,22 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 	class MLS_Messages {
 
 		/**
+		 * Whether the class has been initialised.
+		 *
+		 * @var bool
+		 *
+		 * @since 2.0.0
+		 */
+		private static $initialised = false;
+
+		/**
 		 * Error strings used in PHP
 		 *
 		 * @var array Error strings used in PHP
 		 *
 		 * @since 2.0.0
 		 */
-		public $error_strings = array();
+		public static $error_strings = array();
 
 		/**
 		 * Error strings used by the password strength meter
@@ -40,7 +49,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public $js_error_strings = array();
+		public static $js_error_strings = array();
 
 		/**
 		 * Strings indicating password strength. Replaces WP default.
@@ -49,7 +58,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public $pws_l10n = array();
+		public static $pws_l10n = array();
 
 		/**
 		 * Strings for the Password Reset UI. Replaces WP default.
@@ -58,7 +67,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public $user_profile_l10n = array();
+		public static $user_profile_l10n = array();
 
 		/**
 		 * Our special char code.
@@ -67,7 +76,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		private $special_char_strings = '<code>&#33; &#64; &#35; &#36; &#37; &#94; &#38; &#42; &#40; &#41; &#95; &#63; &#163; &#34; &#45; &#43; &#61; &#126; &#59; &#58; &#8364; &#60; &#62;</code>';
+		private static $special_char_strings = '<code>&#33; &#64; &#35; &#36; &#37; &#94; &#38; &#42; &#40; &#41; &#95; &#63; &#163; &#34; &#45; &#43; &#61; &#126; &#59; &#58; &#8364; &#60; &#62;</code>';
 
 		/**
 		 * Instantiate localised strings
@@ -76,7 +85,12 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
-		public function init() {
+		public static function init() {
+
+			if ( self::$initialised ) {
+				return;
+			}
+			self::$initialised = true;
 
 			$mls = melapress_login_security();
 
@@ -93,13 +107,13 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 				$excluded_string = html_entity_decode( $excluded_string );
 
 				// reformat the string to array of decoded special chars.
-				$decoded_special_chars = explode( ' ', html_entity_decode( preg_replace( '/\<(\/)?code\>/', '', $this->special_char_strings ) ) );
+				$decoded_special_chars = explode( ' ', html_entity_decode( preg_replace( '/\<(\/)?code\>/', '', self::$special_char_strings ) ) );
 
 				// split the excluded special chars to an array.
 				$excluded_entities = \MLS\MB_String_Helper::mb_split_string( $excluded_string );
 
 				// get the difference and reform the string. Limit max items to 4 for tidyness.
-				$this->special_char_strings = '<code>' . implode( ' ', array_slice( array_diff( $decoded_special_chars, $excluded_entities ), 0, 20 ) ) . '</code>';
+				self::$special_char_strings = '<code>' . implode( ' ', array_slice( array_diff( $decoded_special_chars, $excluded_entities ), 0, 20 ) ) . '</code>';
 			}
 
 			$excluded_char_strings = '<code style="letter-spacing: 5px">' . esc_attr( $excluded_string ) . '</code>';
@@ -110,7 +124,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 				$options = $mls_options->user_role_policy();
 			}
 
-			$this->error_strings = array(
+			self::$error_strings = array(
 				'strength'              => __( 'Should not use known words.', 'melapress-login-security' ),
 				'username'              => __( 'Cannot contain the username.', 'melapress-login-security' ),
 				/* translators: %d: Number of passwords the current password cannot be the same as */
@@ -120,7 +134,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 				'mix_case'              => \MLS\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['mix_case'] ) ? __( 'Must contain both UPPERCASE & lowercase characters.', 'melapress-login-security' ) : '',
 				'numeric'               => \MLS\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['numeric'] ) ? __( 'Must contain numbers.', 'melapress-login-security' ) : '',
 				/* translators: %d: Characters which cannot be used in a password */
-				'special_chars'         => \MLS\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['special_chars'] ) ? sprintf( __( 'Must contain special characters such as %s.', 'melapress-login-security' ), $this->special_char_strings ) : '',
+				'special_chars'         => \MLS\Helpers\OptionsHelper::string_to_bool( $options->ui_rules['special_chars'] ) ? sprintf( __( 'Must contain special characters such as %s.', 'melapress-login-security' ), self::$special_char_strings ) : '',
 				'exclude_special_chars' => sprintf(
 					/* translators: 1 = list of special characters */
 					__( 'Password cannot contain any of these special characters: %s', 'melapress-login-security' ),
@@ -128,7 +142,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 				),
 			);
 
-			$this->js_error_strings = array(
+			self::$js_error_strings = array(
 				'strength'              => array(
 					0 => __( 'is very easy to guess. Please avoid using known words in the password.', 'melapress-login-security' ),
 					1 => __( 'is very easy to guess. Please avoid using known words in the password.', 'melapress-login-security' ),
@@ -160,7 +174,7 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 				),
 			);
 
-			$this->pws_l10n = array(
+			self::$pws_l10n = array(
 				'unknown'  => __( 'Password strength unknown', 'melapress-login-security' ),
 				'short'    => __( 'Too short', 'melapress-login-security' ),
 				'bad'      => __( 'Insecure:', 'melapress-login-security' ),
@@ -172,12 +186,12 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 
 			$user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-			$this->user_profile_l10n = array(
+			self::$user_profile_l10n = array(
 				'warn'           => __( 'Your new password has not been saved.', 'melapress-login-security' ),
 				'warnWeak'       => __( 'Confirm use of weak password.', 'melapress-login-security' ),
 				'show'           => __( 'Show', 'melapress-login-security' ),
 				'hide'           => __( 'Hide', 'melapress-login-security' ),
-				'cancel'         => __( 'Cancel' ),
+				'cancel'         => __( 'Cancel', 'melapress-login-security' ),
 				'ariaShow'       => esc_attr__( 'Show password', 'melapress-login-security' ),
 				'ariaHide'       => esc_attr__( 'Hide password', 'melapress-login-security' ),
 				'hintMsg'        => esc_html__( 'Hints for a strong password:', 'melapress-login-security' ),
@@ -192,6 +206,22 @@ if ( ! class_exists( '\MLS\MLS_Messages' ) ) {
 				'user_id'        => $user_id,
 				'nonce'          => wp_create_nonce( 'reset-password-for-' . $user_id ),
 			);
+		}
+
+		/**
+		 * Reset state (for unit tests).
+		 *
+		 * @return void
+		 *
+		 * @since 2.0.0
+		 */
+		public static function reset() {
+			self::$initialised          = false;
+			self::$error_strings        = array();
+			self::$js_error_strings     = array();
+			self::$pws_l10n             = array();
+			self::$user_profile_l10n    = array();
+			self::$special_char_strings = '<code>&#33; &#64; &#35; &#36; &#37; &#94; &#38; &#42; &#40; &#41; &#95; &#63; &#163; &#34; &#45; &#43; &#61; &#126; &#59; &#58; &#8364; &#60; &#62;</code>';
 		}
 	}
 }

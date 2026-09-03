@@ -139,6 +139,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			// @free:end
 
 			\add_action( 'wp_ajax_dismiss_mls_update_notice', array( __CLASS__, 'dismiss_update_notice' ) );
+			\add_action( 'wp_ajax_dismiss_mls_feature_highlight', array( __CLASS__, 'dismiss_feature_highlight' ) );
 			\add_action( 'wp_ajax_mls_begin_migration', array( __CLASS__, 'begin_migration' ) );
 			\add_action( 'wp_ajax_mls_get_migration_status', array( __CLASS__, 'get_migration_status' ) );
 
@@ -390,7 +391,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$nonce = isset( $_POST['nonce'] ) ? \sanitize_text_field( \wp_unslash( $_POST['nonce'] ) ) : false;
 
 			// Check nonce.
-			if ( ! \current_user_can( 'manage_options' ) || empty( $nonce ) || ! $nonce || ! \wp_verify_nonce( $nonce, 'mls_dismiss_extra_event_banner_nonce' ) ) {
+			// Network-scoped: writes network options.
+			if ( ! OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! $nonce || ! \wp_verify_nonce( $nonce, 'mls_dismiss_extra_event_banner_nonce' ) ) {
 				\wp_send_json_error( \esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 
@@ -420,45 +422,228 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$mls_migration_required = \is_multisite() ? \get_site_option( 'mls_migration_required' ) : \get_option( 'mls_migration_required' );
 			$migration_complete     = \is_multisite() ? \get_site_option( 'mls_200_migration_complete' ) : \get_option( 'mls_200_migration_complete' );
 
+			if ( in_array( $screen->base, self::PLUGIN_PAGES, true ) ) {
+				?>
+				<style>
+					.mls-update-notice {
+						position: relative;
+						background-color: #fff;
+						border: 1px solid #c3c4c7;
+						border-left: 4px solid #dd2b10;
+						margin: 64px 20px 16px 0;
+						padding: 0 36px 0 12px;
+						font-size: 0.8125rem;
+					}
+
+					.mls-update-notice-close {
+						position: absolute;
+						top: 50%;
+						right: 8px;
+						transform: translateY(-50%);
+						background: none;
+						border: none;
+						font-size: 1.25rem;
+						line-height: 1;
+						cursor: pointer;
+						color: #787c82;
+						padding: 4px;
+					}
+
+					.mls-update-notice-close:hover {
+						color: #d63638;
+					}
+
+					.mls-update-notice p {
+						margin: 0.5em 0;
+					}
+
+					.mls-update-notice strong,
+					.mls-update-notice a {
+						color: #dd2b10;
+					}
+
+					.mls-feature-highlight-notice {
+						position: relative;
+						display: flex;
+						gap: 16px;
+						background: #fafbf3;
+						border-radius: 5px;
+						box-shadow: 0 3px 6px rgba(0, 0, 0, 0.06);
+						margin: 64px 20px 16px 0;
+						padding: 16px 48px 16px 16px;
+						color: #3c434a;
+					}
+
+					.mls-update-notice ~ .mls-feature-highlight-notice {
+						margin-top: 16px;
+					}
+
+					.mls-feature-highlight-notice::before {
+						content: '';
+						background: url('<?php echo \esc_url( MLS_PLUGIN_URL . 'assets/images/password-policy-manager.png' ); ?>') no-repeat center / contain;
+						flex-shrink: 0;
+						height: 44px;
+						width: 44px;
+					}
+
+					.mls-feature-highlight-notice h2 {
+						color: #3c434a;
+						font-size: 1.25rem;
+						font-weight: 600;
+						line-height: 1.3;
+						margin: 0 0 8px;
+						padding: 0;
+					}
+
+					.mls-feature-highlight-notice p {
+						font-size: 0.875rem;
+						line-height: 1.6;
+						margin: 0 0 16px;
+					}
+
+					/*
+					 * Melapress red, and the darker red from the same logo on
+					 * hover. The shape is left as it was, matching the button
+					 * WordPress plugins put in a notice like this.
+					 */
+					.mls-feature-highlight-notice-upgrade {
+						background: #dd2b10;
+						border-radius: 5px;
+						color: #fff;
+						display: inline-block;
+						font-size: 0.875rem;
+						line-height: 1;
+						padding: 8px 12px;
+						text-decoration: none;
+					}
+
+					.mls-feature-highlight-notice-upgrade:hover,
+					.mls-feature-highlight-notice-upgrade:focus {
+						background: #7a262a;
+						color: #fff;
+					}
+
+					.mls-feature-highlight-notice-close {
+						position: absolute;
+						top: 8px;
+						right: 8px;
+						background: none;
+						border: none;
+						font-size: 1.25rem;
+						line-height: 1;
+						cursor: pointer;
+						color: #787c82;
+						padding: 4px;
+					}
+
+					.mls-feature-highlight-notice-close:hover,
+					.mls-feature-highlight-notice-close:focus {
+						color: #dd2b10;
+					}
+
+					@media (max-width: 782px) {
+						.mls-update-notice,
+						.mls-feature-highlight-notice {
+							margin-right: 0;
+							margin-top: 16px;
+						}
+
+						.mls-feature-highlight-notice {
+							gap: 12px;
+							padding: 14px;
+							flex-direction: column;
+						}
+
+						.mls-feature-highlight-notice::before {
+							height: 36px;
+							width: 36px;
+						}
+
+						.mls-feature-highlight-notice h2 {
+							font-size: 1.05rem;
+						}
+
+						.mls-feature-highlight-notice p {
+							line-height: 1.5;
+						}
+					}
+
+					@media (min-width: 790px) {
+						.mls-update-notice,
+						.mls-feature-highlight-notice {
+							margin-right: 20px;
+						}
+					}
+				</style>
+				<?php
+			}
+
 			if ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $show_update_notice ) {
 				?>
-				<!-- Copy START -->
-				<div class="mls-plugin-update">
-					<div class="mls-plugin-update-content">
-						<h2 class="mls-plugin-update-title"><?php \esc_html_e( 'Melapress Login Security has been updated to version', 'melapress-login-security' ); ?> <?php echo \esc_attr( MLS_VERSION ); ?>.</h2>
-						<p class="mls-plugin-update-text">
-							<?php \esc_html_e( 'You are now running the latest version of Melapress Login Security. To see what\'s been included in this update, refer to the plugin\'s release notes and change log where we list all new features, updates, and bug fixes.', 'melapress-login-security' ); ?>							
-						</p>
-						<a href="https://melapress.com/wordpress-login-security/releases/?utm_source=plugin&utm_medium=banner&utm_campaign=mls" target="_blank" class="mls-cta-link"><?php \esc_html_e( 'Read the release notes', 'melapress-login-security' ); ?></a>
-					</div>
-					<button aria-label="Close button" class="mls-plugin-update-close" data-dismiss-nonce="<?php echo \esc_attr( \wp_create_nonce( 'mls_dismiss_update_notice_nonce' ) ); ?>"></button>
+				<div class="mls-update-notice mls-notice">
+					<p>
+						<?php
+						echo \wp_kses_post(
+							sprintf(
+								/* translators: 1: Plugin name. 2: Version number. */
+								__( '%1$s has been updated to version %2$s', 'melapress-login-security' ),
+								'<strong>Melapress Login Security</strong>',
+								'<strong>' . MLS_VERSION . '</strong>'
+							)
+						);
+						?>
+						&ndash; <a href="https://melapress.com/wordpress-login-security/releases/?utm_source=plugin&utm_medium=mls&utm_campaign=update-notice-changelog" target="_blank" rel="noopener"><?php \esc_html_e( 'view changelog', 'melapress-login-security' ); ?></a>
+					</p>
+					<button type="button" class="mls-update-notice-close" data-dismiss-nonce="<?php echo \esc_attr( \wp_create_nonce( 'mls_dismiss_update_notice_nonce' ) ); ?>" aria-label="<?php \esc_attr_e( 'Dismiss', 'melapress-login-security' ); ?>">&times;</button>
 				</div>
-				<!-- Copy END -->
-				
 				<script type="text/javascript">
-				//<![CDATA[
-				jQuery(document).ready(function( $ ) {
-					jQuery( 'body' ).on( 'click', '.mls-plugin-update-close', function ( e ) {
-						var nonce  = jQuery( '.mls-plugin-update [data-dismiss-nonce]' ).attr( 'data-dismiss-nonce' );
-						
-						jQuery.ajax({
-							type: 'POST',
-							url: '<?php echo \esc_url( \admin_url( 'admin-ajax.php' ) ); ?>',
-							async: true,
-							data: {
-								action: 'dismiss_mls_update_notice',
-								nonce : nonce,
-							},
-							success: function ( result ) {		
-								jQuery( '.mls-plugin-update' ).slideUp( 300 );
-							}
+				jQuery(document).ready(function($){
+					$('.mls-update-notice-close').on('click', function(){
+						var $notice = $(this).closest('.mls-update-notice');
+						$.post('<?php echo \esc_url( \admin_url( 'admin-ajax.php' ) ); ?>', {
+							action: 'dismiss_mls_update_notice',
+							nonce: $(this).data('dismiss-nonce')
 						});
+						$notice.slideUp(300);
 					});
 				});
-				//]]>
 				</script>
 				<?php
 			}
+
+			// @free:start
+			/*
+			 * Shown after an upgrade, alongside the changelog notice above, and
+			 * never on a fresh install — mls_on_plugin_update() only raises this
+			 * flag when it finds a stored version older than this one. It carries
+			 * its own flag rather than sharing the changelog one so that
+			 * dismissing either notice leaves the other alone.
+			 */
+			if ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && \get_site_option( MLS_PREFIX . '_feature_highlight_needed', false ) ) {
+				?>
+				<div class="mls-feature-highlight-notice mls-notice">
+					<div>
+						<h2><?php \esc_html_e( 'Take login security beyond the basics', 'melapress-login-security' ); ?></h2>
+						<p><?php \esc_html_e( 'Add geo-blocking, inactive account policies, unrecognized device alerts, and detailed reports on user and password activity.', 'melapress-login-security' ); ?></p>
+						<a class="mls-feature-highlight-notice-upgrade" href="https://melapress.com/wordpress-login-security/pricing/?utm_source=plugin&utm_medium=mls&utm_campaign=update-feature-highlight-banner" target="_blank" rel="noopener"><?php \esc_html_e( 'Unlock Premium Features', 'melapress-login-security' ); ?></a>
+					</div>
+					<button type="button" class="mls-feature-highlight-notice-close" data-dismiss-nonce="<?php echo \esc_attr( \wp_create_nonce( 'mls_dismiss_feature_highlight_nonce' ) ); ?>" aria-label="<?php \esc_attr_e( 'Dismiss', 'melapress-login-security' ); ?>">&times;</button>
+				</div>
+				<script type="text/javascript">
+				jQuery(document).ready(function($){
+					$('.mls-feature-highlight-notice-close').on('click', function(){
+						var $notice = $(this).closest('.mls-feature-highlight-notice');
+						$.post('<?php echo \esc_url( \admin_url( 'admin-ajax.php' ) ); ?>', {
+							action: 'dismiss_mls_feature_highlight',
+							nonce: $(this).data('dismiss-nonce')
+						});
+						$notice.slideUp(300);
+					});
+				});
+				</script>
+				<?php
+			}
+			// @free:end
 
 			if ( ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $mls_migration_required && ! $migration_complete ) || ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && ! empty( \get_site_option( 'ppmwp_options', false ) ) ) ) {
 				?>
@@ -515,6 +700,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 						async: true,
 						data: {
 							action: 'mls_get_migration_status',
+							nonce: '<?php echo \esc_js( \wp_create_nonce( 'mls_migration_status_nonce' ) ); ?>',
 						},
 						success: function ( result ) {		
 							if ( result.data == 'Completed' ) {
@@ -706,7 +892,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$nonce = isset( $_POST['nonce'] ) ? \sanitize_text_field( \wp_unslash( $_POST['nonce'] ) ) : false;
 
 			// Check nonce.
-			if ( ! \current_user_can( 'manage_options' ) || empty( $nonce ) || ! $nonce || ! \wp_verify_nonce( $nonce, 'mls_begin_migration_nonce' ) ) {
+			// Network-scoped: runs UpdateRoutines across network options and usermeta.
+			if ( ! OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! $nonce || ! \wp_verify_nonce( $nonce, 'mls_begin_migration_nonce' ) ) {
 				\wp_send_json_error( \esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 
@@ -723,7 +910,20 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function get_migration_status() {
-			if ( ! \current_user_can( 'manage_options' ) ) {
+			// Reads a network option; scoped to match the writes beside it.
+			if ( ! OptionsHelper::current_user_can_manage_scope() ) {
+				\wp_send_json_error( \esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
+			}
+
+			/*
+			 * Read-only, but still nonce-checked: it makes the contract the same
+			 * as every other endpoint here rather than an exception a reviewer
+			 * has to reason about, and it stops the status being polled
+			 * cross-origin from a page the administrator happens to have open.
+			 */
+			$nonce = isset( $_POST['nonce'] ) ? \sanitize_text_field( \wp_unslash( $_POST['nonce'] ) ) : '';
+
+			if ( empty( $nonce ) || ! \wp_verify_nonce( $nonce, 'mls_migration_status_nonce' ) ) {
 				\wp_send_json_error( \esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 
@@ -741,12 +941,36 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 *
 		 * @since 2.0.0
 		 */
+		/**
+		 * Dismiss the feature banner shown after an upgrade.
+		 *
+		 * Separate from the changelog notice on purpose: they are two notices and
+		 * closing one should not close the other.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.0
+		 */
+		public static function dismiss_feature_highlight() {
+			$nonce = isset( $_POST['nonce'] ) ? \sanitize_text_field( \wp_unslash( $_POST['nonce'] ) ) : false;
+
+			// Network-scoped: deletes a network option.
+			if ( ! OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! \wp_verify_nonce( $nonce, 'mls_dismiss_feature_highlight_nonce' ) ) {
+				\wp_send_json_error( \esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
+			}
+
+			\delete_site_option( MLS_PREFIX . '_feature_highlight_needed' );
+
+			\wp_send_json_success( \esc_html__( 'Complete.', 'melapress-login-security' ) );
+		}
+
 		public static function dismiss_update_notice() {
 			// Grab POSTed data.
 			$nonce = isset( $_POST['nonce'] ) ? \sanitize_text_field( \wp_unslash( $_POST['nonce'] ) ) : false;
 
 			// Check nonce.
-			if ( ! \current_user_can( 'manage_options' ) || empty( $nonce ) || ! $nonce || ! \wp_verify_nonce( $nonce, 'mls_dismiss_update_notice_nonce' ) ) {
+			// Network-scoped: deletes a network option.
+			if ( ! OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! $nonce || ! \wp_verify_nonce( $nonce, 'mls_dismiss_update_notice_nonce' ) ) {
 				\wp_send_json_error( \esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 
@@ -838,7 +1062,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		public static function plugin_action_links( $old_links ) {
 			$new_links = array();
 
-			if ( Licensing_Factory::provider_call( 'can_use_premium_code' ) && isset( $old_links['upgrade'] ) ) {
+			if ( Licensing_Factory::provider_call( 'can_use_premium_code' ) ) {
 				unset( $old_links['upgrade'] );
 			} elseif ( ! Licensing_Factory::is_premium() ) {
 				unset( $old_links['upgrade'] );
@@ -873,12 +1097,25 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function admin_menu() {
-			$notification_count = OptionsHelper::get_current_notices_count();
+
+			/*
+			 * The menu title carries no notification bubble.
+			 *
+			 * It used to append an `awaiting-mod` counter when an update notice or
+			 * a pending migration was outstanding — OptionsHelper::get_current_notices_count().
+			 * That count is no longer surfaced here by request; the notices it
+			 * referred to are still shown on the plugin's own screens.
+			 *
+			 * A side effect of removing it: the bubble branch built its title from
+			 * a hardcoded 'Login Security' rather than a translated string, so the
+			 * menu label was untranslatable whenever a notice was pending. Both
+			 * cases now use the translated string.
+			 */
 
 			// Add admin menu page.
 			$hook_name = \add_menu_page(
 				\__( 'Login Security Policies', 'melapress-login-security' ),
-				$notification_count ? \sprintf( 'Login Security <span style="position: absolute; margin-left: 3px;" class="awaiting-mod">%d</span>', $notification_count ) : \__( 'Login Security', 'melapress-login-security' ),
+				\__( 'Login Security', 'melapress-login-security' ),
 				'manage_options',
 				MLS_MENU_SLUG,
 				array( __CLASS__, 'screen' ),
@@ -887,69 +1124,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			);
 
 			// Inject icon color styles without altering menu text color.
-			\add_action(
-				'admin_head',
-				function() {
-					$slug = esc_attr( MLS_MENU_SLUG );
-					// SVG markup simplified for embedding as data URI (default color #f0f6fc).
-					$svg_default = MLS_PLUGIN_URL . 'assets/images/plugin-icon-default.svg';
-					// Active/selected color #a7aaad.
-					$svg_active = MLS_PLUGIN_URL . 'assets/images/plugin-icon-active.svg';
-					?>
-				<style>
-					#toplevel_page_mls-policies a div::before {
-						content: "";
-						display: inline-block;
-						width: 20px;   /* adjust */
-						height: 20px;  /* adjust */
-
-						mask: url(<?php echo $svg_default; ?>) no-repeat center;
-						-webkit-mask: url(<?php echo $svg_default; ?>) no-repeat center;
-
-						background-color: #f0f6fc; /* your icon color */
-						/* margin-right: 6px; optional spacing */
-
-						opacity: 0.6;
-						
-					}
-					#toplevel_page_mls-policies a:hover div::before, #toplevel_page_mls-policies a.wp-menu-open div::before {
-						content: "";
-						display: inline-block;
-						width: 20px;   /* adjust */
-						height: 20px;  /* adjust */
-
-						mask: url(<?php echo $svg_default; ?>) no-repeat center;
-						-webkit-mask: url(<?php echo $svg_default; ?>) no-repeat center;
-
-						background-color: #a7aaad; /* your icon color */
-						/* margin-right: 6px; optional spacing */
-						opacity: 1;
-					}
-
-					#toplevel_page_mls-policies a div.wp-menu-name::before {
-						mask-size: contain !important;
-	-webkit-mask-size: contain !important;
-	content: '' !important;
-	-webkit-mask: none  !important;;
-	mask-size: 0  !important;;
-	background-color: transparent !important;
-	margin-left: -20px !important;
-	margin-top: -10px !important;
-					}
-
-				</style>
-				<!-- <style>
-				#adminmenu .toplevel_page_<?php echo $slug; ?> .wp-menu-image img { display: none; }
-				#adminmenu .toplevel_page_<?php echo $slug; ?> .wp-menu-image { background: url("<?php echo $svg_default; ?>") no-repeat center center / 20px 20px !important;; opacity: .6 !important; }
-				#adminmenu .toplevel_page_<?php echo $slug; ?>.current .wp-menu-image,
-				#adminmenu .toplevel_page_<?php echo $slug; ?>.wp-has-current-submenu .wp-menu-image,
-				#adminmenu .toplevel_page_<?php echo $slug; ?>:hover .wp-menu-image,
-				#adminmenu .toplevel_page_<?php echo $slug; ?>:focus .wp-menu-image,
-				#adminmenu .toplevel_page_<?php echo $slug; ?> > a:focus .wp-menu-image {background: url("<?php echo $svg_active; ?>") no-repeat center center / 20px 20px !important;; opacity: .6 !important; }
-				</style> -->
-					<?php
-				}
-			);
+			\add_action( 'admin_head', array( __CLASS__, 'render_menu_icon_styles' ) );
 
 			\add_action( "load-$hook_name", array( __CLASS__, 'admin_enqueue_scripts' ) );
 			\add_action( "admin_head-$hook_name", array( __CLASS__, 'process' ) );
@@ -966,7 +1141,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				array(
 					__CLASS__,
 					'ppm_display_help_page',
-				)
+				),
+				90
 			);
 
 			\add_action( "load-$hook_submenu", array( __CLASS__, 'help_page_enqueue_scripts' ) );
@@ -1106,12 +1282,34 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function process() {
-			// nonce checked later before processing happens.
-			$is_user_action = isset( $_POST[ MLS_PREFIX . '_nonce' ] ) ? true : false; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-
-			if ( $is_user_action ) {
-				self::save();
+			if ( ! isset( $_POST[ MLS_PREFIX . '_nonce' ] ) ) {
+				return;
 			}
+
+			/*
+			 * Capability first, then the nonce.
+			 *
+			 * This handler only verified the nonce. It is reached from admin
+			 * screens that are themselves capability-gated, so no unauthorised
+			 * path was open — but that made the guarantee a property of where the
+			 * hook happens to be registered rather than of the handler, and a
+			 * nonce proves intent, not permission. Asserting the capability here
+			 * means a future refactor, a reused hook or a direct call cannot
+			 * quietly turn a privileged writer loose.
+			 *
+			 * The scoped predicate rather than a bare `manage_options`: on a
+			 * network these writes are network options, which a single site's
+			 * administrator must not be able to change.
+			 */
+			if ( ! OptionsHelper::current_user_can_manage_scope() ) {
+				return;
+			}
+
+			if ( ! \wp_verify_nonce( \sanitize_text_field( \wp_unslash( $_POST[ MLS_PREFIX . '_nonce' ] ) ), MLS_PREFIX . '_nonce_form' ) ) {
+				return;
+			}
+
+			self::save();
 		}
 
 		/**
@@ -1155,6 +1353,16 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				'mls-hide-login',
 			);
 
+			/*
+			 * Capability first, and asserted here rather than only in process().
+			 * This is a public static writer: the registered call path checks the
+			 * capability, but that only holds while every caller remembers to. The
+			 * check belongs with the write, not with one of its callers.
+			 */
+			if ( ! OptionsHelper::current_user_can_manage_scope() ) {
+				return;
+			}
+
 			$current_context = isset( $_REQUEST['page'] ) ? \sanitize_key( \wp_unslash( $_REQUEST['page'] ) ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
 			if ( ! $current_context || ! in_array( $current_context, $known_contexts, true ) ) {
@@ -1170,17 +1378,76 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$mls = melapress_login_security();
 
 			// If check policies inherit or not.
-			if ( isset( $_POST['mls_options']['inherit_policies'] ) && \sanitize_text_field( \wp_unslash( $_POST['mls_options']['inherit_policies'] ) ) === 1 ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				// Get user role.
-				$setting_option = ( isset( $_POST['mls_options']['ppm-user-role'] ) && ! empty( $_POST['mls_options']['ppm-user-role'] ) ) ? '_' . \sanitize_text_field( \wp_unslash( $_POST['mls_options']['ppm-user-role'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-				// Delete site option.
-				\delete_site_option( MLS_PREFIX . $setting_option . '_options' );
-				// unset settings.
-				unset( $_POST['mls_options'] );
+			//
+			// The value arrives as a string — 'yes'/'no' from the stored option,
+			// or '1'/'0' once the settings JS has touched the hidden field. It
+			// was compared against the integer 1, which a string can never be
+			// identical to, so this branch had never run: choosing "inherit"
+			// silently left the role's own policies in place and overriding the
+			// site-wide ones.
+			// Only ever applies to a role tab. The site-wide policy has nothing
+			// to inherit from, and its own hidden field also defaults to "yes"
+			// — acting on that would delete the site-wide policy itself.
+			$inherit_role = isset( $_POST['mls_options']['ppm-user-role'] ) ? \sanitize_text_field( \wp_unslash( $_POST['mls_options']['ppm-user-role'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+			$inherit_requested = '' !== $inherit_role
+				&& isset( $_POST['mls_options']['inherit_policies'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				&& OptionsHelper::string_to_bool( \sanitize_text_field( \wp_unslash( $_POST['mls_options']['inherit_policies'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+			/*
+			 * Coming out of "do not enforce password & login policies for this
+			 * role" puts the role back on the site-wide policy.
+			 *
+			 * While the exemption is on, its change handler disables every field
+			 * in the form, and a browser does not submit disabled fields — so the
+			 * save that turns the exemption on stores the role's policy as
+			 * whatever the defaults are, which is correct enough while nothing is
+			 * being enforced. Turning it off again used to leave exactly that
+			 * behind: a role that was no longer exempt, enforced nothing of its
+			 * own, and did not inherit either, so unticking a box that reads
+			 * "start enforcing this role again" left the role enforcing nothing.
+			 *
+			 * Inheriting is the safe reading of the untick, and it is the state
+			 * the role tab starts in.
+			 */
+			if ( ! $inherit_requested && '' !== $inherit_role ) {
+				$stored_policy = \get_site_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
+
+				$was_exempt = is_array( $stored_policy )
+					&& isset( $stored_policy['enforce_password'] )
+					&& OptionsHelper::string_to_bool( $stored_policy['enforce_password'] );
+
+				// An unticked checkbox is simply absent from the request.
+				$still_exempt = isset( $_POST['mls_options']['enforce_password'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					&& OptionsHelper::string_to_bool( \sanitize_text_field( \wp_unslash( $_POST['mls_options']['enforce_password'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+				if ( $was_exempt && ! $still_exempt ) {
+					\delete_site_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
+
+					self::$setting_tab = (object) $mls->options->inherit;
+					self::notice( 'admin_save_success_notice' );
+
+					// Same reason as the branch below: everything after this
+					// re-saves the submitted policy and would recreate the row.
+					return;
+				}
+			}
+
+			if ( $inherit_requested ) {
+				// Delete the role option so it falls back to the site-wide policy.
+				\delete_site_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
 				// Reassign setting open.
 				self::$setting_tab = (object) $mls->options->inherit;
 				// Success notice.
 				self::notice( 'admin_save_success_notice' );
+
+				// Stop here. Everything below re-saves the submitted policy,
+				// which would immediately recreate the role option that was
+				// just deleted. The previous `unset( $_POST['mls_options'] )`
+				// could not prevent that: the code below reads the request with
+				// filter_input_array(), which returns the original request data
+				// and is unaffected by changes to $_POST.
+				return;
 			}
 
 			$post_array = \filter_input_array( INPUT_POST );
@@ -1223,6 +1490,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				$settings['exempted']['users']                          = self::decode_js_var( $settings['exempted']['users'] );
 				$settings['terminate_session_password']                 = isset( $settings['terminate_session_password'] );
 				$settings['send_summary_email']                         = isset( $settings['send_summary_email'] );
+				$settings['stop_pw_generate']                           = isset( $settings['stop_pw_generate'] );
 				$settings['users_have_multiple_roles']                  = isset( $settings['users_have_multiple_roles'] );
 				$settings['multiple_role_order']                        = explode( ',', $settings['multiple_role_order'] );
 				$settings['disable_user_password_reset_email']          = isset( $settings['disable_user_password_reset_email'] );
@@ -1233,6 +1501,8 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				$settings['disable_user_imported_email']                = isset( $settings['disable_user_imported_email'] );
 				$settings['disable_user_imported_forced_reset_email']   = isset( $settings['disable_user_imported_forced_reset_email'] );
 				$settings['disable_user_unlocked_email']                = isset( $settings['disable_user_unlocked_email'] );
+				$settings['disable_user_unlocked_reset_needed_email']   = isset( $settings['disable_user_unlocked_reset_needed_email'] );
+				$settings['disable_multiple_sessions_email']            = isset( $settings['disable_multiple_sessions_email'] );
 				$settings['send_plain_text_emails']                     = isset( $settings['send_plain_text_emails'] );
 
 				if ( ! isset( $settings['clear_history'] ) ) {
@@ -1282,6 +1552,43 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				$settings['enable_login_allowed_ips']         = isset( $settings['enable_login_allowed_ips'] );
 				$settings['enable_failure_message_overrides'] = isset( $settings['enable_failure_message_overrides'] );
 
+				// Sanitize GDPR banner message.
+				if ( isset( $settings['gdpr_banner_message'] ) ) {
+					$settings['gdpr_banner_message'] = wp_kses_post( $settings['gdpr_banner_message'] );
+				}
+
+				/*
+				 * Both of these are paths relative to the site root, not URLs —
+				 * the field is rendered inside site_url() and the redirect is
+				 * built as '/' . rtrim( $value, '/' ). esc_url_raw() was adding
+				 * a scheme to anything that had none, so a bare "reception" was
+				 * stored as "http://reception" and the redirect it produced was
+				 * one wp_safe_redirect() refuses.
+				 */
+				foreach ( array( 'restrict_login_redirect_url', 'login_geo_redirect_url' ) as $path_field ) {
+					if ( isset( $settings[ $path_field ] ) ) {
+						$settings[ $path_field ] = OptionsHelper::sanitize_login_redirect_path( $settings[ $path_field ] );
+					}
+				}
+
+				// Validate IP addresses.
+				if ( isset( $settings['restrict_login_allowed_ips'] ) && '' !== $settings['restrict_login_allowed_ips'] ) {
+					$ips       = array_map( 'trim', explode( ',', $settings['restrict_login_allowed_ips'] ) );
+					$valid_ips = array_filter( $ips, function ( $ip ) {
+						return filter_var( $ip, FILTER_VALIDATE_IP );
+					} );
+					$settings['restrict_login_allowed_ips'] = implode( ',', $valid_ips );
+				}
+
+				// Validate country codes — must be exactly two uppercase letters.
+				if ( isset( $settings['login_geo_countries'] ) && '' !== $settings['login_geo_countries'] ) {
+					$codes       = array_map( 'trim', explode( ',', $settings['login_geo_countries'] ) );
+					$valid_codes = array_filter( $codes, function ( $code ) {
+						return preg_match( '/^[A-Z]{2}$/', $code );
+					} );
+					$settings['login_geo_countries'] = implode( ',', $valid_codes );
+				}
+
 				$mls_setting = OptionsHelper::recursive_parse_args( $settings, $mls->options->mls_setting );
 
 				if ( self::$options->mls_save_setting( $mls_setting ) ) {
@@ -1292,6 +1599,15 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 			// Policies area.
 			if ( 'mls-policies' === $current_context ) {
+
+				/*
+				 * Set once, here, and only ever cleared below. It used to be
+				 * reset to true partway through, which threw away the failures
+				 * already recorded for the inactive-user and session expiry
+				 * fields: the administrator saw the "required field" error and
+				 * the policy was saved anyway, with an empty expiry.
+				 */
+				$ok_to_save = true;
 
 				if ( ! isset( $_POST['mls_options']['disable_self_reset_message'] ) || empty( $_POST['mls_options']['disable_self_reset_message'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					$_POST['mls_options']['disable_self_reset_message'] = \__( 'You are not allowed to reset your password. Please contact the website administrator.', 'melapress-login-security' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -1364,8 +1680,31 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					}
 				}
 
-				// Check inputs for emptyness.
-				$ok_to_save = true;
+				// Sanitize recognized device duration to allowed values only.
+				if ( isset( $_POST['mls_options']['recognized_device_duration'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$allowed_durations = array( '1_month', '3_months', '6_months', '1_year' );
+					$submitted         = \sanitize_text_field( \wp_unslash( $_POST['mls_options']['recognized_device_duration'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					if ( ! in_array( $submitted, $allowed_durations, true ) ) {
+						$_POST['mls_options']['recognized_device_duration'] = '1_year'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					}
+				}
+
+				if ( isset( $_POST['mls_options']['restrict_login_credentials'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$allowed = array( 'default', 'email-only', 'username-only' );
+					$submitted = \sanitize_text_field( \wp_unslash( $_POST['mls_options']['restrict_login_credentials'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					if ( ! in_array( $submitted, $allowed, true ) ) {
+						$_POST['mls_options']['restrict_login_credentials'] = 'default'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					}
+				}
+
+				if ( isset( $_POST['mls_options']['failed_login_unlock_setting'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$allowed = array( 'unlock-by-admin', 'timed' );
+					$submitted = \sanitize_text_field( \wp_unslash( $_POST['mls_options']['failed_login_unlock_setting'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					if ( ! in_array( $submitted, $allowed, true ) ) {
+						$_POST['mls_options']['failed_login_unlock_setting'] = 'unlock-by-admin'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					}
+				}
+
 				if ( ( isset( $_POST['mls_options']['min_length'] ) && empty( $_POST['mls_options']['min_length'] ) ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					( isset( $_POST['mls_options']['password_expiry'] ) && empty( $_POST['mls_options']['password_expiry']['value'] ) && intval( $_POST['mls_options']['password_expiry']['value'] ) !== 0 ) || // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					( isset( $_POST['mls_options']['password_history'] ) && empty( $_POST['mls_options']['password_history'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -1375,11 +1714,21 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				}
 
 				if ( isset( $_POST['mls_options']['ui_rules']['exclude_special_chars'] ) && intval( $_POST['mls_options']['ui_rules']['exclude_special_chars'] ) !== 0 && empty( $_POST['mls_options']['excluded_special_chars'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					self::notice( 'admin_save_error_required_field_notice' );
-					$ok_to_save = false;
+					// Auto-disable the feature if no chars are specified, preventing an unsaveable state.
+					$_POST['mls_options']['ui_rules']['exclude_special_chars'] = '0'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$settings['ui_rules']['exclude_special_chars']             = '0';
 				}
 
 				$min_req_security_questions = isset( $_POST['mls_options']['min_answered_needed_count'] ) ? intval( $_POST['mls_options']['min_answered_needed_count'] ) : 3; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+				// Clamp min_answered_needed_count to 0-10; disable feature if 0.
+				$min_req_security_questions = max( 0, min( 10, $min_req_security_questions ) );
+				if ( 0 === $min_req_security_questions ) {
+					$settings['enable_security_questions']          = 'no';
+					$_POST['mls_options']['enable_security_questions'] = 'no'; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				}
+				$settings['min_answered_needed_count']          = $min_req_security_questions;
+				$_POST['mls_options']['min_answered_needed_count'] = $min_req_security_questions; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 				if ( isset( $_POST['mls_options']['enable_sessions_policies'] ) && ! empty( $_POST['mls_options']['enable_sessions_policies'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 					if ( isset( $_POST['mls_options']['enabled_questions'] ) && ! empty( $_POST['mls_options']['enabled_questions'] ) && count( $_POST['mls_options']['enabled_questions'] ) < $min_req_security_questions ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
@@ -1436,15 +1785,37 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					$settings_updated['rules'][ $pw_rules_bool ] = OptionsHelper::bool_to_string( $bool_to_check );
 				}
 
+				/*
+				 * Keep the notification lead time inside the expiry period.
+				 *
+				 * Both fields are a number plus an independent unit, and this used
+				 * to compare the numbers alone: an expiry of 2 months with a
+				 * notification 5 days before it read as 5 >= 2 and silently
+				 * rewrote the notification to 2 — still in days. Any configuration
+				 * whose notification number exceeded the expiry number was
+				 * affected, which is most of them once expiry is expressed in
+				 * months.
+				 *
+				 * It also ran when expiry was switched off. With an expiry value of
+				 * 0 every save of this page — including one made for an unrelated
+				 * setting — forced the notification to 0 and switched the
+				 * notification off, destroying a perfectly good stored value.
+				 *
+				 * Both halves are fixed by converting to seconds before comparing
+				 * and by not clamping at all when there is no expiry period to
+				 * measure against.
+				 */
 				if ( isset( $_POST['mls_options']['notify_password_expiry_days'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-					if ( intval( $_POST['mls_options']['notify_password_expiry_days'] ) >= intval( $_POST['mls_options']['password_expiry']['value'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-						$settings_updated['notify_password_expiry_days'] = intval( $_POST['mls_options']['password_expiry']['value'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-						if ( 0 === $settings_updated['notify_password_expiry_days'] ) {
-							$settings_updated['notify_password_expiry'] = false;
-						}
-					}
-					if ( 'hours' === $_POST['mls_options']['password_expiry']['unit'] && 'days' === $_POST['mls_options']['notify_password_expiry_unit'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.NonceVerification.Missing
-						$settings_updated['notify_password_expiry_unit'] = 'hours';
+					$expiry_value = isset( $_POST['mls_options']['password_expiry']['value'] ) ? (int) $_POST['mls_options']['password_expiry']['value'] : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+					$expiry_unit  = isset( $_POST['mls_options']['password_expiry']['unit'] ) ? \sanitize_text_field( \wp_unslash( $_POST['mls_options']['password_expiry']['unit'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+					$notify_value = (int) $_POST['mls_options']['notify_password_expiry_days']; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
+					$notify_unit  = isset( $_POST['mls_options']['notify_password_expiry_unit'] ) ? \sanitize_text_field( \wp_unslash( $_POST['mls_options']['notify_password_expiry_unit'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+
+					$clamped = OptionsHelper::clamped_expiry_notification( $notify_value, $notify_unit, $expiry_value, $expiry_unit );
+
+					if ( null !== $clamped ) {
+						$settings_updated['notify_password_expiry_days'] = $clamped['value'];
+						$settings_updated['notify_password_expiry_unit'] = $clamped['unit'];
 					}
 				}
 
@@ -1487,6 +1858,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				$settings_updated['locked_user_disable_self_reset_message'] = ( ! empty( $settings['locked_user_disable_self_reset_message'] ) ) ? \sanitize_textarea_field( $settings['locked_user_disable_self_reset_message'] ) : false;
 				$settings_updated['deactivated_account_message']            = ( isset( $settings['deactivated_account_message'] ) && ! empty( $settings['deactivated_account_message'] ) ) ? \wp_kses_post( $settings['deactivated_account_message'] ) : trim( \MLS\MLS_Options::get_default_account_deactivated_message() );
 				$settings_updated['timed_login_message']                    = ( ! empty( $settings['timed_login_message'] ) ) ? \sanitize_textarea_field( $settings['timed_login_message'] ) : false;
+
 
 				$processedmls_options = \apply_filters( 'mls_pre_option_save_validation', array_merge( $settings, $settings_updated ) );
 
@@ -1550,7 +1922,57 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		}
 
 		/**
-		 * Add scripts for admin pages.
+		 * Render the admin menu icon styles.
+		 *
+		 * Outputs the CSS for the MLS menu icon in the WordPress admin sidebar.
+		 * This is a shared method called by both the main admin menu registration
+		 * and the EDD license page when no valid license exists.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.0
+		 */
+		public static function render_menu_icon_styles() {
+			$svg_default = MLS_PLUGIN_URL . 'assets/images/plugin-icon-default.svg';
+			?>
+			<style>
+				#toplevel_page_mls-policies a div::before {
+					content: "";
+					display: inline-block;
+					width: 20px;
+					height: 20px;
+					mask: url(<?php echo \esc_url( $svg_default ); ?>) no-repeat center;
+					-webkit-mask: url(<?php echo \esc_url( $svg_default ); ?>) no-repeat center;
+					background-color: #f0f6fc;
+					opacity: 0.6;
+				}
+				#toplevel_page_mls-policies a:hover div::before,
+				#toplevel_page_mls-policies a.wp-menu-open div::before {
+					content: "";
+					display: inline-block;
+					width: 20px;
+					height: 20px;
+					mask: url(<?php echo \esc_url( $svg_default ); ?>) no-repeat center;
+					-webkit-mask: url(<?php echo \esc_url( $svg_default ); ?>) no-repeat center;
+					background-color: #a7aaad;
+					opacity: 1;
+				}
+				#toplevel_page_mls-policies a div.wp-menu-name::before {
+					mask-size: contain !important;
+					-webkit-mask-size: contain !important;
+					content: '' !important;
+					-webkit-mask: none !important;
+					mask-size: 0 !important;
+					background-color: transparent !important;
+					margin-left: -20px !important;
+					margin-top: -10px !important;
+				}
+			</style>
+			<?php
+		}
+
+		/**
+		 * Enqueue admin scripts & styles on plugin pages.
 		 *
 		 * @return void
 		 *
@@ -1573,7 +1995,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					'test_email_nonce'           => \wp_create_nonce( 'send_test_email' ),
 					'settings_nonce'             => \wp_create_nonce( 'mls-policies' ),
 					'terminate_session_password' => OptionsHelper::string_to_bool( $session_setting ),
-					'special_chars_regex'        => melapress_login_security()->get_special_chars( true ),
+					'special_chars_regex'        => \MLS_Core::get_special_chars( true ),
 					'reset_done_title'           => __( 'Reset process complete', 'melapress-login-security' ),
 					'csv_error'                  => __( 'CSV contains invalid data, provide user IDs only.', 'melapress-login-security' ),
 					'csv_file_error'             => __( 'Please provide the correct file type only.', 'melapress-login-security' ),
@@ -1591,6 +2013,9 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					'resetOwnPasswordMessage'        => __( 'Should the plugin reset your password as well?', 'melapress-login-security' ),
 				)
 			);
+
+			// Ensure global.js is loaded on settings pages for the short-password warning dialog.
+			self::global_admin_enqueue_scripts();
 		}
 
 		/**
@@ -1601,18 +2026,12 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function global_admin_enqueue_scripts() {
-			// enqueue these scripts and styles before admin_head
-			// jquery and jquery-ui should be dependencies, didn't check though.
-			if ( ! \wp_script_is( 'jquery-ui-dialog', 'queue' ) ) {
-				\wp_enqueue_script( 'jquery-ui-dialog' );
-			}
-
 			if ( ! \wp_style_is( 'wp-jquery-ui-dialog', 'queue' ) ) {
 				\wp_enqueue_style( 'wp-jquery-ui-dialog' );
 			}
 
-			// Global JS.
-			\wp_enqueue_script( 'ppm-wp-global', MLS_PLUGIN_URL . 'admin/assets/js/global.js', array( 'jquery' ), MLS_VERSION, true );
+			// Global JS — depends on jquery-ui-dialog for the session-expired / short-password dialogs.
+			\wp_enqueue_script( 'ppm-wp-global', MLS_PLUGIN_URL . 'admin/assets/js/global.js', array( 'jquery', 'jquery-ui-dialog' ), MLS_VERSION, true );
 			\wp_localize_script(
 				'ppm-wp-global',
 				'ppmwpGlobalStrings',
@@ -1635,6 +2054,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					'wp_admin'                   => \wp_logout_url( \network_admin_url() ),
 					'terminate_session_password' => OptionsHelper::string_to_bool( $session_setting ),
 					'should_password_expire'     => OptionsHelper::string_to_bool( $should_password_expire ),
+					'session_expired_nonce'      => \wp_create_nonce( 'mls_session_expired' ),
 				)
 			);
 		}
@@ -1688,8 +2108,15 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 			\check_admin_referer( 'mls-policies' );
 
+			// The nonce alone is not authorisation: it only proves the request
+			// came from a page this user was served. This endpoint returns every
+			// matching user's login and email.
+			if ( ! \current_user_can( 'manage_options' ) ) {
+				\wp_send_json_error( \esc_html__( 'Permission denied.', 'melapress-login-security' ), 403 );
+			}
+
 			$get_array  = \filter_input_array( INPUT_GET );
-			$search_str = $get_array['search_str'];
+			$search_str = isset( $get_array['search_str'] ) ? $get_array['search_str'] : '';
 
 			if ( isset( $get_array['action'] ) && 'get_users_roles' !== $get_array['action'] ) {
 				die();
@@ -1750,19 +2177,21 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				),
 			);
 
-			// Search by user meta.
-			$meta_args = array(
+			// Search by user meta — escape LIKE wildcards to prevent DoS via crafted input.
+			global $wpdb;
+			$escaped_search = $wpdb->esc_like( $search_str );
+			$meta_args      = array(
 				'exclude'    => $exclude_users,
 				'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					'relation' => 'OR',
 					array(
 						'key'     => 'first_name',
-						'value'   => ".*$search_str",
+						'value'   => $escaped_search,
 						'compare' => 'LIKE',
 					),
 					array(
 						'key'     => 'last_name',
-						'value'   => ".*$search_str",
+						'value'   => $escaped_search,
 						'compare' => 'LIKE',
 					),
 				),
@@ -1896,6 +2325,12 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			// Check if its a valid request.
 			if ( ! \check_admin_referer( 'send_test_email' ) ) {
 				exit;
+			}
+
+			// Sends mail on demand — keep it to the people who administer the
+			// site rather than anyone holding a valid nonce.
+			if ( ! \current_user_can( 'manage_options' ) ) {
+				\wp_send_json_error( array( 'message' => \esc_html__( 'Permission denied.', 'melapress-login-security' ) ), 403 );
 			}
 
 			// Checking if request is made by a logged in user or not.
