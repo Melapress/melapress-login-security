@@ -1,14 +1,14 @@
-=== MelaPress Login Security ===
+=== Melapress Login Security ===
 Plugin URI: https://melapress.com/wordpress-login-security/
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.5
-Tested up to: 7.0
+Tested up to: 7.1
 Tags: brute force, login, limit logins, limit login attempts, login security
-Stable tag: 2.4.0
+Stable tag: 2.4.2
 Requires PHP: 8.0
 
-Implement WordPress login and password security policies with ease to beef up the security and managemet of your users & website.
+Enforce WordPress login and password security policies to protect user accounts and prevent unauthorized logins.
 
 == Description ==
 
@@ -22,7 +22,7 @@ Use the free edition of Melapress Login Security to implement WordPress password
 - Protect against brute force attacks
 - Comply with GDPR with a login consent notice
 
-## Features list
+##🔐 Features list
 
 A secure WordPress login starts right here. Explore all of the features included with the free edition of [Melapress Login Security](https://melapress.com/wordpress-login-security):
 
@@ -31,16 +31,20 @@ A secure WordPress login starts right here. Explore all of the features included
 Strong passwords are your first line of defense against bad actors looking to gain access to your site. Set password requirement policies to make sure users set strong passwords. Set policies by user role or site-wide and define policy priority for users with multiple roles.
 
 - Set minimum password length
-- Mandate use of upper case and lower case characters, numeric digits, and special characters
+- Require uppercase and lowercase characters, numbers, and special characters
 - Set an automatic password expiration policy and advise users when their password is about to expire
-- Disallow users from recycling passwords
+- Disallow users from reusing passwords
 - Provide users with helpful instructions during the password configuration stage
 - Disable password reset links
 - Mandate WordPress password reset on the first login
 
 ### Limit login attempts
 
-[Limit failed login attempts](https://melapress.com/support/kb/melapress-login-security-failed-logins-policy-wordpress/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) and put an end to brute force attacks. Protect your login form by automatically disabling user accounts after a number of failed login attempts. Choose between manual unlocking by an admin or automatic unlock after a cooldown period.
+[Limit failed login attempts](https://melapress.com/support/kb/melapress-login-security-failed-logins-policy-wordpress/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) and put an end to brute force attacks. Protect your login form by automatically disabling user accounts after a number of failed login attempts. Choose between manual unlocking by an admin or automatic unlocking after a cooldown period.
+
+### Temporary login without password
+
+Provide temporary and secure login access to third parties, like developers, editors, employees or others, without a password. It works by providing the user with a temporary login link that expires after a certain amount of time, or after a number of uses. This prevents you from having to create new user accounts manually, while simultaneously reducing the security risks associated with old, unused user accounts.
 
 ### Change WordPress login URL
 
@@ -62,39 +66,39 @@ Discovered suspicious behavior? Reset all users’ passwords with just one click
 
 The premium edition of Melapress Login Security comes bundled with even more features, which enable you to take your WordPress website login security to the next level. Disable inactive WordPress user accounts and force passwords to be reset once accounts have been unlocked. Inactive accounts can be managed within a single dashboard for increased efficiency and faster response times. Moreover, you can set accounts to be locked out after a number of failed login attempts and customize the duration and method of unlocking them.
 
+
 ### Premium features list
 
-- Everything in the free version
-- Add an additional security layer with security questions users must answer when performing actions such as password reset and account unlock
-- Automatically send users an email whenever there's a login with their username from an unrecognized device with an option to terminate the session remotely
-- Extend or shorten session durations for better balance between security and user convinience
-- One-click integration with third-party plugins such as WooCommerce, LearnDash, Memberpress, and many others
-- Automatically [disable inactive WordPress users](https://melapress.com/inactive-users-wordpress/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) after a set time
-- Add Geo-blocking rules to restrict login page traffic to specific countries, or block traffic from specific countries
-- [Restrict users' login to a specific IP address](https://melapress.com/support/kb/melapress-login-security-limit-login-ips/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), or a configurable number of IP addresses
-- [Restrict WordPress users' login time by day and/or hours](https://melapress.com/support/kb/restrict-users-log-in-time-wordpress-website/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)
-- Restrict login credentials to email, username, or both
-- Add a GDPR consent notice to the login page
-- See reports of when users were last active, what’s their password age, and whose password is expired
-- Receive detailed weekly summary reports over email of password resets and changes, user account lockouts, and more!
+- **Everything included in the free edition**
+- **Manually lock user accounts** to immediately prevent login access for rarely used accounts or users on extended leave
+- **Add an extra security layer with security questions** users must answer when performing sensitive actions such as password resets and account unlocks
+- **Receive email alerts for unrecognized device logins**, with the option to remotely terminate the session
+- **Control user session duration** by extending or shortening session timeouts to balance security and convenience
+- **One-click integration with third-party plugins** such as WooCommerce, LearnDash, MemberPress, and many others
+- **Automatically [disable inactive WordPress users](https://melapress.com/inactive-users-wordpress/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)** after a configurable period of inactivity
+- **Apply Geo-blocking rules** to allow or block login access based on specific countries
+- **[Restrict users’ login to specific IP addresses](https://melapress.com/support/kb/melapress-login-security-limit-login-ips/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)**, including support for multiple allowed IPs
+- **[Restrict WordPress user login times](https://melapress.com/support/kb/restrict-users-log-in-time-wordpress-website/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls)** by day and/or hours
+- **Limit login credentials** to email address, username, or both
+- **Add a GDPR consent notice** to the WordPress login page
+- **View detailed user security reports**, including last activity, password age, and expired passwords
+- **Receive weekly email summary reports** covering password resets, password changes, user account lockouts, and more
 
-| [UPGRADE TO PREMIUM](https://melapress.com/wordpress-login-security/pricing/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) |
+|💎 [UPGRADE TO PREMIUM](https://melapress.com/wordpress-login-security/pricing/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) |
 
 ## Why you should use Melapress Login Security
 
-Melapress Login Security is a WordPress plugin built from the ground up to help you address security concerns and secure your WordPress login. Supercharge login credentials for maximum effectiveness and put a stop to unlimited login attempts, weak passwords, and inactive users. Set up policies to reduce your attack surface area such as login times restrictions, change the WordPress login URL, and much more.
+Melapress Login Security is a WordPress plugin built from the ground up to help you improve the security of your user accounts and secure your WordPress login. Supercharge login credentials for maximum effectiveness and put a stop to unlimited login attempts, weak passwords, and inactive users. Set up policies to reduce your attack surface area such as login times restrictions, change the WordPress login URL, and much more.
 
 ## Free and premium support
 
-Support for Melapress Login Security is free on the WordPress support forums. Premium world-class support is available via email to all users, including those using the free plugin.
-
-Note: Customer support for customers on a premium plan is given priority and is provided via one-to-one email. [Upgrade to premium](https://melapress.com/wordpress-login-security/pricing/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) to benefit from priority support.
+Support for the free edition of Melapress Login Security is free on the [WordPress support forums](https://wordpress.org/support/plugin/melapress-login-security/). Premium world-class support via one-to-one email is available to the Premium users - [upgrade to premium](https://melapress.com/wordpress-login-security/pricing/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) to benefit from priority support.
 
 For any other queries, feedback, or if you simply want to get in touch with us, please use our [contact form](https://melapress.com/contact/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls).
 
 #### MAINTAINED & SUPPORTED BY MELAPRESS
 
-Melapress builds high-quality WordPress security & admin plugins such as [WP 2FA](https://melapress.com/wordpress-2fa/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), [CAPTCHA 4WP](https://melapress.com/wordpress-captcha/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls),and [WP Activity Log](https://melapress.com/wordpress-activity-log/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), the #1 user-rated activity log plugin for WordPress.
+Melapress builds high-quality WordPress security & admin plugins such as [WP 2FA](https://melapress.com/wordpress-2fa/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), [Melapress Role Editor](https://melapress.com/wordpress-user-roles-editor/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls),and [WP Activity Log](https://melapress.com/wordpress-activity-log/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls), the #1 user-rated activity log plugin for WordPress.
 
 [Visit our website](https://melapress.com/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) to see how our plugins can help you better manage and improve the security and administration of your WordPress websites and users.
 
@@ -149,7 +153,9 @@ The free edition includes all basic features without any restrictions to help yo
 
 = Can I get support if I get stuck? =
 
-All Melapress plans come with one-to-one email support, ensuring you can secure your WordPress login processes with minimal effort You can reach support through email at support@melapress.com.
+Support for the Free edition of the plugin is provided only via the WordPress.org support forums. You can also refer to our [support pages](https://melapress.com/support/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) for all the technical and product documentation.
+
+If you are using the Premium edition, you get direct access to our support team via one-to-one [email support](https://melapress.com/support/submit-ticket/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls).
 
 = How does Melapress Login Security secure my website? =
 
@@ -187,7 +193,9 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 1. The configurable login security policies in the plugin.
 2. The plugin is highly configurable, allowing you to fine tune the plugin's functionality to fit your requirements.
 3. You can configure different login security policies for every user role, or exclude the role from the policies, or simply inherit the site-wide policies for every role.
-4. Change the login page URL as a security hardening technique, and also add a GDPR consent message, which is required by PCI DSS and GDPR compliance regulations.
+4. Change the login page URL as a security hardening technique, restrict access via IP address(es), and also add a GDPR consent message, which is required by PCI DSS and GDPR compliance regulations.
+5. Easily create temporary secure logins without passwords that automatically expire after a specific period or a number of use.
+
 5. In the Premium edition you can also limit the traffic to the login page by country or a number of countries.
 6. Users are notified when their password expires.
 7. It is very easy for a user to know what their password should include or not because the policies which are not met when setting a new password are highlighted in red.
@@ -197,91 +205,25 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 == Changelog ==
 
-= 2.1.1 (2025-04-07) =
+= 2.4.2 (2026-09-17) =
 
-Version 2.1.1 (2025-04-07) Maintenance update
+ * **Functionality & plugin improvements**
 
- * **Bug fixes**
-	 * Fixed a vulnerability reported by Wordfence: Missing Authorization leading to Unauthenticated Arbitrary User Deletion.
-	 * Resolved a UI issue in the calendar view for the Temporary Logins custom expiry date filter.
-	 * Fixed a bug that prevented the "Hide WordPress native errors on login form" feature from working correctly when the login URL was changed or when running on a multisite network.
-	 * Multisite: Addressed PHP errors that occurred when certain plugin cron jobs were executed.
-	 * Multisite: Addressed a bug which was causing the "User notification templates" page to be hidden on certain site setups
-	 * Fixed a bug preventing "Disallow old passwords" feature to work on 3rd party forms, unless "Password policies" are globally active in plugin settings.
-	 * Fixed an internal plugin conflict between "Disallow old passwords" feature and Temporary logins, which in some edge cases could prevent new Temporary logins to be made
-
- * **Plugin improvements**
-	 * Users excluded from password policies are now also exempt from Security Questions enforcement.
-	 *  Users with an expired password can now log in if the policy is disabled in the plugin settings.
-	 * Improved Temporary Logins UI with a more compact layout.
-	 * Strengthened security by adding additional nonce and capability checks across the plugin.
-
-= 2.0.1 (2024-12-10) =
-
-Version 2.0.1 (2024-12-10) Maintenance update
-
-* **New features**
-	 * Timed Logins: Users login token can now expire as close of business (optional)
-
- * **Plugin improvements**
-	 * Various UI improvements to policies / reset all passwords area
-	 * WP 2FA + Unrecognised Device policies now operate in harmony, enforcing only after 2FA has been passed
+	 *  Improved Premium policy enforcement so users with expired passwords or users required to reset their password on first login cannot continue with an active session before completing the required password action.
+	 *  Admin notices from other Melapress plugins are now shown on Melapress Login Security pages.
+	 *  The Locked Users table is now always displayed. When no users are locked, it shows a clear empty-state message.
+	 *  Updated the Policies page labels and organization. Security questions are now listed under **User account and session policies**.
+	 *  Updated the Free edition Locked Users help text
+	 *  Updated the Locked Users search help text to clarify that searches include usernames, email addresses, display names, and user IDs.
 
  * **Bug fixes**
-	 * Fixed bug which caused expired user logins to count as a failure.
-	 * Fixed potential error caused on specific custom password-less registration methods.
-	 * Fixed bug which stopped multiple users from being unlocked at once
-	 * Fixed formatting of email templates
-	 * Summary email: fixed ‘random’ readout of year
-	 * Fixed some small PHP deprecation warnings.
 
-= 2.0.0 (2024-11-05) =
-
- * **New features**
-	 * Security questions: require users to configure security questions that can be used to verify users when resetting passwords and unlocking user accounts, thus the website administrator does not need to be involved.
-	 * Unrecognized devices policy: users will be alerted via email each time there is a login with their username from a device that was not used before, and are also given the option to remotely log out that session.
-	 * IP address restriction setting for the login page: restrict access to the login page by IP address(es).
-	 * Session cookies settings: configure the expiration time of the WordPress session cookies, including those used when the user checks the "Remember me" option in the login page. 
-	 * Added the shortcode *mls_user_password_expiry_notice* so admins can add the password expiry notice on custom user portals etc.
-	 * Added the hook *mls_user_set_as_inactive* that can be used when a user's account is disabled by the Inactive users policy.
-	 * Setting to restrict logins by either username or email address only. By default you can login to WordPress by using any.
-	 * New option in the "Reset all passwords" feature that requires all users to change their password on their next login, instead of resetting the passwords of all users and sending them an email. This is mostly used for users who do not / cannot receive emails to reset their passwords.
-	 * Setting to disable the built-in WordPress password auto suggestion when resetting or changing the password.
-	 * Setting in the "Password expiration policy" to configure when the user should be notified of the password expiration date after dismissing the notification.
-	 * Added out-of-the-box support for Easy Digital Downloads and ProfilePress; enforce the login and password policies on these plugins' forms with just one-click.
-	 * Added a "Last login time" column in the users' page, giving the admin an easy overview of users' login activity.
-
- * **Plugin improvements**
-	 * Generic / overall code updates and enhancements - ensuring code adheres to the WordPress coding standards, added comments where needed, improved nonce checks and much more.
-	 * Applied several coding updates that result in noticeable overall better plugin performance and resources usage.
-	 * Every password policy can now be enabled / disabled individually, rather than all together.
-	 * Reorganized the order of the policies in the settings, and grouped the password, user account and login policies.
-	 * Updated all the prefixes in the plugin's code and also in the settings to MLS_. Included a manual updating process to handle the update.
-	 * Improved overall support for Paid Membership Pro.
-	 * Standardized the spacing, help text placement and settings' layout for a more uniform and easy to use UI.
-	 * All emails the plugin uses are now available as templates that can be edited.
-	 * Moved all *wp_mail* functions to a single emailer class.
-	 * Added a default value to the "password expiry" notification setting.
-	 * Updated several strings / help text in the plugin for better explanation and guidance for users.
-	 * Added a default notification for when the sending of password reset links is disabled.
-	 * Updated the email and notifications templates section; separated the notifications from the email templates, making it much easier for the user to edit them.
-	 * Updated the default email and notification templates.
-	 * Bumped up the minimum version of PHP to 7.3.
-
- * **Bug fixes**
-	 * Fixed the check for password expiry emails - in some cases plugin was sending multiple emails to users.
-	 * Fixed: Excluded user with admin role still locked due to inactive users policy.
-	 * Fixed: Conflict with WP Engine MU plugin - WP Engine's plugin does not account for an error if passed to it even if the hook returns both WP_User and WP_Error. 
-	 * Fixed: plugin was not considering the full stop character, and other characters as a special character in passwords (had a specific hardcoded list).
-	 * Fixed: Locked users page was not showing up when using a Professional plan license.
-	 * Fixed: Upgrade admin notice not showing up in a multisite environment.
-	 * Fixed: Login page consent / GDPR notification shows in the login page after migration even when the setting is disabled.
-	 * Fixed: weekly summary email reports new users as having reset their passwords.
-	 * Fixed an edge case in which a just unlocked user cannot log in to the multisite network due to too many redirects error.
-	 * Fixed: multiple password policies settings changes not saved when one of the changes is to set the password minimum length policy to 5.
-	 * Fixed: failed login attempts was adding up the failed logins of multiple users when they are logging in from the same IP address, resulting in locked accounts that should have not been locked.
-	 * Fixed: several issues with enforcing password policies on WooCommerce pages, and also improved the logic of when specific notifications should be shown on WooCommerce pages.
-	 * Fixed: Password history feature was allowing some of the old passwords to be reused in some edge cases.
-	 * Fixed a PHP fatal error in class-optionshelper.php which was caused when upgrading from a much older version of the plugin to the most recent one.
+	 *  Fixed memory exhaustion during REST API requests authenticated with Application Passwords
+	 *  Fixed an issue in Premium where a `user_id` value of `-1`, meaning no selected user, was incorrectly converted to user ID `1` and could apply the wrong role policy.
+	 *  Fixed a rendering issue that hid third-party form checkboxes on the **Forms & Placements** page.
+	 *  Fixed Premium Locked Users searches so numeric terms also match usernames, email addresses, and display names, in addition to exact user IDs.
+	 *  Fixed manual locks not being enforced for users or roles excluded from other policies.
+	 *  Fixed a fatal error caused by an undefined `wp_salt()` function during temporary login token migration after an upgrade.
+	 *  Fixed an issue where the first manually locked user could not be unlocked until another locked user was unlocked.
 
 Refer to the complete [plugin changelog](hhttps://melapress.com/support/kb/melapress-login-security-plugin-changelog/?utm_source=wp+repo&utm_medium=repo+link&utm_campaign=wordpress_org&utm_content=mls) for more detailed information about what was new, improved and fixed in previous version updates of Melapress Login Security.

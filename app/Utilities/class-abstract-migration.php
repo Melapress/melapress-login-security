@@ -243,7 +243,7 @@ if ( ! class_exists( '\MLS\Abstract_Migration' ) ) {
 		 * @since 2.5.0
 		 */
 		protected static function get_option( $option_name, $default = false ) {
-			return \is_multisite() ? \get_site_option( $option_name, $default ) : \get_option( $option_name, $default );
+			return \is_multisite() ? \MLS\Helpers\OptionsHelper::get_plugin_option( $option_name, $default ) : \get_option( $option_name, $default );
 		}
 
 		/**
@@ -257,7 +257,7 @@ if ( ! class_exists( '\MLS\Abstract_Migration' ) ) {
 		 * @since 2.5.0
 		 */
 		protected static function update_option( $option_name, $value ) {
-			return \is_multisite() ? \update_site_option( $option_name, $value ) : \update_option( $option_name, $value, false );
+			return \is_multisite() ? \MLS\Helpers\OptionsHelper::update_plugin_option( $option_name, $value ) : \update_option( $option_name, $value, false );
 		}
 
 		/**
@@ -270,7 +270,7 @@ if ( ! class_exists( '\MLS\Abstract_Migration' ) ) {
 		 * @since 2.5.0
 		 */
 		protected static function delete_option( $option_name ) {
-			return \is_multisite() ? \delete_site_option( $option_name ) : \delete_option( $option_name );
+			return \is_multisite() ? \MLS\Helpers\OptionsHelper::delete_plugin_option( $option_name ) : \delete_option( $option_name );
 		}
 	}
 }

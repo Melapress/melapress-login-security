@@ -33,7 +33,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 		public const TEMP_USER_META_KEY = 'mls_temp_user';
 
-		/** Prefix for the short-lived option used to serialize bearer-token use. */
+		/** Prefix for the database lock used to serialize bearer-token use. */
 		private const LOGIN_LOCK_PREFIX = 'mls_temp_login_lock_';
 
 		/** Failed token lookups allowed from one source address per window. */
@@ -151,8 +151,19 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 				return;
 			}
 
-			$user_id  = absint( $_REQUEST['user_id'] );
-			$target   = get_user_by( 'ID', $user_id );
+			/*
+			 * Sign-preserving, like the policy call sites. absint( -1 ) is 1, and
+			 * -1 is WordPress's "no user selected" sentinel, so the raw cast
+			 * turned "nobody" into account 1. The checks below already stopped
+			 * that going anywhere — account 1 is not a temporary login — but the
+			 * next person to copy one of these lines should copy the right one.
+			 *
+			 * The fallback is 0 rather than the current user: this path acts on
+			 * a named temporary login, so naming no account has to stop the
+			 * request, not quietly retarget it at whoever is signed in.
+			 */
+			$user_id  = \MLS\Helpers\OptionsHelper::target_user_id_from_request( $_REQUEST, 0 );
+			$target   = $user_id ? get_user_by( 'ID', $user_id ) : false;
 			if ( ! $target || ! current_user_can( 'edit_user', $user_id ) || ( is_multisite() && is_super_admin( $user_id ) ) || ! self::is_valid_temp_user( $target ) ) {
 				return;
 			}
@@ -316,8 +327,9 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 			// Are we currently editing an existing tempoary user?
 			if ( isset( $_GET['user_id'] ) && isset( $_GET['action'] ) && 'edit_link' === $_GET['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$user_id = absint( $_GET['user_id'] );
-				$user    = get_user_by( 'ID', $user_id ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				// Sign-preserving with a 0 fallback; see the delete/disable handler above.
+				$user_id = \MLS\Helpers\OptionsHelper::target_user_id_from_request( $_GET, 0 );
+				$user    = $user_id ? get_user_by( 'ID', $user_id ) : false;
 
 				if ( ! $user || ! current_user_can( 'edit_user', $user_id ) || ( is_multisite() && is_super_admin( $user_id ) ) || ! self::is_valid_temp_user( $user ) ) {
 					wp_die(
@@ -486,22 +498,22 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 										<input type="radio" id="expire_from_first_use" name="login_expire" value="expire_from_first_use" <?php checked( $form_values['login_expire'], 'expire_from_first_use' ); ?>>
 										<label for="expire_from_first_use"><?php esc_html_e( 'Expire', 'melapress-login-security' ); ?> 
-										<input type="number" id="expire_from_login_number" name="expire_from_login_number" value="<?php echo esc_attr( $form_values['expire_from_login_number'] ); ?>" size="4" class="inline-input ltr" min="1">
+										<input type="number" id="expire_from_login_number" name="expire_from_login_number" value="<?php echo \esc_attr( $form_values['expire_from_login_number'] ); ?>" size="4" class="inline-input ltr" min="1">
 											<select name="expire_from_login_denominator" id="expire_from_login_denominator">												
-												<option value="hour" <?php selected( $form_values['expire_from_login_denominator'], 'hour' ); ?>><?php esc_html_e( 'Hours', 'melapress-login-security' ); ?></option>
-												<option value="day" <?php selected( $form_values['expire_from_login_denominator'], 'day' ); ?>><?php esc_html_e( 'Days', 'melapress-login-security' ); ?></option>
-												<option value="week" <?php selected( $form_values['expire_from_login_denominator'], 'week' ); ?>><?php esc_html_e( 'Weeks', 'melapress-login-security' ); ?></option>
-												<option value="month" <?php selected( $form_values['expire_from_login_denominator'], 'month' ); ?>><?php esc_html_e( 'Months', 'melapress-login-security' ); ?></option>				
+												<option value="hour" <?php \selected( $form_values['expire_from_login_denominator'], 'hour' ); ?>><?php \esc_html_e( 'Hours', 'melapress-login-security' ); ?></option>
+												<option value="day" <?php \selected( $form_values['expire_from_login_denominator'], 'day' ); ?>><?php \esc_html_e( 'Days', 'melapress-login-security' ); ?></option>
+												<option value="week" <?php \selected( $form_values['expire_from_login_denominator'], 'week' ); ?>><?php \esc_html_e( 'Weeks', 'melapress-login-security' ); ?></option>
+												<option value="month" <?php \selected( $form_values['expire_from_login_denominator'], 'month' ); ?>><?php \esc_html_e( 'Months', 'melapress-login-security' ); ?></option>				
 											</select>
 
-											<?php esc_html_e( 'from initial access', 'melapress-login-security' ); ?>
+											<?php \esc_html_e( 'from initial access', 'melapress-login-security' ); ?>
 										</label><br><br>
 										
-										<input type="radio" id="custom_expiry" name="login_expire" value="custom_expiry" <?php checked( $form_values['login_expire'], 'custom_expiry' ); ?>>
-										<label for="custom_expiry"><?php esc_html_e( 'Expire on specific date & time', 'melapress-login-security' ); ?>
+										<input type="radio" id="custom_expiry" name="login_expire" value="custom_expiry" <?php \checked( $form_values['login_expire'], 'custom_expiry' ); ?>>
+										<label for="custom_expiry"><?php \esc_html_e( 'Expire on specific date & time', 'melapress-login-security' ); ?>
 											<span>
-												<input type="text" id="mls-datepicker" placeholder="DD/MM/YYYY" name="custom_date" value="<?php echo esc_attr( $form_values['custom_date'] ); ?>">
-												<input type="text" id="mls-timepicker" placeholder="00:00" name="custom_time" value="<?php echo esc_attr( $form_values['custom_time'] ); ?>">
+												<input type="text" id="mls-datepicker" placeholder="DD/MM/YYYY" name="custom_date" value="<?php echo \esc_attr( $form_values['custom_date'] ); ?>">
+												<input type="text" id="mls-timepicker" placeholder="00:00" name="custom_time" value="<?php echo \esc_attr( $form_values['custom_time'] ); ?>">
 											</span>
 										</label>									
 									</td>
@@ -509,12 +521,12 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 								<tr class="form-field">
 									<th scope="row">
-										<label for="language"><?php esc_html_e( 'Max logins', 'melapress-login-security' ); ?></label>
+										<label for="language"><?php \esc_html_e( 'Max logins', 'melapress-login-security' ); ?></label>
 									</th>
 									<td scope="row">
-										<label for="expire_from_first_use"><?php esc_html_e( 'Expire account after', 'melapress-login-security' ); ?> 
-											<input type="number" id="max_logins" name="max_logins" value="<?php echo esc_attr( $form_values['max_logins'] ); ?>" size="4" class="inline-input ltr" min="1">
-											<?php esc_html_e( 'logins', 'melapress-login-security' ); ?>
+										<label for="expire_from_first_use"><?php \esc_html_e( 'Expire account after', 'melapress-login-security' ); ?> 
+											<input type="number" id="max_logins" name="max_logins" value="<?php echo \esc_attr( $form_values['max_logins'] ); ?>" size="4" class="inline-input ltr" min="1">
+											<?php \esc_html_e( 'logins', 'melapress-login-security' ); ?>
 										</label>
 									</td>
 								</tr>
@@ -522,11 +534,11 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 								<?php if ( ! $cancel_id ) { ?>
 								<tr class="form-field">
 									<th scope="row">
-										<label for="language"><?php esc_html_e( 'Current login count', 'melapress-login-security' ); ?></label>
+										<label for="language"><?php \esc_html_e( 'Current login count', 'melapress-login-security' ); ?></label>
 									</th>
 									<td scope="row">
-										<label for="login_count"><?php esc_html_e( 'Current login count', 'melapress-login-security' ); ?> 
-											<input type="number" id="login_count" name="login_count" value="<?php echo esc_attr( $form_values['login_count'] ); ?>" size="4" class="inline-input ltr" min="1">
+										<label for="login_count"><?php \esc_html_e( 'Current login count', 'melapress-login-security' ); ?> 
+											<input type="number" id="login_count" name="login_count" value="<?php echo \esc_attr( $form_values['login_count'] ); ?>" size="4" class="inline-input ltr" min="1">
 										</label>
 									</td>
 								</tr>
@@ -534,11 +546,11 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 								<tr class="form-field">
 									<th scope="row">
-										<label for="language"><?php esc_html_e( 'Language', 'melapress-login-security' ); ?></label>
+										<label for="language"><?php \esc_html_e( 'Language', 'melapress-login-security' ); ?></label>
 									</th>
 									<td scope="row" class="mls-language-dropdown">
 										<?php
-											wp_dropdown_languages(
+											\wp_dropdown_languages(
 												array(
 													'name' => 'locale',
 													'selected' => $form_values['locale'],
@@ -549,7 +561,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 											);
 										?>
 										<small>
-											<?php esc_html_e( 'Language will be installed if not already.', 'melapress-login-security' ); ?>
+											<?php \esc_html_e( 'Language will be installed if not already.', 'melapress-login-security' ); ?>
 										</small>
 									</td>
 								</tr>
@@ -557,11 +569,11 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 								<?php if ( $cancel_id ) { ?>
 								<tr class="form-field">
 									<th scope="row">
-										<label for="language"><?php esc_html_e( 'Send email', 'melapress-login-security' ); ?></label>
+										<label for="language"><?php \esc_html_e( 'Send email', 'melapress-login-security' ); ?></label>
 									</th>
 									<td scope="row">
 										<input type="checkbox" id="send_email" name="send_email" value="send_email">
-										<label for="send_email"><?php esc_html_e( 'Send new user the link via email', 'melapress-login-security' ); ?></label>
+										<label for="send_email"><?php \esc_html_e( 'Send new user the link via email', 'melapress-login-security' ); ?></label>
 									</td>
 								</tr>
 								<?php } ?>
@@ -570,22 +582,22 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 						
 						<div>
 							<p class="submit">
-								<a href="#" data-nonce="<?php echo esc_attr( wp_create_nonce( MLS_PREFIX . '-create-login' ) ); ?>" class="button button-primary" id="mls-create-login-submit"><?php echo esc_attr( $save_button_label ); ?></a> <a href="<?php echo esc_attr( $cancel_href ); ?>" class="button button-secondary" <?php echo wp_kses_post( $cancel_id ); ?>><?php esc_html_e( 'Cancel', 'melapress-login-security' ); ?></a>
+								<a href="#" data-nonce="<?php echo \esc_attr( \wp_create_nonce( MLS_PREFIX . '-create-login' ) ); ?>" class="button button-primary" id="mls-create-login-submit"><?php echo \esc_attr( $save_button_label ); ?></a> <a href="<?php echo \esc_attr( $cancel_href ); ?>" class="button button-secondary" <?php echo \wp_kses_post( $cancel_id ); ?>><?php \esc_html_e( 'Cancel', 'melapress-login-security' ); ?></a>
 							</p>
 
 							<span id="mls-create-login-result" ></span>
 
 							<?php
 							if ( $display_form ) {
-								wp_nonce_field( MLS_PREFIX . '-edit-login', MLS_PREFIX . '-edit-login-nonce' );
+								\wp_nonce_field( MLS_PREFIX . '-edit-login', MLS_PREFIX . '-edit-login-nonce' );
 							}
 							?>
-							<?php wp_nonce_field( MLS_PREFIX . '-create-login', MLS_PREFIX . '-create-login-nonce' ); ?>
+							<?php \wp_nonce_field( MLS_PREFIX . '-create-login', MLS_PREFIX . '-create-login-nonce' ); ?>
 						</div>
 					</form>
 
 					<p>
-						<?php esc_html_e( 'Below is a list of temporary logins currently active.', 'melapress-login-security' ); ?>
+						<?php \esc_html_e( 'Below is a list of temporary logins currently active.', 'melapress-login-security' ); ?>
 					</p>
 					<form id="melapress_temp_logins" method="post">
 						<?php
@@ -606,7 +618,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 		 * @since 2.1.0
 		 */
 		public static function create_login_link() {
-			if ( ! current_user_can( 'manage_options' ) ) {
+			if ( ! \current_user_can( 'manage_options' ) ) {
 				return;
 			}
 
@@ -636,7 +648,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 			);
 
 			if ( empty( $post_array['form_data'] ) || ! is_array( $post_array['form_data'] ) ) {
-				wp_send_json_error( array( 'message' => esc_html__( 'Invalid request.', 'melapress-login-security' ) ) );
+				\wp_send_json_error( array( 'message' => \esc_html__( 'Invalid request.', 'melapress-login-security' ) ) );
 			}
 
 			foreach ( $post_array['form_data'] as $posted_setting ) {
@@ -659,15 +671,15 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 			// Check nonce.
 			if ( ! isset( $data['user_id'] ) || ! \current_user_can( 'manage_options' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
-				wp_send_json_error( array( 'message' => esc_html__( 'Nonce check failed.', 'melapress-login-security' ) ) );
+				\wp_send_json_error( array( 'message' => \esc_html__( 'Nonce check failed.', 'melapress-login-security' ) ) );
 			}
 
 			if ( ( 0 === $data['user_id'] && empty( $data['user_email'] ) ) || ( ! empty( $data['user_email'] ) && ! is_email( $data['user_email'] ) ) ) {
-				wp_send_json_error( array( 'message' => esc_html__( 'Please provide a valid email.', 'melapress-login-security' ) ) );
+				\wp_send_json_error( array( 'message' => \esc_html__( 'Please provide a valid email.', 'melapress-login-security' ) ) );
 			}
 
 			if ( empty( $data['user_first_name'] ) ) {
-				wp_send_json_error( array( 'message' => esc_html__( 'Please provide at least a first name.', 'melapress-login-security' ) ) );
+				\wp_send_json_error( array( 'message' => \esc_html__( 'Please provide at least a first name.', 'melapress-login-security' ) ) );
 			}
 
 			if ( $edit_nonce && wp_verify_nonce( $edit_nonce, MLS_PREFIX . '-edit-login' ) && isset( $data['user_id'] ) ) {
@@ -685,16 +697,16 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 					'message' => $result['message'],
 				);
 
-				wp_send_json_error( $return );
+				\wp_send_json_error( $return );
 			}
 
 			$return = array(
-				'message'    => ( $is_valid_edit ) ? esc_html__( 'Login updated.', 'melapress-login-security' ) : esc_html__( 'Login created.', 'melapress-login-security' ),
+				'message'    => ( $is_valid_edit ) ? \esc_html__( 'Login updated.', 'melapress-login-security' ) : \esc_html__( 'Login created.', 'melapress-login-security' ),
 				'link'       => ( isset( $result['user_id'] ) ) ? self::get_login_url( $result['user_id'] ) : false,
 				'event_data' => $result,
 			);
 
-			wp_send_json_success( $return );
+			\wp_send_json_success( $return );
 		}
 
 		/**
@@ -716,14 +728,14 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 			$data['max_logins']                    = isset( $data['max_logins'] ) ? min( 10000, max( 1, absint( $data['max_logins'] ) ) ) : 5;
 			$data['login_count']                   = isset( $data['login_count'] ) ? min( $data['max_logins'], absint( $data['login_count'] ) ) : 0;
 			$data['redirect_to']                   = isset( $data['redirect_to'] ) && in_array( $data['redirect_to'], $redirects, true ) ? $data['redirect_to'] : 'wp_dashboard';
-			$data['custom_date']                   = isset( $data['custom_date'] ) ? sanitize_text_field( $data['custom_date'] ) : '';
-			$data['custom_time']                   = isset( $data['custom_time'] ) ? sanitize_text_field( $data['custom_time'] ) : '';
+			$data['custom_date']                   = isset( $data['custom_date'] ) ? \sanitize_text_field( $data['custom_date'] ) : '';
+			$data['custom_time']                   = isset( $data['custom_time'] ) ? \sanitize_text_field( $data['custom_time'] ) : '';
 
 			if ( 'custom_expiry' === $data['login_expire'] && ( ! preg_match( '/^\d{1,2}\/\d{1,2}\/\d{4}$/', $data['custom_date'] ) || ! preg_match( '/^(?:[01]\d|2[0-3]):[0-5]\d$/', $data['custom_time'] ) ) ) {
-				wp_send_json_error( array( 'message' => esc_html__( 'Please provide a valid expiry date and time.', 'melapress-login-security' ) ) );
+				\wp_send_json_error( array( 'message' => \esc_html__( 'Please provide a valid expiry date and time.', 'melapress-login-security' ) ) );
 			}
 
-			$locale         = isset( $data['locale'] ) ? sanitize_text_field( $data['locale'] ) : get_locale();
+			$locale         = isset( $data['locale'] ) ? \sanitize_text_field( $data['locale'] ) : get_locale();
 			$data['locale'] = preg_match( '/^[A-Za-z][A-Za-z0-9_@-]{1,19}$/', $locale ) ? $locale : get_locale();
 
 			return $data;
@@ -741,8 +753,8 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 			$nonce = isset( $data['mls-create-login-nonce'] ) ? $data['mls-create-login-nonce'] : false;
 
 			// Check nonce.
-			if ( ! current_user_can( 'manage_options' ) || ! current_user_can( 'create_users' ) || ! current_user_can( 'promote_users' ) || ! $nonce || ! wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
-				wp_send_json_error( array( 'message' => esc_html__( 'Nonce check failed.', 'melapress-login-security' ) ) );
+			if ( ! \current_user_can( 'manage_options' ) || ! \current_user_can( 'create_users' ) || ! \current_user_can( 'promote_users' ) || ! $nonce || ! \wp_verify_nonce( $nonce, MLS_PREFIX . '-create-login' ) ) {
+				\wp_send_json_error( array( 'message' => \esc_html__( 'Nonce check failed.', 'melapress-login-security' ) ) );
 			}
 
 			$result = array(
@@ -773,15 +785,15 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 			$password    = self::generate_password();
 			$username    = self::create_username( $data );
-			$first_name  = isset( $data['user_first_name'] ) ? sanitize_text_field( $data['user_first_name'] ) : '';
-			$last_name   = isset( $data['user_last_name'] ) ? sanitize_text_field( $data['user_last_name'] ) : '';
-			$email       = isset( $data['user_email'] ) ? sanitize_email( $data['user_email'] ) : '';
+			$first_name  = isset( $data['user_first_name'] ) ? \sanitize_text_field( $data['user_first_name'] ) : '';
+			$last_name   = isset( $data['user_last_name'] ) ? \sanitize_text_field( $data['user_last_name'] ) : '';
+			$email       = isset( $data['user_email'] ) ? \sanitize_email( $data['user_email'] ) : '';
 			$role        = ! empty( $data['role'] ) ? sanitize_key( $data['role'] ) : 'subscriber';
 			$redirect_to = ! empty( $data['redirect_to'] ) ? sanitize_text_field( $data['redirect_to'] ) : 'wp_dashboard';
 			$skip_2fa    = ! empty( $data['skip_2fa'] ) ? 1 : 0;
 
 			if ( ! array_key_exists( $role, get_editable_roles() ) ) {
-				wp_send_json_error( array( 'message' => esc_html__( 'You cannot assign the requested role.', 'melapress-login-security' ) ) );
+				\wp_send_json_error( array( 'message' => \esc_html__( 'You cannot assign the requested role.', 'melapress-login-security' ) ) );
 			}
 
 			$user_args = array(
@@ -789,7 +801,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 				'last_name'  => $last_name,
 				'user_login' => $username,
 				'user_pass'  => $password,
-				'user_email' => sanitize_email( $email ),
+				'user_email' => \sanitize_email( $email ),
 				'role'       => $role,
 			);
 
@@ -1296,45 +1308,35 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 		/**
 		 * Serialize use of a temporary bearer token for one user.
 		 *
-		 * add_option() is an atomic insert, unlike separate user-meta reads and
-		 * writes. A short stale-lock timeout prevents a terminated PHP request
-		 * from making the temporary account unusable indefinitely.
+		 * A connection-owned lock covers every site sharing the user table.
+		 * Option APIs can race (network option names are not unique), and a
+		 * timed lease can expire while a slow login still owns the critical
+		 * section. This lock lasts until release or connection termination.
 		 *
 		 * @param int $user_id Temporary user ID.
 		 * @return bool
 		 */
 		private static function acquire_login_lock( $user_id ) {
-			$option_name = self::LOGIN_LOCK_PREFIX . absint( $user_id );
-			$now         = time();
-			$added       = is_multisite() ? add_site_option( $option_name, $now ) : add_option( $option_name, $now, '', false );
+			global $wpdb;
 
-			if ( $added ) {
-				return true;
-			}
-
-			$created_at = absint( is_multisite() ? get_site_option( $option_name, 0 ) : get_option( $option_name, 0 ) );
-			if ( $created_at && ( $now - $created_at ) > 30 ) {
-				if ( is_multisite() ) {
-					delete_site_option( $option_name );
-					return add_site_option( $option_name, $now );
-				}
-
-				delete_option( $option_name );
-				return add_option( $option_name, $now, '', false );
-			}
-
-			return false;
+			// Zero wait: a competing request receives the existing HTTP 409 response.
+			return '1' === (string) $wpdb->get_var(
+				$wpdb->prepare( 'SELECT GET_LOCK(%s, 0)', self::login_lock_name( $user_id ) )
+			);
 		}
 
 		/** Release a temporary bearer-token lock. */
 		private static function release_login_lock( $user_id ) {
-			$option_name = self::LOGIN_LOCK_PREFIX . absint( $user_id );
-			if ( is_multisite() ) {
-				delete_site_option( $option_name );
-				return;
-			}
+			global $wpdb;
 
-			delete_option( $option_name );
+			$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', self::login_lock_name( $user_id ) ) );
+		}
+
+		/** Database-scoped name, below MySQL's 64-character limit. */
+		private static function login_lock_name( $user_id ) {
+			global $wpdb;
+
+			return self::LOGIN_LOCK_PREFIX . md5( DB_NAME . ':' . $wpdb->usermeta . ':' . absint( $user_id ) );
 		}
 
 		/**
@@ -1690,6 +1692,19 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 							array( 'response' => 409 )
 						);
 					}
+
+					// get_users() primed this cache before we acquired the lock. A
+					// competing login may since have spent/rotated the token, or an
+					// administrator may have revoked it. Reload all login state.
+					\wp_cache_delete( $temporary_user_id, 'user_meta' );
+					$locked_token_hash = (string) \get_user_meta( $temporary_user_id, self::TOKEN_LOOKUP_META, true );
+					if ( empty( $locked_token_hash ) || ! hash_equals( $locked_token_hash, self::token_lookup_hash( $mls_temp_user_token ) ) ) {
+						self::record_failed_token_attempt();
+						self::release_login_lock( $temporary_user_id );
+						\wp_safe_redirect( \home_url() );
+						exit();
+					}
+
 					$do_login          = true;
 					$do_login          = apply_filters( 'mls_temporary_login_pre_check', $do_login, $temporary_user_id );
 
@@ -1730,14 +1745,13 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 							exit();
 						}
 
-						// Consume the bearer URL before issuing a session cookie.
-						self::rotate_temporary_token( $temporary_user_id );
 						\update_user_meta( $temporary_user_id, 'mls_last_login', self::get_current_gmt_timestamp() );
 						\wp_set_current_user( $temporary_user_id, $temporary_user_login );
 						\wp_set_auth_cookie( $temporary_user_id );
 
 						$login_count_key = 'mls_login_count';
-						$login_count     = \get_user_meta( $temporary_user_id, $login_count_key, true );
+						$login_count     = absint( \get_user_meta( $temporary_user_id, $login_count_key, true ) );
+						$login_limit     = absint( \get_user_meta( $temporary_user_id, 'mls_temp_user_max_login_limit', true ) );
 
 						if ( ! empty( $login_count ) ) {
 							++$login_count;
@@ -1746,6 +1760,15 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 						}
 
 						\update_user_meta( $temporary_user_id, $login_count_key, $login_count );
+
+						/*
+						 * A multi-use bearer URL is intentionally replayable until its
+						 * configured limit. Rotate it after the final permitted login so
+						 * another holder cannot start one more session with the old URL.
+						 */
+						if ( $login_limit && $login_count >= $login_limit ) {
+							self::rotate_temporary_token( $temporary_user_id );
+						}
 
 						\do_action( 'wp_login', $temporary_user_login, $temporary_user );
 						\do_action( 'mls_after_login_success', $temporary_user_id );
@@ -1769,7 +1792,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 				$user_id = \get_current_user_id();
 
 				if ( ! empty( $user_id ) && self::is_valid_temporary_login( $user_id, false ) ) {
-					if ( self::is_login_expired( $user_id ) ) {
+					if ( self::is_login_expired( $user_id, false ) ) {
 						\wp_logout();
 						\wp_safe_redirect( \home_url() );
 						exit();
@@ -1805,11 +1828,13 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 		 *
 		 * @param int $user_id - User logging in.
 		 *
+		 * @param bool $check_login_limit Whether to include the login-use limit.
+		 *
 		 * @return bool - Result.
 		 *
 		 * @since 2.1.0
 		 */
-		public static function is_login_expired( $user_id = 0 ) {
+		public static function is_login_expired( $user_id = 0, $check_login_limit = true ) {
 			if ( empty( $user_id ) ) {
 				$user_id = get_current_user_id();
 			}
@@ -1820,16 +1845,14 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 
 			$expire          = get_user_meta( $user_id, 'mls_temp_user_expires_on', true );
 			$expire_date     = get_user_meta( $user_id, 'mls_temp_user_expires_on_date', true );
-			$already_expired = get_user_meta( $user_id, 'mls_temp_user_expired', true );
-			$login_count     = get_user_meta( $user_id, 'mls_login_count', true );
-			$login_limit     = get_user_meta( $user_id, 'mls_temp_user_max_login_limit', true );
+			$login_count     = absint( get_user_meta( $user_id, 'mls_login_count', true ) );
+			$login_limit     = absint( get_user_meta( $user_id, 'mls_temp_user_max_login_limit', true ) );
 
 			if ( ! empty( get_user_meta( $user_id, 'mls_temp_user_expired', true ) ) ) {
 				return true;
 			}
 
-			if ( $login_limit && $login_count >= $login_limit ) {
-				update_user_meta( $user_id, 'mls_temp_user_expired', self::get_current_gmt_timestamp() );
+			if ( $check_login_limit && $login_limit && $login_count >= $login_limit ) {
 				return true;
 			}
 

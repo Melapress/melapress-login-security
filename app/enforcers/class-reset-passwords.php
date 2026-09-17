@@ -319,7 +319,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 						$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 						$roles = reset( $roles );
 
-						$options = get_site_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
+						$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
 						if ( isset( $options['disable_self_reset'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['disable_self_reset'] ) ) {
 							$post['mepr_user_or_email'] = esc_attr( $options['disable_self_reset_message'] );
 						}
@@ -964,7 +964,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			// Check if user is currently considered to be 'locked'.
 			$is_user_blocked = \MLS\Failed_Logins::has_active_lock_event( $user_id );
 
-			$options = get_site_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
+			$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
 
 
 			// Get option by role name.

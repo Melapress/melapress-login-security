@@ -71,7 +71,7 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function determine_new_setting_values() {
-			$policy   = is_multisite() ? get_site_option( 'ppmwp_options' ) : get_option( 'ppmwp_options' );
+			$policy   = is_multisite() ? \MLS\Helpers\OptionsHelper::get_plugin_option( 'ppmwp_options' ) : get_option( 'ppmwp_options' );
 			$settings = is_multisite() ? get_site_option( 'ppmwp_setting' ) : get_option( 'ppmwp_setting' );
 
 			if ( ! is_array( $settings ) ) {
@@ -126,7 +126,7 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 			}
 
 			// Save updated rules.
-			$update = is_multisite() ? update_site_option( 'ppmwp_options', $policy ) : update_option( 'ppmwp_options', $policy );
+			$update = is_multisite() ? \MLS\Helpers\OptionsHelper::update_plugin_option( 'ppmwp_options', $policy ) : update_option( 'ppmwp_options', $policy );
 			$update = is_multisite() ? update_site_option( 'ppmwp_setting', $settings ) : update_option( 'ppmwp_setting', $settings );
 		}
 
@@ -173,15 +173,15 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 			// Move data to new prefix and clear out old entries.
 			foreach ( $results as $key => $old_setting_prefix ) {
 				$old_setting_prefix = is_multisite() ? $old_setting_prefix->meta_key : $old_setting_prefix->option_name;
-				$value_to_migrate   = is_multisite() ? get_site_option( $old_setting_prefix ) : get_option( $old_setting_prefix );
-				$update             = is_multisite() ? update_site_option( str_replace( 'ppmwp', 'mls', $old_setting_prefix ), $value_to_migrate ) : update_option( str_replace( 'ppmwp', 'mls', $old_setting_prefix ), $value_to_migrate );
+				$value_to_migrate   = is_multisite() ? \MLS\Helpers\OptionsHelper::get_plugin_option( $old_setting_prefix ) : get_option( $old_setting_prefix );
+				$update             = is_multisite() ? \MLS\Helpers\OptionsHelper::update_plugin_option( str_replace( 'ppmwp', 'mls', $old_setting_prefix ), $value_to_migrate ) : update_option( str_replace( 'ppmwp', 'mls', $old_setting_prefix ), $value_to_migrate );
 				if ( $update ) {
-					$delete = is_multisite() ? delete_site_option( $old_setting_prefix ) : delete_option( $old_setting_prefix );
+					$delete = is_multisite() ? \MLS\Helpers\OptionsHelper::delete_plugin_option( $old_setting_prefix ) : delete_option( $old_setting_prefix );
 				}
 			}
 
 			// Update settings.
-			$settings = is_multisite() ? get_site_option( 'mls_setting' ) : get_option( 'mls_setting' );
+			$settings = is_multisite() ? \MLS\Helpers\OptionsHelper::get_plugin_option( 'mls_setting' ) : get_option( 'mls_setting' );
 
 			// Set from to use custom.
 			if ( isset( $settings['from_email'] ) && ! empty( $settings['from_email'] ) ) {
@@ -193,7 +193,7 @@ if ( ! class_exists( '\MLS\UpdateRoutines' ) ) {
 				$settings['exempt']['users'] = $settings['inactive_exempt']['users'] + $settings['exempt']['users'];
 			}
 
-			$update_settings = is_multisite() ? update_site_option( 'mls_setting', $settings ) : update_option( 'mls_setting', $settings );
+			$update_settings = is_multisite() ? \MLS\Helpers\OptionsHelper::update_plugin_option( 'mls_setting', $settings ) : update_option( 'mls_setting', $settings );
 
 			update_site_option( 'mls_migration_status', 'Options migration complete, starting user data.' );
 

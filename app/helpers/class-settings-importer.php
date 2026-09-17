@@ -336,7 +336,7 @@ if ( ! class_exists( '\MLS\Helpers\SettingsImporter' ) ) {
 			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
 
 			// Check nonce.
-			if ( ! current_user_can( 'manage_options' ) || empty( $nonce ) || ! wp_verify_nonce( $nonce, 'mls-export-settings' ) ) {
+			if ( ! \MLS\Helpers\OptionsHelper::current_user_can_manage_settings() || empty( $nonce ) || ! wp_verify_nonce( $nonce, 'mls-export-settings' ) ) {
 				wp_send_json_error( esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 
@@ -356,7 +356,8 @@ if ( ! class_exists( '\MLS\Helpers\SettingsImporter' ) ) {
 
 			if ( is_multisite() ) {
 				$prepared_query = $wpdb->prepare(
-					"SELECT `meta_key`, `meta_value` FROM `{$wpdb->sitemeta}` WHERE `meta_key` LIKE %s ORDER BY `meta_key` ASC",
+					"SELECT `meta_key`, `meta_value` FROM `{$wpdb->sitemeta}` WHERE `site_id` = %d AND `meta_key` LIKE %s ORDER BY `meta_key` ASC",
+					\get_main_network_id(),
 					$prefix_like
 				);
 			} else {
@@ -423,7 +424,7 @@ if ( ! class_exists( '\MLS\Helpers\SettingsImporter' ) ) {
 		public function check_setting_and_handle_import() {
 			// Grab POSTed data.
 			// Check capability first to short-circuit early and reduce attack surface.
-			if ( ! current_user_can( 'manage_options' ) || ! wp_doing_ajax() ) {
+			if ( ! \MLS\Helpers\OptionsHelper::current_user_can_manage_settings() || ! wp_doing_ajax() ) {
 				wp_send_json_error( esc_html__( 'Permission denied.', 'melapress-login-security' ) );
 				return;
 			}
@@ -627,7 +628,7 @@ if ( ! class_exists( '\MLS\Helpers\SettingsImporter' ) ) {
 
 				// Merge with existing values so keys added in newer versions are preserved.
 				if ( is_array( $processed_value ) ) {
-					$existing = get_site_option( $setting_name, array() );
+					$existing = \MLS\Helpers\OptionsHelper::get_plugin_option( $setting_name, array() );
 					if ( is_array( $existing ) ) {
 						$processed_value = array_merge( $existing, $processed_value );
 					}
@@ -638,7 +639,7 @@ if ( ! class_exists( '\MLS\Helpers\SettingsImporter' ) ) {
 					}
 				}
 
-				$updated                        = ( ! update_site_option( $setting_name, $processed_value ) ) ? esc_html__( 'Setting updated', 'melapress-login-security' ) : esc_html__( 'Setting created', 'melapress-login-security' );
+				$updated                        = ( ! \MLS\Helpers\OptionsHelper::update_plugin_option( $setting_name, $processed_value ) ) ? esc_html__( 'Setting updated', 'melapress-login-security' ) : esc_html__( 'Setting created', 'melapress-login-security' );
 				$message['import_confirmation'] = $updated;
 				wp_send_json_success( $message );
 			}

@@ -16,18 +16,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 use MLS\Helpers\OptionsHelper;
 
 ?>
-	<tr class="setting-heading" valign="top">
-		<th scope="row">
-			<h3><?php esc_html_e( 'Password policies', 'melapress-login-security' ); ?></h3>
-		</th>
-	</tr>
 	<tr valign="top" class="neaten-tr">
 		<th scope="row">
-			<?php esc_html_e( 'Password Policies', 'melapress-login-security' ); ?>
+			<?php esc_html_e( 'Password complexity policy', 'melapress-login-security' ); ?>
 		</th>
 		<td>
 			<input name="mls_options[activate_password_policies]" data-toggle-other-areas=".password-policies-section" type="checkbox" id="ppm-activate-password-policies" value="1" <?php checked( \MLS\Helpers\OptionsHelper::string_to_bool( self::$setting_tab->activate_password_policies ) ); ?>>
-			<?php esc_attr_e( 'Activate password policies', 'melapress-login-security' ); ?>
+			<?php esc_attr_e( 'Activate Password complexity policy', 'melapress-login-security' ); ?>
 			<br>
 			<p class="description">
 				<?php esc_html_e( 'Use the settings below to setup your specific password requirements', 'melapress-login-security' ); ?>

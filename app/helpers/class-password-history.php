@@ -199,7 +199,6 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 				'password'  => wp_hash_password( $new_pass ),
 				'timestamp' => current_time( 'timestamp' ), // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 				'by'        => 'user',
-				'test'      => 'user',
 			);
 
 			// push current password to password history of the user.
@@ -245,7 +244,6 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 				'password'  => $password,
 				'timestamp' => current_time( 'timestamp' ), // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 				'by'        => 'user',
-				'pest'      => 'sss',
 			);
 			if ( $push_event ) {
 				self::push( $user_id, $password_event );
@@ -358,7 +356,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			}
 
 			// Get option by role name.
-			$options = get_site_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
+			$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $roles . '_options', $default_options );
 
 			if ( ! empty( $options ) && ( ! \MLS\Helpers\OptionsHelper::string_to_bool( $options['enforce_password'] ) && \MLS\Helpers\OptionsHelper::string_to_bool( $options['change_initial_password'] ) ) ) {
 				return true;
@@ -389,7 +387,6 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 				'password'  => $password,
 				'timestamp' => current_time( 'timestamp' ), // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
 				'by'        => 'user',
-				'pest'      => 'sss',
 			);
 			self::push( $user_id, $password_event );
 			// If check current running action `profile_update`.

@@ -73,13 +73,8 @@ if ( ! class_exists( '\MLS\MLS_Regex' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function init(): void {
-			$userid = get_current_user_id();
-			if ( isset( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$candidate = absint( $_GET['user_id'] );
-				if ( $candidate && is_admin() && current_user_can( 'edit_user', $candidate ) ) {
-					$userid = $candidate;
-				}
-			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only rule lookup; the value is validated in the helper.
+			$userid = OptionsHelper::target_user_id_from_request( $_GET, get_current_user_id() );
 
 			if ( 0 === $userid ) {
 				list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
@@ -162,7 +157,7 @@ if ( ! class_exists( '\MLS\MLS_Regex' ) ) {
 
 			$roles = \sanitize_key( $role );
 
-			$options = \get_site_option( '' !== $roles ? MLS_PREFIX . '_' . $roles . '_options' : MLS_PREFIX . '_options', MLS_Options::get_default_options() );
+			$options = \MLS\Helpers\OptionsHelper::get_plugin_option( '' !== $roles ? MLS_PREFIX . '_' . $roles . '_options' : MLS_PREFIX . '_options', MLS_Options::get_default_options() );
 
 			// A role option stored empty or corrupt would otherwise be indexed
 			// as an array on the next line and fatal the request.

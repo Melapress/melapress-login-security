@@ -132,6 +132,9 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function admin_menu() {
+			if ( ! OptionsHelper::current_user_can_manage_settings() ) {
+				return;
+			}
 			// Add admin menu page.
 			$hook_name = add_menu_page(
 				__(
@@ -235,66 +238,22 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			add_action( 'network_admin_notices', array( __CLASS__, $callback_function ) );
 		}
 
-		/**
-		 * Search User
+		/*
+		 * There is no search_users() override here any more.
 		 *
-		 * @param string $search_str Search string.
-		 * @param array  $exclude_users Exclude user array.
+		 * One existed, adding `blog_id => 0` to search the whole network, and it
+		 * could never run: Admin::search_users_roles() calls `self::search_users()`,
+		 * and `self::` binds to the class the call is written in rather than the
+		 * one handling the request, so the parent's version always answered. The
+		 * override had drifted too — it merged its two result sets with `+`,
+		 * which unions by array key and so dropped users whose positions
+		 * collided, and it prefixed the meta search with a literal ".*" that
+		 * LIKE has no special meaning for, so that half matched nothing.
 		 *
-		 * @return array
-		 *
-		 * @since 2.0.0
+		 * Searching the network is now Admin::search_users()' own job, tied to
+		 * `manage_network_options` so that a single site's administrator cannot
+		 * use it to enumerate accounts across the network.
 		 */
-		public static function search_users( $search_str, $exclude_users ) {
-			// Search by user fields.
-			$args = array(
-				'blog_id'        => 0,
-				'exclude'        => $exclude_users,
-				'search'         => '*' . $search_str . '*',
-				'search_columns' => array(
-					'user_login',
-					'user_email',
-					'user_nicename',
-					'user_url',
-					'display_name',
-				),
-				'fields'         => array(
-					'ID',
-					'user_login',
-				),
-			);
-
-			// Search by user meta.
-			$meta_args = array(
-				'exclude'    => $exclude_users,
-				'blog_id'    => 0,
-				'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-					'relation' => 'OR',
-					array(
-						'key'     => 'first_name',
-						'value'   => ".*$search_str",
-						'compare' => 'LIKE',
-					),
-					array(
-						'key'     => 'last_name',
-						'value'   => ".*$search_str",
-						'compare' => 'LIKE',
-					),
-				),
-				'fields'     => array(
-					'ID',
-					'user_login',
-				),
-			);
-			// Get users by search keyword.
-			$user_query = new \WP_User_Query( $args );
-			// Get user by search user meta value.
-			$user_query_by_meta = new \WP_User_Query( $meta_args );
-			// Merge users.
-			$users = $user_query->results + $user_query_by_meta->results;
-			// Return found users.
-			return self::format_users( $users );
-		}
 	}
 
 }

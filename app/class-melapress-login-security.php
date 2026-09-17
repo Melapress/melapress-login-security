@@ -20,6 +20,7 @@ use MLS\Api_Login_Guard;
 use MLS\Restrict_Login_Credentials;
 use MLS\Licensing\Licensing_Factory;
 use MLS\TemporaryLogins\Temporary_Logins;
+use MLS\Password_History;
 
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -148,7 +149,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				\add_action( 'admin_menu', array( '\MLS\Failed_Logins', 'add_locked_users_admin_menu' ), 20, 3 );
 			}
 
-			$mls_setting = \get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 
 
 			if ( isset( $mls_setting['enable_failure_message_overrides'] ) && OptionsHelper::string_to_bool( $mls_setting['enable_failure_message_overrides'] ) ) {
@@ -229,12 +230,33 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			// priority so that users can add new characters.
 			\add_filter( 'mls_filter_allowed_special_chars', array( $this, 'remove_excluded_special_chars_from_allowed' ), 15, 1 );
 
-			\add_action( 'user_register', array( '\MLS\Password_History', 'user_register' ) );
-			\add_action( 'mls_apply_forced_reset_usermeta', array( '\MLS\Password_History', 'apply_forced_reset_usermeta' ) );
+			/*
+			 * Password_History::class, not '\MLS\Password_History'.
+			 *
+			 * WordPress keys a string callable by the literal string it is handed,
+			 * so the leading backslash made these different callbacks from the
+			 * ones Password_History::hook() registers with __CLASS__ — same class,
+			 * same method, same priority, two ids, both fired. Every registration
+			 * ran twice.
+			 *
+			 * These are kept rather than deleted as redundant: hook() is reached
+			 * from init(), which is only hooked when the licence check passes,
+			 * while this runs unconditionally. On a premium build with no licence
+			 * these are the only registration there is.
+			 */
+			\add_action( 'user_register', array( Password_History::class, 'user_register' ) );
+			\add_action( 'mls_apply_forced_reset_usermeta', array( Password_History::class, 'apply_forced_reset_usermeta' ) );
 
 			if ( \is_admin() ) {
 				// Hide all unrelated to the plugin notices on the plugin admin pages.
 				\add_action( 'admin_print_scripts', array( '\MLS\Helpers\HideAdminNotices', 'hide_unrelated_notices' ) );
+
+				/*
+				 * Runs before anything else on the hook so the other Melapress
+				 * plugins' notices are printed first and stay above the page
+				 * title. This plugin's own notices are left alone.
+				 */
+				\add_action( 'admin_notices', array( '\MLS\Helpers\HideAdminNotices', 'raise_sibling_notices' ), PHP_INT_MIN );
 			}
 
 			\add_action( 'init', array( Temporary_Logins::class, 'manage_temporary_logins' ) );
@@ -744,7 +766,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 				return;
 			}
 
-			$mls_setting = \get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			if ( $mls_setting ) {
 				$clear_up_needed = isset( $mls_setting['clear_history'] ) && ( 'yes' === $mls_setting['clear_history'] || 1 === $mls_setting['clear_history'] );
 
@@ -789,7 +811,7 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 					}
 
 					if ( \is_multisite() ) {
-						\delete_site_option( $key );
+						\MLS\Helpers\OptionsHelper::delete_plugin_option( $key );
 					} else {
 						\delete_option( $key );
 					}
