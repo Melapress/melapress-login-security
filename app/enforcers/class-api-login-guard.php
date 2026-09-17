@@ -79,6 +79,15 @@ if ( ! class_exists( '\MLS\Api_Login_Guard' ) ) {
 		);
 
 		/**
+		 * Whether a policy evaluation is already in progress on this request.
+		 *
+		 * @var bool
+		 *
+		 * @since 2.4.2
+		 */
+		private static $evaluating = false;
+
+		/**
 		 * Register the guard.
 		 *
 		 * Covers the REST API and XML-RPC together: core decides whether an
@@ -122,7 +131,40 @@ if ( ! class_exists( '\MLS\Api_Login_Guard' ) ) {
 				return;
 			}
 
-			$refusal = self::refusal_for( $user );
+			/*
+			 * Re-entrancy guard.
+			 *
+			 * This runs inside `determine_current_user`, before the current user
+			 * is resolved, and the policies it consults write user meta — the
+			 * timed unlock clears the failed-login record and stamps
+			 * `_last_activity`. Any plugin watching meta writes and asking who
+			 * the current user is re-enters `determine_current_user`, because
+			 * there is still no answer to cache; WP Activity Log's meta sensor
+			 * does exactly that.
+			 *
+			 * It never settles on its own: add_metadata() fires `add_user_meta`
+			 * *before* the row exists, so each level down takes the same create
+			 * path and writes again. Observed depth grew without bound until PHP
+			 * ran out of memory, and because the fatal happens under an output
+			 * buffer the caller is handed HTTP 200 with an empty body — told the
+			 * request succeeded.
+			 *
+			 * A nested call expresses no opinion and returns. The outermost call
+			 * is the one deciding this request, and it still evaluates every
+			 * policy; the nested ones would only be re-deciding the same thing
+			 * about the same account.
+			 */
+			if ( self::$evaluating ) {
+				return;
+			}
+
+			self::$evaluating = true;
+
+			try {
+				$refusal = self::refusal_for( $user );
+			} finally {
+				self::$evaluating = false;
+			}
 
 			if ( ! \is_wp_error( $refusal ) ) {
 				return;

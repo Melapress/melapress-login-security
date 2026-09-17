@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     2.4.1
+ * Version:     2.4.2
  * Plugin URI:  https://melapress.com/wordpress-login-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      Melapress
@@ -236,7 +236,7 @@ if ( ! defined( 'MLS_VERSION' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_VERSION', '2.4.1' );
+	define( 'MLS_VERSION', '2.4.2' );
 }
 
 if ( ! defined( 'MLS_MENU_SLUG' ) ) {
@@ -261,7 +261,29 @@ if ( file_exists( $autoloader_file_path ) ) {
 	require_once $autoloader_file_path;
 }
 
-	Migration::migrate();
+	/*
+	 * Deferred to plugins_loaded rather than run here.
+	 *
+	 * Core includes plugin files before it requires wp-includes/pluggable.php,
+	 * so at this point in the request not one pluggable function exists yet —
+	 * wp_salt(), wp_hash(), get_userdata(), wp_mail() and the rest are all
+	 * still undefined. The 2.4.0 migration encrypts stored temporary-login
+	 * tokens, and deriving the key calls wp_salt(). Any site that had ever
+	 * issued a temporary login therefore died on update with
+	 *
+	 *   Call to undefined function MLS\TemporaryLogins\wp_salt()
+	 *
+	 * before the admin could render — and since the new version number is only
+	 * recorded once a migration run completes, every request afterwards took
+	 * the same path and failed the same way. The only way out was deactivating
+	 * the plugin.
+	 *
+	 * plugins_loaded fires after pluggable.php is in place. The negative
+	 * priority preserves the ordering this call used to guarantee: the
+	 * migration still finishes before the plugin boots itself, which it does
+	 * on this same hook at the default priority.
+	 */
+	\add_action( 'plugins_loaded', array( Migration::class, 'migrate' ), -9999 );
 
 	/**
 	 * Get an instance of the main class
@@ -392,7 +414,7 @@ if ( ! function_exists( 'mls_on_plugin_update' ) ) {
 	function mls_on_plugin_update() {
 
 		$stored_version    = \get_site_option( MLS_PREFIX . '_active_version', false );
-		$existing_settings = \get_site_option( MLS_PREFIX . '_options', false );
+		$existing_settings = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_options', false );
 
 		if ( $existing_settings && ! empty( $existing_settings ) ) {
 			if ( ! empty( $stored_version ) && version_compare( $stored_version, MLS_VERSION, '<' ) ) {

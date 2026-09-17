@@ -93,7 +93,7 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 					return $user;
 				}
 
-				if ( \MLS_Core::is_user_exempted( $looked_up->ID ) ) {
+				if ( self::exemption_permits_login( $looked_up->ID ) ) {
 					return $user;
 				}
 
@@ -105,7 +105,7 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 				return $user;
 			}
 
-			if ( \MLS_Core::is_user_exempted( $user->ID ) ) {
+			if ( self::exemption_permits_login( $user->ID ) ) {
 				return $user;
 			}
 
@@ -115,6 +115,39 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 			}
 
 			return $user;
+		}
+
+		/**
+		 * Whether an exemption lets this account past the lock check.
+		 *
+		 * Exemption excuses an account from the *policies* — it is how an
+		 * administrator says "do not apply password rules, inactivity or the
+		 * failed-login throttle to this role". A lock an administrator applied by
+		 * hand is not a policy outcome; it is a deliberate instruction about one
+		 * account, and it used to be discarded along with everything else.
+		 *
+		 * The reported effect: exclude Subscriber, lock a subscriber by hand, and
+		 * the account appears on the Locked Users screen as "Manually locked by
+		 * ..." while still signing in normally. The screen and the login gate
+		 * disagreed, which is worse than either answer on its own.
+		 *
+		 * Locking by hand now holds regardless of exemption. Policy-driven locks
+		 * are unchanged: an exempt account is still not locked out by failed
+		 * logins or inactivity.
+		 *
+		 * @param int $user_id - Account being authenticated.
+		 *
+		 * @return bool True when the lock check should be skipped entirely.
+		 *
+		 * @since 2.4.2
+		 */
+		private static function exemption_permits_login( $user_id ): bool {
+			if ( ! \MLS_Core::is_user_exempted( $user_id ) ) {
+				return false;
+			}
+
+			// Exempt, but held by hand: the instruction outlives the exemption.
+			return ! self::is_user_locked( $user_id );
 		}
 
 		/**
@@ -354,6 +387,33 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		}
 
 		/**
+		 * Every account an administrator has locked by hand.
+		 *
+		 * The Locked Users screen used to learn about these only indirectly: the
+		 * lock actions also push the account into the inactive-users list, and
+		 * the screen read that. Anything that locked an account without touching
+		 * that list left it off the screen entirely, and the list belongs to the
+		 * inactivity feature, which rewrites it. A lock applied by hand is its
+		 * own state and is now read as such.
+		 *
+		 * @return int[] User IDs.
+		 *
+		 * @since 2.4.1
+		 */
+		public static function get_all_manually_locked_users() {
+			global $wpdb;
+
+			$ids = $wpdb->get_col( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.DirectQuery
+				$wpdb->prepare(
+					"SELECT DISTINCT user_id FROM $wpdb->usermeta WHERE meta_key = %s AND meta_value NOT IN ( '', '0' )",
+					self::USER_LOCKED_META
+				)
+			);
+
+			return array_values( array_filter( array_map( 'intval', (array) $ids ) ) );
+		}
+
+		/**
 		 * Check if a user is locked.
 		 *
 		 * @param int $user_id The user ID.
@@ -375,7 +435,9 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		 */
 		public static function get_user_locked_reasons() {
 			self::$user_locked_reasons = array(
-				'manual'        => __( 'locked', 'melapress-login-security' ),
+				// Read on its own and after "Locked — ", so it has to say how the
+				// lock came about, not merely repeat that there is one.
+				'manual'        => __( 'manually locked', 'melapress-login-security' ),
 				'failed_logins' => __( 'failed login attempts', 'melapress-login-security' ),
 			);
 
@@ -412,8 +474,8 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 					$locked_by_user = get_user_by( 'id', (int) $reason_data['user_id'] );
 					if ( $locked_by_user ) {
 						return sprintf(
-							/* translators: 1: Reason, 2: User who locked */
-							__( '%1$s (by %2$s)', 'melapress-login-security' ),
+							/* translators: 1: Reason the account is locked. 2: Display name of the administrator who locked it. */
+							__( '%1$s by %2$s', 'melapress-login-security' ),
 							$reasons[ $reason_data['reason'] ],
 							$locked_by_user->display_name
 						);

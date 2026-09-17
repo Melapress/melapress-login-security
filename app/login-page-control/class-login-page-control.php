@@ -669,7 +669,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.0.0
 		 */
 		private function custom_login_slug() {
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			$slug        = isset( $mls_setting['custom_login_url'] ) ? $mls_setting['custom_login_url'] : '';
 
 			return $slug;
@@ -708,7 +708,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				return $user;
 			}
 
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 
 			$enabled = isset( $mls_setting['enable_login_allowed_ips'] )
 				&& \MLS\Helpers\OptionsHelper::string_to_bool( $mls_setting['enable_login_allowed_ips'] );
@@ -771,7 +771,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				return $user;
 			}
 
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 
 			$configured = ! empty( $mls_setting['login_geo_countries'] )
 				&& isset( $mls_setting['login_geo_method'] )
@@ -873,7 +873,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.4.0
 		 */
 		public static function is_login_ip_bypass_request( $request ) {
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			$slug        = isset( $mls_setting['restrict_login_bypass_slug'] ) ? $mls_setting['restrict_login_bypass_slug'] : '';
 
 			if ( empty( $slug ) ) {
@@ -893,7 +893,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		}
 
 		private function restrict_login_bypass_slug() {
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			$slug        = isset( $mls_setting['restrict_login_bypass_slug'] ) ? $mls_setting['restrict_login_bypass_slug'] : '';
 
 			return $slug;
@@ -924,7 +924,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.0.0
 		 */
 		public function is_login_check() {
-			$mls_setting    = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting    = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			$request        = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( rawurldecode( sanitize_text_field( $_SERVER['REQUEST_URI'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			$request_string = rawurldecode( sanitize_text_field( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			global $pagenow;
@@ -977,7 +977,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 */
 		public function redirect_user() {
 			global $pagenow;
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			$request     = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( rawurldecode( sanitize_text_field( $_SERVER['REQUEST_URI'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 			if ( $this->is_geo_check_required ) {
@@ -1171,7 +1171,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.0.0
 		 */
 		public function welcome_email_content( $value ) {
-			$mls_setting = get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			return str_replace( 'wp-login.php', trailingslashit( $mls_setting['custom_login_url'] ), $value );
 		}
 
@@ -1553,7 +1553,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.4.0
 		 */
 		private static function allowed_ips(): array {
-			$mls_setting = \get_site_option( MLS_PREFIX . '_setting' );
+			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
 			$raw         = is_array( $mls_setting ) && isset( $mls_setting['restrict_login_allowed_ips'] )
 				? (string) $mls_setting['restrict_login_allowed_ips']
 				: '';

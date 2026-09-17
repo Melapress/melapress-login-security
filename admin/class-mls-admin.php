@@ -645,7 +645,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			}
 			// @free:end
 
-			if ( ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $mls_migration_required && ! $migration_complete ) || ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && ! empty( \get_site_option( 'ppmwp_options', false ) ) ) ) {
+			if ( ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $mls_migration_required && ! $migration_complete ) || ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && ! empty( \MLS\Helpers\OptionsHelper::get_plugin_option( 'ppmwp_options', false ) ) ) ) {
 				?>
 				<div class="mls-plugin-data-migration">
 					<div class="mls-plugin-update-content">
@@ -1236,6 +1236,10 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function ppm_display_settings_page() {
+			if ( ! OptionsHelper::current_user_can_manage_settings() ) {
+				\wp_die( \esc_html__( 'Permission denied.', 'melapress-login-security' ), '', array( 'response' => 403 ) );
+			}
+
 			require_once 'templates/views/settings.php';
 		}
 
@@ -1247,6 +1251,10 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function ppm_display_forms_page() {
+			if ( ! OptionsHelper::current_user_can_manage_settings() ) {
+				\wp_die( \esc_html__( 'Permission denied.', 'melapress-login-security' ), '', array( 'response' => 403 ) );
+			}
+
 			require_once 'templates/views/settings-forms.php';
 		}
 
@@ -1301,7 +1309,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			 * network these writes are network options, which a single site's
 			 * administrator must not be able to change.
 			 */
-			if ( ! OptionsHelper::current_user_can_manage_scope() ) {
+			if ( ! OptionsHelper::current_user_can_manage_settings() ) {
 				return;
 			}
 
@@ -1320,6 +1328,10 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function screen() {
+			if ( ! OptionsHelper::current_user_can_manage_settings() ) {
+				\wp_die( \esc_html__( 'Permission denied.', 'melapress-login-security' ), '', array( 'response' => 403 ) );
+			}
+
 			include_once MLS_PATH . 'admin/templates/admin-form.php';
 		}
 
@@ -1359,7 +1371,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			 * capability, but that only holds while every caller remembers to. The
 			 * check belongs with the write, not with one of its callers.
 			 */
-			if ( ! OptionsHelper::current_user_can_manage_scope() ) {
+			if ( ! OptionsHelper::current_user_can_manage_settings() ) {
 				return;
 			}
 
@@ -1411,7 +1423,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			 * the role tab starts in.
 			 */
 			if ( ! $inherit_requested && '' !== $inherit_role ) {
-				$stored_policy = \get_site_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
+				$stored_policy = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
 
 				$was_exempt = is_array( $stored_policy )
 					&& isset( $stored_policy['enforce_password'] )
@@ -1422,7 +1434,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					&& OptionsHelper::string_to_bool( \sanitize_text_field( \wp_unslash( $_POST['mls_options']['enforce_password'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
 				if ( $was_exempt && ! $still_exempt ) {
-					\delete_site_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
+					\MLS\Helpers\OptionsHelper::delete_plugin_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
 
 					self::$setting_tab = (object) $mls->options->inherit;
 					self::notice( 'admin_save_success_notice' );
@@ -1435,7 +1447,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 			if ( $inherit_requested ) {
 				// Delete the role option so it falls back to the site-wide policy.
-				\delete_site_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
+				\MLS\Helpers\OptionsHelper::delete_plugin_option( MLS_PREFIX . '_' . $inherit_role . '_options' );
 				// Reassign setting open.
 				self::$setting_tab = (object) $mls->options->inherit;
 				// Success notice.
@@ -1487,12 +1499,32 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 			// Settings area.
 			if ( 'mls-settings' === $current_context ) {
-				$settings['exempted']['users']                          = self::decode_js_var( $settings['exempted']['users'] );
+				/*
+				 * Both of these are read only when the request actually carries
+				 * them. This file declares strict_types, so handing a missing
+				 * key's null to stripslashes() or explode() is a TypeError and
+				 * the whole save dies — no settings written, and a critical-error
+				 * page instead of a validation message. Every neighbouring line
+				 * already tests isset(); these two did not.
+				 *
+				 * Left alone rather than defaulted: the submitted settings are
+				 * merged over the stored ones by recursive_parse_args() below, so
+				 * a key that is not in the request keeps the value it already
+				 * had. Writing an empty default here would instead clear the
+				 * stored exemptions whenever a partial payload arrived.
+				 */
+				if ( isset( $settings['exempted']['users'] ) ) {
+					$settings['exempted']['users'] = self::decode_js_var( $settings['exempted']['users'] );
+				}
+
 				$settings['terminate_session_password']                 = isset( $settings['terminate_session_password'] );
 				$settings['send_summary_email']                         = isset( $settings['send_summary_email'] );
 				$settings['stop_pw_generate']                           = isset( $settings['stop_pw_generate'] );
 				$settings['users_have_multiple_roles']                  = isset( $settings['users_have_multiple_roles'] );
-				$settings['multiple_role_order']                        = explode( ',', $settings['multiple_role_order'] );
+				if ( isset( $settings['multiple_role_order'] ) ) {
+					$settings['multiple_role_order'] = explode( ',', (string) $settings['multiple_role_order'] );
+				}
+
 				$settings['disable_user_password_reset_email']          = isset( $settings['disable_user_password_reset_email'] );
 				$settings['disable_user_delayed_password_reset_email']  = isset( $settings['disable_user_delayed_password_reset_email'] );
 				$settings['disable_user_pw_expired_email']              = isset( $settings['disable_user_pw_expired_email'] );
@@ -2141,6 +2173,12 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function decode_js_var( $to_decode ) {
+			// Nothing to unslash or decode, and under strict_types a null here
+			// is a TypeError rather than an empty string.
+			if ( ! is_string( $to_decode ) ) {
+				return $to_decode;
+			}
+
 			$to_decode = json_decode( html_entity_decode( stripslashes( $to_decode ), ENT_QUOTES, 'UTF-8' ), true );
 
 			if ( ! is_array( $to_decode ) && ! empty( $to_decode ) ) {
@@ -2177,21 +2215,48 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				),
 			);
 
-			// Search by user meta — escape LIKE wildcards to prevent DoS via crafted input.
-			global $wpdb;
-			$escaped_search = $wpdb->esc_like( $search_str );
-			$meta_args      = array(
+			/*
+			 * On a network, look across every site — but only for someone who
+			 * holds authority over the network. The settings this feeds are
+			 * network-wide, so a super admin choosing which accounts to exempt
+			 * has to be able to find accounts on any site.
+			 *
+			 * The endpoint itself is gated on `manage_options`, which a single
+			 * site's administrator also holds, and they have no business
+			 * enumerating logins and email addresses from sites they do not
+			 * administer. So the widening is tied to the network capability
+			 * rather than to is_multisite() alone.
+			 *
+			 * This used to live in an override on Network_Admin that could never
+			 * run: search_users_roles() reaches it through `self::`, which binds
+			 * to the class the call is written in, not the one handling the
+			 * request. Network-wide search therefore never happened at all.
+			 */
+			$network_wide = \is_multisite() && \current_user_can( 'manage_network_options' );
+
+			if ( $network_wide ) {
+				$args['blog_id'] = 0;
+			}
+
+			/*
+			 * The search term goes to meta_query as typed. WP_Meta_Query runs a
+			 * LIKE value through esc_like() itself, so escaping it here as well
+			 * left the wildcards double-escaped: searching for a name holding a
+			 * literal "%" or "_" matched nothing, because the pattern asked for
+			 * a backslash that is not in the stored value.
+			 */
+			$meta_args = array(
 				'exclude'    => $exclude_users,
 				'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					'relation' => 'OR',
 					array(
 						'key'     => 'first_name',
-						'value'   => $escaped_search,
+						'value'   => $search_str,
 						'compare' => 'LIKE',
 					),
 					array(
 						'key'     => 'last_name',
-						'value'   => $escaped_search,
+						'value'   => $search_str,
 						'compare' => 'LIKE',
 					),
 				),
@@ -2200,6 +2265,10 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					'user_login',
 				),
 			);
+
+			if ( $network_wide ) {
+				$meta_args['blog_id'] = 0;
+			}
 			// Get users by search keyword.
 			$user_query = new \WP_User_Query( $args );
 			// Get user by search user meta value.

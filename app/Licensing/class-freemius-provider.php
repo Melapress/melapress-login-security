@@ -332,7 +332,7 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 *
 		 * @return bool True if it's a trial, false otherwise.
 		 *
-		 * @since 2.4.1
+		 * @since 2.4.2
 		 */
 		public static function is_free(): bool {
 			if ( ! self::is_available() ) {

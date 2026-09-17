@@ -852,7 +852,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			// Store ppm class object.
 			$this->mls = melapress_login_security();
 			// Default policy.
-			$this->inherit = get_site_option( MLS_PREFIX . '_options', $this->default_options );
+			$this->inherit = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_options', $this->default_options );
 
 			// The option exists but is not an array — stored empty, truncated,
 			// or written by something that did not expect this shape. Assigning
@@ -867,7 +867,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			$this->inherit                     = wp_parse_args( $this->inherit, $this->default_options );
 
 			// PPM setting option.
-			$this->mls_setting = get_site_option( MLS_PREFIX . '_setting', $this->default_setting );
+			$this->mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting', $this->default_setting );
 			if ( ! is_array( $this->mls_setting ) && ! is_object( $this->mls_setting ) ) {
 				// Same reasoning: wp_parse_args() would otherwise run parse_str()
 				// over a stray string and produce nonsense settings.
@@ -884,7 +884,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 			$mls_default_policy = $this->inherit;
 
-			$settings_tab          = get_site_option( MLS_PREFIX . $tab_role . '_options', $mls_default_policy );
+			$settings_tab          = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . $tab_role . '_options', $mls_default_policy );
 			$this->setting_options = (object) wp_parse_args( $settings_tab, $mls_default_policy );
 			$user_role             = '';
 
@@ -939,7 +939,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			// Get current role in user edit page.
 			$current_role = ! empty( $user_role ) ? '_' . $user_role : '';
 
-			$settings = get_site_option( MLS_PREFIX . $current_role . '_options', $this->inherit );
+			$settings = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . $current_role . '_options', $this->inherit );
 
 			// Get current user setting.
 			$this->options = wp_parse_args( $settings, $this->inherit );
@@ -961,9 +961,9 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		public function get_role_options( $role = '' ) {
 			if ( empty( $this->role_options[ $role ] ) ) {
 				$inherit = $this->inherit;
-				$options = get_site_option( MLS_PREFIX . '_' . $role . '_options', $inherit );
+				$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $role . '_options', $inherit );
 				// Ensure we have something passed.
-				$options = ( ! $options || empty( $options ) ) ? get_site_option( MLS_PREFIX . '_options', $inherit ) : $options;
+				$options = ( ! $options || empty( $options ) ) ? \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_options', $inherit ) : $options;
 				// ensure that we have an object and not an array.
 				$options = (object) wp_parse_args( $options, $this->default_options );
 				// store the fetched values in property so we don't need to
@@ -1005,13 +1005,8 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			/**
 			 * Tries to exctract the proper user id - that is called when forms are submitted
 			 */
-			$get_user_id = get_current_user_id();
-			if ( isset( $_REQUEST['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$candidate_user_id = absint( $_REQUEST['user_id'] );
-				if ( $candidate_user_id && is_admin() && current_user_can( 'edit_user', $candidate_user_id ) ) {
-					$get_user_id = $candidate_user_id;
-				}
-			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only policy lookup; the value is validated in the helper.
+			$get_user_id = \MLS\Helpers\OptionsHelper::target_user_id_from_request( $_REQUEST, get_current_user_id() );
 
 			/**
 			 * Get user ID Default 0.
@@ -1043,7 +1038,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			// If check user ID.
 			if ( ! $user_id || \wp_doing_cron() ) {
 				// If we have no ID, grab the default settings.
-				$this->users_options = (object) get_site_option( MLS_PREFIX . '_options', $this->default_options );
+				$this->users_options = (object) \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_options', $this->default_options );
 				return $this->users_options;
 			}
 
@@ -1085,7 +1080,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				// Bare role slug, exactly as the branch above leaves it. It used to
 				// carry a leading underscore that the option name below adds for
 				// itself, so the lookup asked for mls__editor_options, no such row
-				// existed, and get_site_option() handed back the default it was
+				// existed, and \MLS\Helpers\OptionsHelper::get_plugin_option() handed back the default it was
 				// given — the site-wide policy. A role with a stricter policy of its
 				// own was therefore enforced only to the site-wide floor whenever a
 				// user was created from user-new.php, with nothing on screen to say
@@ -1100,7 +1095,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				? MLS_PREFIX . '_' . $current_role . '_options'
 				: MLS_PREFIX . '_options';
 
-			$settings = \get_site_option( $policy_option, self::get_default_options() );
+			$settings = \MLS\Helpers\OptionsHelper::get_plugin_option( $policy_option, self::get_default_options() );
 			if ( ( ! empty( $settings ) && 0 === \MLS\Helpers\OptionsHelper::string_to_bool( $settings['master_switch'] ) ) || 'user-new.php' === $pagenow ) {
 
 				// Get current user setting.
@@ -1154,7 +1149,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 
 			$this->mls_setting = (object) $mls_setting;
 
-			return \update_site_option( MLS_PREFIX . '_setting', $mls_setting );
+			return \MLS\Helpers\OptionsHelper::update_plugin_option( MLS_PREFIX . '_setting', $mls_setting );
 		}
 
 		/**
@@ -1179,9 +1174,9 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			/**
 			 * Fire of action for others to observe.
 			 */
-			\do_action( 'mls_policies_updated', $this->options, \get_site_option( MLS_PREFIX . $tab_role . '_options', false ) );
+			\do_action( 'mls_policies_updated', $this->options, \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . $tab_role . '_options', false ) );
 
-			return \update_site_option( MLS_PREFIX . $tab_role . '_options', $this->options );
+			return \MLS\Helpers\OptionsHelper::update_plugin_option( MLS_PREFIX . $tab_role . '_options', $this->options );
 		}
 
 		/**
@@ -1231,10 +1226,10 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 		}
 
 		public static function get_default_options() {
-			$options = \get_site_option( MLS_PREFIX . '_options', self::$default_plugin_options );
+			$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_options', self::$default_plugin_options );
 
 			// Callers treat this as an array and index straight into it, and it
-			// is also passed as the *default* to other get_site_option() calls,
+			// is also passed as the *default* to other \MLS\Helpers\OptionsHelper::get_plugin_option() calls,
 			// so a stored value of the wrong shape propagates far beyond here.
 			// An empty or corrupt option is a plausible database state; it
 			// should not be able to fatal every request.
@@ -1284,9 +1279,25 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 				}
 				$select .= ' AND ( ' . implode( ' OR ', $role_conditions ) . ' )';
 
-				// Exclude users using integer-cast IDs and prepare placeholders.
-				$excluded_users = ( ! empty( $users_args['excluded_users'] ) ) ? array_map( 'absint', $users_args['excluded_users'] ) : array();
-				$excluded_users = array_filter( $excluded_users );
+				/*
+				 * Exclusions are cast sign-preserving and then dropped unless
+				 * they name an account. absint() was turning -1 into 1, so a
+				 * list carrying WordPress's "no user" sentinel quietly excluded
+				 * account 1 — in the bulk-reset path that meant an
+				 * administrator was told every account had been reset while
+				 * account 1 was skipped.
+				 */
+				$excluded_users = ( ! empty( $users_args['excluded_users'] ) ) ? array_map( 'intval', (array) $users_args['excluded_users'] ) : array();
+				$excluded_users = array_values(
+					array_unique(
+						array_filter(
+							$excluded_users,
+							function ( $user_id ) {
+								return $user_id > 0;
+							}
+						)
+					)
+				);
 
 				if ( ! empty( $excluded_users ) ) {
 					$placeholders = implode( ',', array_fill( 0, count( $excluded_users ), '%d' ) );

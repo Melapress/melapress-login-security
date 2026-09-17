@@ -63,7 +63,7 @@ if ( ! class_exists( '\MLS\Helpers\Settings_Helper' ) ) {
 
 			// Nothing stored by this point, so grab, cache it and send it back.
 			if ( $get_site_option_instead_of_option ) {
-				self::$site_options_cache[ $setting_to_get ] = get_site_option( $setting_to_get, $default_value );
+				self::$site_options_cache[ $setting_to_get ] = \MLS\Helpers\OptionsHelper::get_plugin_option( $setting_to_get, $default_value );
 				return self::$site_options_cache[ $setting_to_get ];
 			} else {
 				self::$options_cache[ $setting_to_get ] = get_option( $setting_to_get, $default_value );

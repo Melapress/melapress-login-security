@@ -74,13 +74,8 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enable_custom_form' ) );
 			}
 
-			$userid = get_current_user_id();
-			if ( isset( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$candidate = absint( $_GET['user_id'] );
-				if ( $candidate && is_admin() && current_user_can( 'edit_user', $candidate ) ) {
-					$userid = $candidate;
-				}
-			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only policy lookup; the value is validated in the helper.
+			$userid = OptionsHelper::target_user_id_from_request( $_GET, get_current_user_id() );
 
 			if ( 0 === $userid ) {
 				list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
@@ -115,7 +110,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 			$roles = reset( $roles );
 
-			$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+			$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
 
 			if ( null === $options || ! OptionsHelper::get_plugin_is_enabled() ) {
 				return;
@@ -231,7 +226,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 				$roles = reset( $roles );
 
-				$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+				$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
 
 				if ( \MLS\Helpers\OptionsHelper::string_to_bool( $options['master_switch'] ) ) {
 					// Get current user setting.
@@ -392,7 +387,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 			$roles = reset( $roles );
 
-			$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+			$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
 
 			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $options['master_switch'] ) ) {
 				// Get current user setting.
@@ -478,7 +473,7 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 			$roles = (array) \MLS\Helpers\OptionsHelper::prioritise_roles( $roles );
 			$roles = reset( $roles );
 
-			$options = \get_site_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
+			$options = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $roles . '_options', MLS_Options::get_default_options() );
 
 			if ( \MLS\Helpers\OptionsHelper::string_to_bool( $options['master_switch'] ) ) {
 				// Get current user setting.
