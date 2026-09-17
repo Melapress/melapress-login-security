@@ -201,7 +201,7 @@ if ( ! class_exists( '\MLS\Views\Tables\Inactive_Users_Table' ) ) {
 			$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			?>
 			<p class="search-box">
-				<label for="<?php echo esc_attr( $input_id ); ?>"><small><?php esc_html_e( 'Search by username, email, or user ID', 'melapress-login-security' ); ?></small></label>
+				<label for="<?php echo esc_attr( $input_id ); ?>"><small><?php esc_html_e( 'Search by username, email, display name, or user ID', 'melapress-login-security' ); ?></small></label>
 				<input type="search" id="<?php echo esc_attr( $input_id ); ?>" name="s" value="<?php echo esc_attr( $search ); ?>" />
 				<?php submit_button( $text, '', '', false, array( 'id' => 'search-submit' ) ); ?>
 			</p>
@@ -243,8 +243,19 @@ if ( ! class_exists( '\MLS\Views\Tables\Inactive_Users_Table' ) ) {
 			$failed_logins = new \MLS\Failed_Logins();
 			$blocked_users = $failed_logins->get_all_currently_login_locked_users();
 
+			/*
+			 * Accounts an administrator locked by hand.
+			 *
+			 * These reached the screen only because the lock actions also add the
+			 * account to the inactive-users list above, so a lock applied any
+			 * other way was invisible here — and that list belongs to the
+			 * inactivity feature, which rewrites it. Reading the lock itself is
+			 * what keeps a manually locked account on the screen.
+			 */
+			$manually_locked = class_exists( '\MLS\Admin\User_Helper' ) ? User_Helper::get_all_manually_locked_users() : array();
+
 			// Merge them to avoid duplicates.
-			$all_locked_user_ids = array_unique( array_merge( $blocked_users, $inactive_users ) );
+			$all_locked_user_ids = array_unique( array_merge( $blocked_users, $inactive_users, $manually_locked ) );
 			$all_locked_user_ids = array_filter( $all_locked_user_ids );
 
 			// Bail early if we don't have any users to display.
@@ -279,23 +290,31 @@ if ( ! class_exists( '\MLS\Views\Tables\Inactive_Users_Table' ) ) {
 			// Search filter.
 			$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if ( ! empty( $search ) ) {
-				if ( is_numeric( $search ) ) {
-					$user_args['include'] = array_intersect( $all_locked_user_ids, array( (int) $search ) );
-					if ( empty( $user_args['include'] ) ) {
-						$this->items             = array();
-						$this->total_found_users = 0;
-						$this->set_pagination_args(
-							array(
-								'total_items' => 0,
-								'per_page'    => $this->per_page,
-								'total_pages' => 0,
-							)
-						);
-						return;
-					}
-				} else {
-					$user_args['search']         = '*' . $search . '*';
-					$user_args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
+				/*
+				 * The field offers "username, email, display name, or user ID", so a term that
+				 * happens to be a number has to be tried against all of them.
+				 *
+				 * A numeric term used to be read as an account ID and nothing
+				 * else: the query was narrowed to that one ID, and if it was not
+				 * a locked account the method returned no results without
+				 * searching at all. Digits inside a username or an address were
+				 * therefore unfindable — an account at alpha_123_z@example.test
+				 * came back for "alpha" and not for "123". One
+				 * installation reported 67 locked accounts matching "123" in
+				 * those fields and none of them returned.
+				 */
+				$user_args['search']         = '*' . $search . '*';
+				$user_args['search_columns'] = array( 'user_login', 'user_email', 'display_name' );
+
+				/*
+				 * A whole number could also be an account ID, so look there too.
+				 * WP_User_Query compares the ID column exactly and LIKEs the
+				 * text columns, joining them with OR, so this widens the search
+				 * rather than replacing it. ctype_digit() keeps it to positive
+				 * whole numbers; "12.5" and "-3" are no one's user ID.
+				 */
+				if ( ctype_digit( $search ) ) {
+					$user_args['search_columns'][] = 'ID';
 				}
 			}
 

@@ -37,23 +37,14 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 			<?php
 			printf(
 				/* translators: %s: link to policies. */
-				esc_html__( 'In this section you can see a list of locked users. Users can be locked if they have had too many failed login attempts. More information on the %1$s', 'melapress-login-security' ),
+				\esc_html__( 'In this section, you can see a list of users who are currently locked. Users can be locked automatically after too many failed login attempts or manually by an administrator. For more information about the failed login policy, see the %1$s.', 'melapress-login-security' ),
 				sprintf(
 					'<a target="_blank" href="https://melapress.com/support/kb/melapress-login-security-inactive-users-policy-wordpress/?utm_source=plugins&utm_medium=link&utm_campaign=mls">%s</a>',
-					esc_html__( 'Failed logins policy', 'melapress-login-security' )
+					\esc_html__( 'Failed logins policy', 'melapress-login-security' )
 				)
 			);
 			?>
 		</p>
-		<?php
-		$table = new \MLS\Views\Tables\Inactive_Users_Table();
-		?>
-		<form method="get">
-			<input type="hidden" name="page" value="<?php echo esc_attr( isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '' ); ?>" />
-			<?php
-			$table->display();
-			?>
-		</form>
 		<?php
 	} elseif ( $inactive_feature_enabled ) {
 		?>
@@ -61,23 +52,14 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 			<?php
 			printf(
 				/* translators: %s: link to policies. */
-				esc_html__( 'In this section you can see a list of locked users. Users can be locked if they have been inactive for a long time, or they have had too many failed login attempts. More information on the %1$s', 'melapress-login-security' ),
+				\esc_html__( 'In this section you can see a list of locked users. Users can be locked if they have been inactive for a long time, or they have had too many failed login attempts. More information on the %1$s', 'melapress-login-security' ),
 				sprintf(
 					'<a target="_blank" href="https://melapress.com/support/kb/melapress-login-security-inactive-users-policy-wordpress/?utm_source=plugins&utm_medium=link&utm_campaign=mls">%s</a>',
-					esc_html__( 'Inactive users policy', 'melapress-login-security' )
+					\esc_html__( 'Inactive users policy', 'melapress-login-security' )
 				)
 			);
 			?>
 		</p>
-		<?php
-		$table = new \MLS\Views\Tables\Inactive_Users_Table();
-		?>
-		<form method="get">
-			<input type="hidden" name="page" value="<?php echo esc_attr( isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '' ); ?>" />
-			<?php
-			$table->display();
-			?>
-		</form>
 		<?php
 	} else {
 		?>
@@ -85,21 +67,39 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 			<?php
 			printf(
 				/* translators: %s: link to policies. */
-				esc_html__( 'In this section you can see a list of inactive WordPress users on your website if you enable the %1$s, or the %2$s', 'melapress-login-security' ),
+				\esc_html__( 'In this section you can see a list of inactive WordPress users on your website if you enable the %1$s, or the %2$s', 'melapress-login-security' ),
 				sprintf(
 					'<a target="_blank" rel="nofollow" href="https://melapress.com/support/kb/melapress-login-security-inactive-users-policy-wordpress/?utm_source=plugins&utm_medium=link&utm_campaign=mls">%s</a>',
-					esc_html__( 'Inactive users policy', 'melapress-login-security' )
+					\esc_html__( 'Inactive users policy', 'melapress-login-security' )
 				),
 				sprintf(
 					'<a target="_blank" rel="nofollow" href="https://melapress.com/support/kb/melapress-login-security-failed-logins-policy-wordpress/?utm_source=plugins&utm_medium=link&utm_campaign=mls">%s</a>',
-					esc_html__( 'block failed logins policy', 'melapress-login-security' )
+					\esc_html__( 'block failed logins policy', 'melapress-login-security' )
 				),
 			);
 			?>
 		</p>
 		<?php
 	}
+
+	/*
+	 * The table is not conditional on the policies being switched on.
+	 *
+	 * It used to be: with neither the inactive users policy nor the failed
+	 * logins policy enabled, the screen was a paragraph and nothing else. An
+	 * administrator can lock an account by hand whatever the policies say, and
+	 * those accounts had nowhere to appear. An empty table is also the better
+	 * answer in its own right — it carries the search and says, in words, that
+	 * there is nobody locked.
+	 */
+	$table = new \MLS\Views\Tables\Inactive_Users_Table();
 	?>
+	<form method="get">
+		<input type="hidden" name="page" value="<?php echo esc_attr( isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '' ); ?>" />
+		<?php
+		$table->display();
+		?>
+	</form>
 </div>
 
 <?php

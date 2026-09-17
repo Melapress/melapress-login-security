@@ -25,6 +25,38 @@ use MLS\InactiveUsers;
  */
 class OptionsHelper {
 
+	/** Configuration belongs to the main network; runtime state keeps its original scope. */
+	public static function is_root_network_option( $name ): bool {
+		return MLS_PREFIX . '_setting' === $name
+			|| MLS_PREFIX . '_options' === $name
+			|| ( 0 === strpos( (string) $name, MLS_PREFIX . '_' )
+				&& str_ends_with( (string) $name, '_options' ) );
+	}
+
+	/** Read configuration consistently from every site and network. */
+	public static function get_plugin_option( $name, $default = false ) {
+		if ( \is_multisite() && self::is_root_network_option( $name ) ) {
+			return \get_network_option( \get_main_network_id(), $name, $default );
+		}
+		return \get_site_option( $name, $default );
+	}
+
+	/** Save configuration without creating a secondary-network copy. */
+	public static function update_plugin_option( $name, $value ) {
+		if ( \is_multisite() && self::is_root_network_option( $name ) ) {
+			return \update_network_option( \get_main_network_id(), $name, $value );
+		}
+		return \update_site_option( $name, $value );
+	}
+
+	/** Delete from the same scope used by reads and writes. */
+	public static function delete_plugin_option( $name ) {
+		if ( \is_multisite() && self::is_root_network_option( $name ) ) {
+			return \delete_network_option( \get_main_network_id(), $name );
+		}
+		return \delete_site_option( $name );
+	}
+
 	/**
 	 * Checks if inactive users feature should be active.
 	 *
@@ -55,7 +87,7 @@ class OptionsHelper {
 		$master_policy = self::get_master_policy_options();
 		if ( empty( $master_policy ) || ! isset( $master_policy->inactive_users_enabled ) ) {
 			// If empty, then check DB.
-			$master_policy = (object) get_site_option( MLS_PREFIX . '_options' );
+			$master_policy = (object) \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_options' );
 		}
 
 		// check if we are enabled.
@@ -263,11 +295,67 @@ class OptionsHelper {
 		return $value;
 	}
 
+	/**
+	 * Resolve the account a request is asking the policy machinery to act for.
+	 *
+	 * Three places used to normalise this with `absint()`, and absint( -1 ) is 1.
+	 * WordPress uses -1 as its "no user selected" sentinel — `wp_dropdown_users()`
+	 * with `show_option_none` renders exactly that value — so a form saying
+	 * "nobody" arrived here asking for account 1, and the policy belonging to
+	 * that account's role was applied instead of the acting account's. It was
+	 * reported from the WP OAuth Server plugin's client screen, where assigning
+	 * a WordPress user is optional.
+	 *
+	 * A value that names no account leaves the caller's fallback untouched. The
+	 * sign is the whole point: a negative id is not a small positive one, and
+	 * discarding the sign turns "no account" into a real, privileged account.
+	 *
+	 * @param array    $source   - Request array to read `user_id` from, e.g. $_GET.
+	 * @param int|null $fallback - Account to keep when nothing valid was submitted.
+	 *                             Defaults to the current user.
+	 *
+	 * @return int
+	 *
+	 * @since 2.4.2
+	 */
+	public static function target_user_id_from_request( array $source, ?int $fallback = null ): int {
+		$resolved = null === $fallback ? \get_current_user_id() : $fallback;
+
+		if ( ! isset( $source['user_id'] ) ) {
+			return $resolved;
+		}
+
+		$submitted = $source['user_id'];
+
+		// `user_id[]=1` arrives as an array, which names no single account.
+		if ( is_array( $submitted ) || is_object( $submitted ) ) {
+			return $resolved;
+		}
+
+		$candidate = (int) trim( (string) \wp_unslash( $submitted ) );
+
+		// Strictly positive, before anything else looks at it.
+		if ( $candidate <= 0 ) {
+			return $resolved;
+		}
+
+		/*
+		 * Only admin requests may redirect the lookup, and only to an account
+		 * the current user may edit. `edit_user` already refuses an id with no
+		 * account behind it, but say so here too rather than rely on that.
+		 */
+		if ( ! \is_admin() || ! \current_user_can( 'edit_user', $candidate ) || ! \get_userdata( $candidate ) ) {
+			return $resolved;
+		}
+
+		return $candidate;
+	}
+
 	public static function get_role_options( $role = '' ) {
 		// $mls     = melapress_login_security();
 		// $options = ( isset( melapress_login_security()->options ) ) ? melapress_login_security()->options->get_role_options( $role ) : array();
 
-		$options = \get_site_option( MLS_PREFIX . '_' . $role . '_options', MLS_Options::get_default_options() );
+		$options = self::get_plugin_option( MLS_PREFIX . '_' . $role . '_options', MLS_Options::get_default_options() );
 
 		if ( self::string_to_bool( $options['master_switch'] ) ) {
 			/*
@@ -736,7 +824,7 @@ class OptionsHelper {
 		}
 
 		if ( ! isset( $inactive_expiry_time ) ) {
-			$options              = get_site_option( MLS_PREFIX . '_options' );
+			$options              = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_options' );
 			$inactive_expiry_time = $options['inactive_users_expiry']['value'] . ' ' . $options['inactive_users_expiry']['unit'];
 		}
 
@@ -989,6 +1077,12 @@ class OptionsHelper {
 		}
 
 		return current_user_can( 'manage_options' );
+	}
+
+	/** Only the main network administration may change shared configuration. */
+	public static function current_user_can_manage_settings(): bool {
+		return self::current_user_can_manage_scope()
+			&& ( ! \is_multisite() || \get_current_network_id() === \get_main_network_id() );
 	}
 
 	public static function is_user_locked_by_any_mechanism( $user_id = 0, $scope = 'request' ) {
@@ -1809,6 +1903,11 @@ class OptionsHelper {
 	 */
 	public static function is_portable_option( $option_name ) {
 		$option_name = (string) $option_name;
+
+		// Migration backups may contain secrets and must never enter an export.
+		if ( 0 === strpos( $option_name, 'mls_network_settings_backup_' ) ) {
+			return false;
+		}
 
 		if ( in_array( $option_name, self::credential_option_names(), true ) ) {
 			return false;

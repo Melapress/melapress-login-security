@@ -249,11 +249,18 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			 * Matched against the recorded password *or* the one actually on the
 			 * account.
 			 *
-			 * The history entry is checked first and for a good reason: expire()
-			 * replaces `user_pass` with a random value, so a user typing their
-			 * genuine, newly expired password would otherwise be told it was
-			 * wrong instead of that it had expired. That is the case this branch
-			 * exists for.
+			 * The history entry is checked first because it is the older of the
+			 * two records and may hold a hash the account itself no longer has.
+			 *
+			 * This used to claim that expire() replaces `user_pass` with a random
+			 * value. It does not: expire() calls reset_by_id(), which records the
+			 * current password in the history and sets the expiry flag, and with
+			 * `terminate_session_password` off it takes the delayed_reset()
+			 * branch and leaves the stored hash untouched. Measured on this
+			 * build, the hash is byte-identical before and after and the original
+			 * password still validates — which is also what release_expiry_state()
+			 * below has always said, that expiry is carried by a flag and not by
+			 * changing the password.
 			 *
 			 * Checking *only* the history was the mistake. History is written by
 			 * this plugin's own hooks, so any password change that does not go
@@ -291,9 +298,32 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 			 * an oracle: the wording cannot be used to tell a right password from a
 			 * wrong one on a locked account.
 			 */
+			/*
+			 * Expiry is worked out here, not read off a flag written later.
+			 *
+			 * MLS_PASSWORD_EXPIRED_META_KEY is written by expire(), which runs
+			 * from admin_init and wp_loaded — both of which need a session that
+			 * already exists. So the first login after a password aged out was
+			 * always allowed: core issued the cookies, the account was flagged on
+			 * the first page load, and only the *second* login was refused. The
+			 * session from the first one kept working for its full lifetime, two
+			 * days by default and fourteen with "remember me". Enforcement came
+			 * down to the browser following a redirect.
+			 *
+			 * should_password_expire() is the same predicate the on-load paths
+			 * use, so asking it here refuses the login on the first attempt and
+			 * leaves no session to withhold.
+			 */
+			$expired_now = $has_user
+				&& ! \MLS_Core::is_user_exempted( $user->ID )
+				&& self::should_password_expire( $user->ID );
+
 
 			// @free:start
-			if ( $has_user && get_user_meta( $user->ID, MLS_PASSWORD_EXPIRED_META_KEY, true ) ) {
+			// Same reasoning as the premium branch above: the flag alone lets the
+			// first login after expiry through, because nothing writes it until a
+			// session exists.
+			if ( $has_user && ( $expired_now || get_user_meta( $user->ID, MLS_PASSWORD_EXPIRED_META_KEY, true ) ) ) {
 				return new \WP_Error(
 					'password-expired',
 					sprintf(

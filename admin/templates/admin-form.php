@@ -92,7 +92,7 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : 'sidebar-present';
 						);
 						// Active tab.
 						$active       = ( $current_tab === $key ) ? ' nav-tab-active' : '';
-						$settings_tab = get_site_option( MLS_PREFIX . '_' . $key . '_options' );
+						$settings_tab = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_' . $key . '_options' );
 						$icon         = empty( $settings_tab ) || 1 === $settings_tab['master_switch'] ? '<span style="opacity: 0.2" class="dashicons dashicons-admin-settings"></span> ' : '<span class="dashicons dashicons-admin-settings"></span> ';
 						?>
 						<a href="<?php echo esc_url( $url ); ?>" class="nav-tab<?php echo esc_attr( $active ); ?>" id="<?php echo esc_attr( $key ); ?>"><?php echo wp_kses( $icon . $value, OptionsHelper::get_allowed_kses_args() ); ?></a>

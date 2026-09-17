@@ -48,6 +48,27 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 		public static function init() {
 			add_filter( 'mls_login_policies_settings', array( __CLASS__, 'failed_login_settings_markup' ), 50, 2 );
 
+			/*
+			 * Unlocking is registered before the policy check, not after it.
+			 *
+			 * Locking an account by hand is offered from the users list whatever
+			 * the policies say, and the Locked Users screen is registered
+			 * unconditionally too. Everything needed to undo a lock used to sit
+			 * below the early return, so on a site with no policy group enabled
+			 * — which is every new install, since all four default to "no" — the
+			 * screen listed the locked account and drew its Unlock button while
+			 * the script behind it was never enqueued and
+			 * wp_ajax_mls_unlock_inactive_user was never registered. Clicking
+			 * Unlock did nothing at all, and the account could not be released
+			 * until some policy happened to be switched on.
+			 *
+			 * Both are admin-only and cost nothing here: the AJAX handler checks
+			 * its own nonce and capability, and the script is registered for a
+			 * hook that only fires on this plugin's screens.
+			 */
+			add_action( 'admin_init', array( __CLASS__, 'register_ajax' ) );
+			add_action( 'mls_enqueue_admin_scripts', array( __CLASS__, 'register_scripts' ) );
+
 			// Only load further if needed.
 			if ( ! OptionsHelper::get_plugin_is_enabled() ) {
 				return;
@@ -58,8 +79,6 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			add_filter( 'learndash_safe_redirect_location', array( __CLASS__, 'learndash_login_error_check' ), 10, 3 );
 			// Add JS to Memberpress login page.
 			add_action( 'mepr-login-form-before-submit', array( __CLASS__, 'memberpress_login_form_js' ), 10 );
-			add_action( 'admin_init', array( __CLASS__, 'register_ajax' ) );
-			add_action( 'mls_enqueue_admin_scripts', array( __CLASS__, 'register_scripts' ) );
 		}
 
 		/**
@@ -218,10 +237,38 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 					$time_difference = ( ! empty( $login_attempts_transient ) ) ? $current_time - $login_attempts_transient < $role_options->failed_login_reset_hours * 60 : false;
 
 					// Enough time has passed and the user is allowed to reset.
-					// R4 — Use full unlock so the activity timestamp resets and user
-					// is not immediately re-locked by the inactivity policy.
 					if ( ! $time_difference ) {
-						OptionsHelper::fully_unlock_user( $user_id, 'blocked' );
+						/*
+						 * The timed unlock releases the failed-login lock and
+						 * nothing else.
+						 *
+						 * This called OptionsHelper::fully_unlock_user(), which
+						 * exists for an administrator pressing Unlock and clears
+						 * every kind of lock — including the manual one. This
+						 * filter runs at priority 20 and the manual lock is
+						 * enforced at 999999, so the account was unlocked before
+						 * anything looked at that lock: a manually locked user
+						 * only had to sign in with the right password to release
+						 * themselves. The condition above is also true when there
+						 * is no failed-attempt timestamp at all, which is the
+						 * ordinary state of an account an administrator locked by
+						 * hand, so no failed logins were needed to reach it.
+						 *
+						 * Passing the user object keeps the distinction inside
+						 * clear_failed_login_data(): a lockout that is an
+						 * administrator's to lift stays put.
+						 */
+						if ( ! self::has_manual_lock( $user_id ) ) {
+							self::clear_failed_login_data( $user_id, $user );
+
+							/*
+							 * What the full unlock was reached for: with a stale
+							 * activity timestamp the inactivity policy could lock
+							 * the account again on the way in. Signing in is
+							 * activity, so record it.
+							 */
+							update_user_meta( $user_id, MLS_PREFIX . '_last_activity', current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+						}
 					}
 				}
 
@@ -541,6 +588,28 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 			}
 
 			return $live;
+		}
+
+		/**
+		 * Whether an administrator has locked this account by hand.
+		 *
+		 * Asked before the timed unlock touches anything: that lock is enforced
+		 * later in the `authenticate` chain, and a login it is about to refuse
+		 * has no business clearing counters or refreshing the activity timestamp
+		 * on the way past.
+		 *
+		 * @param int $user_id User ID.
+		 *
+		 * @return bool
+		 *
+		 * @since 2.4.0
+		 */
+		private static function has_manual_lock( $user_id ) {
+			if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
+				return false;
+			}
+
+			return (bool) \MLS\Admin\User_Helper::is_user_locked( (int) $user_id );
 		}
 
 		/**

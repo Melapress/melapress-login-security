@@ -100,7 +100,25 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 				return $user;
 			}
 
+			/*
+			 * Both requirements, not just the one this started with.
+			 *
+			 * "Reset on first login" records its key under MLS_NEW_USER_META_KEY
+			 * and was enforced only by override_login_redirects() — a
+			 * `login_redirect` filter, which by definition runs after core has
+			 * issued the auth cookies. Ignoring the redirect and asking for
+			 * wp-admin gave a fully privileged session: post-new.php answered
+			 * 200 with the reset key still sitting unconsumed on the account.
+			 *
+			 * The redirect is still sent, and is still the right thing for
+			 * somebody following it; it just is not what enforces the policy any
+			 * more.
+			 */
 			$pending = \get_user_meta( $user->ID, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
+
+			if ( empty( $pending ) ) {
+				$pending = \get_user_meta( $user->ID, MLS_NEW_USER_META_KEY, true );
+			}
 
 			if ( empty( $pending ) ) {
 				return $user;

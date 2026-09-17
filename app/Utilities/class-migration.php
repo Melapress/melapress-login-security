@@ -118,6 +118,121 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 		}
 
 		/**
+		 * Preserve security questions when their settings move to the account group.
+		 *
+		 * A disabled group disables its inputs, so saving another policy would
+		 * otherwise turn existing question requirements off after the upgrade.
+		 * Include stored custom-role policies as well as the global policy.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.2
+		 */
+		protected static function migrate_up_to_242() {
+			self::consolidate_network_settings();
+			$options = array( MLS_PREFIX . '_options' );
+
+			foreach ( self::stored_role_policy_slugs() as $slug ) {
+				$options[] = MLS_PREFIX . '_' . $slug . '_options';
+			}
+
+			foreach ( $options as $option ) {
+				$policy = self::get_option( $option, false );
+
+				if ( ! is_array( $policy ) || empty( $policy['enable_security_questions'] )
+					|| ! \MLS\Helpers\OptionsHelper::string_to_bool( $policy['enable_security_questions'] ) ) {
+					continue;
+				}
+
+				if ( isset( $policy['enable_session_policies_group'] )
+					&& \MLS\Helpers\OptionsHelper::string_to_bool( $policy['enable_session_policies_group'] ) ) {
+					continue;
+				}
+
+				$policy['enable_session_policies_group'] = 'yes';
+				self::update_option( $option, $policy );
+			}
+		}
+
+		/**
+		 * Move configuration to the main network, preserving its existing values.
+		 *
+		 * Only plugin option rows are visited, in batches of 100. Backups are kept
+		 * on the main network before a secondary copy is removed. Each backup is
+		 * keyed by the original meta ID, making interrupted runs safe to repeat.
+		 * No user records or individual site tables are scanned.
+		 */
+		private static function consolidate_network_settings(): void {
+			if ( ! \is_multisite() ) {
+				return;
+			}
+
+			global $wpdb;
+			$lock = 'mls-settings-' . md5( DB_NAME . ':' . $wpdb->sitemeta );
+			if ( '1' !== (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 0)', $lock ) ) ) {
+				throw new \RuntimeException( 'MLS settings migration is already running; retry the upgrade.' );
+			}
+			try {
+				self::consolidate_network_settings_rows();
+			} finally {
+				$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock ) );
+			}
+		}
+
+		/** Consolidate configuration while holding the migration lock. */
+		private static function consolidate_network_settings_rows(): void {
+			global $wpdb;
+			$root = \get_main_network_id();
+			$last = 0;
+			do {
+				$rows = $wpdb->get_results(
+					$wpdb->prepare(
+						"SELECT meta_id, site_id, meta_key, meta_value FROM {$wpdb->sitemeta}
+						WHERE site_id <> %d AND meta_id > %d
+						AND ( meta_key = %s OR meta_key = %s OR meta_key LIKE %s )
+						ORDER BY meta_id ASC LIMIT 100",
+						$root, $last, MLS_PREFIX . '_setting', MLS_PREFIX . '_options',
+						$wpdb->esc_like( MLS_PREFIX . '_' ) . '%' . $wpdb->esc_like( '_options' )
+					)
+				);
+				if ( $wpdb->last_error ) {
+					throw new \RuntimeException( 'Could not read MLS network settings for migration.' );
+				}
+				foreach ( $rows as $row ) {
+					$last = (int) $row->meta_id;
+					if ( ! \MLS\Helpers\OptionsHelper::is_root_network_option( $row->meta_key ) ) {
+						continue;
+					}
+					$backup_key = 'mls_network_settings_backup_' . $last . '_' . hash( 'sha256', $row->meta_value );
+					$backup = array( 'network_id' => (int) $row->site_id, 'name' => $row->meta_key, 'raw_value' => $row->meta_value );
+					\add_network_option( $root, $backup_key, $backup );
+					if ( \get_network_option( $root, $backup_key ) !== $backup ) {
+						throw new \RuntimeException( 'Could not preserve MLS secondary network settings.' );
+					}
+
+					// Distinguish an absent option from an explicitly false root value.
+					$missing = new \stdClass();
+					if ( $missing === \get_network_option( $root, $row->meta_key, $missing ) ) {
+						\add_network_option( $root, $row->meta_key, \maybe_unserialize( $row->meta_value ) );
+					}
+					if ( $missing === \get_network_option( $root, $row->meta_key, $missing ) ) {
+						throw new \RuntimeException( 'Could not store MLS settings on the main network.' );
+					}
+
+					// Do not delete a value changed by a concurrent request after we read it.
+					$deleted = $wpdb->query( $wpdb->prepare(
+						"DELETE FROM {$wpdb->sitemeta} WHERE meta_id = %d AND site_id = %d AND BINARY meta_value = BINARY %s",
+						$last, (int) $row->site_id, $row->meta_value
+					) );
+					if ( 1 !== $deleted ) {
+						throw new \RuntimeException( 'MLS network settings changed during migration; retry the upgrade.' );
+					}
+					\wp_cache_delete( $row->site_id . ':' . $row->meta_key, 'site-options' );
+				}
+			} while ( 100 === count( $rows ) );
+		}
+
+		/**
 		 * Keep the password-reset security question switched on where it was
 		 * already in force.
 		 *
@@ -145,7 +260,7 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 			}
 
 			foreach ( $options as $option ) {
-				$policy = \get_site_option( $option, false );
+				$policy = \MLS\Helpers\OptionsHelper::get_plugin_option( $option, false );
 
 				if ( ! is_array( $policy ) ) {
 					continue;
@@ -167,7 +282,7 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 
 				$policy['require_sq_password_reset'] = 'yes';
 
-				\update_site_option( $option, $policy );
+				\MLS\Helpers\OptionsHelper::update_plugin_option( $option, $policy );
 			}
 		}
 
@@ -221,7 +336,7 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 				return;
 			}
 
-			$archive = \get_site_option( self::ORPHANED_ROLE_POLICY_ARCHIVE, array() );
+			$archive = \MLS\Helpers\OptionsHelper::get_plugin_option( self::ORPHANED_ROLE_POLICY_ARCHIVE, array() );
 
 			if ( ! is_array( $archive ) ) {
 				$archive = array();
@@ -229,7 +344,7 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 
 			foreach ( $orphans as $slug ) {
 				$option = MLS_PREFIX . '_' . $slug . '_options';
-				$policy = \get_site_option( $option, false );
+				$policy = \MLS\Helpers\OptionsHelper::get_plugin_option( $option, false );
 
 				if ( false !== $policy ) {
 					$archive[ $slug ] = array(
@@ -238,10 +353,10 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 					);
 				}
 
-				\delete_site_option( $option );
+				\MLS\Helpers\OptionsHelper::delete_plugin_option( $option );
 			}
 
-			\update_site_option( self::ORPHANED_ROLE_POLICY_ARCHIVE, $archive );
+			\MLS\Helpers\OptionsHelper::update_plugin_option( self::ORPHANED_ROLE_POLICY_ARCHIVE, $archive );
 		}
 
 		/**
@@ -331,7 +446,7 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 				$names = $wpdb->get_col(
 					$wpdb->prepare(
 						"SELECT meta_key FROM {$wpdb->sitemeta} WHERE site_id = %d AND meta_key LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-						\get_current_network_id(),
+						\get_main_network_id(),
 						$pattern
 					)
 				);
