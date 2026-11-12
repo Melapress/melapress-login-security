@@ -105,6 +105,9 @@ $form_class = ( $sidebar_required ) ? 'sidebar-present' : '';
 <?php
 	// @free:start
 	require_once MLS_PATH . 'admin/templates/views/upgrade-sidebar.php';
+	?>
+	<div class="clear"></div>
+	<?php
 	// @free:end
 
 ?>

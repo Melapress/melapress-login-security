@@ -13,25 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-	$today_date = gmdate( 'Y-m-d' );
-	$today_date = gmdate( 'Y-m-d', strtotime( $today_date ) );
-
-	$event_date_begin = gmdate( 'Y-m-d', strtotime( '11/21/2025' ) );
-	$event_date_end   = gmdate( 'Y-m-d', strtotime( '12/01/2025' ) );
-
-if ( ( $today_date >= $event_date_begin ) && ( $today_date <= $event_date_end ) ) {
-	?>
-		<style>
-			.upgrade-sidebar.postbox-container div.postbox {
-				background: url(<?php echo esc_url( MLS_PLUGIN_URL . 'assets/images/bf-corner-notice.svg' ); ?>) no-repeat #fff 100% 0;
-			}
-		</style>
-			<?php
-}
 ?>
 
 <div class="upgrade-sidebar postbox-container">
-	<div class="postbox">
+	<div class="postbox" style="<?php echo \esc_attr( \MLS\Admin\Admin::get_black_friday_ribbon_style() ); ?>">
 		<h3 class="hndle" style="text-align: center;">
 			<img src="<?php echo esc_url( MLS_PLUGIN_URL . 'assets/images/password-policy-manager.png' ); ?>" style="max-width: 80px; display: inline-block; margin: 10px 0 15px;">
 			<span style="display: block"><?php esc_html_e( 'Upgrade to Premium to benefit from', 'melapress-login-security' ); ?></span>

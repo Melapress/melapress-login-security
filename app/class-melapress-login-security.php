@@ -490,37 +490,6 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			} else {
 				$admin = new MLS\Admin\Network_Admin( $this->options, $user_settings, $role_setting );
 			}
-
-			// @free:start
-			$today_date = gmdate( 'Y-m-d' );
-			$today_date = gmdate( 'Y-m-d', strtotime( (string) $today_date ) );
-
-			$event_date_begin = gmdate( 'Y-m-d', strtotime( '11/21/2025' ) );
-			$event_date_end   = gmdate( 'Y-m-d', strtotime( '12/01/2025' ) );
-
-			$event_ending_date = \get_site_option( MLS_PREFIX . '_extra_event_banner_end_date', false );
-
-			$extra_event_banner_dismissed       = (string) \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
-			$extra_event_banner_super_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_super_dismissed', false );
-
-			if ( gmdate( 'Y-m-d', strtotime( '11/28/2025' ) ) === $today_date && $extra_event_banner_dismissed && ! $extra_event_banner_super_dismissed ) {
-				\delete_site_option( MLS_PREFIX . '_extra_event_banner_dismissed' );
-			}
-
-			if ( ( $today_date >= $event_date_begin ) && ( $today_date <= $event_date_end ) && ( false === $event_ending_date || strtotime( (string) $event_ending_date ) < strtotime( (string) $today_date ) ) ) {
-				$extra_event_banner_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
-				if ( ! $extra_event_banner_dismissed ) {
-					\update_site_option( MLS_PREFIX . '_extra_event_banner', true );
-					\update_site_option( MLS_PREFIX . '_extra_event_banner_end_date', strtotime( (string) $event_date_end ) );
-					\update_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
-				}
-			} else {
-				\delete_site_option( MLS_PREFIX . '_extra_event_banner' );
-				\delete_site_option( MLS_PREFIX . '_extra_event_banner_end_date' );
-				\delete_site_option( MLS_PREFIX . '_extra_event_banner_dismissed' );
-				\delete_site_option( MLS_PREFIX . '_extra_event_banner_super_dismissed' );
-			}
-			// @free:end
 		}
 
 		/**

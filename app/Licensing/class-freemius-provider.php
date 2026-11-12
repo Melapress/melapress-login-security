@@ -45,6 +45,15 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		public const FS_WP2FAP_OPTION = Licensing_Factory::FREEMIUS_PREMIUM_OPTION;
 
 		/**
+		 * The SDK's account record, holding its users, plans and site installs.
+		 *
+		 * @var string
+		 *
+		 * @since 2.4.2.1
+		 */
+		public const ACCOUNTS_OPTION = 'fs_accounts';
+
+		/**
 		 * Timestamp of the last conclusive "licensed" answer from the SDK.
 		 *
 		 * @var string
@@ -332,7 +341,7 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 		 *
 		 * @return bool True if it's a trial, false otherwise.
 		 *
-		 * @since 2.4.2
+		 * @since 2.4.3
 		 */
 		public static function is_free(): bool {
 			if ( ! self::is_available() ) {
@@ -449,6 +458,96 @@ if ( ! class_exists( '\MLS\Licensing\Freemius_Provider' ) ) {
 			\set_transient( $option_name, $new_value, DAY_IN_SECONDS );
 
 			return true;
+		}
+
+		/**
+		 * Read the SDK's stored account records without going through the option cache.
+		 *
+		 * This runs while plugin files are still being included, before the SDK has
+		 * declared FS_Plugin and the other entity classes. Reading the option the normal
+		 * way would unserialize it as __PHP_Incomplete_Class objects and keep those in the
+		 * option cache, so the SDK would later build its entities from broken objects.
+		 * Reading the rows directly leaves the cache untouched.
+		 *
+		 * The records are only checked with array casts and emptiness checks, so an
+		 * incomplete entity here is harmless.
+		 *
+		 * @return array $records - Decoded account records, one per storage location.
+		 *
+		 * @since 2.4.2.1
+		 */
+		public static function account_records(): array {
+			global $wpdb;
+
+			// Read every time: an activation writes this record and then checks for it in the same request.
+			$records = array();
+
+			if ( ! isset( $wpdb ) || ! \is_object( $wpdb ) ) {
+				return $records;
+			}
+
+			$raw = array();
+
+			if ( \is_multisite() ) {
+				$raw[] = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read deliberately uncached; see above.
+					$wpdb->prepare( "SELECT meta_value FROM {$wpdb->sitemeta} WHERE meta_key = %s AND site_id = %d LIMIT 1", self::ACCOUNTS_OPTION, \get_current_network_id() )
+				);
+
+				// Non network-activated multisite keeps the record against the main blog.
+				$main_options_table = $wpdb->get_blog_prefix( \get_main_site_id() ) . 'options';
+				$raw[]              = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- As above.
+					$wpdb->prepare( "SELECT option_value FROM {$main_options_table} WHERE option_name = %s LIMIT 1", self::ACCOUNTS_OPTION ) // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name built from $wpdb prefix.
+				);
+			}
+
+			$raw[] = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- As above.
+				$wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1", self::ACCOUNTS_OPTION )
+			);
+
+			foreach ( $raw as $value ) {
+				if ( ! \is_string( $value ) || '' === $value ) {
+					continue;
+				}
+
+				// Do not instantiate anything, the SDK classes are not loaded yet.
+				$decoded = @\unserialize( $value, array( 'allowed_classes' => false ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- A malformed record is simply not a record.
+
+				if ( \is_array( $decoded ) ) {
+					$records[] = $decoded;
+				}
+			}
+
+			return $records;
+		}
+
+		/**
+		 * Whether this site actually has a Freemius install behind the stored preference.
+		 *
+		 * Reads the SDK's own account record instead of asking the SDK, because loading
+		 * the SDK with no install to manage renders its connect screen over the plugin
+		 * menu page, with no way back to the unified license form.
+		 *
+		 * The provider preference and the premium option alone are not proof of a
+		 * connection: both survive a deactivation and disconnect.
+		 *
+		 * @return bool - True when an install record exists for this plugin.
+		 *
+		 * @since 2.4.2.1
+		 */
+		public static function has_install_record(): bool {
+			$slug = Licensing_Factory::FREEMIUS_SLUG;
+
+			foreach ( self::account_records() as $accounts ) {
+				if ( ! is_array( $accounts ) || empty( $accounts['sites'] ) || ! is_array( $accounts['sites'] ) ) {
+					continue;
+				}
+
+				if ( ! empty( $accounts['sites'][ $slug ] ) ) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		/**

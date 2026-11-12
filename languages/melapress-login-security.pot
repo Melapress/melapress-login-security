@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v3.
 msgid ""
 msgstr ""
-"Project-Id-Version: Melapress Login Security 2.4.2\n"
+"Project-Id-Version: Melapress Login Security 2.4.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/melapress-login-security\n"
 "Last-Translator: Melapress <info@melapress.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-17T13:41:26+00:00\n"
+"POT-Creation-Date: 2026-11-12T09:06:10+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: melapress-login-security\n"
@@ -39,30 +39,41 @@ msgstr ""
 msgid "https://melapress.com/"
 msgstr ""
 
-#: admin/class-mls-admin.php:187
+#: admin/class-mls-admin.php:262
 #: admin/templates/help/upgrade.php:238
-#: admin/templates/views/upgrade-sidebar.php:53
+#: admin/templates/views/upgrade-sidebar.php:38
 msgid "Upgrade to Premium"
 msgstr ""
 
-#: admin/class-mls-admin.php:188
+#. translators: %s: the words "Black Friday", shown underlined.
+#: admin/class-mls-admin.php:267
+#, php-format
+msgid "%s Sale Now Live!"
+msgstr ""
+
+#: admin/class-mls-admin.php:268
 msgid "Black Friday"
 msgstr ""
 
-#: admin/class-mls-admin.php:188
-msgid " Sale Now Live!"
-msgstr ""
-
-#: admin/class-mls-admin.php:190
+#: admin/class-mls-admin.php:273
 msgid "Get Offer Now"
 msgstr ""
 
-#: admin/class-mls-admin.php:396
-#: admin/class-mls-admin.php:897
-#: admin/class-mls-admin.php:915
-#: admin/class-mls-admin.php:927
-#: admin/class-mls-admin.php:959
-#: admin/class-mls-admin.php:974
+#: admin/class-mls-admin.php:274
+#: admin/class-mls-admin.php:498
+msgid "An error occurred. Please try again."
+msgstr ""
+
+#: admin/class-mls-admin.php:278
+msgid "Close"
+msgstr ""
+
+#: admin/class-mls-admin.php:489
+#: admin/class-mls-admin.php:1030
+#: admin/class-mls-admin.php:1048
+#: admin/class-mls-admin.php:1060
+#: admin/class-mls-admin.php:1092
+#: admin/class-mls-admin.php:1107
 #: app/enforcers/class-check-user-expiry.php:574
 #: app/enforcers/class-reset-passwords.php:158
 #: app/helpers/class-settings-importer.php:340
@@ -72,82 +83,82 @@ msgstr ""
 msgid "Nonce Verification Failed."
 msgstr ""
 
-#: admin/class-mls-admin.php:409
-#: admin/class-mls-admin.php:964
-#: admin/class-mls-admin.php:979
+#: admin/class-mls-admin.php:502
+#: admin/class-mls-admin.php:1097
+#: admin/class-mls-admin.php:1112
 msgid "Complete."
 msgstr ""
 
 #. translators: 1: Plugin name. 2: Version number.
-#: admin/class-mls-admin.php:589
+#: admin/class-mls-admin.php:722
 #, php-format
 msgid "%1$s has been updated to version %2$s"
 msgstr ""
 
-#: admin/class-mls-admin.php:595
+#: admin/class-mls-admin.php:728
 msgid "view changelog"
 msgstr ""
 
-#: admin/class-mls-admin.php:597
-#: admin/class-mls-admin.php:630
+#: admin/class-mls-admin.php:730
+#: admin/class-mls-admin.php:763
 msgid "Dismiss"
 msgstr ""
 
-#: admin/class-mls-admin.php:626
+#: admin/class-mls-admin.php:759
 msgid "Take login security beyond the basics"
 msgstr ""
 
-#: admin/class-mls-admin.php:627
+#: admin/class-mls-admin.php:760
 msgid "Add geo-blocking, inactive account policies, unrecognized device alerts, and detailed reports on user and password activity."
 msgstr ""
 
-#: admin/class-mls-admin.php:628
+#: admin/class-mls-admin.php:761
 msgid "Unlock Premium Features"
 msgstr ""
 
-#: admin/class-mls-admin.php:652
+#: admin/class-mls-admin.php:785
 msgid "Important data migration required"
 msgstr ""
 
-#: admin/class-mls-admin.php:654
+#: admin/class-mls-admin.php:787
 msgid "This update made some required changes to where our plugin data is stored and requires updating to avoid issues in future. Click below to begin the process, which will happen automatically."
 msgstr ""
 
-#: admin/class-mls-admin.php:656
+#: admin/class-mls-admin.php:789
 msgid "Begin migration process"
 msgstr ""
 
-#: admin/class-mls-admin.php:902
+#: admin/class-mls-admin.php:1035
 msgid "Started"
 msgstr ""
 
-#: admin/class-mls-admin.php:934
+#: admin/class-mls-admin.php:1067
 msgid "Process starting"
 msgstr ""
 
-#: admin/class-mls-admin.php:1044
+#: admin/class-mls-admin.php:1177
 msgid "To ensure you dont lock yourself out of your own dashboard, be sure to exclude your own admin account from password policies when enabling this feature."
 msgstr ""
 
-#: admin/class-mls-admin.php:1046
+#: admin/class-mls-admin.php:1179
 msgid "Acknowledge"
 msgstr ""
 
-#: admin/class-mls-admin.php:1069
-#: admin/class-mls-admin.php:1072
+#: admin/class-mls-admin.php:1202
+#: admin/class-mls-admin.php:1205
 msgid "Get the Premium!"
 msgstr ""
 
-#: admin/class-mls-admin.php:1076
+#: admin/class-mls-admin.php:1209
 msgid "Configure policies"
 msgstr ""
 
-#: admin/class-mls-admin.php:1086
+#: admin/class-mls-admin.php:1219
 msgid "Docs"
 msgstr ""
 
-#: admin/class-mls-admin.php:1117
-#: admin/class-mls-admin.php:1132
+#: admin/class-mls-admin.php:1250
+#: admin/class-mls-admin.php:1265
 #: admin/class-mls-multisite-admin.php:140
 #: admin/class-mls-multisite-admin.php:155
 #: admin/templates/admin-default.php:18
@@ -155,182 +166,182 @@ msgstr ""
 msgid "Login Security Policies"
 msgstr ""
 
-#: admin/class-mls-admin.php:1118
+#: admin/class-mls-admin.php:1251
 #: admin/class-mls-multisite-admin.php:144
 msgid "Login Security"
 msgstr ""
 
-#: admin/class-mls-admin.php:1137
-#: admin/class-mls-admin.php:1138
+#: admin/class-mls-admin.php:1270
+#: admin/class-mls-admin.php:1271
 #: admin/class-mls-multisite-admin.php:160
 #: admin/class-mls-multisite-admin.php:161
 msgid "Help & Contact Us"
 msgstr ""
 
-#: admin/class-mls-admin.php:1153
-#: admin/class-mls-admin.php:1154
+#: admin/class-mls-admin.php:1286
+#: admin/class-mls-admin.php:1287
 #: admin/class-mls-multisite-admin.php:174
 #: admin/class-mls-multisite-admin.php:175
 msgid "Settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:1169
-#: admin/class-mls-admin.php:1170
+#: admin/class-mls-admin.php:1302
+#: admin/class-mls-admin.php:1303
 #: admin/class-mls-multisite-admin.php:190
 #: admin/class-mls-multisite-admin.php:191
 #: admin/templates/views/settings-forms.php:34
 msgid "Forms & Placement"
 msgstr ""
 
-#: admin/class-mls-admin.php:1186
-#: admin/class-mls-admin.php:1187
+#: admin/class-mls-admin.php:1319
+#: admin/class-mls-admin.php:1320
 #: admin/class-mls-multisite-admin.php:207
 #: admin/class-mls-multisite-admin.php:208
 msgid "Login page hardening"
 msgstr ""
 
-#: admin/class-mls-admin.php:1202
+#: admin/class-mls-admin.php:1335
 #: admin/class-mls-multisite-admin.php:223
 msgid "Premium Features ➤"
 msgstr ""
 
-#: admin/class-mls-admin.php:1210
-#: admin/class-mls-admin.php:1211
+#: admin/class-mls-admin.php:1343
+#: admin/class-mls-admin.php:1344
 #: app/modules/temporary-logins/class-temporary-logins.php:273
 #: app/modules/temporary-logins/class-temporary-logins.php:274
 msgid "Temporary Logins"
 msgstr ""
 
-#: admin/class-mls-admin.php:1240
-#: admin/class-mls-admin.php:1255
-#: admin/class-mls-admin.php:1332
-#: admin/class-mls-admin.php:2147
-#: admin/class-mls-admin.php:2402
+#: admin/class-mls-admin.php:1373
+#: admin/class-mls-admin.php:1388
+#: admin/class-mls-admin.php:1465
+#: admin/class-mls-admin.php:2283
+#: admin/class-mls-admin.php:2538
 #: app/helpers/class-settings-importer.php:428
-#: app/Licensing/class-edd-provider.php:1241
-#: app/Licensing/class-edd-provider.php:1269
-#: app/Licensing/class-edd-provider.php:1292
-#: app/Licensing/class-edd-provider.php:1317
-#: app/Licensing/class-licensing-factory.php:1303
-#: app/Licensing/class-licensing-factory.php:1353
-#: app/Licensing/class-licensing-factory.php:1377
-#: app/Licensing/class-licensing-factory.php:1404
+#: app/Licensing/class-edd-provider.php:1242
+#: app/Licensing/class-edd-provider.php:1270
+#: app/Licensing/class-edd-provider.php:1293
+#: app/Licensing/class-edd-provider.php:1318
+#: app/Licensing/class-licensing-factory.php:1324
+#: app/Licensing/class-licensing-factory.php:1450
+#: app/Licensing/class-licensing-factory.php:1474
+#: app/Licensing/class-licensing-factory.php:1501
 msgid "Permission denied."
 msgstr ""
 
-#: admin/class-mls-admin.php:1645
-#: admin/class-mls-admin.php:1649
-#: admin/class-mls-admin.php:1653
+#: admin/class-mls-admin.php:1781
+#: admin/class-mls-admin.php:1785
+#: admin/class-mls-admin.php:1789
 msgid "You are not allowed to reset your password. Please contact the website administrator."
 msgstr ""
 
-#: admin/class-mls-admin.php:1670
-#: admin/class-mls-admin.php:1868
+#: admin/class-mls-admin.php:1806
+#: admin/class-mls-admin.php:2004
 msgid "User Added to Exempt List"
 msgstr ""
 
-#: admin/class-mls-admin.php:1671
-#: admin/class-mls-admin.php:1869
+#: admin/class-mls-admin.php:1807
+#: admin/class-mls-admin.php:2005
 msgid "Your user has been exempted from the all policies since there must be at least one excluded user to avoid all users being locked out. You can change this from the plugin's settings."
 msgstr ""
 
-#: admin/class-mls-admin.php:1681
-#: admin/class-mls-admin.php:1879
+#: admin/class-mls-admin.php:1817
+#: admin/class-mls-admin.php:2015
 msgid "View settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:2031
+#: admin/class-mls-admin.php:2167
 msgid "Reset process complete"
 msgstr ""
 
-#: admin/class-mls-admin.php:2032
+#: admin/class-mls-admin.php:2168
 msgid "CSV contains invalid data, provide user IDs only."
 msgstr ""
 
-#: admin/class-mls-admin.php:2033
+#: admin/class-mls-admin.php:2169
 msgid "Please provide the correct file type only."
 msgstr ""
 
-#: admin/class-mls-admin.php:2034
+#: admin/class-mls-admin.php:2170
 msgid "Please ensure more than 1 ID is provided."
 msgstr ""
 
-#: admin/class-mls-admin.php:2035
+#: admin/class-mls-admin.php:2171
 msgid "You may now close this window."
 msgstr ""
 
-#: admin/class-mls-admin.php:2043
+#: admin/class-mls-admin.php:2179
 msgid "This will reset the passwords of all users on this site. Users have to change their password once they logout and log back in. Are you sure?"
 msgstr ""
 
-#: admin/class-mls-admin.php:2044
+#: admin/class-mls-admin.php:2180
 msgid "This will reset the passwords of all users on this site and terminate their sessions instantly. Are you sure?"
 msgstr ""
 
-#: admin/class-mls-admin.php:2045
+#: admin/class-mls-admin.php:2181
 msgid "Should the plugin reset your password as well?"
 msgstr ""
 
-#: admin/class-mls-admin.php:2071
+#: admin/class-mls-admin.php:2207
 msgid "Please check your email for instructions on how to reset your password."
 msgstr ""
 
-#: admin/class-mls-admin.php:2072
+#: admin/class-mls-admin.php:2208
 msgid "By setting the minimum number of characters in passwords to less than 6 you're encouraging weak passwords and polices cannot be enforced. Would you like to proceed?"
 msgstr ""
 
-#: admin/class-mls-admin.php:2073
+#: admin/class-mls-admin.php:2209
 #: app/helpers/class-settings-importer.php:81
 #: app/helpers/class-user-importer.php:82
 msgid "OK"
 msgstr ""
 
-#: admin/class-mls-admin.php:2074
+#: admin/class-mls-admin.php:2210
 msgid "No"
 msgstr ""
 
-#: admin/class-mls-admin.php:2118
+#: admin/class-mls-admin.php:2254
 msgid "Your password has expired hence your session is being terminated. Click the button below to receive an email with the reset password link."
 msgstr ""
 
-#: admin/class-mls-admin.php:2119
+#: admin/class-mls-admin.php:2255
 msgid "For more information please contact the WordPress admin on "
 msgstr ""
 
-#: admin/class-mls-admin.php:2120
+#: admin/class-mls-admin.php:2256
 #: app/enforcers/class-reset-passwords.php:62
 msgid "Reset password"
 msgstr ""
 
-#: admin/class-mls-admin.php:2327
+#: admin/class-mls-admin.php:2463
 msgid "Policies updated successfully."
 msgstr ""
 
-#: admin/class-mls-admin.php:2344
+#: admin/class-mls-admin.php:2480
 msgid "Policies update failed. Please try again."
 msgstr ""
 
-#: admin/class-mls-admin.php:2363
+#: admin/class-mls-admin.php:2499
 msgid "This setting is mandatory. Please specify a value."
 msgstr ""
 
-#: admin/class-mls-admin.php:2380
+#: admin/class-mls-admin.php:2516
 msgid "Please ensure you have the minimum number of questions configured."
 msgstr ""
 
-#: admin/class-mls-admin.php:2408
+#: admin/class-mls-admin.php:2544
 msgid "No user logged in."
 msgstr ""
 
-#: admin/class-mls-admin.php:2411
+#: admin/class-mls-admin.php:2547
 msgid "Current user has no email address defined"
 msgstr ""
 
-#: admin/class-mls-admin.php:2416
+#: admin/class-mls-admin.php:2552
 msgid "{site_name} - Melapress Login Security plugin test email"
 msgstr ""
 
-#: admin/class-mls-admin.php:2420
+#: admin/class-mls-admin.php:2556
 msgid ""
 "<p>Hooray!</p>\n"
 "\t\t\t\t\t\t<p>If you are reading this email it means that your website’s email setup is working. You can now enable the password and other login security policies on {site_name} using Melapress Login Security.</p>\n"
@@ -339,92 +350,92 @@ msgid ""
 msgstr ""
 
 #. translators: %s: Users email address.
-#: admin/class-mls-admin.php:2444
+#: admin/class-mls-admin.php:2580
 #, php-format
 msgid "An email was sent successfully to your account email address: %s. Please check your email address to confirm receipt."
 msgstr ""
 
-#: admin/class-mls-admin.php:2446
+#: admin/class-mls-admin.php:2582
 msgid "An error occurred while trying to send email, please check if the server is configured to send emails before saving settings"
 msgstr ""
 
-#: admin/class-mls-admin.php:2465
+#: admin/class-mls-admin.php:2601
 msgid "Mail was not sent due to some unknown error"
 msgstr ""
 
-#: admin/class-mls-admin.php:2492
-#: admin/class-mls-admin.php:2545
+#: admin/class-mls-admin.php:2628
+#: admin/class-mls-admin.php:2681
 #: admin/templates/form-table.php:293
-#: app/enforcers/class-restrict-login-credentials.php:342
+#: app/enforcers/class-restrict-login-credentials.php:396
 #: app/modules/failed-logins/class-failed-logins.php:1366
 #: app/modules/restrict-logins/class-restrict-logins.php:78
 msgid "User notices templates"
 msgstr ""
 
-#: admin/class-mls-admin.php:2530
+#: admin/class-mls-admin.php:2666
 msgid "The following tags are available for use in all email template fields."
 msgstr ""
 
-#: admin/class-mls-admin.php:2531
+#: admin/class-mls-admin.php:2667
 msgid "Available tags:"
 msgstr ""
 
-#: admin/class-mls-admin.php:2532
+#: admin/class-mls-admin.php:2668
 msgid "- Site URL"
 msgstr ""
 
-#: admin/class-mls-admin.php:2533
+#: admin/class-mls-admin.php:2669
 msgid "- Site Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:2534
+#: admin/class-mls-admin.php:2670
 msgid "- User Login Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:2535
+#: admin/class-mls-admin.php:2671
 msgid "- User First Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:2536
+#: admin/class-mls-admin.php:2672
 msgid "- User Last Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:2537
+#: admin/class-mls-admin.php:2673
 msgid "- User Display Name"
 msgstr ""
 
-#: admin/class-mls-admin.php:2538
+#: admin/class-mls-admin.php:2674
 msgid "- From email address / site admin email"
 msgstr ""
 
-#: admin/class-mls-admin.php:2539
+#: admin/class-mls-admin.php:2675
 msgid "- Time until next login is allowed."
 msgstr ""
 
-#: admin/class-mls-admin.php:2546
+#: admin/class-mls-admin.php:2682
 msgid "Customise the security-related notices and prompts shown to users during login and account actions."
 msgstr ""
 
-#: admin/class-mls-admin.php:2557
+#: admin/class-mls-admin.php:2693
 msgid "Expired password"
 msgstr ""
 
-#: admin/class-mls-admin.php:2558
+#: admin/class-mls-admin.php:2694
 msgid "Shown when a user attempts to log in using a password that has expired."
 msgstr ""
 
-#: admin/class-mls-admin.php:2563
-#: admin/class-mls-admin.php:2594
+#: admin/class-mls-admin.php:2699
+#: admin/class-mls-admin.php:2730
 #: app/enforcers/class-restrict-login-credentials.php:87
 #: app/modules/restrict-logins/class-restrict-logins.php:114
 msgid "Message"
 msgstr ""
 
-#: admin/class-mls-admin.php:2588
+#: admin/class-mls-admin.php:2724
 msgid "Password reset disabled"
 msgstr ""
 
-#: admin/class-mls-admin.php:2589
+#: admin/class-mls-admin.php:2725
 msgid "Shown when a user requests a password reset but password resets are disabled by an active Login Security Policy."
 msgstr ""
 
@@ -643,7 +654,7 @@ msgstr ""
 #: admin/templates/admin-form.php:323
 #: app/helpers/class-settings-importer.php:77
 #: app/helpers/class-user-importer.php:78
-#: app/Licensing/class-licensing-factory.php:1074
+#: app/Licensing/class-licensing-factory.php:1095
 #: app/modules/temporary-logins/class-temporary-logins.php:585
 #: app/policies/class-mls-messages.php:194
 msgid "Cancel"
@@ -1295,55 +1306,55 @@ msgstr ""
 msgid "Enable this setting to delete the plugin's data from the database upon uninstall."
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:37
+#: admin/templates/views/upgrade-sidebar.php:22
 msgid "Upgrade to Premium to benefit from"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:42
+#: admin/templates/views/upgrade-sidebar.php:27
 msgid "One-click integration with WooCommerce, LearnDash & many other plugins"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:43
+#: admin/templates/views/upgrade-sidebar.php:28
 msgid "Hide the WordPress login page"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:44
+#: admin/templates/views/upgrade-sidebar.php:29
 msgid "Block or allow login page traffic per country"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:45
+#: admin/templates/views/upgrade-sidebar.php:30
 msgid "Lock inactive user accounts"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:46
+#: admin/templates/views/upgrade-sidebar.php:31
 msgid "Control the days and times when users can log in"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:47
+#: admin/templates/views/upgrade-sidebar.php:32
 msgid "Security questions for password resets etc"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:48
+#: admin/templates/views/upgrade-sidebar.php:33
 msgid "Edit all the email templates and users' notifications to fit your business' branding"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:49
+#: admin/templates/views/upgrade-sidebar.php:34
 msgid "Receive weekly summary of all password resets, locked users & failed logins"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:50
+#: admin/templates/views/upgrade-sidebar.php:35
 msgid "Reports that give you an overview of the latest user activity, password resets & more"
 msgstr ""
 
-#: admin/templates/views/upgrade-sidebar.php:51
+#: admin/templates/views/upgrade-sidebar.php:36
 msgid "No adverts!"
 msgstr ""
 
-#: app/class-melapress-login-security.php:1010
+#: app/class-melapress-login-security.php:979
 msgid "The Melapress Login Security plugin is a multisite network tool. Please activate it from the network dashboard."
 msgstr ""
 
-#: app/class-melapress-login-security.php:1012
+#: app/class-melapress-login-security.php:981
 msgid "Redirect me to the network dashboard"
 msgstr ""
 
@@ -1505,19 +1516,23 @@ msgstr ""
 msgid "The password does not meet the security policy for this site."
 msgstr ""
 
-#: app/enforcers/class-rest-user-guard.php:336
-msgid "You must supply your current password, as mls_current_password, to change your password."
+#. translators: %s: REST API request parameter name for the current password.
+#: app/enforcers/class-rest-user-guard.php:338
+#, php-format
+msgid "You must supply your current password, sent as the %s parameter, to change your password."
 msgstr ""
 
-#: app/enforcers/class-rest-user-guard.php:346
+#: app/enforcers/class-rest-user-guard.php:350
 msgid "The current password you entered is incorrect."
 msgstr ""
 
-#: app/enforcers/class-rest-user-guard.php:419
-msgid "Please answer your security question, as mls_email_change_security_answer, to change your email address."
+#. translators: %s: REST API request parameter name for the security answer.
+#: app/enforcers/class-rest-user-guard.php:425
+#, php-format
+msgid "Please answer your security question, sent as the %s parameter, to change your email address."
 msgstr ""
 
-#: app/enforcers/class-rest-user-guard.php:431
+#: app/enforcers/class-rest-user-guard.php:439
 msgid "Incorrect security question answer. Your email address has not been changed."
 msgstr ""
 
@@ -1529,73 +1544,77 @@ msgstr ""
 msgid "Shown when a user attempts to log in using credentials blocked by an active Login Security Policy."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:205
+#: app/enforcers/class-restrict-login-credentials.php:257
 msgid "You do not have permission to install plugins."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:277
+#: app/enforcers/class-restrict-login-credentials.php:331
 msgid "WP 2FA is ready. Configure your two-factor authentication policies below."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:280
+#: app/enforcers/class-restrict-login-credentials.php:334
 msgid "WP 2FA was activated successfully. Configure your two-factor authentication policies below."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:282
+#: app/enforcers/class-restrict-login-credentials.php:336
 msgid "WP 2FA was installed and activated successfully. Configure your two-factor authentication policies below."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:317
+#: app/enforcers/class-restrict-login-credentials.php:371
 msgid "User login policies"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:323
+#: app/enforcers/class-restrict-login-credentials.php:377
 msgid "Restrict username/email address login"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:327
+#: app/enforcers/class-restrict-login-credentials.php:381
 msgid "Use this setting to specify what the users can use to log in. Available options include either their username or email address, username only, or email address only."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:330
+#: app/enforcers/class-restrict-login-credentials.php:384
 msgid "Users can log in with either their username or email address"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:332
+#: app/enforcers/class-restrict-login-credentials.php:386
 msgid "Users can log in with their email address only"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:334
+#: app/enforcers/class-restrict-login-credentials.php:388
 msgid "Users can log in with their username only"
 msgstr ""
 
 #. translators: %s: link to settings.
-#: app/enforcers/class-restrict-login-credentials.php:346
+#: app/enforcers/class-restrict-login-credentials.php:400
 #, php-format
 msgid "To customize the notification displayed to users should they fail the above check, please visit the %s plugin settings."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:356
+#: app/enforcers/class-restrict-login-credentials.php:410
 msgid "Add 2FA to user accounts"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:360
+#: app/enforcers/class-restrict-login-credentials.php:414
 msgid "Add an extra layer of login security by requiring users to verify their identity with a second authentication method."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:361
+#: app/enforcers/class-restrict-login-credentials.php:416
+msgid "WP 2FA is installed on this website. Use the button below to configure the two-factor authentication policies."
+msgstr ""
+
+#: app/enforcers/class-restrict-login-credentials.php:418
 msgid "The button below installs and activates the free WP 2FA plugin, which you can use to configure two-factor authentication policies for your users."
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:368
+#: app/enforcers/class-restrict-login-credentials.php:426
 msgid "View 2FA policies page"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:369
+#: app/enforcers/class-restrict-login-credentials.php:427
 msgid "Install WP 2FA plugin"
 msgstr ""
 
-#: app/enforcers/class-restrict-login-credentials.php:377
+#: app/enforcers/class-restrict-login-credentials.php:435
 msgid "WP 2FA could not be installed or activated. Please try again, or install and activate WP 2FA manually from Plugins > Add New."
 msgstr ""
 
@@ -1633,7 +1652,7 @@ msgstr ""
 
 #: app/enforcers/class-user-profile.php:312
 #: app/Licensing/class-edd-license-page.php:339
-#: app/Licensing/class-licensing-factory.php:1231
+#: app/Licensing/class-licensing-factory.php:1252
 msgid "Active"
 msgstr ""
 
@@ -2117,23 +2136,23 @@ msgstr ""
 #: app/Licensing/class-edd-license-page.php:104
 #: app/Licensing/class-edd-license-page.php:105
 #: app/Licensing/class-edd-license-page.php:164
-#: app/Licensing/class-licensing-factory.php:934
-#: app/Licensing/class-licensing-factory.php:935
+#: app/Licensing/class-licensing-factory.php:955
+#: app/Licensing/class-licensing-factory.php:956
 msgid "Manage License"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:202
-#: app/Licensing/class-licensing-factory.php:1066
+#: app/Licensing/class-licensing-factory.php:1087
 msgid "Activating..."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:203
-#: app/Licensing/class-licensing-factory.php:1067
+#: app/Licensing/class-licensing-factory.php:1088
 msgid "Deactivating..."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:204
-#: app/Licensing/class-licensing-factory.php:1068
+#: app/Licensing/class-licensing-factory.php:1089
 msgid "Syncing..."
 msgstr ""
 
@@ -2150,67 +2169,67 @@ msgid "Syncing"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:208
-#: app/Licensing/class-licensing-factory.php:1069
+#: app/Licensing/class-licensing-factory.php:1090
 msgid "Please enter a license key."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:209
 #: app/Licensing/class-edd-license-page.php:318
-#: app/Licensing/class-licensing-factory.php:1070
+#: app/Licensing/class-licensing-factory.php:1091
 msgid "Activate"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:210
 #: app/Licensing/class-edd-license-page.php:322
-#: app/Licensing/class-licensing-factory.php:1071
-#: app/Licensing/class-licensing-factory.php:1208
+#: app/Licensing/class-licensing-factory.php:1092
+#: app/Licensing/class-licensing-factory.php:1229
 msgid "Deactivate"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:211
 #: app/Licensing/class-edd-license-page.php:325
-#: app/Licensing/class-licensing-factory.php:1072
-#: app/Licensing/class-licensing-factory.php:1214
+#: app/Licensing/class-licensing-factory.php:1093
+#: app/Licensing/class-licensing-factory.php:1235
 msgid "Sync License"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:212
-#: app/Licensing/class-licensing-factory.php:1078
+#: app/Licensing/class-licensing-factory.php:1099
 msgid "A network error occurred. Please try again."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:213
-#: app/Licensing/class-edd-provider.php:1253
-#: app/Licensing/class-licensing-factory.php:1079
-#: app/Licensing/class-licensing-factory.php:1334
+#: app/Licensing/class-edd-provider.php:1254
+#: app/Licensing/class-licensing-factory.php:1100
+#: app/Licensing/class-licensing-factory.php:1369
 msgid "License activated successfully."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:214
-#: app/Licensing/class-licensing-factory.php:1080
+#: app/Licensing/class-licensing-factory.php:1101
 msgid "Activation failed."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:215
-#: app/Licensing/class-edd-provider.php:1275
-#: app/Licensing/class-licensing-factory.php:1081
-#: app/Licensing/class-licensing-factory.php:1361
+#: app/Licensing/class-edd-provider.php:1276
+#: app/Licensing/class-licensing-factory.php:1102
+#: app/Licensing/class-licensing-factory.php:1458
 msgid "License deactivated successfully."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:216
-#: app/Licensing/class-licensing-factory.php:1082
+#: app/Licensing/class-licensing-factory.php:1103
 msgid "Deactivation failed."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:217
-#: app/Licensing/class-licensing-factory.php:1083
-#: app/Licensing/class-licensing-factory.php:1383
+#: app/Licensing/class-licensing-factory.php:1104
+#: app/Licensing/class-licensing-factory.php:1480
 msgid "License synced successfully."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:218
-#: app/Licensing/class-licensing-factory.php:1084
+#: app/Licensing/class-licensing-factory.php:1105
 msgid "Sync failed."
 msgstr ""
 
@@ -2228,7 +2247,7 @@ msgid "completed successfully."
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:262
-#: app/Licensing/class-licensing-factory.php:1139
+#: app/Licensing/class-licensing-factory.php:1160
 msgid "Lifetime"
 msgstr ""
 
@@ -2245,7 +2264,7 @@ msgid "License Key"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:332
-#: app/Licensing/class-licensing-factory.php:1227
+#: app/Licensing/class-licensing-factory.php:1248
 msgid "Status"
 msgstr ""
 
@@ -2254,7 +2273,7 @@ msgid "Active (Network)"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:341
-#: app/Licensing/class-licensing-factory.php:1233
+#: app/Licensing/class-licensing-factory.php:1254
 #: app/modules/temporary-logins/class-temporary-logins-table.php:141
 msgid "Expired"
 msgstr ""
@@ -2264,17 +2283,17 @@ msgid "Inactive"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:345
-#: app/Licensing/class-licensing-factory.php:1235
+#: app/Licensing/class-licensing-factory.php:1256
 msgid "Not activated"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:354
-#: app/Licensing/class-licensing-factory.php:1246
+#: app/Licensing/class-licensing-factory.php:1267
 msgid "Plan"
 msgstr ""
 
 #: app/Licensing/class-edd-license-page.php:361
-#: app/Licensing/class-licensing-factory.php:1252
+#: app/Licensing/class-licensing-factory.php:1273
 msgid "Expires"
 msgstr ""
 
@@ -2308,8 +2327,12 @@ msgstr ""
 msgid "Your network has %1$d subsites but your license only has %2$d activations remaining. Please upgrade your license or reduce the number of subsites before activating."
 msgstr ""
 
+#: app/Licensing/class-edd-network-licensing.php:332
+msgid "License could not be activated on any site."
+msgstr ""
+
 #. translators: 1: activated count, 2: total count
-#: app/Licensing/class-edd-network-licensing.php:333
+#: app/Licensing/class-edd-network-licensing.php:341
 #, php-format
 msgid "License activated on %1$d of %2$d sites. Some sites had errors."
 msgstr ""
@@ -2435,179 +2458,183 @@ msgstr ""
 msgid "check your license key"
 msgstr ""
 
-#. translators: %s: pricing page link
+#. translators: 1: pricing page link, 2: support page link
 #: app/Licensing/class-edd-provider.php:1224
 #, php-format
-msgid "A new subsite could not be activated because your license has no remaining activations. Please %s or free a slot by deactivating another site."
+msgid "A new subsite could not be activated because your license has no remaining activations. Please %1$s, free a slot by deactivating another site, or %2$s."
 msgstr ""
 
-#: app/Licensing/class-edd-provider.php:1247
-#: app/Licensing/class-freemius-provider.php:486
-#: app/Licensing/class-licensing-factory.php:1309
-#: app/Licensing/class-licensing-factory.php:1414
+#: app/Licensing/class-edd-provider.php:1226
+msgid "contact our support team"
+msgstr ""
+
+#: app/Licensing/class-edd-provider.php:1248
+#: app/Licensing/class-freemius-provider.php:585
+#: app/Licensing/class-licensing-factory.php:1330
+#: app/Licensing/class-licensing-factory.php:1511
 msgid "License key is required."
 msgstr ""
 
-#: app/Licensing/class-edd-provider.php:1277
-#: app/Licensing/class-licensing-factory.php:1363
+#: app/Licensing/class-edd-provider.php:1278
+#: app/Licensing/class-licensing-factory.php:1460
 msgid "Failed to deactivate license."
 msgstr ""
 
-#: app/Licensing/class-edd-provider.php:1298
+#: app/Licensing/class-edd-provider.php:1299
 msgid "License data synced successfully."
 msgstr ""
 
-#: app/Licensing/class-edd-provider.php:1300
-#: app/Licensing/class-licensing-factory.php:1385
+#: app/Licensing/class-edd-provider.php:1301
+#: app/Licensing/class-licensing-factory.php:1482
 msgid "Failed to sync license data."
 msgstr ""
 
-#: app/Licensing/class-freemius-provider.php:469
+#: app/Licensing/class-freemius-provider.php:568
 msgid "Freemius is not available."
 msgstr ""
 
-#: app/Licensing/class-freemius-provider.php:477
+#: app/Licensing/class-freemius-provider.php:576
 msgid "Could not initialize Freemius SDK."
 msgstr ""
 
-#: app/Licensing/class-freemius-provider.php:523
-#: app/Licensing/class-licensing-factory.php:1338
-#: app/Licensing/class-licensing-factory.php:1463
+#: app/Licensing/class-freemius-provider.php:622
+#: app/Licensing/class-licensing-factory.php:1376
+#: app/Licensing/class-licensing-factory.php:1560
 msgid "License activation failed."
 msgstr ""
 
 #. translators: User's first name
-#: app/Licensing/class-freemius-provider.php:968
-#: app/Licensing/class-freemius-provider.php:996
+#: app/Licensing/class-freemius-provider.php:1067
+#: app/Licensing/class-freemius-provider.php:1095
 #, php-format
 msgid "Hey %s"
 msgstr ""
 
-#: app/Licensing/class-freemius-provider.php:972
+#: app/Licensing/class-freemius-provider.php:1071
 msgid "Never miss an important update! Opt-in to our security and feature updates notifications, and non-sensitive diagnostic tracking with freemius.com."
 msgstr ""
 
-#: app/Licensing/class-freemius-provider.php:973
-#: app/Licensing/class-freemius-provider.php:1008
+#: app/Licensing/class-freemius-provider.php:1072
+#: app/Licensing/class-freemius-provider.php:1107
 msgid "Note: "
 msgstr ""
 
 #. translators: 1: Plugin name. 2: Plugin name. 2: Freemius link. 4: Plugin name.
-#: app/Licensing/class-freemius-provider.php:1002
+#: app/Licensing/class-freemius-provider.php:1101
 #, php-format
 msgid "Please help us improve %1$s! If you opt-in, some non-sensitive data about your usage of %2$s will be sent to %3$s, a diagnostic tracking service we use. If you skip this, that's okay! %2$s will still work just fine."
 msgstr ""
 
 #. Translators: Expired message and time
-#: app/Licensing/class-freemius-provider.php:1087
+#: app/Licensing/class-freemius-provider.php:1186
 #, php-format
 msgid "%s You need to renew your license to continue using premium features."
 msgstr ""
 
 #. Translators: Number of sites
-#: app/Licensing/class-freemius-provider.php:1090
+#: app/Licensing/class-freemius-provider.php:1189
 #, php-format
 msgid "The license is limited to %s sub-sites. You need to upgrade your license to cover all the sub-sites on this network."
 msgstr ""
 
 #. translators: 1: plugin name, 2: activation link
-#: app/Licensing/class-freemius-provider.php:1127
+#: app/Licensing/class-freemius-provider.php:1226
 #, php-format
 msgid "You need to activate the license key to use %1$s. %%2$s"
 msgstr ""
 
-#: app/Licensing/class-freemius-provider.php:1130
+#: app/Licensing/class-freemius-provider.php:1229
 msgid "Activate the license key now"
 msgstr ""
 
 #. translators: %s: provider name
-#: app/Licensing/class-licensing-factory.php:627
+#: app/Licensing/class-licensing-factory.php:648
 #, php-format
 msgid "Licensing provider switched to %s successfully."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1073
+#: app/Licensing/class-licensing-factory.php:1094
 msgid "Activate New"
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1075
+#: app/Licensing/class-licensing-factory.php:1096
 msgid "Changing..."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1076
-#: app/Licensing/class-licensing-factory.php:1490
+#: app/Licensing/class-licensing-factory.php:1097
+#: app/Licensing/class-licensing-factory.php:1587
 msgid "License changed successfully."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1077
+#: app/Licensing/class-licensing-factory.php:1098
 msgid "License change failed."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1144
+#: app/Licensing/class-licensing-factory.php:1165
 msgid "Activate your license key"
 msgstr ""
 
 #. translators: %s: plugin name
-#: app/Licensing/class-licensing-factory.php:1163
+#: app/Licensing/class-licensing-factory.php:1184
 #, php-format
 msgid "To get started with %s, please enter your license key below:"
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1173
+#: app/Licensing/class-licensing-factory.php:1194
 msgid "Paste your license key"
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1177
+#: app/Licensing/class-licensing-factory.php:1198
 msgid "Activate License"
 msgstr ""
 
 #. translators: %s: contact link
-#: app/Licensing/class-licensing-factory.php:1185
+#: app/Licensing/class-licensing-factory.php:1206
 #, php-format
 msgid "Can't find your license key? %s so we can assist you."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1186
+#: app/Licensing/class-licensing-factory.php:1207
 msgid "Contact us"
 msgstr ""
 
 #. translators: %s: plugin name
-#: app/Licensing/class-licensing-factory.php:1195
+#: app/Licensing/class-licensing-factory.php:1216
 #, php-format
 msgid "Your %s license is active."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1218
+#: app/Licensing/class-licensing-factory.php:1239
 msgid "Change License"
 msgstr ""
 
 #. translators: 1: plugin name, 2: bold server name
-#: app/Licensing/class-licensing-factory.php:1265
+#: app/Licensing/class-licensing-factory.php:1286
 #, php-format
 msgid "For license management, and to deliver security & feature updates, %1$s connects to the %2$s."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1267
+#: app/Licensing/class-licensing-factory.php:1288
 msgid "Melapress licensing servers"
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1316
+#: app/Licensing/class-licensing-factory.php:1337
 msgid "Freemius licensing is not available in this build."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1320
+#: app/Licensing/class-licensing-factory.php:1341
 msgid "EDD licensing is not available in this build."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1408
+#: app/Licensing/class-licensing-factory.php:1505
 msgid "License change is not supported for this provider."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1434
+#: app/Licensing/class-licensing-factory.php:1531
 msgid "The new license key is the same as the current one."
 msgstr ""
 
-#: app/Licensing/class-licensing-factory.php:1486
+#: app/Licensing/class-licensing-factory.php:1583
 msgid "License changed successfully. Note: the previous license could not be fully deactivated. Please contact support if activation slots are not freed."
 msgstr ""
 
@@ -3069,7 +3096,7 @@ msgid "Shown when a user attempts to log in from a blocked country or IP address
 msgstr ""
 
 #: app/modules/restrict-logins/class-restrict-logins.php:143
-#: app/policies/class-mls-options.php:838
+#: app/policies/class-mls-options.php:841
 msgid "website administrator"
 msgstr ""
 
@@ -3541,7 +3568,7 @@ msgid "callback must be a function"
 msgstr ""
 
 #. translators: %s: link to admin email.
-#: app/policies/class-mls-options.php:840
+#: app/policies/class-mls-options.php:843
 #, php-format
 msgid "Your WordPress user has been deactivated. Please contact the %1s to activate back your user."
 msgstr ""
