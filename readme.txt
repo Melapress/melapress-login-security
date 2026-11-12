@@ -5,7 +5,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.5
 Tested up to: 7.1
 Tags: brute force, login, limit logins, limit login attempts, login security
-Stable tag: 2.4.2
+Stable tag: 2.4.3
 Requires PHP: 8.0
 
 Enforce WordPress login and password security policies to protect user accounts and prevent unauthorized logins.
@@ -204,6 +204,35 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 
 
 == Changelog ==
+
+= 2.4.3 (2026-11-11) =
+
+ * **Functionality & plugin improvements**
+
+	 *  Added a dismissible Black Friday banner, scheduled to appear from November 17th through December 1st.
+	 *  Updated the 2FA installation check in security policies to detect both Free and Premium editions of WP 2FA, preventing the Free version from being installed alongside an existing Premium installation.
+
+ * **Bug fixes**
+
+	 *  Corrected the security question prompt shown when changing an email address, which incorrectly included mls_email_change_security_answer.
+	 *  Fixed a fatal error in the inactive users background process that could occur when a queued user had been deleted.
+
+= 2.4.2.1 (2026-10-08) =
+
+ * **New features & functionality**
+
+	 *  Added a new Simultaneous login sessions alert policy, allowing administrators to enable email notifications to users when their account is logged in from multiple devices.
+
+ * **Functionality & plugin improvements**
+
+	 *  Updated the Freemius SDK to version 2.13.5.
+
+ * **Bug fixes**
+
+	 *  Fixed an issue where disconnecting a Freemius license and switching to an EDD license could leave premium features available without a valid license.
+	 *  Fixed the "subsite could not be activated" notice missing the link to contact support.
+	 *  Fixed the multiple sessions email being sent to all users without a way to turn it off. It is now only sent when the new Simultaneous login sessions alert policy is enabled.
+	 *  Fixed saving the settings resetting email template options that were not shown on the page.
 
 = 2.4.2 (2026-09-17) =
 

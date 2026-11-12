@@ -235,6 +235,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'restrict_login_credentials'                => 'default',
 			'restrict_login_credentials_message'        => '',
 			'enable_sessions_policies'                  => 'no',
+			'enable_simultaneous_sessions_alert'        => 'no',
 			'remember_session_expiry'                   => array(
 				'value' => 14,
 				'unit'  => 'days',
@@ -406,6 +407,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'restrict_login_credentials'                => 'default',
 			'restrict_login_credentials_message'        => '',
 			'enable_sessions_policies'                  => 'no',
+			'enable_simultaneous_sessions_alert'        => 'no',
 			'remember_session_expiry'                   => array(
 				'value' => 14,
 				'unit'  => 'days',
@@ -637,6 +639,7 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			'activate_password_policies',
 			'activate_password_recycle_policies',
 			'enable_sessions_policies',
+			'enable_simultaneous_sessions_alert',
 			'enable_device_policies',
 			'enable_security_questions',
 			'notify_password_reset_on_login',

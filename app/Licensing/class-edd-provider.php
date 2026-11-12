@@ -1220,9 +1220,10 @@ if ( ! class_exists( '\MLS\Licensing\EDD_Provider' ) ) {
 			if ( \is_multisite() && \get_site_option( EDD_Network_Licensing::ACTIVATION_FAILED_FLAG ) ) {
 				echo '<div class="notice notice-warning"><p>';
 				printf(
-					/* translators: %s: pricing page link */
-					\esc_html__( 'A new subsite could not be activated because your license has no remaining activations. Please %s or free a slot by deactivating another site.', 'melapress-login-security' ),
-					'<a href="' . \esc_url( self::get_pricing_url() ) . '" target="_blank" rel="noopener noreferrer">' . \esc_html__( 'upgrade your license', 'melapress-login-security' ) . '</a>'
+					/* translators: 1: pricing page link, 2: support page link */
+					\esc_html__( 'A new subsite could not be activated because your license has no remaining activations. Please %1$s, free a slot by deactivating another site, or %2$s.', 'melapress-login-security' ),
+					'<a href="' . \esc_url( self::get_pricing_url() ) . '" target="_blank" rel="noopener noreferrer">' . \esc_html__( 'upgrade your license', 'melapress-login-security' ) . '</a>',
+					'<a href="' . \esc_url( 'https://melapress.com/support/?utm_source=plugin&utm_medium=mls&utm_campaign=multisite_no_remaining_activations' ) . '" target="_blank" rel="noopener noreferrer">' . \esc_html__( 'contact our support team', 'melapress-login-security' ) . '</a>'
 				);
 				echo '</p></div>';
 			}

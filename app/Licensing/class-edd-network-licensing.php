@@ -325,6 +325,14 @@ if ( ! class_exists( '\MLS\Licensing\EDD_Network_Licensing' ) ) {
 			// Step 8: Mark progress as complete.
 			self::set_progress( $site_count, $completed, 'complete', $errors );
 
+			// Nothing was activated, so this is a failure and not a partial success.
+			if ( 0 === $active_count ) {
+				return array(
+					'success' => false,
+					'message' => \__( 'License could not be activated on any site.', 'melapress-login-security' ),
+				);
+			}
+
 			if ( ! empty( $errors ) ) {
 				return array(
 					'success' => true,

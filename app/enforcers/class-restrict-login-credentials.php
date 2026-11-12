@@ -166,9 +166,59 @@ if ( ! class_exists( '\MLS\Restrict_Login_Credentials' ) ) {
 		 * Whether WP 2FA is installed.
 		 *
 		 * @return bool
+		 *
+		 * @since 2.4.3 - Detects the premium build too.
 		 */
 		private static function is_wp2fa_installed() {
-			return file_exists( WP_PLUGIN_DIR . '/wp-2fa/wp-2fa.php' );
+			return '' !== self::get_wp2fa_basename();
+		}
+
+		/**
+		 * Get the basename of the installed WP 2FA plugin, free or premium.
+		 *
+		 * Only our builds are matched: main file wp-2fa.php, text domain wp-2fa and author Melapress.
+		 * An active build comes first, then premium, then free.
+		 *
+		 * @return string $basename - Plugin basename, or empty string when WP 2FA is not installed.
+		 *
+		 * @since 2.4.3
+		 */
+		private static function get_wp2fa_basename() {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+			$wp2fa_plugins = array();
+
+			foreach ( \get_plugins() as $basename => $plugin_data ) {
+				if ( 'wp-2fa.php' !== basename( $basename ) ) {
+					continue;
+				}
+
+				if ( 'wp-2fa' !== $plugin_data['TextDomain'] || 'Melapress' !== $plugin_data['Author'] ) {
+					continue;
+				}
+
+				$wp2fa_plugins[] = $basename;
+			}
+
+			// An active build is the one in use.
+			foreach ( $wp2fa_plugins as $basename ) {
+				if ( \is_plugin_active( $basename ) ) {
+					return $basename;
+				}
+			}
+
+			// Premium comes before free.
+			foreach ( $wp2fa_plugins as $basename ) {
+				if ( self::WP2FA_PLUGIN_BASENAME !== $basename ) {
+					return $basename;
+				}
+			}
+
+			if ( in_array( self::WP2FA_PLUGIN_BASENAME, $wp2fa_plugins, true ) ) {
+				return self::WP2FA_PLUGIN_BASENAME;
+			}
+
+			return '';
 		}
 
 		/**
@@ -199,6 +249,8 @@ if ( ! class_exists( '\MLS\Restrict_Login_Credentials' ) ) {
 		 * Handle install/activate/open flow for WP 2FA.
 		 *
 		 * @return void
+		 *
+		 * @since 2.4.3 - Uses the installed WP 2FA build, free or premium, and installs the free build only when none is installed.
 		 */
 		public static function handle_wp2fa_install_or_open() {
 			if ( ! current_user_can( 'install_plugins' ) ) {
@@ -243,8 +295,10 @@ if ( ! class_exists( '\MLS\Restrict_Login_Credentials' ) ) {
 				$status = 'installed';
 			}
 
-			if ( ! is_plugin_active( self::WP2FA_PLUGIN_BASENAME ) ) {
-				$activation_result = activate_plugin( self::WP2FA_PLUGIN_BASENAME, '', $network_context );
+			$wp2fa_basename = self::get_wp2fa_basename();
+
+			if ( ! \is_plugin_active( $wp2fa_basename ) ) {
+				$activation_result = \activate_plugin( $wp2fa_basename, '', $network_context );
 				if ( is_wp_error( $activation_result ) ) {
 					wp_safe_redirect( add_query_arg( 'mls_wp2fa_status', 'activate-failed', $fallback_url ) );
 					exit;
@@ -358,7 +412,11 @@ if ( ! class_exists( '\MLS\Restrict_Login_Credentials' ) ) {
 					<td>
 						<fieldset>
 							<p class="description"><?php esc_html_e( 'Add an extra layer of login security by requiring users to verify their identity with a second authentication method.', 'melapress-login-security' ); ?></p>
-							<p class="description"><?php esc_html_e( 'The button below installs and activates the free WP 2FA plugin, which you can use to configure two-factor authentication policies for your users.', 'melapress-login-security' ); ?></p>
+							<?php if ( $wp2fa_installed ) : ?>
+								<p class="description"><?php \esc_html_e( 'WP 2FA is installed on this website. Use the button below to configure the two-factor authentication policies.', 'melapress-login-security' ); ?></p>
+							<?php else : ?>
+								<p class="description"><?php \esc_html_e( 'The button below installs and activates the free WP 2FA plugin, which you can use to configure two-factor authentication policies for your users.', 'melapress-login-security' ); ?></p>
+							<?php endif; ?>
 
 							<p style="margin-top: 12px;">
 								<a class="button button-secondary" href="<?php echo esc_url( $action_url ); ?>">

@@ -806,10 +806,14 @@ class OptionsHelper {
 	 * @return string Time.
 	 *
 	 * @since 2.0.0
+	 * @since 2.4.3 - Uses the site-wide period for a deleted user instead of reading roles of false.
 	 */
 	public static function get_role_specific_dormancy_period( $user_id ) {
 		$user_data = get_userdata( $user_id );
-		$roles     = self::prioritise_roles( $user_data->roles );
+
+		// A deleted user has no roles, the site-wide period below is used.
+		$user_roles = ( $user_data instanceof \WP_User ) ? $user_data->roles : array();
+		$roles      = self::prioritise_roles( $user_roles );
 		foreach ( $roles as $user_role ) {
 			$role_options = self::get_role_options( $user_role );
 
@@ -949,8 +953,13 @@ class OptionsHelper {
 	 * @return array - Sorted array.
 	 *
 	 * @since 2.0.0
+	 * @since 2.4.3 - Returns an empty array when no roles array is given, e.g. for a deleted user.
 	 */
 	public static function prioritise_roles( $roles = array() ) {
+		if ( ! is_array( $roles ) ) {
+			return array();
+		}
+
 		$mls = melapress_login_security();
 
 		if ( ! isset( $mls->options->mls_setting->multiple_role_order ) ) {
