@@ -458,12 +458,20 @@ if ( ! class_exists( '\MLS\Licensing\Licensing_Factory' ) ) {
 			 * SDK is ready, writing 'no' even though the license is still valid.
 			 * Checking for existence rather than 'yes' prevents this from
 			 * misidentifying the site as a fresh install.
+			 *
+			 * Both Freemius markers (premium option and provider preference) survive a
+			 * license deactivation and disconnect. Without an install record behind them
+			 * the SDK would render its own connect screen over the plugin menu page, which
+			 * cannot accept an EDD key, and the plugin would stay usable in free mode.
+			 * Requiring the install record sends such sites back to the unified form.
 			 */
+			$freemius_connected = Freemius_Provider::has_install_record();
+
 			$fs_premium = \get_option( Freemius_Provider::FS_WP2FAP_OPTION, null );
 			if ( null === $fs_premium && $is_multisite ) {
 				$fs_premium = \get_blog_option( $main_site_id, Freemius_Provider::FS_WP2FAP_OPTION, null );
 			}
-			if ( null !== $fs_premium ) {
+			if ( null !== $fs_premium && $freemius_connected ) {
 				if ( empty( \get_option( self::PROVIDER_OPTION, '' ) ) ) {
 					\update_option( self::PROVIDER_OPTION, 'freemius' );
 				}
@@ -482,6 +490,10 @@ if ( ! class_exists( '\MLS\Licensing\Licensing_Factory' ) ) {
 				}
 			}
 			if ( ! empty( $provider ) ) {
+				if ( 'freemius' === $provider && ! $freemius_connected ) {
+					return false;
+				}
+
 				return true;
 			}
 
@@ -511,6 +523,15 @@ if ( ! class_exists( '\MLS\Licensing\Licensing_Factory' ) ) {
 
 			// Allow filtering the preferred provider.
 			// $preferred_provider = apply_filters( self::SLUG_PREFIX . '_licensing_provider', $preferred_provider );
+
+			/**
+			 * Resolving to Freemius loads its SDK, which shows its connect screen when there
+			 * is no install to manage. Any caller of has_active_valid_license(), is_premium()
+			 * or provider_call() reaches this method, so a stale preference is refused here.
+			 */
+			if ( 'freemius' === $preferred_provider && ! Freemius_Provider::has_install_record() ) {
+				$preferred_provider = '';
+			}
 
 			// Validate and use preferred provider if specified and available.
 			if ( ! empty( $preferred_provider ) ) {
@@ -1320,6 +1341,15 @@ if ( ! class_exists( '\MLS\Licensing\Licensing_Factory' ) ) {
 				\wp_send_json_error( array( 'message' => \__( 'EDD licensing is not available in this build.', 'melapress-login-security' ) ) );
 			}
 
+			/**
+			 * Remember the license state before this attempt so a failed activation can be
+			 * rolled back. EDD stores the key and the server response before checking whether
+			 * the key was accepted, so a rejected key would otherwise make
+			 * has_stored_license_data() report a prior activation and put the site in free
+			 * mode with the plugin menus open.
+			 */
+			$restore_point = self::licence_marker_snapshot();
+
 			// Set the provider preference based on the key type.
 			self::set_provider( $key_type );
 
@@ -1330,14 +1360,81 @@ if ( ! class_exists( '\MLS\Licensing\Licensing_Factory' ) ) {
 				$result = EDD_Provider::activate_license( $license_key );
 			}
 
-			if ( true === $result ) {
-				\wp_send_json_success( array( 'message' => \__( 'License activated successfully.', 'melapress-login-security' ) ) );
+			// Network activation reports a partial success as an array with 'success' set to true.
+			$is_success = true === $result || ( is_array( $result ) && ! empty( $result['success'] ) );
+
+			if ( $is_success ) {
+				$message = is_array( $result ) && isset( $result['message'] )
+					? $result['message']
+					: \__( 'License activated successfully.', 'melapress-login-security' );
+				\wp_send_json_success( array( 'message' => $message ) );
 			} else {
+				self::restore_licence_markers( $restore_point );
+
 				$error_message = is_array( $result ) && isset( $result['message'] )
 					? $result['message']
 					: \__( 'License activation failed.', 'melapress-login-security' );
 				\wp_send_json_error( array( 'message' => $error_message ) );
 			}
+		}
+
+		/**
+		 * Get every license option an activation attempt can write, with its current value.
+		 *
+		 * Null records that the option did not exist, so it is restored as absent rather
+		 * than as an empty value.
+		 *
+		 * @return array $snapshot - Option values keyed by option name.
+		 *
+		 * @since 2.4.2.1
+		 */
+		private static function licence_marker_snapshot(): array {
+			$snapshot = array();
+
+			foreach ( self::licence_marker_options() as $name ) {
+				$snapshot[ $name ] = \get_option( $name, null );
+			}
+
+			return $snapshot;
+		}
+
+		/**
+		 * Put the license options back exactly as they were before an activation attempt.
+		 *
+		 * @param array $snapshot - Values taken by licence_marker_snapshot().
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.2.1
+		 */
+		private static function restore_licence_markers( array $snapshot ): void {
+			foreach ( $snapshot as $name => $value ) {
+				if ( null === $value ) {
+					\delete_option( $name );
+				} else {
+					\update_option( $name, $value );
+				}
+			}
+
+			self::get_provider( true ); // Force refresh.
+		}
+
+		/**
+		 * Get the options that together say whether, and how, this site is licensed.
+		 *
+		 * @return array $options - Option names.
+		 *
+		 * @since 2.4.2.1
+		 */
+		private static function licence_marker_options(): array {
+			return array(
+				self::PROVIDER_OPTION,
+				EDD_Provider::LICENSE_KEY_OPTION,
+				EDD_Provider::LICENSE_STATUS_OPTION,
+				EDD_Provider::LICENSE_DATA_OPTION,
+				EDD_Provider::PREMIUM_OPTION,
+				EDD_Provider::LAST_VALID_OPTION,
+			);
 		}
 
 		/**

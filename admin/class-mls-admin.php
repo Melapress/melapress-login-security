@@ -28,6 +28,16 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 	 */
 	class Admin {
 
+		/**
+		 * Screen bases of the top level plugin pages.
+		 *
+		 * Submenu screens are missing here, because their base starts with the
+		 * translated menu title (e.g. "login-security_page_mls-settings").
+		 *
+		 * @var string[]
+		 *
+		 * @deprecated 2.4.3 Use is_plugin_screen().
+		 */
 		public const PLUGIN_PAGES = array(
 			'toplevel_page_mls-policies',
 			'toplevel_page_mls-policies-network',
@@ -45,6 +55,47 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			'toplevel_page_mls-policies-account-network',
 			'toplevel_page_mls-help',
 			'toplevel_page_mls-help-network',
+		);
+
+		/**
+		 * Page slugs of the plugin admin pages, used to match the current screen.
+		 *
+		 * @var string[]
+		 *
+		 * @since 2.4.3
+		 */
+		public const PLUGIN_PAGE_SLUGS = array(
+			'mls-policies',
+			'mls-forms',
+			'mls-reports',
+			'mls-locked-users',
+			'mls-hide-login',
+			'mls-settings',
+			'mls-policies-account',
+			'mls-help',
+			'mls-upgrade',
+			'mls-temporary-logins',
+		);
+
+		/**
+		 * Settings checkboxes that are only rendered in the email templates tab.
+		 *
+		 * @var string[]
+		 *
+		 * @since 2.4.2.1
+		 */
+		private const EMAIL_TEMPLATE_CHECKBOXES = array(
+			'disable_user_password_reset_email',
+			'disable_user_delayed_password_reset_email',
+			'disable_user_pw_expired_email',
+			'disable_device_policies_prompt_email',
+			'disable_device_policies_prompt_admin_email',
+			'disable_user_imported_email',
+			'disable_user_imported_forced_reset_email',
+			'disable_user_unlocked_email',
+			'disable_user_unlocked_reset_needed_email',
+			'disable_multiple_sessions_email',
+			'send_plain_text_emails',
 		);
 
 		/**
@@ -153,6 +204,37 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		}
 
 		/**
+		 * Checks whether a screen is one of the plugin admin pages.
+		 *
+		 * Matches on the page slug at the end of the screen base, so top level,
+		 * submenu (any locale) and Network Admin screens are all covered.
+		 *
+		 * @param \WP_Screen|null $screen - The screen to check.
+		 *
+		 * @return bool $is_plugin_screen - True if the screen is a plugin admin page.
+		 *
+		 * @since 2.4.3
+		 */
+		public static function is_plugin_screen( $screen ): bool {
+			if ( ! $screen instanceof \WP_Screen ) {
+				return false;
+			}
+
+			$base = $screen->base;
+			if ( str_ends_with( $base, '-network' ) ) {
+				$base = substr( $base, 0, -strlen( '-network' ) );
+			}
+
+			foreach ( self::PLUGIN_PAGE_SLUGS as $slug ) {
+				if ( str_ends_with( $base, '_page_' . $slug ) ) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
 		 * Show extra event banner.
 		 *
 		 * @return void
@@ -160,63 +242,74 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		 * @since 2.3.0
 		 */
 		public static function extra_event_banner() {
-			$screen                       = \get_current_screen();
-			$show_extra_event_banner      = \get_site_option( MLS_PREFIX . '_extra_event_banner', false );
-			$extra_event_banner_dismissed = \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false );
-
-			if ( $show_extra_event_banner ) {
-				$event_ending_date = \get_site_option( MLS_PREFIX . '_extra_event_banner_end_date', false );
-				if ( $event_ending_date && ( \time() > (int) ( $event_ending_date ) ) ) {
-					$show_extra_event_banner = false;
-					\delete_site_option( MLS_PREFIX . '_extra_event_banner' );
-					\delete_site_option( MLS_PREFIX . '_extra_event_banner_end_date' );
-					\delete_site_option( MLS_PREFIX . '_extra_event_banner_dismissed' );
-				}
+			$screen = \get_current_screen();
+			if ( ! $screen || ! OptionsHelper::current_user_can_manage_scope() || ! self::is_plugin_screen( $screen ) ) {
+				return;
 			}
-			if ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $show_extra_event_banner && ! $extra_event_banner_dismissed ) {
+
+			$phase = self::get_extra_event_banner_phase();
+			if ( '' !== $phase && \get_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', false ) !== $phase ) {
 
 				\remove_action( 'admin_notices', array( __CLASS__, 'plugin_was_updated_banner' ), 20, 3 );
 				?>
 				<!-- Copy START -->
 				<div class="black-friday mls-extra-event-banner" style="margin-top: 20px; margin-right: 20px;">
 					<!-- SVG Icon on the Left -->
-					<img class="black-friday-svg" src="<?php echo esc_url( MLS_PLUGIN_URL . 'assets/images/upgrade-plugin-icon.svg' ); ?>" alt="Premium Plugin" width="113" height="101">
-					
+					<img class="black-friday-svg" src="<?php echo \esc_url( MLS_PLUGIN_URL . 'assets/images/upgrade-plugin-icon.svg' ); ?>" alt="Premium Plugin" width="113" height="101">
+
 					<!-- Text Content -->
 					<div class="black-friday-content">
 					<h2 class="black-friday-title"><?php \esc_html_e( 'Upgrade to Premium', 'melapress-login-security' ); ?><br>
-						<span class="bf-title-line-2"><span class="bf-underline"><?php \esc_html_e( 'Black Friday', 'melapress-login-security' ); ?></span> <?php \esc_html_e( ' Sale Now Live!', 'melapress-login-security' ); ?></span>
+						<span class="bf-title-line-2">
+						<?php
+						printf(
+							/* translators: %s: the words "Black Friday", shown underlined. */
+							\esc_html__( '%s Sale Now Live!', 'melapress-login-security' ),
+							'<span class="bf-underline">' . \esc_html__( 'Black Friday', 'melapress-login-security' ) . '</span>'
+						);
+						?>
+						</span>
 					</h2>
-					<a href="https://melapress.com/black-friday-cyber-monday/?utm_source=plugin&utm_medium=mls&utm_campaign=BFCM2025" target="_blank" class="bf-cta-link"><?php \esc_html_e( 'Get Offer Now', 'melapress-login-security' ); ?></a>
+					<a href="https://melapress.com/black-friday-cyber-monday/?utm_source=plugin&utm_medium=mls&utm_campaign=BFCM2026" target="_blank" rel="noopener noreferrer" class="bf-cta-link"><?php \esc_html_e( 'Get Offer Now', 'melapress-login-security' ); ?></a>
+					<p class="mls-extra-event-banner-error" role="alert" style="display:none;"><?php \esc_html_e( 'An error occurred. Please try again.', 'melapress-login-security' ); ?></p>
 					</div>
-					
+
 					<!-- Close Button -->
-					<button aria-label="Close button" class="mls-extra-event-banner-close black-friday-close" data-dismiss-nonce="<?php echo \esc_attr( \wp_create_nonce( 'mls_dismiss_extra_event_banner_nonce' ) ); ?>"></button>
+					<button aria-label="<?php \esc_attr_e( 'Close', 'melapress-login-security' ); ?>" class="mls-extra-event-banner-close black-friday-close" data-dismiss-nonce="<?php echo \esc_attr( \wp_create_nonce( 'mls_dismiss_extra_event_banner_nonce' ) ); ?>"></button>
 				</div>
 				<!-- Copy END -->
-				
+
 				<script type="text/javascript">
-					if ('scrollRestoration' in history) {
+					if ( 'scrollRestoration' in history ) {
 						history.scrollRestoration = 'manual';
 					}
-				jQuery(document).ready(function( $ ) {
-					jQuery( 'body' ).on( 'click', '.mls-extra-event-banner-close', function ( e ) {
-						var nonce  = jQuery( '.mls-extra-event-banner [data-dismiss-nonce]' ).attr( 'data-dismiss-nonce' );
-						
-						jQuery.ajax({
+				jQuery( document ).ready( () => {
+					jQuery( 'body' ).on( 'click', '.mls-extra-event-banner-close', ( event ) => {
+						const button = jQuery( event.currentTarget );
+						const banner = button.closest( '.mls-extra-event-banner' );
+						const error  = banner.find( '.mls-extra-event-banner-error' );
+						error.hide();
+
+						jQuery.ajax( {
 							type: 'POST',
 							url: '<?php echo \esc_url( \admin_url( 'admin-ajax.php' ) ); ?>',
-							async: true,
 							data: {
 								action: 'mls_dismiss_extra_event_banner',
-								nonce : nonce,
+								nonce: button.attr( 'data-dismiss-nonce' ),
 							},
-							success: function ( result ) {		
-								jQuery( '.mls-extra-event-banner' ).slideUp( 300 );
-							}
-						});
-					});
-				});
+							success: ( result ) => {
+								if ( result && result.success ) {
+									banner.slideUp( 300 );
+								} else {
+									error.show();
+								}
+							},
+							error: () => {
+								error.show();
+							},
+						} );
+					} );
+				} );
 				</script>
 				<style>
 					@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Quicksand:wght@600;700&display=swap');
@@ -380,11 +473,11 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 		}
 
 		/**
-		 * Handle event banner dismissal.
+		 * Dismisses the current campaign phase for the installation or network.
 		 *
 		 * @return void
 		 *
-		 * @since 2.300
+		 * @since 2.3.0
 		 */
 		public static function dismiss_extra_event_banner() {
 			// Grab POSTed data.
@@ -392,21 +485,61 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 			// Check nonce.
 			// Network-scoped: writes network options.
-			if ( ! OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! $nonce || ! \wp_verify_nonce( $nonce, 'mls_dismiss_extra_event_banner_nonce' ) ) {
+			if ( ! OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! \wp_verify_nonce( $nonce, 'mls_dismiss_extra_event_banner_nonce' ) ) {
 				\wp_send_json_error( \esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
 			}
 
-			\delete_site_option( MLS_PREFIX . '_extra_event_banner' );
-			\update_site_option( MLS_PREFIX . '_extra_event_banner_dismissed', 'yes' );
+			$phase = self::get_extra_event_banner_phase();
+			if ( '' !== $phase ) {
+				$option = MLS_PREFIX . '_extra_event_banner_dismissed';
 
-			$today_date = gmdate( 'Y-m-d' );
-			$today_date = gmdate( 'Y-m-d', strtotime( $today_date ) );
-
-			if ( gmdate( 'Y-m-d', strtotime( '11/28/2025' ) ) === $today_date ) {
-				\update_site_option( MLS_PREFIX . '_extra_event_banner_super_dismissed', 'yes' );
+				// update_site_option() also returns false when the value is already saved.
+				if ( ! \update_site_option( $option, $phase ) && \get_site_option( $option, false ) !== $phase ) {
+					\wp_send_json_error( \esc_html__( 'An error occurred. Please try again.', 'melapress-login-security' ) );
+				}
 			}
 
 			\wp_send_json_success( \esc_html__( 'Complete.', 'melapress-login-security' ) );
+		}
+
+		/**
+		 * Returns the inline style for the Black Friday ribbon on the upgrade sidebar.
+		 *
+		 * The ribbon stays for the whole campaign, even after the banner is dismissed.
+		 *
+		 * @return string $style - Inline CSS, or an empty string outside the campaign.
+		 *
+		 * @since 2.4.3
+		 */
+		public static function get_black_friday_ribbon_style(): string {
+			if ( '' === self::get_extra_event_banner_phase() ) {
+				return '';
+			}
+
+			return 'background: url("' . \esc_url( MLS_PLUGIN_URL . 'assets/images/bf-corner-notice.svg' ) . '") no-repeat #fff 100% 0;';
+		}
+
+		/**
+		 * Returns the current Black Friday campaign phase, in UTC.
+		 *
+		 * Each phase can be dismissed once. The reminder phase starts on 26 November
+		 * even if an administrator first returns later, and 1 December is included in full.
+		 *
+		 * @return string $phase - Phase start date, or an empty string outside the campaign.
+		 *
+		 * @since 2.4.3
+		 */
+		public static function get_extra_event_banner_phase(): string {
+			$today = \wp_date( 'Y-m-d', null, new \DateTimeZone( 'UTC' ) );
+			if ( $today < '2026-11-17' || $today >= '2026-12-02' ) {
+				return '';
+			}
+
+			if ( $today < '2026-11-26' ) {
+				return '2026-11-17';
+			}
+
+			return '2026-11-26';
 		}
 
 		/**
@@ -422,7 +555,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			$mls_migration_required = \is_multisite() ? \get_site_option( 'mls_migration_required' ) : \get_option( 'mls_migration_required' );
 			$migration_complete     = \is_multisite() ? \get_site_option( 'mls_200_migration_complete' ) : \get_option( 'mls_200_migration_complete' );
 
-			if ( in_array( $screen->base, self::PLUGIN_PAGES, true ) ) {
+			if ( self::is_plugin_screen( $screen ) ) {
 				?>
 				<style>
 					.mls-update-notice {
@@ -578,7 +711,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				<?php
 			}
 
-			if ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $show_update_notice ) {
+			if ( self::is_plugin_screen( $screen ) && $show_update_notice ) {
 				?>
 				<div class="mls-update-notice mls-notice">
 					<p>
@@ -619,7 +752,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			 * its own flag rather than sharing the changelog one so that
 			 * dismissing either notice leaves the other alone.
 			 */
-			if ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && \get_site_option( MLS_PREFIX . '_feature_highlight_needed', false ) ) {
+			if ( self::is_plugin_screen( $screen ) && \get_site_option( MLS_PREFIX . '_feature_highlight_needed', false ) ) {
 				?>
 				<div class="mls-feature-highlight-notice mls-notice">
 					<div>
@@ -645,7 +778,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			}
 			// @free:end
 
-			if ( ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $mls_migration_required && ! $migration_complete ) || ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && ! empty( \MLS\Helpers\OptionsHelper::get_plugin_option( 'ppmwp_options', false ) ) ) ) {
+			if ( ( self::is_plugin_screen( $screen ) && $mls_migration_required && ! $migration_complete ) || ( self::is_plugin_screen( $screen ) && ! empty( \MLS\Helpers\OptionsHelper::get_plugin_option( 'ppmwp_options', false ) ) ) ) {
 				?>
 				<div class="mls-plugin-data-migration">
 					<div class="mls-plugin-update-content">
@@ -729,7 +862,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 				<?php
 			}
 
-			if ( ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $mls_migration_required && ! $migration_complete ) || ( in_array( $screen->base, self::PLUGIN_PAGES, true ) && $show_update_notice ) ) {
+			if ( ( self::is_plugin_screen( $screen ) && $mls_migration_required && ! $migration_complete ) || ( self::is_plugin_screen( $screen ) && $show_update_notice ) ) {
 				?>
 				<style type="text/css">
 					/* Melapress brand font 'Quicksand' — There maybe be a preferable way to add this but this seemed the most discrete. */
@@ -1525,17 +1658,20 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 					$settings['multiple_role_order'] = explode( ',', (string) $settings['multiple_role_order'] );
 				}
 
-				$settings['disable_user_password_reset_email']          = isset( $settings['disable_user_password_reset_email'] );
-				$settings['disable_user_delayed_password_reset_email']  = isset( $settings['disable_user_delayed_password_reset_email'] );
-				$settings['disable_user_pw_expired_email']              = isset( $settings['disable_user_pw_expired_email'] );
-				$settings['disable_device_policies_prompt_email']       = isset( $settings['disable_device_policies_prompt_email'] );
-				$settings['disable_device_policies_prompt_admin_email'] = isset( $settings['disable_device_policies_prompt_admin_email'] );
-				$settings['disable_user_imported_email']                = isset( $settings['disable_user_imported_email'] );
-				$settings['disable_user_imported_forced_reset_email']   = isset( $settings['disable_user_imported_forced_reset_email'] );
-				$settings['disable_user_unlocked_email']                = isset( $settings['disable_user_unlocked_email'] );
-				$settings['disable_user_unlocked_reset_needed_email']   = isset( $settings['disable_user_unlocked_reset_needed_email'] );
-				$settings['disable_multiple_sessions_email']            = isset( $settings['disable_multiple_sessions_email'] );
-				$settings['send_plain_text_emails']                     = isset( $settings['send_plain_text_emails'] );
+				/*
+				 * An unchecked checkbox is not posted, so a missing key means "off" - but only when the
+				 * checkbox was on the page. On plans without the email templates tab, these keys are
+				 * dropped instead, so the stored values are kept.
+				 */
+				$has_email_templates_tab = class_exists( '\MLS\EmailAndMessageTemplates' ) && \MLS\EmailAndMessageTemplates::$is_loaded;
+
+				foreach ( self::EMAIL_TEMPLATE_CHECKBOXES as $checkbox_key ) {
+					if ( $has_email_templates_tab ) {
+						$settings[ $checkbox_key ] = isset( $settings[ $checkbox_key ] );
+					} else {
+						unset( $settings[ $checkbox_key ] );
+					}
+				}
 
 				if ( ! isset( $settings['clear_history'] ) ) {
 					$settings['clear_history'] = 0;

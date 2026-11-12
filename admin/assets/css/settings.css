@@ -271,6 +271,12 @@ div#reset-container input#_mls_global_reset_button {
     top: 90px;
 }
 
+/* Locked Users: the sidebar takes its space in the layout, so the footer sits below it. */
+#inactive_users_page + .upgrade-sidebar {
+    top: 0;
+    margin-top: 90px;
+}
+
 .sidebar-present {
     width: calc( 100% - 295px );
     float: left;

@@ -333,7 +333,11 @@ if ( ! class_exists( '\MLS\Rest_User_Guard' ) ) {
 			if ( '' === $submitted ) {
 				return new \WP_Error(
 					'mls_current_password_required',
-					\esc_html__( 'You must supply your current password, as mls_current_password, to change your password.', 'melapress-login-security' ),
+					\sprintf(
+						/* translators: %s: REST API request parameter name for the current password. */
+						\esc_html__( 'You must supply your current password, sent as the %s parameter, to change your password.', 'melapress-login-security' ),
+						'mls_current_password'
+					),
 					array( 'status' => 400 )
 				);
 			}
@@ -416,7 +420,11 @@ if ( ! class_exists( '\MLS\Rest_User_Guard' ) ) {
 			if ( '' === $answer ) {
 				return new \WP_Error(
 					'mls_email_change_sq_required',
-					\esc_html__( 'Please answer your security question, as mls_email_change_security_answer, to change your email address.', 'melapress-login-security' ),
+					\sprintf(
+						/* translators: %s: REST API request parameter name for the security answer. */
+						\esc_html__( 'Please answer your security question, sent as the %s parameter, to change your email address.', 'melapress-login-security' ),
+						'mls_email_change_security_answer'
+					),
 					array( 'status' => 400 )
 				);
 			}
