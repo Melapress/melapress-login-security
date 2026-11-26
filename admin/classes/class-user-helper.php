@@ -246,7 +246,13 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 			}
 
 			$is_inactive = (bool) OptionsHelper::is_user_locked_by_any_mechanism( $user->ID, 'any' );
-			$action      = $is_inactive ? 'unlock' : 'lock';
+
+			// You can not lock your own account.
+			if ( ! $is_inactive && ! self::can_lock_user( (int) $user->ID ) ) {
+				return $actions;
+			}
+
+			$action = $is_inactive ? 'unlock' : 'lock';
 			$label       = $is_inactive ? \esc_html__( 'Unlock', 'melapress-login-security' ) : \esc_html__( 'Lock', 'melapress-login-security' );
 
 			$url = \wp_nonce_url(
@@ -309,7 +315,12 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 				foreach ( $user_ids as $user_id ) {
 					$user_id = (int) $user_id;
 
-					if ( ! \current_user_can( 'edit_user', $user_id ) ) {
+					if ( \get_current_user_id() === $user_id ) {
+						$redirect_to = add_query_arg( 'mls_lock_self_skipped', 1, $redirect_to );
+						continue;
+					}
+
+					if ( ! self::can_lock_user( $user_id ) ) {
 						continue;
 					}
 
@@ -359,9 +370,13 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		}
 
 		/**
-		 * Lock a user.
+		 * Lock a user and end the sessions they already have, on every device.
 		 *
-		 * @param int $user_id The user ID.
+		 * The lock is checked when a user logs in, so without ending the sessions a
+		 * browser that is already logged in would keep working until its session
+		 * expires.
+		 *
+		 * @param int $user_id - The user ID.
 		 *
 		 * @return void
 		 *
@@ -370,6 +385,28 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		public static function lock_user( $user_id ) {
 			\update_user_meta( $user_id, self::USER_LOCKED_META, true );
 			\update_user_meta( $user_id, self::USER_LOCKED_SINCE_META, time() );
+
+			\WP_Session_Tokens::get_instance( (int) $user_id )->destroy_all();
+		}
+
+		/**
+		 * Checks if the current user may lock the given user: they can edit them, and it is not their own account.
+		 *
+		 * Locking ends the user's sessions, so locking your own account would log you
+		 * out and lock you out of the site straight away.
+		 *
+		 * @param int $user_id - The user to lock.
+		 *
+		 * @return bool $can_lock - True if the current user may lock that user.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function can_lock_user( int $user_id ): bool {
+			if ( \get_current_user_id() === $user_id ) {
+				return false;
+			}
+
+			return \current_user_can( 'edit_user', $user_id );
 		}
 
 		/**
@@ -530,6 +567,19 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 		}
 
 		/**
+		 * Prints the notice shown when someone tries to lock their own account.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		public static function print_self_lock_notice() {
+			echo '<div class="notice notice-error is-dismissible"><p>';
+			\esc_html_e( 'You can\'t lock your own account.', 'melapress-login-security' );
+			echo '</p></div>';
+		}
+
+		/**
 		 * Display admin notices for lock/unlock actions.
 		 *
 		 * @return void
@@ -541,6 +591,10 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 			$screen = \get_current_screen();
 			if ( ! $screen ) {
 				return;
+			}
+
+			if ( in_array( $screen->id, array( 'users', 'user-edit', 'profile' ), true ) && isset( $_GET['mls_lock_self_skipped'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				self::print_self_lock_notice();
 			}
 
 			// Handle lock/unlock notices on user profile pages.
@@ -568,7 +622,9 @@ if ( ! class_exists( '\MLS\Admin\User_Helper' ) ) {
 				$nonce   = \sanitize_text_field( \wp_unslash( $_GET['_wpnonce'] ) );
 
 				if ( 'mls_lock_user' === $action && \wp_verify_nonce( $nonce, 'mls_lock_user_' . $user_id ) ) {
-					if ( \current_user_can( 'edit_user', $user_id ) ) {
+					if ( \get_current_user_id() === $user_id ) {
+						self::print_self_lock_notice();
+					} elseif ( self::can_lock_user( $user_id ) ) {
 						$inactive_users = OptionsHelper::get_inactive_users();
 
 						self::lock_user( $user_id );

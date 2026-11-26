@@ -728,9 +728,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			}
 
 			// The bypass slug is an intentional escape hatch — honour it here too.
-			$request = isset( $_SERVER['REQUEST_URI'] )
-				? wp_parse_url( rawurldecode( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) )
-				: '';
+			$request = self::parse_request( self::get_decoded_request_uri() );
 
 			if ( self::is_login_ip_bypass_request( $request ) ) {
 				return $user;
@@ -788,9 +786,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 			}
 
 			// The bypass slug is an intentional escape hatch — honour it here too.
-			$request = isset( $_SERVER['REQUEST_URI'] )
-				? wp_parse_url( rawurldecode( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) ) )
-				: '';
+			$request = self::parse_request( self::get_decoded_request_uri() );
 
 			if ( self::is_login_ip_bypass_request( $request ) ) {
 				return $user;
@@ -917,6 +913,62 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		}
 
 		/**
+		 * Returns the request URI decoded the way the web server reads it, for matching only.
+		 *
+		 * It is decoded before any matching, and again until it no longer changes (at
+		 * most three times), so an encoded name such as /wp-login%2ephp or
+		 * /wp-login%252ephp still matches wp-login.php. It used to go through
+		 * sanitize_text_field() first, which removes the %xx sequences, so those
+		 * requests no longer matched while the server still ran wp-login.php.
+		 *
+		 * @return string $request_uri - The decoded request URI, or an empty string.
+		 *
+		 * @since 2.4.4
+		 */
+		private static function get_decoded_request_uri(): string {
+			if ( ! isset( $_SERVER['REQUEST_URI'] ) || ! is_string( $_SERVER['REQUEST_URI'] ) ) {
+				return '';
+			}
+
+			$request_uri = \wp_unslash( $_SERVER['REQUEST_URI'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only compared with fixed paths, never output.
+
+			for ( $i = 0; $i < 3; $i++ ) {
+				$decoded = rawurldecode( $request_uri );
+
+				if ( $decoded === $request_uri ) {
+					break;
+				}
+
+				$request_uri = $decoded;
+			}
+
+			return $request_uri;
+		}
+
+		/**
+		 * Parses a decoded request URI into its parts.
+		 *
+		 * @param string $request_uri - The decoded request URI.
+		 *
+		 * @return array $request - The URL parts, or an empty array.
+		 *
+		 * @since 2.4.4
+		 */
+		private static function parse_request( string $request_uri ): array {
+			if ( '' === $request_uri ) {
+				return array();
+			}
+
+			$request = \wp_parse_url( $request_uri );
+
+			if ( ! is_array( $request ) ) {
+				return array();
+			}
+
+			return $request;
+		}
+
+		/**
 		 * Runs early in a page cycle to check and setup local variables to load the login page if needed.
 		 *
 		 * @return void
@@ -924,17 +976,27 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		 * @since 2.0.0
 		 */
 		public function is_login_check() {
-			$mls_setting    = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
-			$request        = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( rawurldecode( sanitize_text_field( $_SERVER['REQUEST_URI'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-			$request_string = rawurldecode( sanitize_text_field( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			global $pagenow;
 
+			/*
+			 * Core sets $pagenow from the script that actually runs, so it is
+			 * wp-login.php for /wp-login%2ephp too. Read it before this method
+			 * changes it for the custom login slug.
+			 */
+			$is_core_login_script = ( 'wp-login.php' === $pagenow );
+
+			$mls_setting    = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
+			$request_string = self::get_decoded_request_uri();
+			$request_lower  = strtolower( $request_string );
+			$request        = self::parse_request( $request_string );
+			$request_path   = isset( $request['path'] ) ? strtolower( untrailingslashit( $request['path'] ) ) : '';
+
 			if ( ! empty( $mls_setting['custom_login_url'] ) ) {
-				if ( ! is_multisite() && ( strpos( (string) $request_string, 'wp-signup.php' ) !== false || strpos( (string) $request_string, 'wp-activate.php' ) !== false ) ) {
+				if ( ! is_multisite() && ( false !== strpos( $request_lower, 'wp-signup.php' ) || false !== strpos( $request_lower, 'wp-activate.php' ) ) ) {
 					wp_die( esc_html__( 'This feature is not enabled.', 'melapress-login-security' ) );
 				}
 
-				if ( ( strpos( (string) $request_string, 'wp-login.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-login', 'relative' ) ) ) && ! is_admin() ) {
+				if ( ( $is_core_login_script || false !== strpos( $request_lower, 'wp-login.php' ) || strtolower( site_url( 'wp-login', 'relative' ) ) === $request_path ) && ! is_admin() ) {
 					$this->is_login_page    = true;
 					$_SERVER['REQUEST_URI'] = $this->context_trailingslashit( '/' . str_repeat( '-/', 10 ) );
 					$pagenow                = 'index.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -942,7 +1004,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 				} elseif ( ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === home_url( $this->custom_login_slug(), 'relative' ) ) || ( ! get_option( 'permalink_structure' ) && isset( $_GET[ $this->custom_login_slug() ] ) && empty( $_GET[ $this->custom_login_slug() ] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 					$pagenow = 'wp-login.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-				} elseif ( ( strpos( (string) $request_string, 'wp-register.php' ) !== false || ( isset( $request['path'] ) && untrailingslashit( $request['path'] ) === site_url( 'wp-register', 'relative' ) ) ) && ! is_admin() ) {
+				} elseif ( ( false !== strpos( $request_lower, 'wp-register.php' ) || strtolower( site_url( 'wp-register', 'relative' ) ) === $request_path ) && ! is_admin() ) {
 					$this->is_login_page    = true;
 					$_SERVER['REQUEST_URI'] = $this->context_trailingslashit( '/' . str_repeat( '-/', 10 ) );
 					$pagenow                = 'index.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -978,7 +1040,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 		public function redirect_user() {
 			global $pagenow;
 			$mls_setting = \MLS\Helpers\OptionsHelper::get_plugin_option( MLS_PREFIX . '_setting' );
-			$request     = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( rawurldecode( sanitize_text_field( $_SERVER['REQUEST_URI'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			$request     = self::parse_request( self::get_decoded_request_uri() );
 
 			if ( $this->is_geo_check_required ) {
 				// Cached: this used to issue an outbound lookup on every render
@@ -1032,7 +1094,7 @@ if ( ! class_exists( '\MLS\Login_Page_Control' ) ) {
 					exit;
 				}
 
-				if ( 'wp-login.php' === $pagenow && $request['path'] !== $this->context_trailingslashit( $request['path'] ) && get_option( 'permalink_structure' ) ) {
+				if ( 'wp-login.php' === $pagenow && isset( $request['path'] ) && $request['path'] !== $this->context_trailingslashit( $request['path'] ) && get_option( 'permalink_structure' ) ) {
 					wp_safe_redirect( $this->context_trailingslashit( $this->custom_login_url() ) . ( ! empty( $_SERVER['QUERY_STRING'] ) ? '?' . sanitize_text_field( wp_unslash( $_SERVER['QUERY_STRING'] ) ) : '' ) );
 					exit;
 

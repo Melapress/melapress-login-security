@@ -39,9 +39,6 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 				add_action( 'wp_authenticate', array( $this, 'check_on_login' ), 0, 2 );
 			}
 
-			// Customize password reset key expiry time.
-			add_filter( 'password_reset_expiration', array( $this, 'customize_reset_key_expiry_time' ) );
-
 			add_filter( 'allow_password_reset', array( __CLASS__, 'ppm_is_user_allowed_to_reset' ), 10, 2 );
 			add_filter( 'send_retrieve_password_email', array( __CLASS__, 'send_reset_mail' ), 10, 3 );
 			add_filter( 'user_row_actions', array( __CLASS__, 'allowed_actions' ), 10, 2 );
@@ -79,6 +76,12 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 				if ( ! current_user_can( 'manage_options' ) ) {
 					return $redirect_url;
 				}
+
+				// Temporary users cannot reset other users' passwords.
+				if ( Temporary_Logins::is_current_user_temporary() ) {
+					return $redirect_url;
+				}
+
 				foreach ( $user_ids as $user_id ) {
 					self::reset_user( $user_id, false, true );
 				}
@@ -156,6 +159,11 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			// reset for every account on the network, including super admins.
 			if ( ! \MLS\Helpers\OptionsHelper::current_user_can_manage_scope() || empty( $nonce ) || ! $nonce || ! wp_verify_nonce( $nonce, 'mls_mass_reset' ) ) {
 				wp_send_json_error( esc_html__( 'Nonce Verification Failed.', 'melapress-login-security' ) );
+			}
+
+			// Temporary users keep manage_options, but cannot reset other users' passwords.
+			if ( Temporary_Logins::is_current_user_temporary() ) {
+				wp_send_json_error( esc_html__( 'Temporary logins cannot reset passwords.', 'melapress-login-security' ) );
 			}
 
 			$current_user = wp_get_current_user();
@@ -615,9 +623,7 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 			/* translators: Password reset email subject. 1: Site name */
 			$title = sprintf( __( '[%s] Global Password Reset Complete', 'melapress-login-security' ), $blogname );
 
-			$mls = melapress_login_security();
-
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
+			$from_email = Emailer::get_from_email();
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 
@@ -785,20 +791,38 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 		}
 
 		/**
+		 * Registers the configured reset key lifetime for every request.
+		 *
+		 * The lifetime is a plugin setting, not a policy setting, so it applies
+		 * whatever policy the request loads. Before, it was only registered when the
+		 * loaded policy enforced passwords, so a logged-in exempt user could finish a
+		 * reset with a key that had already expired under the setting.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		public static function hook_reset_key_expiry() {
+			\add_filter( 'password_reset_expiration', array( __CLASS__, 'customize_reset_key_expiry_time' ) );
+		}
+
+		/**
 		 * Modify the default reset expiry time of 24 hours to a setting of the admins choosing.
 		 *
-		 * @param int $expiration Default expiry time.
+		 * @param int $expiration - Default expiry time in seconds.
 		 *
-		 * @return string - New time.
+		 * @return int $expiration - The configured lifetime, or the given one when it is not set.
 		 *
 		 * @since 2.0.0
 		 */
-		public function customize_reset_key_expiry_time( $expiration ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.Found
-			$mls             = melapress_login_security();
-			$number          = $mls->options->mls_setting->password_reset_key_expiry['value'];
-			$unit            = ( 'days' === $mls->options->mls_setting->password_reset_key_expiry['unit'] ) ? DAY_IN_SECONDS : HOUR_IN_SECONDS;
-			$new_expiry_time = $number * $unit;
-			return $new_expiry_time;
+		public static function customize_reset_key_expiry_time( $expiration ) {
+			$configured = \MLS\Helpers\OptionsHelper::get_configured_reset_key_expiration();
+
+			if ( $configured > 0 ) {
+				return $configured;
+			}
+
+			return $expiration;
 		}
 
 		/**
@@ -820,11 +844,11 @@ if ( ! class_exists( '\MLS\Reset_Passwords' ) ) {
 
 				$usermeta_key = ( 'new-user' === $meta_key ) ? MLS_NEW_USER_META_KEY : MLS_USER_RESET_PW_ON_LOGIN_META_KEY;
 
-				// User get reset by user ID.
-				$reset_key = get_user_meta( $user_id, $usermeta_key, true );
-
 				// If check reset key exists OR not.
-				if ( $reset_key ) {
+				if ( get_user_meta( $user_id, $usermeta_key, true ) ) {
+					// A key that can't be decrypted comes back empty and fails as an invalid key.
+					$reset_key = \MLS\Reset_Key_Store::get( $user_id, $usermeta_key );
+
 					$verify_reset_key             = check_password_reset_key( $reset_key, $user_login );
 					$verify_reset_key->reset_key  = $reset_key;
 					$verify_reset_key->user_login = $user_login;

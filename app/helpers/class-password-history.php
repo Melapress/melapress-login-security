@@ -60,6 +60,44 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			// update password history when user resets password manually.
 			add_action( 'password_reset', array( __CLASS__, 'reset_by_user' ), 10, 2 );
 			add_action( 'after_password_reset', array( __CLASS__, 'reset_by_user' ), 10, 2 );
+
+			// Ultimate Member's Account page changes the password with wp_set_password(), which fires neither hook above.
+			add_action( 'um_before_signon_after_account_changes', array( __CLASS__, 'um_account_password_changed' ), 5, 1 );
+		}
+
+		/**
+		 * Handles a password change made on the Ultimate Member Account page.
+		 *
+		 * Ultimate Member fires this hook right after it saves the new password and
+		 * before it signs the user back in. Treat it like the user resetting their
+		 * own password, so the new password is recorded and the expired state is cleared.
+		 *
+		 * @param array $args - The submitted account form data.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		public static function um_account_password_changed( $args ) {
+			$user_id  = isset( $args['user_id'] ) ? (int) $args['user_id'] : 0;
+			$new_pass = isset( $args['user_password'] ) ? trim( (string) $args['user_password'] ) : '';
+
+			if ( empty( $user_id ) || '' === $new_pass ) {
+				return;
+			}
+
+			// Ultimate Member only changes the password of the logged-in user here.
+			if ( \get_current_user_id() !== $user_id ) {
+				return;
+			}
+
+			$user = \get_userdata( $user_id );
+
+			if ( ! $user ) {
+				return;
+			}
+
+			self::reset_by_user( $user, $new_pass );
 		}
 
 		/**
@@ -270,7 +308,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 					if ( isset( $_POST['action'] ) && 'rc_process_registration_form' === $_POST['action'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 						$key = get_password_reset_key( $userdata );
 						if ( ! is_wp_error( $key ) ) {
-							update_user_meta( $user_id, MLS_NEW_USER_META_KEY, $key );
+							\MLS\Reset_Key_Store::store( $user_id, MLS_NEW_USER_META_KEY, $key );
 						}
 					} elseif ( self::get_first_login_policy( $userdata->ID ) ) {
 							// Double check we are not doing profile_update to avoid
@@ -319,7 +357,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 		public static function ppm_retrieve_password_key( $user_login, $key ) {
 			$user = get_user_by( 'login', $user_login );
 			if ( self::get_first_login_policy( $user->ID ) ) {
-				update_user_meta( $user->ID, MLS_NEW_USER_META_KEY, $key );
+				\MLS\Reset_Key_Store::store( $user->ID, MLS_NEW_USER_META_KEY, $key );
 			}
 		}
 
@@ -392,7 +430,9 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			// If check current running action `profile_update`.
 			if ( self::get_first_login_policy( '', $role ) ) {
 				$key = get_password_reset_key( $userdata );
-				update_user_meta( $user_id, MLS_NEW_USER_META_KEY, $key );
+				if ( ! is_wp_error( $key ) ) {
+					\MLS\Reset_Key_Store::store( $user_id, MLS_NEW_USER_META_KEY, $key );
+				}
 			}
 		}
 
@@ -409,7 +449,7 @@ if ( ! class_exists( '\MLS\Password_History' ) ) {
 			$userdata = get_userdata( $user_id );
 			$key      = get_password_reset_key( $userdata );
 			if ( isset( $key ) && ! is_wp_error( $key ) ) {
-				update_user_meta( $user_id, MLS_NEW_USER_META_KEY, $key );
+				\MLS\Reset_Key_Store::store( $user_id, MLS_NEW_USER_META_KEY, $key );
 			}
 		}
 	}

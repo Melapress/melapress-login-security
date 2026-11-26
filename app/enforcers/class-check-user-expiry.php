@@ -45,6 +45,15 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 		private $filter_priority = 10;
 
 		/**
+		 * ID of the user Ultimate Member is about to sign back in after a password change.
+		 *
+		 * @var int
+		 *
+		 * @since 2.4.4
+		 */
+		private static $um_signon_user_id = 0;
+
+		/**
 		 * Init hooks.
 		 *
 		 * @return void
@@ -91,6 +100,24 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 		 */
 		public function ppm_authenticate_user() {
 			add_filter( 'wp_authenticate_user', array( $this, 'has_expired' ), $this->filter_priority, 2 );
+			\add_action( 'um_before_signon_after_account_changes', array( __CLASS__, 'allow_um_account_signon' ) );
+		}
+
+		/**
+		 * Allows Ultimate Member to sign the current user back in after a password change.
+		 *
+		 * Ultimate Member fires this hook on its Account page, right before it calls
+		 * wp_signon() with the new password. Only the user who is logged in at that
+		 * moment is allowed through the expiry check.
+		 *
+		 * @param array $args - The submitted account form data.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		public static function allow_um_account_signon( $args = array() ) {
+			self::$um_signon_user_id = \get_current_user_id();
 		}
 
 		/**
@@ -215,8 +242,13 @@ if ( ! class_exists( '\MLS\Check_User_Expiry' ) ) {
 				$password_history = false;
 			}
 
-			// Ensure we dont check a change as its happening within UM.
-			if ( isset( $_POST['um_account_nonce_password'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			/*
+			 * Ultimate Member signs the user back in with their new password right
+			 * after changing it on the Account page. Allow only that sign-in, for the
+			 * user who made the change. A form field alone is not enough, because
+			 * anyone can add it to a login request.
+			 */
+			if ( is_a( $user, '\WP_User' ) && ! empty( self::$um_signon_user_id ) && self::$um_signon_user_id === (int) $user->ID ) {
 				return $user;
 			}
 

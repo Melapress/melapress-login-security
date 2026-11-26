@@ -25,6 +25,17 @@ use MLS\InactiveUsers;
  */
 class OptionsHelper {
 
+	/**
+	 * The user resolved from a valid password reset cookie in this request.
+	 *
+	 * False until the cookie has been checked, then a WP_User or null.
+	 *
+	 * @var \WP_User|null|false
+	 *
+	 * @since 2.4.4
+	 */
+	private static $reset_cookie_user = false;
+
 	/** Configuration belongs to the main network; runtime state keeps its original scope. */
 	public static function is_root_network_option( $name ): bool {
 		return MLS_PREFIX . '_setting' === $name
@@ -1062,6 +1073,252 @@ class OptionsHelper {
 	 *
 	 * @since 2.0.0
 	 */
+	/**
+	 * Returns the user of a password reset cookie, only if its reset key is valid.
+	 *
+	 * WordPress stores the cookie as "login:key" and WooCommerce as "user_id:key".
+	 * The key is checked against the user's stored reset key, so a cookie made up
+	 * by the visitor never resolves to a user.
+	 *
+	 * The cookie is only used on the WordPress reset page, and on the WooCommerce reset
+	 * form when logged out. Otherwise someone who also controls an exempt account could
+	 * send that account's valid cookie with another request, such as a registration or
+	 * a REST password change on their own account, and load the exempt policy for it.
+	 *
+	 * @return \WP_User|null $user - The user with a valid reset key, or null.
+	 *
+	 * @since 2.4.4
+	 */
+	public static function get_reset_cookie_user(): ?\WP_User {
+		if ( false !== self::$reset_cookie_user ) {
+			return self::$reset_cookie_user;
+		}
+
+		self::$reset_cookie_user = null;
+
+		if ( ! self::is_password_reset_context() ) {
+			return null;
+		}
+
+		$cookie_name = 'wp-resetpass-' . COOKIEHASH;
+
+		if ( ! isset( $_COOKIE[ $cookie_name ] ) || ! is_string( $_COOKIE[ $cookie_name ] ) ) {
+			return null;
+		}
+
+		$value = \wp_unslash( $_COOKIE[ $cookie_name ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only compared against the stored reset key.
+
+		if ( ! is_string( $value ) || 0 >= (int) strpos( $value, ':' ) ) {
+			return null;
+		}
+
+		list( $who, $key ) = explode( ':', $value, 2 );
+
+		if ( '' === $key ) {
+			return null;
+		}
+
+		$logins = array();
+
+		// WooCommerce stores the user ID instead of the login.
+		if ( ctype_digit( $who ) ) {
+			$user_by_id = \get_userdata( (int) $who );
+
+			if ( $user_by_id ) {
+				$logins[] = $user_by_id->user_login;
+			}
+		}
+
+		// WordPress stores the login. This also covers logins made only of digits.
+		$logins[] = $who;
+
+		// The configured key lifetime is registered before the policy loads, see MLS_Core::init().
+		foreach ( array_unique( $logins ) as $login ) {
+			$user = \check_password_reset_key( $key, $login );
+
+			if ( $user instanceof \WP_User ) {
+				self::$reset_cookie_user = $user;
+				break;
+			}
+		}
+
+		return self::$reset_cookie_user;
+	}
+
+	/**
+	 * Returns the user whose policy applies to this request.
+	 *
+	 * During a password reset this is the user being reset. A reset is never about
+	 * the logged-in user, so if the reset cookie can not be verified the default
+	 * policy is used instead. Otherwise a key refused here but accepted later by the
+	 * reset, for example because of a filter added after this check, would load the
+	 * logged-in user's policy, which can be exempt.
+	 *
+	 * @param int $fallback - The user ID to use outside a password reset.
+	 *
+	 * @return int $user_id - The user ID, or 0 for the default policy.
+	 *
+	 * @since 2.4.4
+	 */
+	public static function get_policy_user_id( int $fallback ): int {
+		$reset_user = self::get_reset_cookie_user();
+
+		if ( $reset_user instanceof \WP_User ) {
+			return $reset_user->ID;
+		}
+
+		if ( self::is_password_reset_context() ) {
+			return 0;
+		}
+
+		return $fallback;
+	}
+
+	/**
+	 * Returns the reset key lifetime from the plugin settings, in seconds.
+	 *
+	 * Used by the reset cookie lookup and by Reset_Passwords::customize_reset_key_expiry_time().
+	 *
+	 * @return int $seconds - The configured lifetime, or 0 when it is not set.
+	 *
+	 * @since 2.4.4
+	 */
+	public static function get_configured_reset_key_expiration(): int {
+		$mls = \melapress_login_security();
+
+		if ( ! isset( $mls->options->mls_setting->password_reset_key_expiry ) ) {
+			return 0;
+		}
+
+		$expiry = (array) $mls->options->mls_setting->password_reset_key_expiry;
+		$number = isset( $expiry['value'] ) ? (int) $expiry['value'] : 0;
+
+		if ( $number <= 0 ) {
+			return 0;
+		}
+
+		$unit = ( isset( $expiry['unit'] ) && 'days' === $expiry['unit'] ) ? DAY_IN_SECONDS : HOUR_IN_SECONDS;
+
+		return $number * $unit;
+	}
+
+	/**
+	 * Checks if the request is a password reset: the WordPress reset page, or the WooCommerce reset form when logged out.
+	 *
+	 * @return bool $is_reset_context - True if a reset cookie may be used.
+	 *
+	 * @since 2.4.4
+	 */
+	private static function is_password_reset_context(): bool {
+		/*
+		 * Checked first: wp-login.php never serves REST, AJAX, cron or XML-RPC, so
+		 * query values such as rest_route must not hide a real reset. WordPress
+		 * also allows a reset while logged in.
+		 */
+		if ( self::is_core_reset_request() ) {
+			return true;
+		}
+
+		if ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) || \wp_doing_ajax() || \wp_doing_cron() ) {
+			return false;
+		}
+
+		// REST_REQUEST is not defined yet while the policy loads, so check the request as core does.
+		if ( isset( $_GET['rest_route'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		$request_uri  = isset( $_SERVER['REQUEST_URI'] ) ? \sanitize_text_field( \wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$request_path = (string) \wp_parse_url( $request_uri, PHP_URL_PATH );
+
+		// Only the path, so a query value can not make a request look like REST.
+		if ( '' !== $request_path && false !== strpos( $request_path, '/' . \rest_get_url_prefix() . '/' ) ) {
+			return false;
+		}
+
+		if ( \function_exists( 'is_user_logged_in' ) && \is_user_logged_in() ) {
+			return false;
+		}
+
+		return self::is_woocommerce_reset_request();
+	}
+
+	/**
+	 * Checks if the request is the WooCommerce reset form, or its submission without a registration.
+	 *
+	 * @return bool $is_woocommerce_reset - True for a WooCommerce password reset request.
+	 *
+	 * @since 2.4.4
+	 */
+	private static function is_woocommerce_reset_request(): bool {
+		$method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( \sanitize_text_field( \wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+
+		if ( 'POST' === $method ) {
+			// The reset and the registration both run on wp_loaded, on any URL.
+			if ( isset( $_POST['register'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+				return false;
+			}
+
+			return isset( $_POST['wc_reset_password'] ) && is_string( $_POST['wc_reset_password'] ) && '' !== $_POST['wc_reset_password']; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput
+		}
+
+		// The reset form page, which only shows the policy hints.
+		return isset( $_GET['show-reset-form'] ) && is_string( $_GET['show-reset-form'] ) && '' !== $_GET['show-reset-form']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+	}
+
+	/**
+	 * Checks if the request is the WordPress reset page (wp-login.php or the custom login slug) running action rp or resetpass.
+	 *
+	 * @return bool $is_core_reset - True for a request that wp-login.php handles as a password reset.
+	 *
+	 * @since 2.4.4
+	 */
+	private static function is_core_reset_request(): bool {
+		global $pagenow;
+
+		// Also set for the custom login slug, by Login_Page_Control::is_login_check().
+		if ( 'wp-login.php' !== $pagenow ) {
+			return false;
+		}
+
+		return in_array( self::get_login_action(), array( 'rp', 'resetpass' ), true );
+	}
+
+	/**
+	 * Returns the action wp-login.php will run, resolved the same way as wp-login.php does.
+	 *
+	 * WordPress rebuilds $_REQUEST as array_merge( $_GET, $_POST ), so a posted action
+	 * wins over the URL one. A key in the URL always means resetpass, and checkemail
+	 * in the URL always means checkemail.
+	 *
+	 * @return string $action - The login action.
+	 *
+	 * @since 2.4.4
+	 */
+	private static function get_login_action(): string {
+		$action = 'login';
+
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Only compared with fixed action names.
+		if ( isset( $_POST['action'] ) ) {
+			if ( is_string( $_POST['action'] ) ) {
+				$action = \wp_unslash( $_POST['action'] );
+			}
+		} elseif ( isset( $_GET['action'] ) && is_string( $_GET['action'] ) ) {
+			$action = \wp_unslash( $_GET['action'] );
+		}
+
+		if ( isset( $_GET['key'] ) ) {
+			$action = 'resetpass';
+		}
+
+		if ( isset( $_GET['checkemail'] ) ) {
+			$action = 'checkemail';
+		}
+		// phpcs:enable
+
+		return $action;
+	}
+
 	/**
 	 * Whether the current user may perform a write whose blast radius is the
 	 * whole network.

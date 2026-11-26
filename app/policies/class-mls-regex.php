@@ -73,26 +73,9 @@ if ( ! class_exists( '\MLS\MLS_Regex' ) ) {
 		 * @since 2.0.0
 		 */
 		public static function init(): void {
+			// During a password reset, use the user being reset, the same as the request policy.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only rule lookup; the value is validated in the helper.
-			$userid = OptionsHelper::target_user_id_from_request( $_GET, get_current_user_id() );
-
-			if ( 0 === $userid ) {
-				list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
-				$rp_cookie       = 'wp-resetpass-' . COOKIEHASH;
-				if ( isset( $_COOKIE[ $rp_cookie ] ) && 0 < strpos( $_COOKIE[ $rp_cookie ], ':' ) ) {
-					list( $rp_login, $rp_key ) = explode( ':', wp_unslash( $_COOKIE[ $rp_cookie ] ), 2 );
-
-					$user = check_password_reset_key( $rp_key, $rp_login );
-
-					if ( isset( $_POST['pass1'] ) && ! hash_equals( $rp_key, $_POST['rp_key'] ) ) {
-						$user = false;
-					}
-
-					if ( is_a( $user, '\WP_User' ) ) {
-						$userid = $user->ID;
-					}
-				}
-			}
+			$userid = OptionsHelper::get_policy_user_id( OptionsHelper::target_user_id_from_request( $_GET, \get_current_user_id() ) );
 
 			self::init_for_user( (int) $userid );
 		}

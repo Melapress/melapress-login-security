@@ -56,6 +56,9 @@ if ( ! class_exists( '\MLS\Admin\Network_Admin' ) ) {
 			add_action( 'admin_footer', array( __CLASS__, 'admin_footer_session_expired_dialog' ) );
 			add_action( 'admin_footer', array( __CLASS__, 'popup_notices' ) );
 
+			// Runs after the deactivation feedback client (priority 10) to apply the plugin colors.
+			\add_action( 'admin_footer', array( __CLASS__, 'deactivation_feedback_brand_styles' ), 20 );
+
 			$options_master_switch    = OptionsHelper::string_to_bool( self::$options->master_switch );
 			$settings_master_switch   = OptionsHelper::string_to_bool( self::$settings->master_switch );
 			$inherit_policies_setting = OptionsHelper::string_to_bool( self::$settings->inherit_policies );

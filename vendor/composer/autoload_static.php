@@ -7,14 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
 {
     public static $prefixLengthsPsr4 = array (
-        'M' => 
+        'M' =>
         array (
             'MLS\\' => 4,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'MLS\\' => 
+        'MLS\\' =>
         array (
             0 => __DIR__ . '/../..' . '/app',
             1 => __DIR__ . '/../..' . '/admin',
@@ -66,6 +66,7 @@ class ComposerStaticInit3f4349977146012cefaaaad2b7b71f42
         'MLS\\Password_History' => __DIR__ . '/../..' . '/app/helpers/class-password-history.php',
         'MLS\\Pointer' => __DIR__ . '/../..' . '/app/helpers/class-pointer.php',
         'MLS\\Require_Current_Password' => __DIR__ . '/../..' . '/app/enforcers/class-require-current-password.php',
+        'MLS\\Reset_Key_Store' => __DIR__ . '/../..' . '/app/helpers/class-reset-key-store.php',
         'MLS\\Reset_Passwords' => __DIR__ . '/../..' . '/app/enforcers/class-reset-passwords.php',
         'MLS\\Reset_User_PW_Process' => __DIR__ . '/../..' . '/app/enforcers/class-wp-reset-bg-process.php',
         'MLS\\Rest_User_Guard' => __DIR__ . '/../..' . '/app/enforcers/class-rest-user-guard.php',
