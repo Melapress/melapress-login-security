@@ -167,6 +167,9 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			\add_action( 'admin_footer', array( __CLASS__, 'admin_footer_session_expired_dialog' ) );
 			\add_action( 'admin_footer', array( __CLASS__, 'popup_notices' ) );
 
+			// Runs after the deactivation feedback client (priority 10) to apply the plugin colors.
+			\add_action( 'admin_footer', array( __CLASS__, 'deactivation_feedback_brand_styles' ), 20 );
+
 			$options_master_switch    = OptionsHelper::string_to_bool( self::$options->master_switch );
 			$settings_master_switch   = OptionsHelper::string_to_bool( self::$settings->master_switch );
 			$inherit_policies_setting = OptionsHelper::string_to_bool( self::$settings->inherit_policies );
@@ -2240,6 +2243,46 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 			\wp_enqueue_style( 'ppm-wp-settings-css', MLS_PLUGIN_URL . 'admin/assets/css/admin.css', array(), MLS_VERSION );
 		}
 
+		/**
+		 * Applies the plugin colors to the deactivation feedback popover buttons.
+		 *
+		 * The feedback client is copied from an upstream repository with fixed colors, so the plugin
+		 * colors are kept here and survive client updates.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		public static function deactivation_feedback_brand_styles() {
+			if ( ! \function_exists( 'get_current_screen' ) || ! \get_current_screen() ) {
+				return;
+			}
+
+			if ( ! \in_array( \get_current_screen()->id, array( 'plugins', 'plugins-network' ), true ) ) {
+				return;
+			}
+
+			if ( ! \class_exists( '\MLS_Deactivation_Feedback\Plugin_Deactivation' ) ) {
+				return;
+			}
+
+			$popover_id = \MLS_Deactivation_Feedback\Plugin_Deactivation::plugin_slug() . '-popover';
+			?>
+			<style>
+				#<?php echo \esc_attr( $popover_id ); ?> button.mdfs-submit {
+					background-color: #DD2B10;
+					border-color: #DD2B10;
+				}
+
+				#<?php echo \esc_attr( $popover_id ); ?> button.mdfs-submit:hover,
+				#<?php echo \esc_attr( $popover_id ); ?> button.mdfs-submit:focus {
+					background-color: #7A262A;
+					border-color: #7A262A;
+				}
+			</style>
+			<?php
+		}
+
 
 		/**
 		 * Session expired dialog box.
@@ -2564,7 +2607,7 @@ if ( ! class_exists( '\MLS\Admin\Admin' ) ) {
 
 			$message = \MLS\EmailAndMessageStrings::replace_email_strings( $message, \get_current_user_id() );
 
-			$from_email = self::$options->mls_setting->from_email ? self::$options->mls_setting->from_email : 'mls@' . \str_ireplace( 'www.', '', \wp_parse_url( \network_site_url(), PHP_URL_HOST ) );
+			$from_email = \MLS\Emailer::get_from_email();
 
 			$from_email = \sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;

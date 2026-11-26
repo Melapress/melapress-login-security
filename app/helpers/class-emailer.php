@@ -461,15 +461,50 @@ if ( ! class_exists( '\MLS\Emailer' ) ) {
 			$mls             = melapress_login_security();
 			$use_email       = $mls->options->mls_setting->use_custom_from_email;
 			$email_from_name = $mls->options->mls_setting->from_display_name;
+
 			if ( ! empty( $email_from_name ) && 'custom_email' === $use_email ) {
 				return $email_from_name;
-			} else {
-				if ( ! empty( self::get_default_email_address() ) ) {
-					return self::get_default_email_address();
-				}
-
-				return $original_email_from_name;
 			}
+
+			/**
+			 * No display name to use: fall back to the site name, the same value
+			 * the {site_name} tag uses. An email address is never used as the
+			 * sender name, mail clients would show it instead of the real sender.
+			 */
+			if ( \is_multisite() ) {
+				$site_name = \get_network()->site_name;
+			} else {
+				$site_name = \wp_specialchars_decode( \get_option( 'blogname' ), ENT_QUOTES );
+			}
+
+			if ( ! empty( $site_name ) ) {
+				return $site_name;
+			}
+
+			return $original_email_from_name;
+		}
+
+		/**
+		 * Returns the email address the plugin uses as its "from" address.
+		 *
+		 * Respects the "From email address" setting: the custom address is used only
+		 * when "Use another email address" is selected and an address is saved,
+		 * otherwise the default address is used. Also used for the {admin_email} tag.
+		 *
+		 * @return string $from_email - The "from" email address.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function get_from_email(): string {
+			$mls        = melapress_login_security();
+			$use_email  = $mls->options->mls_setting->use_custom_from_email;
+			$from_email = $mls->options->mls_setting->from_email;
+
+			if ( 'custom_email' === $use_email && ! empty( $from_email ) ) {
+				return $from_email;
+			}
+
+			return self::get_default_email_address();
 		}
 
 		/**

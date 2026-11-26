@@ -1243,12 +1243,12 @@ if ( ! class_exists( '\MLS\Failed_Logins' ) ) {
 					$key            = false;
 					$reset_password = false;
 				} else {
-					$update = update_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
+					$update = \MLS\Reset_Key_Store::store( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
 				}
 			}
 
 			// Prepare email details.
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
+			$from_email = Emailer::get_from_email();
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 

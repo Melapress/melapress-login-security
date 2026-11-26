@@ -895,18 +895,13 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			 * Get user ID Default 0.
 			 */
 			$user_id = 0;
-			// If check user resetpassword key exists OR not.
-			if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ) {
-				// Get user reset password cookie.
-				$username = strstr( sanitize_text_field( wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ), ':', true );
-				// Get user by user_login.
-				$user_by_login = get_user_by( 'login', $username );
-				if ( $user_by_login ) {
-					$user_id = $user_by_login->ID;
-				}
-			} else {
-				$user_id = get_current_user_id();
-			}
+
+			/*
+			 * During a password reset, use the policy of the user being reset. The
+			 * cookie is only trusted once its reset key is verified, otherwise anyone
+			 * could name another user in it and load that user's (exempt) policy.
+			 */
+			$user_id = \MLS\Helpers\OptionsHelper::get_policy_user_id( get_current_user_id() );
 
 			if ( $user_id ) {
 				// If check multisite installed OR not.
@@ -1022,21 +1017,8 @@ if ( ! class_exists( '\MLS\MLS_Options' ) ) {
 			 *
 			 * If there is no such cookie present, falls back to value stored in $get_user_id and continues
 			 */
-			// If check user resetpassword key exists OR not.
-			if ( isset( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ) {
-
-				$username = strstr( \sanitize_text_field( \wp_unslash( $_COOKIE[ 'wp-resetpass-' . COOKIEHASH ] ) ), ':', true );
-
-				// Get user data by login.
-				$user_obj = \get_user_by( 'login', $username );
-				if ( $user_obj ) {
-					$user_id = $user_obj->ID;
-				}
-			} else {
-
-				$user_id = (int) $get_user_id;
-
-			}
+			// The cookie is only trusted once its reset key is verified, see init().
+			$user_id = \MLS\Helpers\OptionsHelper::get_policy_user_id( (int) $get_user_id );
 
 			// If check user ID.
 			if ( ! $user_id || \wp_doing_cron() ) {

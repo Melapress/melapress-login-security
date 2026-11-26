@@ -82,56 +82,58 @@
 		}, 50);
 	}
 
-	jQuery( window ).on( 'load', function() {
+	/**
+	 * Apply the policy to the shortcode / filter form and to the custom forms array.
+	 * Selectors are only looked up with mls_find(), so they are never parsed as HTML.
+	 */
+	const setupBaseCustomForm = () => {
 		if ( PPM_Custom_Form.element.length > 0 ) {
-			jQuery( PPM_Custom_Form.policy ).insertAfter( PPM_Custom_Form.element );
-			jQuery( PPM_Custom_Form.element ).val( '' ).on( inputEvent + ' pwupdate', function (e) {
+			const $element = mls_find( PPM_Custom_Form.element );
+
+			jQuery( PPM_Custom_Form.policy ).insertAfter( $element );
+			$element.val( '' ).on( inputEvent + ' pwupdate', function ( e ) {
 				check_pass_strength( PPM_Custom_Form );
 			} );
 			jQuery( '.pass-strength-result' ).show();
-	
+
 			// Hide any elements by the classes/IDs supplied.
-			var elementsToHide = PPM_Custom_Form.form_selector + ' ' + PPM_Custom_Form.elements_to_hide;
-	
-			if ( elementsToHide !== '' ) {
-				jQuery( elementsToHide ).css( 'display', 'none' );
+			if ( PPM_Custom_Form.elements_to_hide.length > 0 ) {
+				mls_find( PPM_Custom_Form.elements_to_hide ).css( 'display', 'none' );
 			}
-		}	
-
-		var basePpmForm = PPM_Custom_Form;
-		
-		if ( PPM_Custom_Form.custom_forms_arr.length > 0 ) {
-			jQuery.each( PPM_Custom_Form.custom_forms_arr, function (e, customForm ) {
-				setup_custom_forms_arr( customForm, basePpmForm );
-			});
 		}
-	} );
 
-	jQuery( document ).ajaxStop( function() {
-		if ( PPM_Custom_Form.element.length > 0 ) {
-			jQuery( PPM_Custom_Form.policy ).insertAfter( PPM_Custom_Form.element );
-			jQuery( PPM_Custom_Form.element ).val( '' ).on( inputEvent + ' pwupdate', function (e) {
-				check_pass_strength( PPM_Custom_Form );
+		const basePpmForm = PPM_Custom_Form;
+
+		if ( PPM_Custom_Form.custom_forms_arr.length > 0 ) {
+			jQuery.each( PPM_Custom_Form.custom_forms_arr, function ( e, customForm ) {
+				setup_custom_forms_arr( customForm, basePpmForm );
 			} );
-			jQuery( '.pass-strength-result' ).show();
-	
-			// Hide any elements by the classes/IDs supplied.
-			var elementsToHide = PPM_Custom_Form.form_selector + ' ' + PPM_Custom_Form.elements_to_hide;
-	
-			if ( elementsToHide !== '' ) {
-				jQuery( elementsToHide ).css( 'display', 'none' );
-			}
-		}	
-
-		var basePpmForm = PPM_Custom_Form;
-		
-		if ( PPM_Custom_Form.custom_forms_arr.length > 0 ) {
-			jQuery.each( PPM_Custom_Form.custom_forms_arr, function (e, customForm ) {
-				setup_custom_forms_arr( customForm, basePpmForm );
-			});
 		}
-	} );
+	};
+
+	jQuery( window ).on( 'load', setupBaseCustomForm );
+
+	jQuery( document ).ajaxStop( setupBaseCustomForm );
 } )( jQuery );
+
+/**
+ * Find elements by a CSS selector from the plugin config.
+ * Never passes the value to jQuery( string ), which would parse a string starting with "<" as HTML.
+ *
+ * @param {string} selector CSS selector.
+ * @return {jQuery} Matched elements, or an empty jQuery object for an empty or invalid selector.
+ */
+function mls_find( selector ) {
+	if ( 'string' !== typeof selector || '' === selector.trim() ) {
+		return jQuery();
+	}
+
+	try {
+		return jQuery( document ).find( selector );
+	} catch ( error ) {
+		return jQuery();
+	}
+}
 
 function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 
@@ -152,19 +154,19 @@ function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 		inputEvent = 'keyup';
 	}
 
-	if ( jQuery( PPM_Custom_Form.element ).hasClass( 'pmpro_form_input-password' ) ) {
-		jQuery( policy ).insertAfter( jQuery( PPM_Custom_Form.element ).parent().parent() );
+	if ( mls_find( PPM_Custom_Form.element ).hasClass( 'pmpro_form_input-password' ) ) {
+		jQuery( policy ).insertAfter( mls_find( PPM_Custom_Form.element ).parent().parent() );
 	} else {
 		if( customForm.hasOwnProperty( 'after_element' ) ) {
-			jQuery( policy ).insertAfter( jQuery( customForm.after_element ) );
+			jQuery( policy ).insertAfter( mls_find( customForm.after_element ) );
 		} else {
-			if ( jQuery( PPM_Custom_Form.element ).length ) {
-				jQuery( policy ).insertAfter( PPM_Custom_Form.element );
+			if ( mls_find( PPM_Custom_Form.element ).length ) {
+				jQuery( policy ).insertAfter( mls_find( PPM_Custom_Form.element ) );
 			}
 		}
 		if( customForm.hasOwnProperty( 'elements_to_enable' ) ) {
 			jQuery( document ).ready( function() {
-				jQuery( customForm.elements_to_enable ).prop("disabled", false);
+				mls_find( customForm.elements_to_enable ).prop("disabled", false);
 			});
 		}
 
@@ -177,19 +179,19 @@ function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 				jQuery( document.body )
 				.on(
 					'keyup change',
-					jQuery( customForm.pw_field_selector ),
-					function () { jQuery( customForm.elements_to_enable ).prop("disabled", false); }
+					mls_find( customForm.pw_field_selector ),
+					function () { mls_find( customForm.elements_to_enable ).prop("disabled", false); }
 				);
 			}
 			if ( 'buddypress-register' === customForm.type_custom_form ) {
 				jQuery( document.body )
 				.on(
 					'keyup change',
-					jQuery( customForm.pw_field_selector ),
-					function () { 
-						jQuery( customForm.elements_to_enable ).prop("disabled", false); 
-						jQuery( customForm.elements_to_hide ).prop("disabled", true);
-						jQuery( customForm.elements_to_hide ).css( 'display', 'none' );
+					mls_find( customForm.pw_field_selector ),
+					function () {
+						mls_find( customForm.elements_to_enable ).prop("disabled", false);
+						mls_find( customForm.elements_to_hide ).prop("disabled", true);
+						mls_find( customForm.elements_to_hide ).css( 'display', 'none' );
 					}
 				);
 			}
@@ -197,11 +199,11 @@ function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 				jQuery( document.body )
 				.on(
 					'keyup change',
-					jQuery( customForm.pw_field_selector ),
-					function () { 
-						jQuery( customForm.elements_to_enable ).prop("disabled", false);
-						jQuery( customForm.elements_to_hide ).prop("disabled", true);
-						jQuery( elementsToHide ).css( 'display', 'none' );
+					mls_find( customForm.pw_field_selector ),
+					function () {
+						mls_find( customForm.elements_to_enable ).prop("disabled", false);
+						mls_find( customForm.elements_to_hide ).prop("disabled", true);
+						mls_find( elementsToHide ).css( 'display', 'none' );
 					 }
 				);
 			}
@@ -209,14 +211,14 @@ function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 				jQuery( document.body )
 				.on(
 					'keyup change',
-					jQuery( customForm.pw_field_selector ),
-					function () { jQuery( customForm.elements_to_enable ).prop("disabled", false); }
+					mls_find( customForm.pw_field_selector ),
+					function () { mls_find( customForm.elements_to_enable ).prop("disabled", false); }
 				);
 			}
 		}
-	}	
+	}
 
-	jQuery( PPM_Custom_Form.element ).val( '' ).on( inputEvent + ' pwupdate', function (e) {
+	mls_find( PPM_Custom_Form.element ).val( '' ).on( inputEvent + ' pwupdate', function (e) {
 		if ( customForm.hasOwnProperty( 'type_custom_form' ) ) {
 			if ( 'learndash' === customForm.type_custom_form ) {
 				e.stopPropagation();
@@ -229,9 +231,10 @@ function setup_custom_forms_arr( customForm, PPM_Custom_Form ) {
 	jQuery( '.pass-strength-result' ).show();
 
 	if ( elementsToHide !== '' ) {
-		jQuery( elementsToHide ).css( 'display', 'none' );
-		// Backup, as some forms may re-add hints etc via JS.
-		jQuery('head').append('<style type="text/css">'+ elementsToHide +' { display: none !important; visibility: hidden !important; }</style>');
+		mls_find( elementsToHide ).css( 'display', 'none' );
+		// Backup, as some forms may re-add hints etc via JS. Set as text so the value can't add HTML.
+		const hideCss = elementsToHide + ' { display: none !important; visibility: hidden !important; }';
+		jQuery( '<style type="text/css"></style>' ).text( hideCss ).appendTo( 'head' );
 	}
 }
 
@@ -246,7 +249,7 @@ function check_pass_strength( form, is_known_single = false ) {
 		var selectPrefix = '';
 	}
 
-	jQuery( selectPrefix + '.pass-strength-result' ).removeClass( 'short bad good strong' );
+	mls_find( selectPrefix + '.pass-strength-result' ).removeClass( 'short bad good strong' );
 
 	// Try to separate the list of items.
 	var possibleInputsToCheck = form.element.split(',');
@@ -259,19 +262,19 @@ function check_pass_strength( form, is_known_single = false ) {
 	// Not possible to split, so treat as if only 1 class/id is provided.
 	if ( ! possibleInputsToCheck ) {
 		// pass1 is a single class/id.
-		pass1 = jQuery( form.element ).val();
+		pass1 = mls_find( form.element ).val();
 	} else {
 		// pass1 is an array of classes/ids to check.
 		jQuery.each( possibleInputsToCheck, function( index, input ) {
 			// If we have something, lets pass it to pass1.
-			pass1 = jQuery( input ).val();
+			pass1 = mls_find( input ).val();
 		});
 	}
 
 	// By this point, we should have a value (password) to check.
 	if ( !pass1 ) {			
-		jQuery( selectPrefix + '.pass-strength-result' ).html( form.policy );
-		jQuery( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).prop( "disabled", false ).removeClass( 'button-disabled' );
+		mls_find( selectPrefix + '.pass-strength-result' ).html( form.policy );
+		mls_find( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).prop( "disabled", false ).removeClass( 'button-disabled' );
 		return;
 	}
 
@@ -293,29 +296,29 @@ function check_pass_strength( form, is_known_single = false ) {
 	errors = err_pfx + errors + err_sfx;
 
 	if ( ErrorData.length == 0 ) {
-		jQuery( selectPrefix +'.pass-strength-result li' ).css('color', '#21760c');
+		mls_find( selectPrefix +'.pass-strength-result li' ).css('color', '#21760c');
 	} else {
 		jQuery.each( ErrorData, function( i, val ) {
-			if ( jQuery( selectPrefix +'.pass-strength-result li' ).hasClass( val ) ) {
-				jQuery( selectPrefix +'.pass-strength-result li.' + val ).css('color', '#F00');
+			if ( mls_find( selectPrefix +'.pass-strength-result li' ).hasClass( val ) ) {
+				mls_find( selectPrefix +'.pass-strength-result li.' + val ).css('color', '#F00');
 			} else {
-				jQuery( selectPrefix +'.pass-strength-result li' ).css('color', '#21760c');
+				mls_find( selectPrefix +'.pass-strength-result li' ).css('color', '#21760c');
 			}
 		} );
 	}
 	if ( ErrorData.length <= 1 ) {
-		jQuery( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).not( '.gform_show_password' ).prop( "disabled", false ).removeClass( 'button-disabled' );
+		mls_find( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).not( '.gform_show_password' ).prop( "disabled", false ).removeClass( 'button-disabled' );
 		if ( 'learndash' === form.type_custom_form ) {
-			jQuery( selectPrefix +  "#wp-submit-register").css({'pointer-events': 'auto', 'cursor': 'auto'});
-			jQuery( selectPrefix +  "#wp-submit-register").prop( "disabled", false )
+			mls_find( selectPrefix +  "#wp-submit-register").css({'pointer-events': 'auto', 'cursor': 'auto'});
+			mls_find( selectPrefix +  "#wp-submit-register").prop( "disabled", false )
 		}
-		jQuery( selectPrefix + form.button_class ).prop( "disabled", false ).removeClass( 'button-disabled' );
+		mls_find( selectPrefix + form.button_class ).prop( "disabled", false ).removeClass( 'button-disabled' );
 	} else {
-		jQuery( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).not( '.gform_show_password' ).prop( "disabled", true ).addClass( 'button-disabled' );
+		mls_find( selectPrefix + "input[type*='submit'], " + selectPrefix + "button" ).not( '.mp-hide-pw' ).not( '.gform_show_password' ).prop( "disabled", true ).addClass( 'button-disabled' );
 		if ( 'learndash' === form.type_custom_form ) {
-			jQuery( selectPrefix +  "#wp-submit-register").css({'pointer-events': 'none', 'cursor': 'not-allowed'});
+			mls_find( selectPrefix +  "#wp-submit-register").css({'pointer-events': 'none', 'cursor': 'not-allowed'});
 		}
-		jQuery( selectPrefix + form.button_class ).prop( "disabled", true ).addClass( 'button-disabled' );
+		mls_find( selectPrefix + form.button_class ).prop( "disabled", true ).addClass( 'button-disabled' );
 	}
 }
 

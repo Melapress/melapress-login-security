@@ -155,6 +155,108 @@ if ( ! class_exists( '\MLS\Migration' ) ) {
 		}
 
 		/**
+		 * Migration for version up to 2.4.4.
+		 *
+		 * Encrypts the password reset keys stored in user meta. See encrypt_stored_reset_keys().
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		protected static function migrate_up_to_244() {
+			self::encrypt_stored_reset_keys();
+		}
+
+		/**
+		 * Encrypts password reset keys stored in clear text before 2.4.4.
+		 *
+		 * The keys are only needed to build reset links, so they are now stored
+		 * through Reset_Key_Store. Keys already sent by email keep working,
+		 * because the same key is stored, only encrypted. Rows are read in
+		 * batches by umeta_id, so a site with many pending resets doesn't load
+		 * them all at once. Each row is updated only while it still holds the
+		 * value that was read. Anything missed still works through the legacy
+		 * read path and is encrypted the next time a key is issued.
+		 *
+		 * @return void
+		 *
+		 * @throws \RuntimeException - When the database read or update fails, so the version isn't recorded and the migration runs again.
+		 *
+		 * @since 2.4.4
+		 */
+		private static function encrypt_stored_reset_keys() {
+			global $wpdb;
+
+			$last_id = 0;
+
+			do {
+				$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$wpdb->prepare(
+						"SELECT umeta_id, user_id, meta_key, meta_value
+						FROM {$wpdb->usermeta}
+						WHERE meta_key IN ( %s, %s )
+							AND umeta_id > %d
+							AND meta_value != ''
+							AND meta_value NOT LIKE %s
+						ORDER BY umeta_id ASC
+						LIMIT 500",
+						MLS_USER_RESET_PW_ON_LOGIN_META_KEY,
+						MLS_NEW_USER_META_KEY,
+						$last_id,
+						$wpdb->esc_like( \MLS\Reset_Key_Store::CIPHER_PREFIX ) . '%'
+					)
+				);
+
+				// A failed read must not look like the last batch, or 2.4.4 is recorded as done.
+				if ( $wpdb->last_error ) {
+					throw new \RuntimeException( 'Could not read stored MLS password reset keys; retry the upgrade.' );
+				}
+
+				foreach ( (array) $rows as $row ) {
+					$last_id = (int) $row->umeta_id;
+
+					// Only plain keys are encrypted; anything serialized is left as it is.
+					if ( \is_serialized( $row->meta_value ) ) {
+						continue;
+					}
+
+					$value = \MLS\Reset_Key_Store::encrypt( $row->meta_value );
+
+					// Never leave the key in clear text; the marker keeps the reset pending.
+					if ( false === $value ) {
+						$value = \MLS\Reset_Key_Store::PENDING_MARKER;
+					}
+
+					/**
+					 * Update only the row that was read, and only while it still holds
+					 * the same value. A reset completed or a key issued since the
+					 * SELECT is left alone, instead of being recreated or overwritten.
+					 */
+					$updated = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+						$wpdb->prepare(
+							"UPDATE {$wpdb->usermeta}
+							SET meta_value = %s
+							WHERE umeta_id = %d
+								AND BINARY meta_value = BINARY %s",
+							$value,
+							(int) $row->umeta_id,
+							$row->meta_value
+						)
+					);
+
+					// False is a database error; 0 only means the value changed meanwhile.
+					if ( false === $updated ) {
+						throw new \RuntimeException( 'Could not encrypt stored MLS password reset keys; retry the upgrade.' );
+					}
+
+					if ( $updated ) {
+						\wp_cache_delete( (int) $row->user_id, 'user_meta' );
+					}
+				}
+			} while ( ! empty( $rows ) );
+		}
+
+		/**
 		 * Move configuration to the main network, preserving its existing values.
 		 *
 		 * Only plugin option rows are visited, in batches of 100. Backups are kept

@@ -581,7 +581,7 @@ if ( ! class_exists( '\MLS\Helpers\UserImporter' ) ) {
 					$user->set_role( $new_user_role );
 
 					if ( $email_address ) {
-						$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
+						$from_email = Emailer::get_from_email();
 						$from_email = sanitize_email( $from_email );
 						$headers[]  = 'From: ' . $from_email;
 
