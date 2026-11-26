@@ -44,6 +44,19 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 		private static $role_options;
 
 		/**
+		 * Custom form selectors already passed to the page in this request.
+		 *
+		 * The custom form can be enabled twice on one page: by the shortcode and by
+		 * wp_enqueue_scripts (when a third-party form integration is active). Keeping
+		 * the values here stops the later call from clearing the shortcode selectors.
+		 *
+		 * @var array $custom_form_config Selectors keyed by element, button_class and elements_to_hide.
+		 *
+		 * @since 2.4.4
+		 */
+		private static $custom_form_config = array();
+
+		/**
 		 * Instantiate
 		 *
 		 * @return void
@@ -74,26 +87,9 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				add_action( 'wp_enqueue_scripts', array( $this, 'enable_custom_form' ) );
 			}
 
+			// During a password reset, use the user being reset, the same as the request policy.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only policy lookup; the value is validated in the helper.
-			$userid = OptionsHelper::target_user_id_from_request( $_GET, get_current_user_id() );
-
-			if ( 0 === $userid ) {
-				list( $rp_path ) = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) );
-				$rp_cookie       = 'wp-resetpass-' . COOKIEHASH;
-				if ( isset( $_COOKIE[ $rp_cookie ] ) && 0 < strpos( $_COOKIE[ $rp_cookie ], ':' ) ) {
-					list( $rp_login, $rp_key ) = explode( ':', wp_unslash( $_COOKIE[ $rp_cookie ] ), 2 );
-
-					$user = check_password_reset_key( $rp_key, $rp_login );
-
-					if ( isset( $_POST['pass1'] ) && ! hash_equals( $rp_key, $_POST['rp_key'] ) ) {
-						$user = false;
-					}
-
-					if ( is_a( $user, '\WP_User' ) ) {
-						$userid = $user->ID;
-					}
-				}
-			}
+			$userid = OptionsHelper::get_policy_user_id( OptionsHelper::target_user_id_from_request( $_GET, \get_current_user_id() ) );
 
 			if ( 0 === $userid ) {
 				return;
@@ -204,12 +200,33 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 				)
 			);
 
-			// Override if shortcode present.
-			if ( is_array( $shortcode_attributes ) && ! empty( $shortcode_attributes ) ) {
-				$custom_form['element']          = $shortcode_attributes['element'];
-				$custom_form['button_class']     = $shortcode_attributes['button_class'];
-				$custom_form['elements_to_hide'] = $shortcode_attributes['elements_to_hide'];
+			$is_shortcode = is_array( $shortcode_attributes ) && ! empty( $shortcode_attributes );
+
+			// Override if shortcode present. Shortcode values come from post authors, so allow only CSS selectors.
+			if ( $is_shortcode ) {
+				$custom_form['element']          = self::sanitize_css_selector( $shortcode_attributes['element'] ?? '' );
+				$custom_form['button_class']     = self::sanitize_css_selector( $shortcode_attributes['button_class'] ?? '' );
+				$custom_form['elements_to_hide'] = self::sanitize_css_selector( $shortcode_attributes['elements_to_hide'] ?? '' );
 			}
+
+			/**
+			 * Keep selectors from an earlier call in this request. Each call localizes
+			 * PPM_Custom_Form again and the last one wins in JS, so a call without
+			 * shortcode attributes (e.g. from wp_enqueue_scripts) must not clear the
+			 * shortcode selectors. A shortcode always sets all three values itself, so
+			 * it never inherits selectors from another form.
+			 */
+			foreach ( array( 'element', 'button_class', 'elements_to_hide' ) as $key ) {
+				if ( ! $is_shortcode && empty( $custom_form[ $key ] ) && ! empty( self::$custom_form_config[ $key ] ) ) {
+					$custom_form[ $key ] = self::$custom_form_config[ $key ];
+				}
+			}
+
+			self::$custom_form_config = array(
+				'element'          => $custom_form['element'] ?? '',
+				'button_class'     => $custom_form['button_class'] ?? '',
+				'elements_to_hide' => $custom_form['elements_to_hide'] ?? '',
+			);
 
 			$custom_form_arr = apply_filters( 'mls_enable_custom_forms_array', array() );
 
@@ -275,6 +292,44 @@ if ( ! class_exists( '\MLS\Forms' ) ) {
 
 				$this->add_frontend_css();
 			}
+		}
+
+		/**
+		 * Return the value only if it contains CSS selector characters, otherwise an empty string.
+		 *
+		 * @param mixed $value - Selector value to check.
+		 *
+		 * @return string $selector - Sanitized selector or empty string.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function sanitize_css_selector( $value ): string {
+			if ( ! is_string( $value ) ) {
+				return '';
+			}
+
+			// A selector never contains HTML, so reject the whole value instead of stripping tags.
+			if ( false !== strpos( $value, '<' ) ) {
+				return '';
+			}
+
+			$selector = trim( \sanitize_text_field( $value ) );
+
+			if ( '' === $selector ) {
+				return '';
+			}
+
+			/**
+			 * Security: allowlist of CSS selector characters (XSS).
+			 * Shortcode values come from post authors (Contributor+) and are used by custom-form.js as jQuery selectors.
+			 * Allowed: word chars (Unicode via the u flag), whitespace, # . - [ ] = " ' : , > * + ~ ( ) ^ $ | and \ for escapes.
+			 * Never allow < (HTML), { } ; (CSS rules) or / here; a value that fails returns '' and the policy script is not loaded.
+			 */
+			if ( 1 !== preg_match( '/^[\w\s#.\-\[\]="\':,>*+~()^$|\\\\]+$/u', $selector ) ) {
+				return '';
+			}
+
+			return $selector;
 		}
 
 		/**

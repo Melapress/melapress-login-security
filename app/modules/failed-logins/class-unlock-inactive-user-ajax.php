@@ -101,6 +101,11 @@ if ( ! class_exists( '\MLS\Ajax\UnlockInactiveUser' ) ) {
 			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( -1, 403 );
 			}
+
+			// Temporary users keep manage_options, but cannot unlock other users.
+			if ( \MLS\TemporaryLogins\Temporary_Logins::is_current_user_temporary() ) {
+				\wp_die( -1, 403 );
+			}
 			// get the ids list as an array.
 			$id = ( isset( $_POST['user'] ) ) ? (int) $_POST['user'] : 0;
 
@@ -177,7 +182,7 @@ if ( ! class_exists( '\MLS\Ajax\UnlockInactiveUser' ) ) {
 			$login_page = \MLS\Helpers\OptionsHelper::get_password_reset_page();
 
 			// Prepare email details.
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
+			$from_email = Emailer::get_from_email();
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 
@@ -185,7 +190,7 @@ if ( ! class_exists( '\MLS\Ajax\UnlockInactiveUser' ) ) {
 			if ( $reset_password ) {
 				$key = get_password_reset_key( $user_data );
 				if ( ! is_wp_error( $key ) ) {
-					$update = update_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
+					$update = \MLS\Reset_Key_Store::store( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
 				}
 			}
 

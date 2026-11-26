@@ -7,7 +7,7 @@
  *
  * @wordpress-plugin
  * Plugin Name: Melapress Login Security
- * Version:     2.4.3
+ * Version:     2.4.4
  * Plugin URI:  https://melapress.com/wordpress-login-security/
  * Description: Configure password policies and help your users use strong passwords. Ensure top notch password security on your website by beefing up the security of your user accounts.
  * Author:      Melapress
@@ -236,7 +236,7 @@ if ( ! defined( 'MLS_VERSION' ) ) {
 	 *
 	 * @since 2.0.0
 	 */
-	define( 'MLS_VERSION', '2.4.3' );
+	define( 'MLS_VERSION', '2.4.4' );
 }
 
 if ( ! defined( 'MLS_MENU_SLUG' ) ) {
@@ -248,7 +248,7 @@ if ( ! defined( 'MLS_MENU_SLUG' ) ) {
 	define( 'MLS_MENU_SLUG', 'mls-policies' );
 }
 
-new \Deactivation_Feedback_Server\Plugin_Deactivation();
+\MLS_Deactivation_Feedback\Plugin_Deactivation::init();
 
 // if ( ! function_exists( $melapress_login_security ) ) {
 

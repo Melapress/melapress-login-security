@@ -114,10 +114,12 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 			 * somebody following it; it just is not what enforces the policy any
 			 * more.
 			 */
-			$pending = \get_user_meta( $user->ID, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
+			$pending_meta_key = MLS_USER_RESET_PW_ON_LOGIN_META_KEY;
+			$pending          = \get_user_meta( $user->ID, $pending_meta_key, true );
 
 			if ( empty( $pending ) ) {
-				$pending = \get_user_meta( $user->ID, MLS_NEW_USER_META_KEY, true );
+				$pending_meta_key = MLS_NEW_USER_META_KEY;
+				$pending          = \get_user_meta( $user->ID, $pending_meta_key, true );
 			}
 
 			if ( empty( $pending ) ) {
@@ -129,7 +131,12 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 				return $user;
 			}
 
-			$reset_url = self::password_reset_url( $user, $pending );
+			/**
+			 * The meta decides that a reset is pending; the key is only for the link.
+			 * A key that can't be decrypted comes back empty and gets replaced
+			 * with a fresh one in password_reset_url().
+			 */
+			$reset_url = self::password_reset_url( $user, \MLS\Reset_Key_Store::get( $user->ID, $pending_meta_key ) );
 
 			/*
 			 * Refuse by returning, never by redirecting.
@@ -284,6 +291,9 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 			$label     = $is_locked ? \esc_html__( 'Unlock user', 'melapress-login-security' ) : \esc_html__( 'Lock user', 'melapress-login-security' );
 			$btn_class = $is_locked ? 'button' : 'button';
 
+			// You can not lock your own account, so there is no Lock button on it.
+			$show_button = $is_locked || \MLS\Admin\User_Helper::can_lock_user( (int) $user->ID );
+
 			$url = \wp_nonce_url(
 				\add_query_arg(
 					array(
@@ -311,10 +321,12 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 							<?php else : ?>
 								<span style="color:#00a32a;font-weight:600;"><?php \esc_html_e( 'Active', 'melapress-login-security' ); ?></span>
 							<?php endif; ?>
-							<br><br>
-							<a href="<?php echo \esc_url( $url ); ?>" class="<?php echo \esc_attr( $btn_class ); ?>">
-								<?php echo \esc_html( $label ); ?>
-							</a>
+							<?php if ( $show_button ) : ?>
+								<br><br>
+								<a href="<?php echo \esc_url( $url ); ?>" class="<?php echo \esc_attr( $btn_class ); ?>">
+									<?php echo \esc_html( $label ); ?>
+								</a>
+							<?php endif; ?>
 						</td>
 					</tr>
 				</tbody>
@@ -344,6 +356,20 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 			$nonce = \sanitize_text_field( \wp_unslash( $_GET['_wpnonce'] ) );
 
 			if ( 'mls_lock_user' === $action && \wp_verify_nonce( $nonce, 'mls_lock_user_' . $user_id ) ) {
+				// You can not lock your own account.
+				if ( ! \MLS\Admin\User_Helper::can_lock_user( $user_id ) ) {
+					\wp_safe_redirect(
+						\add_query_arg(
+							array(
+								'user_id'               => $user_id,
+								'mls_lock_self_skipped' => '1',
+							),
+							\admin_url( 'user-edit.php' )
+						)
+					);
+					exit;
+				}
+
 				$inactive_users = OptionsHelper::get_inactive_users();
 
 				\MLS\Admin\User_Helper::lock_user( $user_id );
@@ -420,7 +446,7 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 			$userdata = \get_user_by( 'id', $user_id );
 			$key      = \get_password_reset_key( $userdata );
 			if ( ! \is_wp_error( $key ) ) {
-				\update_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
+				\MLS\Reset_Key_Store::store( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, $key );
 
 				return $key;
 			}
@@ -485,7 +511,7 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 
 				if ( ! \is_wp_error( $key ) ) {
 					// Update user with new key information.
-					$update = \update_user_meta( $user->ID, MLS_NEW_USER_META_KEY, $key );
+					$update = \MLS\Reset_Key_Store::store( $user->ID, MLS_NEW_USER_META_KEY, $key );
 				}
 				\MLS_Core::handle_user_redirection( $verify_reset_key );
 			}
@@ -509,7 +535,22 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 			// Redefining user_login ensures we return the right case in the email.
 			$user_login    = $user_data->user_login;
 			$user_email    = $user_data->user_email;
-			$key           = \get_user_meta( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY, true );
+			$key           = \MLS\Reset_Key_Store::get( $user_id, MLS_USER_RESET_PW_ON_LOGIN_META_KEY );
+
+			// The stored key can't be read (pending marker, or the salts changed), so issue a fresh one.
+			if ( '' === $key ) {
+				$key = self::generate_new_reset_key( $user_id );
+
+				if ( ! is_string( $key ) || '' === $key ) {
+					$fail_message = \__( 'A password reset key could not be generated.', 'melapress-login-security' );
+
+					if ( $return_on_fail ) {
+						return $fail_message;
+					}
+
+					\wp_die( \esc_html( $fail_message ) );
+				}
+			}
 			$login_page    = OptionsHelper::get_password_reset_page();
 			$email_content = false;
 
@@ -520,9 +561,7 @@ if ( ! class_exists( '\MLS\User_Profile' ) ) {
 
 			$title = \MLS\EmailAndMessageStrings::replace_email_strings( \MLS\EmailAndMessageStrings::get_email_template_setting( 'user_delayed_reset_email_subject' ), $user_id );
 
-			$mls = \melapress_login_security();
-
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : 'mls@' . str_ireplace( 'www.', '', \wp_parse_url( \network_site_url(), PHP_URL_HOST ) );
+			$from_email = Emailer::get_from_email();
 			$from_email = \sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 

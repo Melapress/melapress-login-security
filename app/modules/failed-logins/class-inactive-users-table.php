@@ -384,6 +384,11 @@ if ( ! class_exists( '\MLS\Views\Tables\Inactive_Users_Table' ) ) {
 				return;
 			}
 
+			// Temporary users keep manage_options, but cannot unlock other users.
+			if ( \MLS\TemporaryLogins\Temporary_Logins::is_current_user_temporary() ) {
+				return;
+			}
+
 			$action   = $this->current_action();
 			$user_ids = isset( $_REQUEST['inactiveuser'] ) ? wp_parse_id_list( wp_unslash( $_REQUEST['inactiveuser'] ) ) : array();
 

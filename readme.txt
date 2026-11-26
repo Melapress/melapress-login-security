@@ -5,7 +5,7 @@ License URI: http://www.gnu.org/licenses/gpl.html
 Requires at least: 5.5
 Tested up to: 7.1
 Tags: brute force, login, limit logins, limit login attempts, login security
-Stable tag: 2.4.3
+Stable tag: 2.4.4
 Requires PHP: 8.0
 
 Enforce WordPress login and password security policies to protect user accounts and prevent unauthorized logins.
@@ -183,7 +183,7 @@ To remove all settings, navigate to Login Security > Settings and enable the Del
 
 = What data does Melapress Login Security send? =
 
-The free edition does not send any data whatsoever. The premium edition, on the other hand, only sends licensing data to our server. All WordPress login security settings remain in your WordPress database. Furthermore, the plugin does not collect any user data.
+The free edition only sends data if you choose to send feedback when you deactivate the plugin. See External services below. The premium edition, on the other hand, also sends licensing data to our server. All WordPress login security settings remain in your WordPress database. Furthermore, the plugin does not collect any user data.
 
 = How can I report security bugs? =
 You can report security bugs through the Patchstack Vulnerability Disclosure Program. Please use this [form](https://patchstack.com/database/vdp/melapress-login-security). For more details please refer to our [Melapress plugins security program](https://melapress.com/plugins-security-program/).
@@ -202,8 +202,33 @@ You can report security bugs through the Patchstack Vulnerability Disclosure Pro
 8. In the Premium edition you can also restrict the number of IP addresses a user can log in from, allowing you to easily control account sharing and boost user security.
 9. In the Premium edition the Reports allow you to see the last time users were active, the last time they reset their password, and those users with an expired password.
 
+== External services ==
+
+This plugin connects to a Melapress service (https://proxytron.melapress.com) only when you deactivate it on the Plugins screen and choose to send feedback in the deactivation form.
+
+It sends the plugin slug and version, your site URL, the reason you selected, the name of that plugin if you chose "I found a better alternative", and the text you typed if you chose "Other". Nothing is sent if you skip the form.
+
+Terms of service: https://melapress.com/terms-and-conditions/
+Privacy policy: https://melapress.com/privacy-policy/
 
 == Changelog ==
+
+= 2.4.4 (2026-11-26) =
+
+ * **Security fix**
+
+	 *  Fixed a cross-site scripting (XSS) vulnerability affecting version 2.4.3 and earlier. Thanks to Oly Hossen for responsibly reporting this issue.
+
+ * **Functionality & plugin improvement**
+
+	 *  Updated the deactivation feedback form to work with the latest feedback server changes and match the plugin’s branding.
+
+ * **Bug fixes**
+
+	 *  Fixed emails showing the default email address as the sender name when a custom From address was set and Display Name was empty.
+	 *  Fixed the {admin_email} tag in user notices and email From headers using a previously saved custom address after switching back to “Use the default email address.”
+	 *  Fixed the [mls-custom-form] shortcode not applying password hints, element hiding, and submit button controls when a third-party form integration was enabled.
+	 *  Fixed a conflict with WooCommerce’s password strength meter that kept the Save button disabled for logged-out users resetting their passwords, even when the password met the plugin’s policy.
 
 = 2.4.3 (2026-11-11) =
 

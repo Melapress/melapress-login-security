@@ -58,6 +58,327 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 		}
 
 		/**
+		 * Registers the restrictions that apply to temporary users.
+		 *
+		 * Called while the plugin loads and outside the licence check, because
+		 * the login link keeps working without a valid licence.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		public static function register_guards() {
+			/*
+			 * Restrict temporary users by capability, not only by page, so the
+			 * same limits apply to REST, admin-ajax, XML-RPC and the screens.
+			 *
+			 * This uses map_meta_cap rather than user_has_cap: on multisite a super
+			 * admin is granted every capability before user_has_cap runs, unless
+			 * the mapped capabilities contain do_not_allow. Builds 2.1.0 to 2.4.0
+			 * could make a temporary login a super admin.
+			 */
+			\add_filter( 'map_meta_cap', array( __CLASS__, 'restrict_temporary_user_caps' ), 10, 4 );
+			\add_filter( 'wp_is_application_passwords_available_for_user', array( __CLASS__, 'disable_application_passwords' ), 10, 2 );
+			\add_filter( 'wp_authenticate_user', array( __CLASS__, 'block_password_login' ), 10, 1 );
+
+			/*
+			 * Editing your own account needs no capability, so a temporary user
+			 * could still change its own password or email. Stop that in REST
+			 * with a clear error, and in every other wp_update_user() path by
+			 * keeping the stored values.
+			 */
+			\add_filter( 'rest_request_before_callbacks', array( __CLASS__, 'block_rest_self_credential_change' ), 10, 3 );
+			\add_filter( 'wp_pre_insert_user_data', array( __CLASS__, 'keep_self_credentials' ), 10, 3 );
+			\add_filter( 'send_password_change_email', array( __CLASS__, 'skip_self_credential_change_email' ), 10, 2 );
+			\add_filter( 'send_email_change_email', array( __CLASS__, 'skip_self_credential_change_email' ), 10, 2 );
+
+			/*
+			 * The logged-out password reset uses wp_set_password(), which the
+			 * filters above do not see. Refuse new reset keys, and refuse reset
+			 * submissions so keys issued earlier cannot be used either.
+			 */
+			\add_filter( 'allow_password_reset', array( __CLASS__, 'block_temporary_password_reset' ), 20, 2 );
+			\add_action( 'validate_password_reset', array( __CLASS__, 'refuse_temporary_password_reset' ), 20, 2 );
+		}
+
+		/**
+		 * Refuses password reset keys for temporary users.
+		 *
+		 * @param bool $allow - Whether a password reset is allowed.
+		 * @param int  $user_id - ID of the user.
+		 *
+		 * @return bool $allow - False for temporary users.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function block_temporary_password_reset( $allow, $user_id ) {
+			if ( empty( $user_id ) ) {
+				return $allow;
+			}
+
+			if ( \get_user_meta( (int) $user_id, self::TEMP_USER_META_KEY, true ) ) {
+				return false;
+			}
+
+			return $allow;
+		}
+
+		/**
+		 * Refuses a password reset submission for a temporary user.
+		 *
+		 * @param \WP_Error          $errors - Errors of the reset form.
+		 * @param \WP_User|\WP_Error $user - The user whose password is being reset, or an error.
+		 *
+		 * @return void
+		 *
+		 * @since 2.4.4
+		 */
+		public static function refuse_temporary_password_reset( $errors, $user ) {
+			if ( ! $errors instanceof \WP_Error ) {
+				return;
+			}
+
+			if ( ! self::is_valid_temp_user( $user ) ) {
+				return;
+			}
+
+			$errors->add(
+				'mls_temporary_login_reset',
+				\esc_html__( 'This is a temporary login. Its password cannot be reset.', 'melapress-login-security' )
+			);
+		}
+
+		/**
+		 * Checks if the given user is the current user and a temporary user.
+		 *
+		 * @param int $user_id - ID of the user being edited.
+		 *
+		 * @return bool $is_temporary_self - True if a temporary user is editing itself.
+		 *
+		 * @since 2.4.4
+		 */
+		private static function is_temporary_self( $user_id ): bool {
+			$user_id = (int) $user_id;
+
+			if ( empty( $user_id ) ) {
+				return false;
+			}
+
+			if ( \get_current_user_id() !== $user_id ) {
+				return false;
+			}
+
+			return (bool) \get_user_meta( $user_id, self::TEMP_USER_META_KEY, true );
+		}
+
+		/**
+		 * Refuses REST requests where a temporary user changes its own password or email.
+		 *
+		 * Runs before the users endpoint callback, because an error returned from
+		 * rest_pre_insert_user is not honoured by the update endpoint.
+		 *
+		 * @param mixed            $response - The response so far, or an error.
+		 * @param array            $handler - The route handler.
+		 * @param \WP_REST_Request $request - The REST request.
+		 *
+		 * @return mixed $response - The response, or an error.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function block_rest_self_credential_change( $response, $handler, $request ) {
+			if ( \is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			if ( empty( $handler['callback'] ) || ! is_array( $handler['callback'] ) ) {
+				return $response;
+			}
+
+			$controller = $handler['callback'][0];
+			$method     = isset( $handler['callback'][1] ) ? $handler['callback'][1] : '';
+
+			if ( ! $controller instanceof \WP_REST_Users_Controller ) {
+				return $response;
+			}
+
+			if ( 'update_current_item' === $method ) {
+				$user_id = \get_current_user_id();
+			} elseif ( 'update_item' === $method ) {
+				$user_id = (int) $request['id'];
+			} else {
+				return $response;
+			}
+
+			if ( ! self::is_temporary_self( $user_id ) ) {
+				return $response;
+			}
+
+			if ( ! $request->has_param( 'password' ) && ! $request->has_param( 'email' ) ) {
+				return $response;
+			}
+
+			return new \WP_Error(
+				'mls_temporary_login_profile',
+				\esc_html__( 'Temporary logins cannot change their password or email.', 'melapress-login-security' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		/**
+		 * Keeps the stored password and email when a temporary user updates its own account.
+		 *
+		 * @param array $data - The user data to be saved.
+		 * @param bool  $update - Whether this is an update of an existing user.
+		 * @param int   $user_id - ID of the user, null for a new user.
+		 *
+		 * @return array $data - The user data with the stored password and email.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function keep_self_credentials( $data, $update, $user_id ) {
+			if ( ! $update ) {
+				return $data;
+			}
+
+			if ( ! self::is_temporary_self( $user_id ) ) {
+				return $data;
+			}
+
+			$stored_user = \get_userdata( (int) $user_id );
+
+			if ( ! $stored_user ) {
+				return $data;
+			}
+
+			$data['user_pass']  = $stored_user->user_pass;
+			$data['user_email'] = $stored_user->user_email;
+
+			return $data;
+		}
+
+		/**
+		 * Skips the password and email change emails when a temporary user updates its own account.
+		 *
+		 * @param bool  $send - Whether to send the email.
+		 * @param array $user - The user data before the update.
+		 *
+		 * @return bool $send - False when a temporary user edits itself.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function skip_self_credential_change_email( $send, $user ) {
+			if ( ! is_array( $user ) || empty( $user['ID'] ) ) {
+				return $send;
+			}
+
+			if ( self::is_temporary_self( $user['ID'] ) ) {
+				return false;
+			}
+
+			return $send;
+		}
+
+		/**
+		 * Denies the user management capabilities to temporary users.
+		 *
+		 * @param array  $caps - Primitive capabilities required for the check.
+		 * @param string $cap - Capability being checked.
+		 * @param int    $user_id - ID of the user being checked.
+		 * @param array  $args - Arguments of the capability check.
+		 *
+		 * @return array $caps - The required capabilities, or do_not_allow.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function restrict_temporary_user_caps( $caps, $cap, $user_id, $args ) {
+			if ( empty( $user_id ) ) {
+				return $caps;
+			}
+
+			if ( ! \get_user_meta( $user_id, self::TEMP_USER_META_KEY, true ) ) {
+				return $caps;
+			}
+
+			$denied_caps = array(
+				'create_users',
+				'add_users',
+				'edit_users',
+				'promote_users',
+				'delete_users',
+				'remove_users',
+				'manage_network_users',
+			);
+
+			/**
+			 * Filters the capabilities denied to temporary users.
+			 *
+			 * @param array $denied_caps - Capabilities to deny.
+			 * @param int   $user_id - ID of the temporary user.
+			 *
+			 * @since 2.4.4
+			 */
+			$denied_caps = (array) \apply_filters( 'mls_temporary_user_denied_caps', $denied_caps, $user_id );
+
+			if ( in_array( $cap, $denied_caps, true ) ) {
+				return array( 'do_not_allow' );
+			}
+
+			foreach ( (array) $caps as $required_cap ) {
+				if ( in_array( $required_cap, $denied_caps, true ) ) {
+					return array( 'do_not_allow' );
+				}
+			}
+
+			return $caps;
+		}
+
+		/**
+		 * Disables Application Passwords for temporary users.
+		 *
+		 * This also stops Application Passwords created earlier from authenticating.
+		 *
+		 * @param bool     $available - Whether Application Passwords are available.
+		 * @param \WP_User $user - The user being checked.
+		 *
+		 * @return bool $available - False for temporary users.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function disable_application_passwords( $available, $user ) {
+			if ( self::is_valid_temp_user( $user ) ) {
+				return false;
+			}
+
+			return $available;
+		}
+
+		/**
+		 * Refuses username and password logins for temporary users.
+		 *
+		 * Temporary users log in with their login link only, which does not use this check.
+		 *
+		 * @param \WP_User|\WP_Error $user - The user trying to log in, or an error.
+		 *
+		 * @return \WP_User|\WP_Error $user - The user, or an error for temporary users.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function block_password_login( $user ) {
+			if ( ! $user instanceof \WP_User ) {
+				return $user;
+			}
+
+			if ( ! self::is_valid_temp_user( $user ) ) {
+				return $user;
+			}
+
+			return new \WP_Error(
+				'mls_temporary_login_password',
+				\esc_html__( 'This is a temporary login. Please use the login link you were given.', 'melapress-login-security' )
+			);
+		}
+
+		/**
 		 * Integration helper for WP 2FA plugins.
 		 *
 		 * Adds filters that short-circuit 2FA requirement when a temporary user has the
@@ -1580,6 +1901,23 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 		}
 
 		/**
+		 * Checks if the current user is a temporary user.
+		 *
+		 * @return bool $is_temporary - True if the current user is a temporary user.
+		 *
+		 * @since 2.4.4
+		 */
+		public static function is_current_user_temporary(): bool {
+			$user_id = \get_current_user_id();
+
+			if ( empty( $user_id ) ) {
+				return false;
+			}
+
+			return (bool) \get_user_meta( $user_id, self::TEMP_USER_META_KEY, true );
+		}
+
+		/**
 		 * Get valid temporary user based on token
 		 *
 		 * @param string $token - Token to lookup.
@@ -1817,7 +2155,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 		 * @since 2.1.0
 		 */
 		public static function get_blocked_pages() {
-			$blocked_pages = array( 'user-new.php', 'user-edit.php', 'profile.php' );
+			$blocked_pages = array( 'user-new.php', 'user-edit.php', 'profile.php', 'mls-temporary-logins' );
 			$blocked_pages = apply_filters( 'mls_restricted_pages_for_temporary_users', $blocked_pages );
 
 			return $blocked_pages;
@@ -1910,7 +2248,6 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 			}
 
 			$data        = array();
-			$mls         = melapress_login_security();
 			$is_internal = ( isset( $post_array['form_data'] ) && $email ) ? true : false;
 
 			// Check if is internal request.
@@ -1933,7 +2270,7 @@ if ( ! class_exists( '\MLS\TemporaryLogins\Temporary_Logins' ) ) {
 			$args    = array( 'temporary_login_link' => '<a href="' . esc_url( $link ) . '">' . esc_html__( 'by clicking here', 'melapress-login-security' ) . '</a>' );
 			$message = \MLS\EmailAndMessageStrings::replace_email_strings( $message, $email_user_id, $args );
 
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
+			$from_email = Emailer::get_from_email();
 
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;

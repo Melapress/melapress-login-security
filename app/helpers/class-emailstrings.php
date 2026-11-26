@@ -232,9 +232,8 @@ if ( ! class_exists( '\MLS\EmailAndMessageStrings' ) ) {
 		 */
 		public static function replace_email_strings( $input = '', $user_id = 0, $args = array() ) {
 
-			$mls        = melapress_login_security();
 			$user       = get_userdata( $user_id );
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
+			$from_email = Emailer::get_from_email();
 
 			if ( ! is_a( $user, '\WP_User' ) ) {
 				// These are the strings we are going to search for, as well as there respective replacements.

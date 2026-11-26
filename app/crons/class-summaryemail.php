@@ -157,11 +157,8 @@ if ( ! class_exists( '\MLS\Crons\SummaryEmail' ) ) {
 				}
 			}
 
-			// Access plugin instance.
-			$mls = melapress_login_security();
-
 			// Setup the basics.
-			$from_email = $mls->options->mls_setting->from_email ? $mls->options->mls_setting->from_email : Emailer::get_default_email_address();
+			$from_email = Emailer::get_from_email();
 			$from_email = sanitize_email( $from_email );
 			$headers[]  = 'From: ' . $from_email;
 			$headers[]  = 'Content-Type: text/html; charset=UTF-8';

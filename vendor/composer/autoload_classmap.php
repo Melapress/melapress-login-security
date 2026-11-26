@@ -50,6 +50,7 @@ return array(
     'MLS\\Password_History' => $baseDir . '/app/helpers/class-password-history.php',
     'MLS\\Pointer' => $baseDir . '/app/helpers/class-pointer.php',
     'MLS\\Require_Current_Password' => $baseDir . '/app/enforcers/class-require-current-password.php',
+    'MLS\\Reset_Key_Store' => $baseDir . '/app/helpers/class-reset-key-store.php',
     'MLS\\Reset_Passwords' => $baseDir . '/app/enforcers/class-reset-passwords.php',
     'MLS\\Reset_User_PW_Process' => $baseDir . '/app/enforcers/class-wp-reset-bg-process.php',
     'MLS\\Rest_User_Guard' => $baseDir . '/app/enforcers/class-rest-user-guard.php',

@@ -260,6 +260,9 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 			}
 
 			\add_action( 'init', array( Temporary_Logins::class, 'manage_temporary_logins' ) );
+
+			// The login link works without a valid licence, so its restrictions must too.
+			Temporary_Logins::register_guards();
 			\add_filter( 'mls_login_redirect', array( Temporary_Logins::class, 'redirect_after_login' ), 10, 2 );
 		}
 
@@ -386,6 +389,13 @@ if ( ! class_exists( 'MLS_Core' ) ) {
 		public function init() {
 
 			$mls = \melapress_login_security();
+
+			/*
+			 * A plugin setting, so it applies whatever policy the request loads. It is
+			 * registered before the policy loads, so the reset cookie lookup in
+			 * MLS_Options::init() and the reset itself use the same key lifetime.
+			 */
+			\MLS\Reset_Passwords::hook_reset_key_expiry();
 
 			$this->options->init();
 
